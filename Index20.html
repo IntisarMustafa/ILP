@@ -13483,18 +13483,7 @@ createVilla(0,-350);
 	                        // snap to floor exactly
 	                        p.y = floorY;
 	
-	                        // If using new jumpData system
-	                        if (window.jumpData) {
-	                            window.jumpData.vVel = 0;
-	                            window.jumpData.isJumping = false;
-	                            window.jumpData.jumpCount = 0;
-	                            if (window.jumpData.hVel) {
-	                                window.jumpData.hVel.x *= 0.15;
-	                                window.jumpData.hVel.z *= 0.15;
-	                            } else {
-	                                window.jumpData.hVel = { x: 0, z: 0 };
-	                            }
-	                        }
+	                        
 	
 	                        // Support older/alternate variables found in the file
 	                        try {
