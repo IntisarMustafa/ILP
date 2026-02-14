@@ -2401,7 +2401,7 @@ let maxSpeed = 0.8;         // السرعة القصوى
                     if (playerBottom > targetHeight) {
                         // اللاعب فوق سطح التلة قليلاً - لا نعيق القفز
                         if (!isJumping) {
-                            velocity.y -= gravity * 2.5;
+                            velocity.y -= gravity * 2.2;
                         }
                     } else {
                         // اللاعب على أو تحت سطح التلة
@@ -2777,7 +2777,7 @@ let maxSpeed = 0.8;         // السرعة القصوى
                 isOnGround = false;
                 isOnAnySurface = false;
                 // زيادة قوة القفز الابتدائية لتتناسب مع الجاذبية الأعلى وتكون أكثر خفة
-                const jumpPowerMultiplier = 1.4; 
+                const jumpPowerMultiplier = 1.7; 
                 jumpVelocity = jumpPower * jumpPowerMultiplier;
                 
                 // تأثير بصري للقفز
