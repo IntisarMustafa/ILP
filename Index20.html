@@ -2562,54 +2562,60 @@ let maxSpeed = 0.8;         // السرعة القصوى
         }
 
         function updateJumpAndGravity() {
-            if (isJumping) {
-                // نظام قفز تربيعي وأكثر خفة على اليابسة
-                // القفزة التربيعية تعني أن السرعة تتناقص بشكل خطي مما ينتج مساراً مكافئاً (parabolic)
-                // لجعلها أكثر خفة، سنزيد قوة القفز قليلاً ونزيد الجاذبية لسرعة الهبوط
-                player.position.y += jumpVelocity;
-                jumpVelocity -= gravity * 1.5; // زيادة الجاذبية أثناء القفز ليكون أكثر خفة (Snappy)
+    if (isJumping) {
+        // 1. تقليل السرعة الأفقية أثناء الطيران (تقصير طول القفزة)
+        // ضرب السرعة في 0.95 في كل إطار يجعل القفزة تنكمش أفقياً
+        velocity.x *= 0.95;
+        velocity.z *= 0.95;
+
+        // 2. تطبيق الجاذبية (مع زيادة القوة فوق النهر)
+        let currentGravity = gravity * 1.5;
+        
+        // --- إضافة جاذبية النعر (النهر) ---
+        // إذا كان اللاعب بعيداً عن المركز (منطقة النهر) نزيد الجاذبية لسحبه للأسفل
+        const distFromCenter = Math.sqrt(player.position.x**2 + player.position.z**2);
+        if (distFromCenter > 50 && distFromCenter < 150) { 
+            currentGravity *= 2.5; // جاذبية مضاعفة فوق الماء لقتل القفزة
+        }
+
+        player.position.y += jumpVelocity;
+        jumpVelocity -= currentGravity; 
+        
+        if (jumpVelocity < 0) {
+            isOnGround = false;
+            isOnAnySurface = false;
+        }
+        
+        // 3. التحقق من الاصطدام (نفس كودك مع تحسين)
+        if (jumpVelocity <= 0.1) {
+            for (const hill of hills) {
+                const hillPos = hill.position;
+                const hillData = hill.userData;
+                const distanceToHillCenter = Math.sqrt(
+                    Math.pow(player.position.x - hillPos.x, 2) + 
+                    Math.pow(player.position.z - hillPos.z, 2)
+                );
                 
-                // إذا أصبح اللاعب يهبط، تحقق من أنه لم يعد على سطح
-                if (jumpVelocity < 0) {
-                    isOnGround = false;
-                    isOnAnySurface = false;
-                }
-                
-                // التحقق من الاصطدام بالتلال أثناء القفز
-                if (jumpVelocity <= 0.1) { // السماح بقفز أعلى قليلاً
-                    for (const hill of hills) {
-                        const hillPos = hill.position;
-                        const hillData = hill.userData;
-                        const distanceToHillCenter = Math.sqrt(
-                            Math.pow(player.position.x - hillPos.x, 2) + 
-                            Math.pow(player.position.z - hillPos.z, 2)
-                        );
-                        
-                        if (distanceToHillCenter < hillData.radius) {
-                            const normalizedDistance = distanceToHillCenter / hillData.radius;
-                            
-                            // حساب الارتفاع بناءً على نوع السطح
-                            let hillSurfaceHeight;
-                            if (hillData.isBoxTop || hillData.isPlatform) {
-                                hillSurfaceHeight = hillData.topY;
-                            } else {
-                                hillSurfaceHeight = hillData.height * (1 - normalizedDistance);
-                            }
-                            
-                            if (player.position.y <= hillSurfaceHeight + 0.5 || (jumpVelocity < 0 && player.position.y < hillSurfaceHeight + 1.0)) { 
-                                player.position.y = hillSurfaceHeight;
-                                isJumping = false;
-                                jumpVelocity = 0;
-                                isOnGround = true;
-                                isOnAnySurface = true;
-                                // FIX: Reset horizontal velocity to prevent sliding
-                                velocity.x = 0;
-                                velocity.z = 0;
-                                // return; // Removed to allow other collision checks to run
-                            }
-                        }
+                if (distanceToHillCenter < hillData.radius) {
+                    const normalizedDistance = distanceToHillCenter / hillData.radius;
+                    let hillSurfaceHeight = (hillData.isBoxTop || hillData.isPlatform) ? 
+                                            hillData.topY : hillData.height * (1 - normalizedDistance);
+                    
+                    if (player.position.y <= hillSurfaceHeight + 0.5) { 
+                        player.position.y = hillSurfaceHeight;
+                        isJumping = false;
+                        jumpVelocity = 0;
+                        isOnGround = true;
+                        isOnAnySurface = true;
+                        velocity.x = 0;
+                        velocity.z = 0;
                     }
                 }
+            }
+        }
+    }
+}
+
                 
                 // التحقق من الاصطدام بجدران الفيلا أثناء القفز
                 if (typeof walls !== "undefined") {
