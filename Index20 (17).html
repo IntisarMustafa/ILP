@@ -2401,7 +2401,7 @@ let maxSpeed = 0.8;         // السرعة القصوى
                     if (playerBottom > targetHeight) {
                         // اللاعب فوق سطح التلة قليلاً - لا نعيق القفز
                         if (!isJumping) {
-                            velocity.y -= gravity * 1.2;
+                            velocity.y -= gravity * 2.5;
                         }
                     } else {
                         // اللاعب على أو تحت سطح التلة
@@ -2485,7 +2485,7 @@ let maxSpeed = 0.8;         // السرعة القصوى
                     } else {
                         // في منطقة الوادي الخارجية - ارتفاع تدريجي
                         const normalizedDistance = (distanceToHillCenter - riverOuterRadius) / (valleyRadius - riverOuterRadius);
-                        const groundHeight = Math.max(0, normalizedDistance * 2);
+                        const groundHeight = Math.max(0, normalizedDistance *0.95);
                         
                         if (newPosition.y <= groundHeight + 0.5) {
                             newPosition.y = groundHeight;
@@ -2567,7 +2567,7 @@ let maxSpeed = 0.8;         // السرعة القصوى
                 // القفزة التربيعية تعني أن السرعة تتناقص بشكل خطي مما ينتج مساراً مكافئاً (parabolic)
                 // لجعلها أكثر خفة، سنزيد قوة القفز قليلاً ونزيد الجاذبية لسرعة الهبوط
                 player.position.y += jumpVelocity;
-                jumpVelocity -= gravity * 1.5; // زيادة الجاذبية أثناء القفز ليكون أكثر خفة (Snappy)
+                jumpVelocity -= gravity * 3.5; // زيادة الجاذبية أثناء القفز ليكون أكثر خفة (Snappy)
                 
                 // إذا أصبح اللاعب يهبط، تحقق من أنه لم يعد على سطح
                 if (jumpVelocity < 0) {
