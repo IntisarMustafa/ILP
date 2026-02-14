@@ -2485,7 +2485,7 @@ let maxSpeed = 0.8;         // السرعة القصوى
                     } else {
                         // في منطقة الوادي الخارجية - ارتفاع تدريجي
                         const normalizedDistance = (distanceToHillCenter - riverOuterRadius) / (valleyRadius - riverOuterRadius);
-                        const groundHeight = Math.max(0, normalizedDistance *0.95);
+                        const groundHeight = Math.max(0, normalizedDistance *1.1);
                         
                         if (newPosition.y <= groundHeight + 0.5) {
                             newPosition.y = groundHeight;
