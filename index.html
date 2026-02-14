@@ -13493,22 +13493,7 @@ createVilla(0,-350);
 	                                window.jumpData.hVel.z *= 0.25;
 	                            } else {
 	                                window.jumpData.hVel = { x: 0, z: 0 };
-	                            }
-	                        }
-	
-	                        // Support older/alternate variables found in the file
-	                        try {
-	                            if (typeof isJumping !== 'undefined') isJumping = false;
-	                            if (typeof jumpVelocity !== 'undefined') jumpVelocity = 0;
-	                            if (typeof isOnGround !== 'undefined') isOnGround = true;
-	                            if (typeof isOnAnySurface !== 'undefined') isOnAnySurface = true;
-	                        } catch(e){}
-	
-	                        // small safety: break after first match to avoid overriding with other floors
-	                        return;
-	                    }
-	                }
-	            }
+
 	        }
 
         // Run the clamp every animation frame for smoothness and reliability
@@ -13563,71 +13548,6 @@ createVilla(0,-350);
 	
 	            const p = player.position;
 	            
-	            // --- عزل نظام البيت: التحقق من المسافة ---
-	            const villaCenterX = 0;
-	            const villaCenterZ = -350;
-	            const villaRadius = 80;
-	            const distToVilla = Math.sqrt(Math.pow(p.x - villaCenterX, 2) + Math.pow(p.z - villaCenterZ, 2));
-	            if (distToVilla > villaRadius) return;
-	
-	            let bestFloor = null;
-	
-	            for (let i = 0; i < window.floorColliders.length; i++) {
-                const fc = window.floorColliders[i];
-                const min = fc.box.min;
-                const max = fc.box.max;
-
-		                if (
-		                    p.x >= min.x && p.x <= max.x &&
-		                    p.z >= min.z && p.z <= max.z
-		                ) {
-		                    // Only consider floors that the player is currently above or falling onto
-		                    // This prevents "snapping up" to a floor that is above the player's head
-		                    if (p.y >= fc.height - 0.5) {
-		                        if (!bestFloor || fc.height > bestFloor.height) {
-		                            bestFloor = fc;
-		                        }
-		                    }
-		                }
-            }
-
-            if (bestFloor) {
-                const epsilon = 0.35;
-
-                // تحديد منطقة النهر (يمكنك تعديل القيم حسب خريطتك)
-                const isOverRiver = (p.z > 150 && p.z < 350);
-
-                if (p.y <= bestFloor.height + epsilon) {
-
-                    // إذا كان فوق النهر وقاع منخفض، لا نثبته (دعه يسقط)
-                    if (isOverRiver && bestFloor.height < 5) {
-                        // لا نفعل شيئاً - الجاذبية ستكمل السقوط
-                    } else {
-                        p.y = bestFloor.height;
-
-                        if (window.jumpData) {
-                            window.jumpData.vVel = 0;
-                            window.jumpData.isJumping = false;
-                            window.jumpData.jumpCount = 0;
-                        }
-
-                        try {
-                            if (typeof isJumping !== 'undefined') isJumping = false;
-                            if (typeof jumpVelocity !== 'undefined') jumpVelocity = 0;
-                            if (typeof isOnGround !== 'undefined') isOnGround = true;
-                        } catch(e){}
-                    }
-                }
-            }
-        };
-
-    }, 400);
-
-})();
-</script>
-<!-- ===== END FLOOR 2 IMPROVEMENT PATCH ===== -->
-
-
 
 
 </body>
