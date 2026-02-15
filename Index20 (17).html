@@ -12833,27 +12833,13 @@ function initLevel6() {
     const dragon = window.dragonBoss;
     dragon.position.set(0, 15, -100); // تعديل الموقع ليناسب الحجم الجديد والحركة
 
-    // تفتيح لون التنين وإضافة إضاءة كاشفة
-    dragon.traverse((child) => {
-        if (child.isMesh) {
-            child.castShadow = true;
-            if (child.material) {
-                child.material.emissive = child.material.emissive || new THREE.Color(0x000000);
-                child.material.emissiveIntensity = 0.05; // خفض شدة التوهج الداخلي للتنين أكثر لزيادة وضوح المنصات
-            }
-        }
-    });
-    
-    const spotLight = new THREE.SpotLight(0xffaa00, 0.5); // زيادة طفيفة مع تغيير اللون ليكون أكثر دفئاً
-    spotLight.position.set(0, 50, 0);
-    spotLight.angle = Math.PI / 4;
-    spotLight.penumbra = 0.3;
-    spotLight.target = dragon;
-    dragon.add(spotLight);
-
-    // إضافة إضاءة محيطة خافتة للمستوى السادس لضمان رؤية المنصات
-    const level6Ambient = new THREE.AmbientLight(0x404040, 0.5);
-    scene.add(level6Ambient);
+    // تعديل لون التنين إلى بني فاتح طبيعي
+dragon.traverse((child) => {
+    if (child.isMesh && child.material) {
+        child.material.color.set(0xc68642);
+        child.castShadow = true;
+    }
+});
 
     dragon.userData = {
         isBoss: true,
