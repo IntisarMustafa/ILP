@@ -9834,56 +9834,123 @@ const finalScore = document.getElementById("finalScore");
             updateJoystickPosition(clientX, clientY);
         }
 function restartGame() {
-            // تنظيف النسور
-            eagles.forEach((eagle) => scene.remove(eagle));
-            eagles.length = 0;
-            
-            // تنظيف النسور الخاطفة
-            snatchingEagles.forEach((eagle) => scene.remove(eagle));
-            snatchingEagles.length = 0;
+    console.log("🔄 تنظيف شامل وإعادة تشغيل اللعبة...");
 
-            wolves.forEach((wolf) => scene.remove(wolf));
-            wolves.length = 0;
+    // 1. تنظيف النسور والوحوش والمقذوفات
+    eagles.forEach((eagle) => scene.remove(eagle));
+    eagles.length = 0;
+    
+    snatchingEagles.forEach((eagle) => scene.remove(eagle));
+    snatchingEagles.length = 0;
 
-            wolfProjectiles.forEach((p) => scene.remove(p));
-            wolfProjectiles.length = 0;
+    wolves.forEach((wolf) => scene.remove(wolf));
+    wolves.length = 0;
 
-            effects.forEach((effect) => {
-                effect.particles.forEach((particle) => {
-                    scene.remove(particle);
-                });
-            });
-            effects.length = 0;
+    wolfProjectiles.forEach((p) => scene.remove(p));
+    wolfProjectiles.length = 0;
 
-            coins.forEach((coin) => scene.remove(coin));
-            coins.length = 0;
+    // 2. تنظيف التأثيرات والجزيئات
+    effects.forEach((effect) => {
+        if (effect.particles) {
+            effect.particles.forEach((particle) => scene.remove(particle));
+        }
+    });
+    effects.length = 0;
 
-            sheeps.forEach((sheep) => scene.remove(sheep));
-            sheeps.length = 0;
+    // 3. تنظيف العملات، الخراف، الصناديق، والمنصات
+    coins.forEach((coin) => scene.remove(coin));
+    coins.length = 0;
 
-            treasureBoxes.forEach((box) => scene.remove(box));
-            treasureBoxes.length = 0;
+    sheeps.forEach((sheep) => scene.remove(sheep));
+    sheeps.length = 0;
 
-            bombBoxes.forEach((box) => scene.remove(box));
-            bombBoxes.length = 0;
+    treasureBoxes.forEach((box) => scene.remove(box));
+    treasureBoxes.length = 0;
 
-            platforms.forEach((platform) => scene.remove(platform));
-            platforms.length = 0;
-            if (window.giantBoxes) window.giantBoxes.length = 0;
+    bombBoxes.forEach((box) => scene.remove(box));
+    bombBoxes.length = 0;
 
-            mountains.forEach((mountain) => scene.remove(mountain));
-            mountains.length = 0;
+    platforms.forEach((platform) => scene.remove(platform));
+    platforms.length = 0;
+    if (window.giantBoxes) window.giantBoxes.length = 0;
 
-            // تنظيف النحلات العامة
-            bees.forEach((bee) => scene.remove(bee));
-            bees.length = 0;
+    mountains.forEach((mountain) => scene.remove(mountain));
+    mountains.length = 0;
 
-            // تنظيف النحل المرتبط بالخلايا
-            beeHives.forEach(hive => {
-                if (hive.userData.bees) {
-                    hive.userData.bees.forEach(bee => scene.remove(bee));
-                    hive.userData.bees.length = 0;
-                }
+    // 4. تنظيف النحل وخلايا النحل (الجزء الذي بدأته أنت)
+    bees.forEach((bee) => scene.remove(bee));
+    bees.length = 0;
+
+    beeHives.forEach(hive => {
+        if (hive.userData && hive.userData.bees) {
+            hive.userData.bees.forEach(bee => scene.remove(bee));
+            hive.userData.bees.length = 0;
+        }
+        scene.remove(hive); // إزالة الخلية نفسها أيضاً
+    });
+    beeHives.length = 0;
+
+    // 5. تنظيف التماسيح والتلال وأي عناصر متبقية
+    crocodiles.forEach((c) => scene.remove(c));
+    crocodiles.length = 0;
+    hills.forEach((h) => scene.remove(h));
+    hills.length = 0;
+    if (typeof beeStings !== 'undefined') {
+        beeStings.forEach((s) => scene.remove(s));
+        beeStings.length = 0;
+    }
+
+    // ==========================================
+    // 6. 🔥 إضافات المستوى 6 (التنين والواجهة) 🔥
+    // ==========================================
+    if (window.dragonBoss) {
+        scene.remove(window.dragonBoss);
+        window.dragonBoss = null;
+    }
+    window.dragonActive = false; // إيقاف منطق التنين
+
+    // إزالة أشرطة صحة التنين من الشاشة
+    const bossHud = document.getElementById('boss-hud');
+    if (bossHud) bossHud.remove();
+    const dragonHealthContainer = document.getElementById('dragon-health-container');
+    if (dragonHealthContainer) dragonHealthContainer.remove();
+
+    // إعادة شريط صحة اللاعب لمكانه الطبيعي
+    const playerHealthUI = document.getElementById('healthIndicator');
+    if (playerHealthUI) {
+        playerHealthUI.style.top = '20px';
+        playerHealthUI.style.display = 'block';
+    }
+
+    // 7. إعادة تعيين المتغيرات الأساسية
+    score = 0;
+    coinsCollected = 0;
+    sheepCollected = 0;
+    bombs = 0;
+    level = 1; // العودة للمستوى الأول لضمان التنظيف
+    round = 1;
+    playerHealth = 100;
+    gameOver = false;
+    isGameFrozen = false;
+    gameStarted = true;
+
+    // 8. إعادة اللاعب والكاميرا لنقطة البداية
+    player.position.set(-250, 25, -250);
+    player.rotation.set(0, 0, 0);
+    camera.position.set(-240, 30, -240);
+    if (typeof velocity !== 'undefined') velocity.set(0, 0, 0);
+
+    // 9. تحديث الواجهة وبدء العالم من جديد
+    updateUI();
+    const gameOverPanel = document.getElementById("gameOverPanel");
+    if (gameOverPanel) gameOverPanel.style.display = "none";
+
+    // استدعاء دوال البناء
+    if (typeof spawnPlatforms === 'function') spawnPlatforms();
+    if (typeof spawnNewSheeps === 'function') spawnNewSheeps();
+    if (typeof spawnWavesForRound === 'function') spawnWavesForRound();
+}
+
             });
 
             beeStings.forEach((sting) => scene.remove(sting));
