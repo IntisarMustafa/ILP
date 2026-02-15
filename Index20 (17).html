@@ -4514,7 +4514,7 @@ function spawnOasisWithCrocodiles(x, z, baseCrocCount) {
                 
                 // تحسين الأداء: تحديث النسور الخاطفة القريبة فقط
                 const distToPlayer = eaglePos.distanceTo(playerPos);
-                if (distToPlayer > 250 && !eagleData.isSnatching) return;
+                if (distToPlayer > 400 && !eagleData.isSnatching) return;
                 
                 // تحريك الأجنحة
                 eagleData.wingFlapAngle += eagleData.wingFlapSpeed;
