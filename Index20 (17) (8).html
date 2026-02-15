@@ -12835,16 +12835,21 @@ function initLevel6() {
 
     // تفتيح لون التنين وإضافة إضاءة كاشفة
     // تعديل لون التنين إلى بني فاتح طبيعي بدون التأثير على الإضاءة أو المنصات
+// تعديل لون التنين إلى بني فاتح طبيعي مع ضبط الخامة
 dragon.traverse((child) => {
     if (child.isMesh && child.material) {
 
-        // نسخ المادة لكل جزء من التنين فقط
-        child.material = child.material.clone(); 
+        // نسخ المادة لمنع التأثير على مواد أخرى
+        child.material = child.material.clone();
 
-        // ضبط اللون للبني الفاتح الطبيعي
-        child.material.color.set(0xc68642);  
+        // ضبط اللون
+        child.material.color.set(0xc68642); // بني فاتح طبيعي
 
-        // السماح للظل على التنين
+        // ضبط الخامة لتبدو فاتحة وطبيعية
+        child.material.metalness = 0.1;   // قلل لمعان المعدن
+        child.material.roughness = 0.7;   // زيادة الخشونة لتقليل الانعكاسات الداكنة
+
+        // السماح للظل
         child.castShadow = true;
     }
 });
