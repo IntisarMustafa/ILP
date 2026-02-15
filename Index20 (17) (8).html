@@ -9891,7 +9891,58 @@ const finalScore = document.getElementById("finalScore");
             createClimbingHill(-50, -50, 15);
         }
 
-        
+        function restartGame() {
+            // تنظيف النسور
+            eagles.forEach((eagle) => scene.remove(eagle));
+            eagles.length = 0;
+            
+            // تنظيف النسور الخاطفة
+            snatchingEagles.forEach((eagle) => scene.remove(eagle));
+            snatchingEagles.length = 0;
+
+            wolves.forEach((wolf) => scene.remove(wolf));
+            wolves.length = 0;
+
+            wolfProjectiles.forEach((p) => scene.remove(p));
+            wolfProjectiles.length = 0;
+
+            effects.forEach((effect) => {
+                effect.particles.forEach((particle) => {
+                    scene.remove(particle);
+                });
+            });
+            effects.length = 0;
+
+            coins.forEach((coin) => scene.remove(coin));
+            coins.length = 0;
+
+            sheeps.forEach((sheep) => scene.remove(sheep));
+            sheeps.length = 0;
+
+            treasureBoxes.forEach((box) => scene.remove(box));
+            treasureBoxes.length = 0;
+
+            bombBoxes.forEach((box) => scene.remove(box));
+            bombBoxes.length = 0;
+
+            platforms.forEach((platform) => scene.remove(platform));
+            platforms.length = 0;
+            if (window.giantBoxes) window.giantBoxes.length = 0;
+
+            mountains.forEach((mountain) => scene.remove(mountain));
+            mountains.length = 0;
+
+            // تنظيف النحلات العامة
+            bees.forEach((bee) => scene.remove(bee));
+            bees.length = 0;
+
+            // تنظيف النحل المرتبط بالخلايا
+            beeHives.forEach(hive => {
+                if (hive.userData.bees) {
+                    hive.userData.bees.forEach(bee => scene.remove(bee));
+                    hive.userData.bees.length = 0;
+                }
+            });
 
         function updateJoystickPosition(clientX, clientY) {
             const deltaX = clientX - joystickCenterX;
