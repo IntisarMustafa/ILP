@@ -13401,6 +13401,54 @@ stairSteps.push({
     zMax: landingZ + landingDepth,
     height: FLOOR_H
 });
+// =========================
+// أرضية الطابق الثاني بالكامل
+// =========================
+
+// الممر الرئيسي الخارج من الدرج
+stairSteps.push({
+    xMin: -10,
+    xMax: 10,
+    zMin: landingZ + landingDepth,
+    zMax: landingZ + landingDepth + 30,
+    height: FLOOR_H
+});
+
+// الغرفة اليمنى
+stairSteps.push({
+    xMin: 10,
+    xMax: 35,
+    zMin: landingZ + 10,
+    zMax: landingZ + 45,
+    height: FLOOR_H
+});
+
+// الغرفة اليسرى
+stairSteps.push({
+    xMin: -35,
+    xMax: -10,
+    zMin: landingZ + 10,
+    zMax: landingZ + 45,
+    height: FLOOR_H
+});
+
+// ممر أمامي
+stairSteps.push({
+    xMin: -35,
+    xMax: 35,
+    zMin: landingZ + 45,
+    zMax: landingZ + 60,
+    height: FLOOR_H
+});
+
+// منطقة خلف الدرج (لمنع السقوط)
+stairSteps.push({
+    xMin: stairX - 20,
+    xMax: stairX + 20,
+    zMin: landingZ - 20,
+    zMax: landingZ,
+    height: FLOOR_H
+});
 
 }
 
