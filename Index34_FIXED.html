@@ -7313,7 +7313,7 @@ const finalScore = document.getElementById("finalScore");
                         ];
                         const s = shapes[Math.floor(Math.random()*shapes.length)];
                         const q = `ما ترتيب التناظر الدوراني للشكل ${s.name} (كم مرة يتطابق أثناء الدوران 360°)؟`;
-unit: "الأعداد النسبية",
+						{unit: "الأعداد النسبية",
                 create: () => {
                     const val = Math.floor(Math.random() * 100) - 50;
                     const absVal = Math.abs(val);
@@ -7793,7 +7793,7 @@ unit: "الأعداد النسبية",
 
             ,
 			// 7. علاقات الزوايا (متجاورة - متحالفة - متبادلة - متناظرة) مع SVG
-{
+
 // 7. علاقات الزوايا (متجاورة - متحالفة - متبادلة - متناظرة) مع SVG دقيق هندسياً
 {
     unit: "علاقات الزوايا",
