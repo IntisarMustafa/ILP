@@ -7206,7 +7206,324 @@ const finalScore = document.getElementById("finalScore");
                     }
                 }
             },
+								   { unit: "الأعداد النسبية",
+                create: () => {
+                    const val = Math.floor(Math.random() * 100) - 50;
+                    const absVal = Math.abs(val);
+                    return { 
+                        q: `ما هي قيمة المقدار: $|${val}|$؟`, 
+                        ans: absVal, 
+                        subTopic: "القيمة المطلقة",
+                        wrong: [
+                            -absVal, 
+                            Math.floor(Math.random() * 50) + 1, 
+                            Math.floor(Math.random() * 50) + 1
+                        ] 
+                    };
+                }
+            },
+            {
+                unit: "الأعداد النسبية",
+                create: () => {
+                    const nums = [
+                        {n:1, d:3, t:"دوري"}, {n:2, d:5, t:"منتهي"}, 
+                        {n:4, d:9, t:"دوري"}, {n:7, d:8, t:"منتهي"},
+                        {n:3, d:7, t:"دوري"}, {n:5, d:4, t:"منتهي"},
+                        {n:1, d:6, t:"دوري"}, {n:3, d:10, t:"منتهي"}
+                    ];
+                    const pick = nums[Math.floor(Math.random()*nums.length)];
+                    return { 
+                        q: `الكسر العشري الناتج عن تحويل $\\frac{${pick.n}}{${pick.d}}$ هو كسر:`, 
+                        ans: pick.t, 
+                        subTopic: "الكسور العشرية",
+                        wrong: pick.t === "دوري" ? ["منتهي", "صحيح", "غير نسبي"] : ["دوري", "غير منتهي", "دائري"]
+                    };
+                }
+            },
+            {
+                unit: "الأسس والجذور",
+                create: () => {
+                    const base = Math.floor(Math.random() * 8) + 2;
+                    const p = Math.floor(Math.random() * 4) + 2;
+                    const result = Math.pow(base, p);
+                    return { 
+                        q: `أوجد قيمة القوة التالية: $${base}^{${p}}$`, 
+                        ans: result, 
+                        subTopic: "حساب القوى",
+                        wrong: [
+                            base * p, 
+                            Math.pow(p, base), 
+                            result + Math.floor(Math.random() * 20) + 5
+                        ] 
+                    };
+                }
+            },
+            {
+                unit: "الأسس والجذور",
+                create: () => {
+                    const bases = [4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169];
+                    const base = bases[Math.floor(Math.random() * bases.length)];
+                    const result = Math.sqrt(base);
+                    return { 
+                        q: `أوجد قيمة $\\sqrt{${base}}$`, 
+                        ans: result, 
+                        subTopic: "الجذور التربيعية",
+                        wrong: [
+                            result + Math.floor(Math.random() * 5) + 1,
+                            result - Math.floor(Math.random() * 5) - 1,
+                            base / 2
+                        ] 
+                    };
+                }
+            },
+            {
+                unit: "التناسب",
+                create: () => {
+                    const kValues = [6, 12, 18, 24, 30];
+                    const k = kValues[Math.floor(Math.random() * kValues.length)];
+                    const xValues = [1, 2, 3, 4, 5, 6];
+                    const x = xValues[Math.floor(Math.random() * xValues.length)];
+                    const y = k / x;
+                    return { 
+                        q: `إذا كانت العلاقة بين $x, y$ تمثل تناسباً عكسياً ثابته $k=${k}$، فما قيمة $y$ عندما $x=${x}$؟`, 
+                        ans: y, 
+                        subTopic: "التناسب العكسي",
+                        wrong: [
+                            k * x, 
+                            x, 
+                            k + x
+                        ] 
+                    };
+                }
+            },
+            {
+                unit: "التناسب",
+                create: () => {
+                    const k = Math.floor(Math.random() * 8) + 2;
+                    const x = Math.floor(Math.random() * 10) + 1;
+                    const y = k * x;
+                    return { 
+                        q: `إذا كانت $y = ${k}x$، فما قيمة $y$ عندما $x = ${x}$؟`, 
+                        ans: y, 
+                        subTopic: "التناسب الطردي",
+                        wrong: [
+                            y + Math.floor(Math.random() * 20) + 1,
+                            y - Math.floor(Math.random() * 20) - 1,
+                            x
+                        ] 
+                    };
+                }
+            },
+            {
+                unit: "التطبيقات المالية",
+                create: () => {
+                    const prices = [50, 100, 150, 200, 250];
+                    const taxRates = [5, 10, 15, 20];
+                    const price = prices[Math.floor(Math.random() * prices.length)];
+                    const taxRate = taxRates[Math.floor(Math.random() * taxRates.length)];
+                    const tax = (price * taxRate) / 100;
+                    const final = price + tax;
+                    return { 
+                        q: `سلعة سعرها $${price} JD$، إذا كانت ضريبة المبيعات $${taxRate}\\%$، فكم يصبح سعرها بعد الضريبة؟`, 
+                        ans: `${final} JD`, 
+                        subTopic: "ضريبة المبيعات",
+                        wrong: [
+                            `${price} JD`, 
+                            `${tax} JD`, 
+                            `${final + Math.floor(Math.random() * 20) + 5} JD`
+                        ] 
+                    };
+                }
+            },
+            {
+                unit: "الهندسة",
+                create: () => {
+                    const angles = [
+                        {n:3, sum:180, name:"المثلث"},
+                        {n:4, sum:360, name:"الشكل الرباعي"},
+                        {n:5, sum:540, name:"الشكل الخماسي"},
+                        {n:6, sum:720, name:"الشكل السداسي"},
+                        {n:8, sum:1080, name:"الشكل الثماني"}
+                    ];
+                    const pick = angles[Math.floor(Math.random()*angles.length)];
+                    return { 
+                        q: `ما مجموع قياسات الزوايا الداخلية لـ ${pick.name}؟`, 
+                        ans: `${pick.sum}^\\circ`, 
+                        subTopic: "زوايا المضلع",
+                        wrong: [
+                            `$${pick.sum - 180}^\\circ$`, 
+                            `$${pick.sum + 180}^\\circ$`, 
+                            `$${pick.sum / 2}^\\circ$`
+                        ] 
+                    };
+                }
+            },
+            {
+                unit: "الهندسة",
+                create: () => {
+                    const angle1 = Math.floor(Math.random() * 80) + 10;
+                    const complementary = 90 - angle1;
+                    const supplementary = 180 - angle1;
+                    const type = Math.random() > 0.5;
+                    
+                    if (type) {
+                        return {
+                            q: `إذا كانت إحدى الزاويتين المتتامتين $${angle1}^\\circ$، فما قياس الزاوية الأخرى؟`,
+                            ans: complementary,
+                            subTopic: "الزوايا المتتامة والمتكاملة",
+                            wrong: [supplementary, angle1, 180 - angle1 - 30]
+                        };
+                    } else {
+                        return {
+                            q: `إذا كانت إحدى الزاويتين المتكاملتين $${angle1}^\\circ$، فما قياس الزاوية الأخرى؟`,
+                            ans: supplementary,
+                            subTopic: "الزوايا المتتامة والمتكاملة",
+                            wrong: [complementary, angle1, 90 - angle1]
+                        };
+                    }
+                }
+            },
+                        // أسئلة الزوايا المتممة (زوايا على مستقيم واحد) - تم الإصلاح لتطابق الرسم
+            {
+                unit: "الهندسة",
+                create: () => {
+                    // نولد زاوية عشوائية
+                    const angle = Math.floor(Math.random() * 100) + 40; // زاوية بين 40 و 140
+                    const x = 180 - angle;
+
+                    // حساب إحداثيات نهاية الخط المائل بناءً على الزاوية الحقيقية
+                    // نستخدم -angle لأن نظام إحداثيات SVG المحور الصادي فيه مقلوب
+                    const radian = (angle * Math.PI) / 180;
+                    const lineLength = 80;
+                    const centerX = 140;
+                    const centerY = 120;
+
+                    const endX = centerX + lineLength * Math.cos(-radian);
+                    const endY = centerY + lineLength * Math.sin(-radian);
+
+                    const svg = `<svg width="280" height="160" viewBox="0 0 280 160" style="max-width:100%">
+                        <line x1="20" y1="120" x2="260" y2="120" stroke="#ffffff" stroke-width="3"/>
+                        <line x1="140" y1="120" x2="${endX}" y2="${endY}" stroke="#4facfe" stroke-width="3"/>
+                        <circle cx="140" cy="120" r="4" fill="#ffffff" />
+
+                        <text x="170" y="105" font-size="16" font-weight="bold" fill="#ffffff">${angle}°</text>
+                        <text x="90" y="105" font-size="18" font-weight="bold" fill="#ff4b2b">x</text>
+                    </svg>`;
+
+                    return { 
+                        q: `أوجد قيمة x في الشكل (الزاويتان على مستقيم واحد)`, 
+                        ans: `${x}^\\circ`, 
+                        subTopic: "زوايا على مستقيم",
+                        wrong: [
+                            `${angle}^\\circ`, 
+                            `90^\\circ`, 
+                            `${Math.abs(angle-20)}^\\circ`
+                        ],
+                        svg: svg
+                    };
+                }
+            },
+            // أسئلة الزوايا المتقابلة بالرأس
+            {
+                unit: "الهندسة",
+                create: () => {
+                    const angle = Math.floor(Math.random() * 60) + 30;
+                    const svg = `<svg width="280" height="160" viewBox="0 0 280 160" style="max-width:100%"><line x1="50" y1="30" x2="230" y2="130" stroke="#ffffff" stroke-width="2"/><line x1="50" y1="130" x2="230" y2="30" stroke="#ffffff" stroke-width="2"/><text x="140" y="60" font-size="16" font-weight="bold" fill="#ffffff">${angle}°</text><text x="140" y="125" font-size="18" font-weight="bold" fill="#ff4b2b">x</text></svg>`;
+                    return { 
+                        q: `أوجد قيمة x (زاويتان متقابلتان بالرأس)`, 
+                        ans: `${angle}^\\circ`, 
+                        subTopic: "التقابل بالرأس",
+                        wrong: [
+                            `${180-angle}^\\circ`, 
+                            `90^\\circ`, 
+                            `${angle+10}^\\circ`
+                        ],
+                        svg: svg
+                    };
+                }
+            },
+                                    // أسئلة المستقيمات المتوازية (الزوايا المتبادلة الداخلية) - تعديل مواقع النصوص
+            {
+                unit: "الهندسة",
+                create: () => {
+                    const angle = Math.floor(Math.random() * 80) + 50; // زاوية بين 50 و 130
+                    
+                    const centerX = 140;
+                    const centerY = 80;
+                    const lineLen = 110;
+                    const radian = (angle * Math.PI) / 180;
+                    
+                    // حساب إحداثيات القاطع
+                    const dx = lineLen * Math.cos(-radian); 
+                    const dy = lineLen * Math.sin(-radian);
+                    
+                    const x1 = centerX - dx; 
+                    const y1 = centerY - dy;
+                    const x2 = centerX + dx;
+                    const y2 = centerY + dy;
+
+                    const svg = `<svg width="280" height="160" viewBox="0 0 280 160" style="max-width:100%">
+                        <line x1="30" y1="40" x2="250" y2="40" stroke="#ffffff" stroke-width="2"/>
+                        <line x1="30" y1="120" x2="250" y2="120" stroke="#ffffff" stroke-width="2"/>
+                        
+                        <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ff4b2b" stroke-width="2"/>
+                        
+                        <path d="M 240 40 L 230 35 L 230 45 Z" fill="#fff"/>
+                        <path d="M 240 120 L 230 115 L 230 125 Z" fill="#fff"/>
+
+                        <text x="${centerX - 12}" y="${centerY - 20}" font-size="16" font-weight="bold" fill="#ffffff">${angle}°</text>
+                        <text x="${centerX + 28}" y="${centerY + 25}" font-size="18" font-weight="bold" fill="#ff4b2b">x</text>
+                    </svg>`;
+                    
+                    return { 
+                        q: `في الشكل مستقيمان متوازيان، ما قيمة x (تبادل داخلي)`, 
+                        ans: `${angle}^\\circ`, 
+                        subTopic: "التبادل الداخلي",
+                        wrong: [
+                            `${180-angle}^\\circ`, 
+                            `180^\\circ`, 
+                            `90^\\circ`
+                        ],
+                        svg: svg
+                    };
+                }
+            },
+            // أسئلة قوانين الأسس (ضرب القوى بنفس الأساس)
+            {
+                unit: "الأسس والجذور",
+                create: () => {
+                    const b = Math.floor(Math.random() * 5) + 2;
+                    const p1 = Math.floor(Math.random() * 4) + 2;
+                    const p2 = Math.floor(Math.random() * 4) + 2;
+                    const correct = `${b}^{${p1+p2}}`;
+                    return { 
+                        q: `بسط التعبير التالي باستخدام قوانين الأسس: $${b}^{${p1}} \\times ${b}^{${p2}}$`, 
+                        ans: correct, 
+                        subTopic: "قوانين الأسس",
+                        wrong: [
+                            `${b}^{${p1*p2}}`, 
+                            `${b*2}^{${p1+p2}}`, 
+                            `${b}^{${Math.abs(p1-p2)}}`
+                        ] 
+                    };
+                }
+            }
+        ];
+
+        function generateMathQuestion() {
+            const type = questionBank[Math.floor(Math.random() * questionBank.length)];
+            const data = type.create();
             
+            let options = [data.ans, ...data.wrong.slice(0, 3)];
+            options = options.sort(() => Math.random() - 0.5);
+            
+            const formattedOptions = options.map(opt => {
+                if (typeof opt === 'string' && /[أ-ي]/.test(opt)) {
+                    return opt;
+                } else {
+                    return `$${opt}$`;
+                }
+            });
             // 7. علاقات الزوايا (متجاورة - متحالفة - متبادلة - متناظرة) مع SVG
             {
                 unit: "علاقات الزوايا",
