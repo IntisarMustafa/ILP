@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة الطائر الجبري - منصة التحدي التفاعلية</title>
+    <title>لعبة الطائر الفهمان - منصة التعلّم التفاعلية</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
     
@@ -329,13 +329,6 @@
         .start-screen h2 { color: white; font-size: 3.5rem; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
         .start-screen p { color: #ffd700; font-size: 2.5rem; margin-bottom: 40px; animation: pulse 1.5s infinite; }
 
-        #restart-game {
-            padding: 18px 35px; font-size: 2rem; background: linear-gradient(to bottom, #e74c3c, #c0392b);
-            color: white; border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s;
-            font-weight: bold; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); border: 2px solid #fff;
-        }
-        #restart-game:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); }
-
         .instructions { position: absolute; bottom: 60px; width: 100%; text-align: center; color: white; font-size: 1.5rem; z-index: 150; }
         .jump-effect { position: absolute; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; z-index: 9; pointer-events: none; transform: scale(0); opacity: 0.5; }
         .tap-to-start-indicator { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); color: white; font-size: 1.2rem; animation: bounce 1.5s infinite; display: none; z-index: 301; }
@@ -456,7 +449,6 @@
             .game-over p { font-size: 2rem; }
             .start-screen h2 { font-size: 2.5rem; }
             .start-screen p { font-size: 1.8rem; }
-            #restart-game { font-size: 1.7rem; padding: 15px 30px; }
             .tap-to-start-indicator { display: block; }
             #question-text-flappy { font-size: 1.5rem; margin-bottom: 15px; }
             .option-btn { font-size: 1.2rem; padding: 10px 15px; }
@@ -565,12 +557,6 @@
             <div class="ground"></div>
             <div class="score-container">النتيجة: <span id="display-score">0</span></div>
             <div class="difficulty-indicator">الصعوبة: <span id="difficulty-level">سهلة</span></div>
-            
-            <div class="game-over">
-                <h2>انتهت اللعبة!</h2>
-                <p>النتيجة النهائية: <span id="final-score">0</span></p>
-                <button id="restart-game">إنهاء وإرسال النتيجة</button>
-            </div>
 
             <div class="start-screen" id="start-screen">
                 <h2>لعبة الطائر الجبري</h2>
@@ -781,7 +767,6 @@
     </form>
 
     <script>
-        // تعريف المعرف الخاص بجوجل شيت لاستخدامه في جلب الأسئلة ولوحة الشرف
         const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
         let refreshInterval;
 
@@ -817,85 +802,43 @@
         }
 
         function openMathModal(inputElement) {
-            if (!inputElement) {
-                console.error('لم يتم تحديد حقل الإدخال');
-                return;
-            }
-            
-            // تخزين الحقل المستهدف
+            if (!inputElement) return;
             targetInputField = inputElement;
-            
-            // إظهار اللوحة
             const overlay = document.getElementById('math-modal-overlay');
-            if (overlay) {
-                overlay.style.display = 'flex';
-            }
-            
-            // تصفير المحرر والتركيز عليه
+            if (overlay) overlay.style.display = 'flex';
             if (mf) {
                 mf.value = '';
-                // تأخير بسيط لضمان ظهور اللوحة قبل التركيز
-                setTimeout(() => {
-                    try {
-                        mf.focus();
-                    } catch (e) {
-                        console.error('خطأ في التركيز على محرر الرياضيات:', e);
-                    }
-                }, 200);
+                setTimeout(() => { try { mf.focus(); } catch (e) {} }, 200);
             }
         }
 
-        // === تم تصحيح ترتيب الأوامر في هذه الدالة لتجنب فقدان القيمة عند الإخفاء ===
         function closeMathModal() {
             try {
-                // 1. التأكد من وجود محرر الرياضيات
                 if (!mf) {
-                    console.error('محرر الرياضيات غير موجود');
                     const overlay = document.getElementById('math-modal-overlay');
                     if (overlay) overlay.style.display = 'none';
                     return;
                 }
-
-                // 2. استخراج القيمة أولاً قبل القيام بأي تعديلات في واجهة المستخدم
                 let mathValue = mf.value;
-                console.log('القيمة المستخرجة:', mathValue);
-                
-                // 3. إضافتها للحقل المستهدف (إن وُجدت)
                 if (targetInputField) {
                     if (mathValue && mathValue.trim() !== '') {
-                        // إضافة القيمة مع صيغة LaTeX
                         const latexValue = " $" + mathValue + "$ ";
-                        
-                        // استخدام طريقة أكثر أماناً لإضافة النص في موضع المؤشر
                         const start = targetInputField.selectionStart || targetInputField.value.length;
                         const end = targetInputField.selectionEnd || targetInputField.value.length;
                         const text = targetInputField.value;
                         targetInputField.value = text.substring(0, start) + latexValue + text.substring(end);
-                        
-                        // تحديث مكان المؤشر بعد النص المضاف
                         const newPos = start + latexValue.length;
                         targetInputField.setSelectionRange(newPos, newPos);
-
-                        // تحديث أحداث التغيير لتحديث واجهة المستخدم والتحقق من صحة البيانات
                         targetInputField.dispatchEvent(new Event('input', { bubbles: true }));
                         targetInputField.dispatchEvent(new Event('change', { bubbles: true }));
                     }
-                    // إعادة التركيز على الحقل
                     targetInputField.focus();
-                    targetInputField = null; // إعادة التعيين للاستخدام التالي
+                    targetInputField = null; 
                 }
-                
-                // 4. إخفاء اللوحة كخطوة أخيرة
                 const overlay = document.getElementById('math-modal-overlay');
-                if (overlay) {
-                    overlay.style.display = 'none';
-                }
-                
-                // 5. تفريغ محرر الرياضيات ليكون جاهزاً للمرة القادمة
+                if (overlay) overlay.style.display = 'none';
                 mf.value = '';
             } catch (error) {
-                console.error('خطأ في إغلاق محرر الرياضيات:', error);
-                // التأكد من إخفاء اللوحة حتى في حالة الخطأ
                 const overlay = document.getElementById('math-modal-overlay');
                 if (overlay) overlay.style.display = 'none';
             }
@@ -905,18 +848,15 @@
         // 2. أكواد واجهة المنصة وغرف المعلم          //
         // ========================================== //
         const bgmMusic = document.getElementById('bgmMusic');
-        bgmMusic.volume = 0.3; // خفض صوت الموسيقى قليلاً كي لا يزعج اللاعب
+        bgmMusic.volume = 0.3; 
 
         let isMuted = false;
         function toggleMute(event) { 
-            if(event) event.stopPropagation(); // يمنع النقر من تشغيل قفزة الطائر
+            if(event) event.stopPropagation();
             isMuted = !isMuted; 
             document.getElementById('mute-btn').innerText = isMuted ? "🔇" : "🔊"; 
-            if (isMuted) {
-                bgmMusic.pause();
-            } else if (gameRunning && !gamePaused) {
-                bgmMusic.play().catch(e=>{});
-            }
+            if (isMuted) bgmMusic.pause();
+            else if (gameRunning && !gamePaused) bgmMusic.play().catch(e=>{});
         }
 
         const avatars = ["🦁","🦋","🤖","🥷","👨‍🔬","👩‍🔬","🐺","🦊","🐯","🐼","🐰","🐹","🐻","🐥","🦉","🐧","🫅","👸","🦸‍♂️","🦸‍♀️","🕵️","🧙‍♂️","🧚‍♀️","🚀","🛸","⭐","🔥","⚡"];
@@ -979,11 +919,9 @@
             qBlockCount++;
         }
 
-        // تم التعديل لحفظ البيانات في الشيت واستدعاء دالة fetchLeaderboard
         function saveQuestionsToRoom() {
             const titleInput = document.getElementById('quiz-title-input');
             const quizTitle = titleInput ? titleInput.value.trim() : '';
-
             const blocks = document.querySelectorAll('.q-block');
             let customQuestions = [];
             let isValid = true;
@@ -992,15 +930,9 @@
                 const title = block.querySelector('.q-title-input').value.trim();
                 const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
                 const correctRadio = block.querySelector('input[type="radio"]:checked');
-                
                 if (!title || opts.some(opt => !opt)) isValid = false;
-                
                 if (correctRadio) {
-                    customQuestions.push({
-                        question: title,
-                        options: opts,
-                        correctAnswerIndex: parseInt(correctRadio.value)
-                    });
+                    customQuestions.push({ question: title, options: opts, correctAnswerIndex: parseInt(correctRadio.value) });
                 }
             });
 
@@ -1010,7 +942,6 @@
             }
 
             globalGameQuestions = customQuestions;
-            
             let currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
             
             document.getElementById('qform-name').value = currentRoomPIN; 
@@ -1018,15 +949,11 @@
             
             document.getElementById('saving-status').style.display = 'block';
             document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
-            
             document.getElementById('questionsForm').submit();
-
             document.getElementById('display-room-pin').innerText = currentRoomPIN;
             
             const titleDisplay = document.getElementById('teacher-room-title-display');
-            if (titleDisplay) {
-                titleDisplay.innerText = "عنوان التحدي: " + quizTitle;
-            }
+            if (titleDisplay) titleDisplay.innerText = "عنوان التحدي: " + quizTitle;
             
             const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
             document.getElementById('game-url-input').value = gameUrl;
@@ -1036,12 +963,10 @@
             qrImg.style.display = 'block';
             
             showScreen('screen-teacher');
-            
             if(window.refreshInterval) clearInterval(window.refreshInterval);
             window.refreshInterval = setInterval(() => fetchLeaderboard(currentRoomPIN), 4000);
         }
 
-        // جلب لوحة الشرف للمعلم
         async function fetchLeaderboard(pin) {
             try {
                 const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
@@ -1062,18 +987,11 @@
                 const leaderboard = document.getElementById('leaderboard');
                 if(loadingBoard) loadingBoard.style.display = players.length ? 'none' : 'block';
                 if(leaderboard) leaderboard.style.display = players.length ? 'table' : 'none';
-            } catch(e) {
-                console.error("Error fetching leaderboard", e);
-            }
+            } catch(e) {}
         }
 
-        // دالة إغلاق غرفة المعلم
-        function closeTeacherRoom() {
-            clearInterval(window.refreshInterval);
-            showScreen('screen-home');
-        }
+        function closeTeacherRoom() { clearInterval(window.refreshInterval); showScreen('screen-home'); }
 
-        // دالة نسخ الرابط
         function copyGameLink() {
             const input = document.getElementById('game-url-input');
             input.select(); document.execCommand('copy');
@@ -1084,7 +1002,6 @@
 
         function goToStudentLogin() { showScreen('screen-student-login'); }
 
-        // تم التعديل لاستدعاء الأسئلة من شيت جوجل
         async function startStudentFlow() {
             const name = document.getElementById('input-student-name').value.trim();
             const pin = document.getElementById('input-room-pin').value.trim();
@@ -1113,21 +1030,13 @@
                         }
                     }
                 }
-
-                if (foundQuestions && foundQuestions.length > 0) {
-                    globalGameQuestions = foundQuestions;
-                } else {
-                    globalGameQuestions = defaultQuestions;
-                }
+                globalGameQuestions = (foundQuestions && foundQuestions.length > 0) ? foundQuestions : defaultQuestions;
             } catch (err) {
-                console.error("خطأ في جلب الأسئلة من جوجل، سيتم استخدام الأسئلة الافتراضية", err);
                 globalGameQuestions = defaultQuestions;
             }
 
             document.getElementById('screen-loading-sheet').style.display = 'none';
-
             document.querySelector('#start-screen h2').textContent = 'لعبة الطائر الجبري';
-
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('game-container-wrapper').classList.add('active');
             
@@ -1139,10 +1048,7 @@
         // ========================================== //
         const gameContainer = document.getElementById('game-container');
         const bird = document.getElementById('bird');
-        const restartBtn = document.getElementById('restart-game');
         const scoreDisplay = document.getElementById('display-score');
-        const finalScore = document.getElementById('final-score');
-        const gameOverScreen = document.querySelector('.game-over');
         const birdWing = document.querySelector('.bird-wing');
         const startScreen = document.getElementById('start-screen');
         const difficultyLevel = document.getElementById('difficulty-level');
@@ -1179,7 +1085,6 @@
 
         function initFlappyGame() {
             startScreen.style.display = 'flex';
-            gameOverScreen.style.display = 'none';
             questionModal.style.display = 'none'; 
             birdPosition = gameContainer.offsetHeight / 2 - bird.offsetHeight / 2;
             bird.style.top = birdPosition + 'px';
@@ -1199,14 +1104,12 @@
             currentDifficultyIndex = 0;
             updateDifficulty();
 
-            // تشغيل الموسيقى
             if (!isMuted) bgmMusic.play().catch(e=>{});
 
             document.querySelectorAll('.pipe').forEach(pipe => pipe.remove());
             document.querySelectorAll('.cloud').forEach(cloud => cloud.remove());
 
             startScreen.style.display = 'none';
-            gameOverScreen.style.display = 'none';
             questionModal.style.display = 'none';
 
             createClouds();
@@ -1218,7 +1121,7 @@
 
         function pauseGameForQuestion() {
             gamePaused = true;
-            bgmMusic.pause(); // إيقاف الموسيقى عند ظهور السؤال للتركيز
+            bgmMusic.pause();
             cancelAnimationFrame(animationFrameId);
             clearInterval(pipeIntervalId);
             displayQuestion();
@@ -1228,7 +1131,7 @@
             questionModal.style.display = 'none';
             gamePaused = false; questionActive = false;
 
-            if (!isMuted) bgmMusic.play().catch(e=>{}); // استئناف الموسيقى
+            if (!isMuted) bgmMusic.play().catch(e=>{});
 
             pipes.forEach(pipe => { pipe.top.remove(); pipe.bottom.remove(); });
             pipes = []; 
@@ -1386,19 +1289,26 @@
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
+        // تم التعديل هنا ليتم الانتقال الفوري لصفحة النتائج وتسجيل الدرجات عند الخسارة
         function endFlappyGame() {
             gameRunning = false; gamePaused = false; questionActive = false;
             clearInterval(pipeIntervalId); cancelAnimationFrame(animationFrameId);
 
-            bgmMusic.pause(); // إيقاف الموسيقى
+            bgmMusic.pause();
 
             if (!isMuted) { gameOverSound.currentTime = 0; gameOverSound.play().catch(e=>{}); }
             birdWing.style.animation = 'none'; bird.style.transform = 'rotate(90deg)';
 
             pipes.forEach(pipe => { pipe.top.remove(); pipe.bottom.remove(); }); pipes = [];
 
-            finalScore.textContent = score;
-            gameOverScreen.style.display = 'flex';
+            // الحفظ والإنتقال المباشر
+            document.getElementById('form-score').value = score;
+            document.getElementById('final-score-display-result').innerText = score;
+            document.getElementById('scoreForm').submit(); // حفظ في شيت جوجل ليظهر عند المعلم
+
+            // إخفاء اللعبة وعرض النتيجة
+            document.getElementById('game-container-wrapper').classList.remove('active');
+            showScreen('screen-student-result');
         }
 
         function displayQuestion() {
@@ -1443,31 +1353,18 @@
                 feedbackMessage.style.color = '#e74c3c'; 
                 feedbackMessage.style.display = 'block';
                 if (!isMuted) { wrongAnswerSound.currentTime = 0; wrongAnswerSound.play().catch(e=>{}); }
-                setTimeout(() => endFlappyGame(), 1500);
+                setTimeout(() => endFlappyGame(), 1500); // الانتقال التلقائي للنتيجة
             }
         }
 
-        // تم التعديل لإرسال النتيجة إلى الشيت عند الضغط على زر "إنهاء وإرسال النتيجة"
-        restartBtn.addEventListener('click', () => {
-            document.getElementById('form-score').value = score;
-            document.getElementById('final-score-display-result').innerText = score;
-            
-            // إرسال البيانات من خلال الـ form
-            document.getElementById('scoreForm').submit();
-
-            document.getElementById('game-container-wrapper').classList.remove('active');
-            showScreen('screen-student-result');
-        });
-
         continueBtn.addEventListener('click', resumeGameAfterQuestion);
 
-        // تم إضافة الاستثناء لزر الصوت لتجنب القفز عند كتم أو تفعيل الصوت
         document.addEventListener('click', (e) => {
-            if (e.target.id !== 'restart-game' && !e.target.closest('#start-screen') && !e.target.closest('#question-modal') && !e.target.closest('.screen') && e.target.id !== 'mute-btn' && !e.target.closest('#mute-btn')) jump();
+            if (!e.target.closest('#start-screen') && !e.target.closest('#question-modal') && !e.target.closest('.screen') && e.target.id !== 'mute-btn' && !e.target.closest('#mute-btn')) jump();
         });
 
         document.addEventListener('touchstart', function(e) {
-            if (e.target.id !== 'restart-game' && !e.target.closest('#start-screen') && !e.target.closest('#question-modal') && !e.target.closest('.screen') && e.target.id !== 'mute-btn' && !e.target.closest('#mute-btn')) { e.preventDefault(); jump(); }
+            if (!e.target.closest('#start-screen') && !e.target.closest('#question-modal') && !e.target.closest('.screen') && e.target.id !== 'mute-btn' && !e.target.closest('#mute-btn')) { e.preventDefault(); jump(); }
         }, { passive: false });
 
         document.addEventListener('keydown', (e) => {
