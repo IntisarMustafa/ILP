@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ماريو الرياضيات: منصة التحدي التفاعلية</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/mathlive"></script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };</script>
+
+    <style>
+        /* ========================================= */
+        /* 1. أنماط واجهة المعلم والطالب (Index 2)  */
+        /* ========================================= */
+        :root {
+            --primary: #46178f;
+            --primary-dark: #321067;
+            --secondary: #eb2730;
+            --success: #26890c;
+            --info: #1368ce;
+            --warning: #ffa602;
+            --light: #f2f2f2;
+            --white: #ffffff;
+            --k-red: #e21b3c;
+            --k-red-dark: #b81631;
+            
+            /* متغيرات لوحة الرياضيات المنبثقة */
+            --word-blue: #2b579a;
+            --math-bg: #f3f2f1;
+            --key-bg: #ffffff;
+            --key-border: #d2d2d2;
+            --key-hover: #e1dfdd;
+            --action-bg: #adb5bd;
+            --kb-bg: #d1d4d9;
+        } 
+
+        * { margin: 0; padding: 0; box-sizing: border-box; } 
+
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background: linear-gradient(-45deg, #46178f, #1368ce, #e21b3c, #ffa602);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        } 
+        
+        /* تغيير الخلفية عند بدء اللعبة */
+        body.mario-mode {
+            background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
+            animation: none;
+            justify-content: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .screen {
+            display: none; width: 100%; max-width: 900px; padding: 20px;
+            animation: popInUI 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; position: relative; z-index: 10;
+        }
+        .screen.active { display: flex; } 
+
+        @keyframes popInUI {
+            0% { opacity: 0; transform: scale(0.9) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        } 
+
+        .card {
+            background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 550px; text-align: center;
+            backdrop-filter: blur(10px); color: #333;
+        } 
+
+        .card h1 { color: var(--primary); margin-bottom: 25px; font-size: 38px; background: none; -webkit-text-fill-color: var(--primary); text-shadow: 2px 2px 0px rgba(0,0,0,0.05); }
+        .card h2 { color: #333; margin-bottom: 20px; font-size: 28px; }
+        
+        .btn {
+            width: 100%; padding: 16px; border: none; border-radius: 8px;
+            font-size: 20px; font-weight: 900; cursor: pointer;
+            margin-bottom: 15px; color: var(--white);
+            transition: all 0.1s; position: relative; top: 0;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2); font-family: 'Cairo', sans-serif;
+        }
+        .btn:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0.2); }
+        
+        .btn-primary { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
+        .btn-teacher { background-color: var(--info); box-shadow: 0 6px 0 #0f54a8; }
+        .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 var(--k-red-dark); }
+        .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; margin-top: 10px; } 
+        .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 #b08100; }
+
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 18px; margin-bottom: 20px;
+            border: 3px solid #ddd; border-radius: 8px;
+            font-size: 18px; font-weight: bold; text-align: center;
+            transition: border-color 0.3s; box-sizing: border-box; font-family: 'Cairo', sans-serif;
+        }
+        input:focus { outline: none; border-color: var(--primary); }
+
+        /* Teacher Setup UI */
+        .q-builder-container {
+            width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.95);
+            padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            max-height: 80vh; overflow-y: auto; text-align: right; color:#333;
+        }
+        .q-block {
+            background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 20px;
+            border: 2px solid #eee; position: relative;
+        }
+        .q-block h3 { margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .q-block input.q-title { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ccc; font-size: 18px; text-align: right; }
+        .opt-row { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .opt-row input[type="text"] { flex: 1; padding: 10px; margin-bottom: 0; border: 2px solid #ccc; font-size: 16px; text-align: right; }
+        .opt-row input[type="radio"] { width: 25px; height: 25px; accent-color: var(--success); cursor: pointer; flex-shrink: 0; }
+        .remove-q-btn { background: var(--k-red); color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .math-trigger-btn { background: #46178f; color: white; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 0 #321067; height:45px;}
+        .math-trigger-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #321067; }
+        
+        .avatar-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+            margin: 20px 0; max-height: 200px; overflow-y: auto;
+            padding: 10px; background: #f5f5f5; border-radius: 12px;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.05);
+        }
+        .avatar-item {
+            font-size: 38px; padding: 10px; cursor: pointer; border-radius: 50%;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center;
+            background: white; box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        .avatar-item.selected { background: var(--warning); transform: scale(1.2); box-shadow: 0 0 0 4px var(--primary); z-index: 3; }
+
+        .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
+        
+        table.lb-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; color:#333;}
+        .lb-table th, .lb-table td { padding: 18px; text-align: center; font-size: 20px; background: white; }
+        .lb-table th { background: var(--primary); color: white; font-weight: 900; }
+        .lb-table tr td:first-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        .lb-table tr td:last-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+
+        #screen-loading-sheet {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;
+            background: rgba(70, 23, 143, 0.95); display: none; flex-direction: column; 
+            align-items: center; justify-content: center; color: white; backdrop-filter: blur(5px);
+        }
+        .loader-spinner {
+            border: 8px solid rgba(255,255,255,0.3); border-top: 8px solid white;
+            border-radius: 50%; width: 80px; height: 80px; animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* محرر الرياضيات المنبثق (Modal) */
+        #math-modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 99999; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px); direction: rtl;
+        }
+        .math-modal-content {
+            width: 95%; max-width: 800px; background: var(--math-bg);
+            border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid #d2d2d2;
+        }
+        .math-header {
+            background-color: var(--word-blue); color: white; padding: 15px;
+            font-weight: 600; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;
+        }
+        .math-close-btn {
+            background: var(--success); color: white; border: none; padding: 8px 15px;
+            border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; font-family:'Cairo';
+        }
+        .math-editor-container { padding: 20px 10px; display: flex; justify-content: center; background: white;}
+        math-field {
+            font-size: 1.8rem; width: 100%; min-height: 120px;
+            border: 2px solid var(--word-blue); padding: 15px;
+            border-radius: 8px; background: #fff; outline: none; direction: ltr;
+            user-select: auto !important;
+        }
+        .math-keyboard-wrapper { background: var(--kb-bg); border-top: 1px solid #bbb; }
+        .math-keyboard-tabs { display: flex; background: #e9ecef; border-bottom: 1px solid #ccc; overflow-x: auto; }
+        .math-tab {
+            flex: 1; min-width: 80px; padding: 12px 5px; text-align: center;
+            font-size: 0.95rem; cursor: pointer; color: #555; transition: 0.2s; white-space: nowrap; font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .math-tab.active { background: white; font-weight: bold; color: var(--word-blue); }
+        .custom-keyboard {
+            padding: 5px; display: none; flex-direction: column; gap: 5px;
+            user-select: none; max-height: 320px; overflow-y: auto; font-family: 'Segoe UI', system-ui, sans-serif; direction: ltr;
+        }
+        .custom-keyboard.active { display: flex; }
+        .kb-row { display: flex; justify-content: center; gap: 4px; width: 100%; }
+        .key {
+            background: var(--key-bg); border: none; border-bottom: 2px solid #999;
+            border-radius: 5px; height: 50px; flex: 1; min-width: 35px; max-width: 60px;
+            font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #333; touch-action: manipulation;
+        }
+        .key:active { background: var(--key-hover); transform: translateY(1px); border-bottom-width: 1px; }
+        .key.action { background: var(--action-bg); color: white; font-size: 1rem; max-width: none; }
+        .key.num { background: #f8f9fa; font-weight: bold; border-color: #bbb; }
+        .key.space { flex: 5; max-width: none; background: #f8f9fa; font-size: 1rem; color: #444; font-weight: bold; }
+        .math-icon { display: inline-flex; align-items: center; justify-content: center; font-family: 'Times New Roman', serif; font-style: italic; pointer-events: none; }
+        .frac-icon { flex-direction: column; font-size: 0.75em; line-height: 1.1; }
+        .frac-icon .line { border-top: 1px solid #333; width: 12px; margin: 1px 0; }
+        .root-icon { align-items: center; }
+        .root-icon .radicand { border-top: 1.2px solid #333; padding-top: 1px; margin-left: 1px; font-style: italic; }
+
+        /* ========================================= */
+        /* 2. أنماط لعبة ماريو الأساسية (Ma1)        */
+        /* ========================================= */
+        #game-view {
+            display: none; width: 100%; height: 100%; flex-direction: column;
+            align-items: center; justify-content: center; color: white; padding: 20px 10px;
+        }
+
+        .game-view-header { text-align: center; margin-bottom: 20px; }
+        .game-view-header h1 {
+            font-size: 2.5rem; margin-bottom: 10px; font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(45deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+        .subtitle { font-size: 1.1rem; color: #94a3b8; font-family: 'Tajawal', sans-serif; }
+
+        .game-wrapper {
+            position: relative; width: 100%; max-width: 1000px;
+            aspect-ratio: 9 / 7; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(56, 189, 248, 0.2);
+            background: #000;
+        }
+
+        canvas { display: block; width: 100%; height: 100%; object-fit: fill; }
+
+        .hud-top {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 15px 20px; display: flex; justify-content: space-between;
+            align-items: flex-start; pointer-events: none; z-index: 30; font-family: 'Tajawal', sans-serif;
+        }
+
+        .hud-group { display: flex; gap: 10px; flex-wrap: nowrap; pointer-events: auto; }
+
+        .stat-glass {
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px;
+            padding: 8px 16px; font-size: 1.1rem; font-weight: bold;
+            display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); color: #f8fafc;
+        }
+
+        .hud-btn {
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50%;
+            width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.2rem; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); pointer-events: auto;
+        }
+        .hud-btn:hover { background: rgba(56, 189, 248, 0.3); transform: scale(1.05); }
+        .hud-btn:active { transform: scale(0.95); }
+
+        #startScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 50; transition: opacity 0.3s; font-family: 'Tajawal', sans-serif;
+        }
+
+        #startScreen h2 { font-size: 3rem; color: white; margin-bottom: 30px; text-shadow: 0 0 20px rgba(56,189,248,0.8); text-align: center; }
+        
+        .big-start-btn {
+            background: linear-gradient(135deg, #10b981, #059669); border: none; padding: 20px 50px;
+            border-radius: 50px; font-size: 1.8rem; font-weight: bold; color: white; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5); transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 15px; border: 2px solid #34d399; font-family: 'Tajawal', sans-serif;
+        }
+        .big-start-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.7); }
+        .big-start-btn:active { transform: translateY(2px) scale(0.98); }
+
+        .mobile-hud {
+            position: fixed; bottom: max(20px, env(safe-area-inset-bottom));
+            left: max(20px, env(safe-area-inset-left)); right: max(20px, env(safe-area-inset-right));
+            display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 100;
+        }
+        .d-pad, .action-pad { display: flex; gap: 15px; pointer-events: auto; }
+        .mobile-btn {
+            width: 70px; height: 70px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            color: rgba(255, 255, 255, 0.9); font-size: 2rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.1); transition: all 0.1s; touch-action: none;
+        }
+        .mobile-btn:active { background: rgba(56, 189, 248, 0.5); transform: scale(0.9); border-color: rgba(56, 189, 248, 0.8); }
+        .jump-btn { width: 80px; height: 80px; background: rgba(16, 185, 129, 0.4); border-color: rgba(16, 185, 129, 0.6); color: #fff; }
+        .jump-btn:active { background: rgba(16, 185, 129, 0.7); }
+
+        @media (min-width: 1025px) { .mobile-hud { display: none; } }
+        @media (max-width: 768px) { 
+            .stat-glass { font-size: 0.9rem; padding: 6px 10px; } 
+            .hud-btn { width: 35px; height: 35px; font-size: 1rem; } 
+            .hud-top { padding: 10px; } 
+            #startScreen h2 { font-size: 1.8rem; } 
+            .big-start-btn { font-size: 1.3rem; padding: 15px 30px; } 
+        }
+        @media (max-height: 500px) and (orientation: landscape) {
+            .mobile-btn { width: 60px; height: 60px; font-size: 1.5rem; }
+            .jump-btn { width: 65px; height: 65px; }
+            .mobile-hud { bottom: 10px; left: 30px; right: 30px; }
+            .game-view-header { display: none; }
+        }
+
+        .desktop-instructions { text-align: center; margin-top: 20px; color: #64748b; font-size: 1rem; font-family: 'Tajawal', sans-serif;}
+        .desktop-instructions kbd { background: #334155; padding: 3px 8px; border-radius: 4px; color: #e2e8f0; font-family: monospace; border-bottom: 2px solid #0f172a; margin: 0 3px; }
+        @media (max-width: 1024px) { .desktop-instructions { display: none; } }
+
+        /* القط الأنيق */
+        :root { --fur-main: #d1d8e0; --fur-dark: #778ca3; --white: #ffffff; --eye-color: #3498db; --nose-pink: #eb3b5a; }
+        #player-container { position: absolute; pointer-events: none; z-index: 20; display: none; }
+        #player-cat { position: absolute; width: 60px; height: 70px; left: -30px; bottom: 0; transform-origin: bottom center; }
+        .cat-rig { position: relative; width: 100%; height: 100%; }
+        .tails-group { position: absolute; top: 48px; left: 20px; z-index: 4; }
+        .tail { position: absolute; width: 48px; height: 8px; background: var(--fur-dark); border-radius: 20px 0 0 20px; transform-origin: right center; right: 0; top: 0; box-shadow: inset -2px -1px 0 rgba(0,0,0,0.1); animation: wag 2.5s infinite alternate ease-in-out; }
+        .tail::after { content: ''; position: absolute; width: 15px; height: 100%; background: var(--white); left: 0; border-radius: 20px 0 0 20px; }
+        .arm, .leg { position: absolute; transform-origin: top center; border-radius: 8px; }
+        .arm { width: 11px; height: 22px; } .arm-back { top: 38px; left: 24px; background: var(--fur-dark); z-index: 2; }
+        .leg { width: 12px; height: 16px; top: 52px; } .leg-back { left: 22px; background: var(--fur-dark); z-index: 2; }
+        .torso { position: absolute; width: 34px; height: 35px; background: var(--fur-main); top: 28px; left: 14px; border-radius: 40% 45% 45% 40%; z-index: 5; box-shadow: inset -3px -3px 0 rgba(0,0,0,0.1); }
+        .chest-fur { position: absolute; width: 20px; height: 24px; background: var(--white); right: -2px; top: 4px; border-radius: 50% 60% 60% 40%; }
+        .head { position: absolute; width: 38px; height: 36px; background: var(--fur-main); border-radius: 20px 20px 16px 14px; top: 0px; left: 14px; z-index: 10; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.1); }
+        .ear { position: absolute; width: 13px; height: 15px; background: var(--fur-main); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+        .ear-back { top: -7px; left: 6px; background: var(--fur-dark); transform: rotate(-15deg); z-index: -1; }
+        .ear-front { top: -10px; left: 20px; transform: rotate(10deg); z-index: 11; }
+        .ear-front::after { content: ''; position: absolute; width: 7px; height: 10px; background: #fca; bottom: 0; left: 3px; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+        .muzzle { position: absolute; width: 18px; height: 13px; background: var(--white); bottom: 4px; right: -4px; border-radius: 10px; }
+        .nose { position: absolute; width: 7px; height: 5px; background: var(--nose-pink); border-radius: 50%; right: 2px; top: -1px; z-index: 2; }
+        .whisker { position: absolute; height: 1px; background: linear-gradient(to left, rgba(0,0,0,0.4), rgba(0,0,0,0)); border-radius: 2px; transform-origin: right center; animation: whiskerTwitch 3s infinite alternate ease-in-out; right: 7px; }
+        .w1 { width: 10px; top: 4px; transform: rotate(15deg); animation-delay: 0.1s; } .w2 { width: 13px; top: 7px; transform: rotate(0deg); animation-delay: 0.2s; } .w3 { width: 11px; top: 10px; transform: rotate(-15deg); animation-delay: 0.3s; }
+        .eye { position: absolute; width: 11px; height: 14px; background: var(--white); right: 7px; top: 8px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.05); }
+        .pupil { position: absolute; width: 5px; height: 10px; background: var(--eye-color); border-radius: 50%; right: 3px; top: 2px; }
+        .pupil::after { content: ''; position: absolute; width: 3px; height: 4px; background: white; border-radius: 50%; top: 1px; right: 1px; }
+        .arm-front { top: 38px; left: 30px; background: var(--fur-main); z-index: 12; } .leg-front { left: 28px; background: var(--fur-main); z-index: 12; }
+        .glove { position: absolute; width: 14px; height: 13px; background: var(--white); border-radius: 8px 8px 5px 5px; bottom: -3px; left: -1.5px; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.05); }
+        .shoe { position: absolute; width: 20px; height: 10px; background: var(--white); bottom: -4px; left: -4px; border-radius: 8px 10px 4px 4px; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.05); }
+
+        @keyframes wag { 0% { transform: rotate(12deg); } 100% { transform: rotate(-12deg); } }
+        @keyframes walkLegFront { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(45deg); } 75% { transform: rotate(-45deg); } }
+        @keyframes walkLegBack { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-45deg); } 75% { transform: rotate(45deg); } }
+        @keyframes walkArmFront { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-40deg); } 75% { transform: rotate(40deg); } }
+        @keyframes walkArmBack { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(40deg); } 75% { transform: rotate(-40deg); } }
+        @keyframes bodyBob { from { transform: translateY(0); } to { transform: translateY(3px); } }
+        @keyframes whiskerTwitch { 0%, 80% { transform: rotate(var(--rot)) scaleX(1); } 100% { transform: rotate(calc(var(--rot) + 4deg)) scaleX(1.05); } }
+        .w1 { --rot: 15deg; } .w2 { --rot: 0deg; } .w3 { --rot: -15deg; }
+
+        .walking .leg-front { animation: walkLegFront 0.5s infinite linear; } .walking .leg-back { animation: walkLegBack 0.5s infinite linear; }
+        .walking .arm-front { animation: walkArmFront 0.5s infinite linear; } .walking .arm-back { animation: walkArmBack 0.5s infinite linear; }
+        .walking .torso, .walking .head { animation: bodyBob 0.25s infinite alternate ease-in-out; }
+        
+        .is-jumping .leg-front { transform: rotate(-25deg); } .is-jumping .leg-back { transform: rotate(15deg); }
+        .is-jumping .arm-front { transform: rotate(-120deg); } .is-jumping .arm-back { transform: rotate(-90deg); }
+        .is-jumping .tail { transform: rotate(-25deg); } 
+
+        /* النوافذ المنبثقة للأسئلة والفوز */
+        .question-modal, .win-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 1000; justify-content: center; align-items: center; font-family: 'Tajawal', sans-serif;}
+        .question-content, .win-content { background: linear-gradient(135deg, #0f172a, #1e293b); border-radius: 20px; padding: 40px; width: 90%; max-width: 600px; text-align: center; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7); border: 2px solid #38bdf8; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .win-content { border-color: #10b981; }
+        .question-content h2 { color: #38bdf8; margin-bottom: 25px; font-size: 2rem; }
+        .question { font-size: 2rem; margin: 30px 0; color: white; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; font-weight: bold; min-height: 120px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(56, 189, 248, 0.3); direction: rtl; }
+        .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 30px; direction: rtl; }
+        .option { background: rgba(30, 41, 59, 0.8); border: 2px solid #334155; border-radius: 12px; padding: 20px; font-size: 1.5rem; cursor: pointer; transition: all 0.2s; color: white; display: flex; align-items: center; justify-content: center; direction: rtl; }
+        .option:hover { background: #38bdf8; border-color: #38bdf8; transform: translateY(-3px); color: #0f172a; }
+        .option.correct { background: #10b981; border-color: #10b981; color: white;}
+        .option.incorrect { background: #ef4444; border-color: #ef4444; color: white;}
+        .result { font-size: 1.5rem; margin: 25px 0; min-height: 40px; font-weight: bold; border-radius: 8px; direction: rtl; }
+        .result.correct { color: #10b981; } .result.incorrect { color: #ef4444; }
+        .continue-btn { background: #38bdf8; color: #0f172a; border: none; padding: 15px 40px; font-size: 1.2rem; border-radius: 50px; cursor: pointer; margin-top: 20px; font-weight: bold; transition: all 0.3s; font-family: 'Tajawal', sans-serif;}
+        .continue-btn:hover { background: #7dd3fc; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3); }
+        .win-content h2 { color: #f59e0b; margin-bottom: 20px; font-size: 2.5rem; }
+        .win-content .trophy { font-size: 5rem; color: #f59e0b; margin: 20px 0; text-shadow: 0 0 30px rgba(245, 158, 11, 0.5); animation: float 3s ease-in-out infinite; }
+        .win-stats { font-size: 1.3rem; margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .win-stats div { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .win-stats span { font-weight: bold; color: #10b981; }
+        
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    </style>
+</head>
+<body>
+
+    <script>
+        function handleScoreLoad() {
+            const statusWin = document.getElementById('save-status-win');
+            if (statusWin) {
+                statusWin.innerText = "✅ تم تسجيل النتيجة بنجاح في لوحة المعلم!";
+                statusWin.style.color = "#10b981"; // اللون الأخضر للنجاح
+            }
+        }
+        function handleQuestionsLoad() {
+            const screen = document.getElementById('screen-teacher');
+            if (screen && screen.classList.contains('active')) {
+                const status = document.getElementById('saving-status');
+                if (status) {
+                    status.innerText = "✅ تم حفظ الأسئلة بنجاح! يمكن للطلاب الدخول الآن.";
+                    status.style.color = "var(--success)";
+                }
+            }
+        }
+    </script>
+    <div id="screen-loading-sheet">
+        <div class="loader-spinner"></div>
+        <div style="font-size: 28px; font-weight: bold; margin-top: 20px;">جاري جلب أسئلة التحدي من المعلم...</div>
+    </div>
+
+    <div id="ui-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        
+        <div class="screen active" id="screen-home">
+            <div class="card">
+                <h1>🎮 ماريو الرياضيات</h1>
+                <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
+                <button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
+                <button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
+            </div>
+        </div>
+        
+        <div class="screen" id="screen-teacher-setup">
+            <div class="q-builder-container">
+                <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
+                <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
+                <div id="questions-list"></div>
+                <button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
+                <div style="margin-top: 30px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" onclick="saveQuestionsToSheet()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
+                    <button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">إلغاء</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="screen" id="screen-teacher">
+            <div style="width: 100%; text-align: center;">
+                <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
+                    <h2>انضموا الآن! رمز الغرفة:</h2>
+                    <div class="room-pin" id="display-room-pin">000000</div>
+                    <p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام الموحد...</p>
+                    <div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
+                        <input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
+                        <button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
+                    </div>
+                </div>
+                <table class="lb-table" id="leaderboard" style="display: none;">
+                    <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
+                <div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
+                    ⏳ بانتظار دخول الأبطال وحل الأسئلة...
+                </div>
+                <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
+            </div>
+        </div>
+        
+        <div class="screen" id="screen-student-login">
+            <div class="card">
+                <h2>أدخل بياناتك للانطلاق 🚀</h2>
+                <input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
+                <input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
+                <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
+                <div class="avatar-grid" id="avatar-container"></div>
+                <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
+                <button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="math-modal-overlay">
+        <div class="math-modal-content">
+            <div class="math-header">
+                <span>📝 محرر الرياضيات الشامل</span>
+                <button class="math-close-btn" onclick="closeMathModal()">✓ إدراج وحفظ</button>
+            </div>
+            <div class="math-editor-container">
+                <math-field id="formula" virtual-keyboard-policy="manual"></math-field>
+            </div>
+            <div class="math-keyboard-wrapper">
+                <div class="math-keyboard-tabs">
+                    <div class="math-tab active" onclick="showMathTab('math_combined', event)">الأرقام والرموز</div>
+                    <div class="math-tab" onclick="showMathTab('letters', event)">عربي</div>
+                    <div class="math-tab" onclick="showMathTab('english', event)">English</div>
+                </div>
+                <div class="custom-keyboard active" id="math_combined">
+                    <div class="kb-row">
+                        <button class="key num" onpointerdown="addMath('1', event)">1</button>
+                        <button class="key num" onpointerdown="addMath('2', event)">2</button>
+                        <button class="key num" onpointerdown="addMath('3', event)">3</button>
+                        <button class="key num" onpointerdown="addMath('4', event)">4</button>
+                        <button class="key num" onpointerdown="addMath('5', event)">5</button>
+                        <button class="key num" onpointerdown="addMath('6', event)">6</button>
+                        <button class="key num" onpointerdown="addMath('7', event)">7</button>
+                        <button class="key num" onpointerdown="addMath('8', event)">8</button>
+                        <button class="key num" onpointerdown="addMath('9', event)">9</button>
+                        <button class="key num" onpointerdown="addMath('0', event)">0</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key action" onpointerdown="addMath('+', event)">+</button>
+                        <button class="key action" onpointerdown="addMath('-', event)">-</button>
+                        <button class="key action" onpointerdown="addMath('\\times', event)">×</button>
+                        <button class="key action" onpointerdown="addMath('\\div', event)">÷</button>
+                        <button class="key action" onpointerdown="addMath('=', event)">=</button>
+                        <button class="key" onpointerdown="addMath('.', event)">.</button>
+                        <button class="key" onpointerdown="insertMathCode('&lt;', event)">&lt;</button>
+                        <button class="key" onpointerdown="insertMathCode('&gt;', event)">&gt;</button>
+                        <button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="insertMathCode('\\frac{#@}{#?}', event)"><span class="math-icon frac-icon"><span>a</span><span class="line"></span><span>b</span></span></button>
+                        <button class="key" onpointerdown="insertMathCode('^{#?}', event)"><span class="math-icon">x<sup style="font-size:0.7em;">n</sup></span></button>
+                        <button class="key" onpointerdown="insertMathCode('\\sqrt{#?}', event)"><span class="math-icon root-icon"><span>√</span><span class="radicand">x</span></span></button>
+                        <button class="key" onpointerdown="insertMathCode('\\sqrt[#?]{#?}', event)"><span class="math-icon root-icon"><sup style="font-size:0.5em; font-style:normal;">n</sup><span>√</span><span class="radicand">x</span></span></button>
+                        <button class="key" onpointerdown="insertMathCode('\\le', event)">≤</button>
+                        <button class="key" onpointerdown="insertMathCode('\\ge', event)">≥</button>
+                        <button class="key" onpointerdown="insertMathCode('\\neq', event)">≠</button>
+                        <button class="key" onpointerdown="insertMathCode('\\approx', event)">≈</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="insertMathCode('^\\circ', event)">°</button>
+                        <button class="key" onpointerdown="insertMathCode('\\angle', event)">∠</button>
+                        <button class="key" onpointerdown="insertMathCode('\\pi', event)">π</button>
+                        <button class="key" onpointerdown="insertMathCode('\\infty', event)">∞</button>
+                        <button class="key" onpointerdown="insertMathCode('\\Delta', event)">Δ</button>
+                        <button class="key" onpointerdown="insertMathCode('\\pm', event)">±</button>
+                        <button class="key" onpointerdown="insertMathCode('\\{', event)">{</button>
+                        <button class="key" onpointerdown="insertMathCode('\\}', event)">}</button>
+                        <button class="key" onpointerdown="insertMathCode('(', event)">(</button>
+                        <button class="key" onpointerdown="insertMathCode(')', event)">)</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="insertMathCode('\\sin', event)">sin</button>
+                        <button class="key" onpointerdown="insertMathCode('\\cos', event)">cos</button>
+                        <button class="key" onpointerdown="insertMathCode('\\tan', event)">tan</button>
+                        <button class="key" onpointerdown="insertMathCode('\\theta', event)">θ</button>
+                        <button class="key" onpointerdown="insertMathCode('\\alpha', event)">α</button>
+                        <button class="key" onpointerdown="insertMathCode('\\int', event)">∫</button>
+                        <button class="key" onpointerdown="insertMathCode('\\sum', event)">Σ</button>
+                        <button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
+                    </div>
+                </div>
+                <div class="custom-keyboard" id="letters">
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="addMath('ض', event)">ض</button>
+                        <button class="key" onpointerdown="addMath('ص', event)">ص</button>
+                        <button class="key" onpointerdown="addMath('ث', event)">ث</button>
+                        <button class="key" onpointerdown="addMath('ق', event)">ق</button>
+                        <button class="key" onpointerdown="addMath('ف', event)">ف</button>
+                        <button class="key" onpointerdown="addMath('غ', event)">غ</button>
+                        <button class="key" onpointerdown="addMath('ع', event)">ع</button>
+                        <button class="key" onpointerdown="addMath('ه', event)">ه</button>
+                        <button class="key" onpointerdown="addMath('خ', event)">خ</button>
+                        <button class="key" onpointerdown="addMath('ح', event)">ح</button>
+                        <button class="key" onpointerdown="addMath('ج', event)">ج</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="addMath('ش', event)">ش</button>
+                        <button class="key" onpointerdown="addMath('س', event)">س</button>
+                        <button class="key" onpointerdown="addMath('ي', event)">ي</button>
+                        <button class="key" onpointerdown="addMath('ب', event)">ب</button>
+                        <button class="key" onpointerdown="addMath('ل', event)">ل</button>
+                        <button class="key" onpointerdown="addMath('ا', event)">ا</button>
+                        <button class="key" onpointerdown="addMath('ت', event)">ت</button>
+                        <button class="key" onpointerdown="addMath('ن', event)">ن</button>
+                        <button class="key" onpointerdown="addMath('م', event)">م</button>
+                        <button class="key" onpointerdown="addMath('ك', event)">ك</button>
+                        <button class="key" onpointerdown="addMath('ط', event)">ط</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="addMath('ئ', event)">ئ</button>
+                        <button class="key" onpointerdown="addMath('ء', event)">ء</button>
+                        <button class="key" onpointerdown="addMath('ؤ', event)">ؤ</button>
+                        <button class="key" onpointerdown="addMath('ر', event)">ر</button>
+                        <button class="key" onpointerdown="addMath('ى', event)">ى</button>
+                        <button class="key" onpointerdown="addMath('ة', event)">ة</button>
+                        <button class="key" onpointerdown="addMath('و', event)">و</button>
+                        <button class="key" onpointerdown="addMath('ز', event)">ز</button>
+                        <button class="key" onpointerdown="addMath('ظ', event)">ظ</button>
+                        <button class="key" onpointerdown="addMath('د', event)">د</button>
+                        <button class="key" onpointerdown="addMath('ذ', event)">ذ</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="addMath('أ', event)">أ</button>
+                        <button class="key" onpointerdown="addMath('إ', event)">إ</button>
+                        <button class="key" onpointerdown="addMath('آ', event)">آ</button>
+                        <button class="key" onpointerdown="addMath('؟', event)">؟</button>
+                        <button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
+                        <button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
+                    </div>
+                </div>
+                <div class="custom-keyboard" id="english">
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="addMath('q', event)">q</button>
+                        <button class="key" onpointerdown="addMath('w', event)">w</button>
+                        <button class="key" onpointerdown="addMath('e', event)">e</button>
+                        <button class="key" onpointerdown="addMath('r', event)">r</button>
+                        <button class="key" onpointerdown="addMath('t', event)">t</button>
+                        <button class="key" onpointerdown="addMath('y', event)">y</button>
+                        <button class="key" onpointerdown="addMath('u', event)">u</button>
+                        <button class="key" onpointerdown="addMath('i', event)">i</button>
+                        <button class="key" onpointerdown="addMath('o', event)">o</button>
+                        <button class="key" onpointerdown="addMath('p', event)">p</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="addMath('a', event)">a</button>
+                        <button class="key" onpointerdown="addMath('s', event)">s</button>
+                        <button class="key" onpointerdown="addMath('d', event)">d</button>
+                        <button class="key" onpointerdown="addMath('f', event)">f</button>
+                        <button class="key" onpointerdown="addMath('g', event)">g</button>
+                        <button class="key" onpointerdown="addMath('h', event)">h</button>
+                        <button class="key" onpointerdown="addMath('j', event)">j</button>
+                        <button class="key" onpointerdown="addMath('k', event)">k</button>
+                        <button class="key" onpointerdown="addMath('l', event)">l</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="addMath('z', event)">z</button>
+                        <button class="key" onpointerdown="addMath('x', event)">x</button>
+                        <button class="key" onpointerdown="addMath('c', event)">c</button>
+                        <button class="key" onpointerdown="addMath('v', event)">v</button>
+                        <button class="key" onpointerdown="addMath('b', event)">b</button>
+                        <button class="key" onpointerdown="addMath('n', event)">n</button>
+                        <button class="key" onpointerdown="addMath('m', event)">m</button>
+                        <button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key space" onpointerdown="addMathSpace(event)">Space</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-view">
+        <header class="game-view-header">
+            <h1><i class="fas fa-calculator"></i> ماريو الرياضيات</h1>
+            <p class="subtitle">مغامرة قط تعليمية تتحدى مهاراتك!</p>
+        </header>
+        
+        <div class="game-wrapper">
+            <canvas id="gameCanvas" width="900" height="700"></canvas>
+            
+            <div id="player-container">
+                <div id="player-cat">
+                    <div class="cat-rig" id="visuals">
+                        <div class="tails-group"><div class="tail"></div></div>
+                        <div class="arm arm-back"><div class="glove"></div></div>
+                        <div class="leg leg-back"><div class="shoe"></div></div>
+                        <div class="torso"><div class="chest-fur"></div></div>
+                        <div class="head">
+                            <div class="ear ear-back"></div>
+                            <div class="ear ear-front"></div>
+                            <div class="muzzle">
+                                <div class="nose"></div>
+                                <div class="whisker w1"></div>
+                                <div class="whisker w2"></div>
+                                <div class="whisker w3"></div>
+                            </div>
+                            <div class="eye"><div class="pupil"></div></div>
+                        </div>
+                        <div class="leg leg-front"><div class="shoe"></div></div>
+                        <div class="arm arm-front"><div class="glove"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hud-top">
+                <div class="hud-group">
+                    <div class="stat-glass" title="اللاعب"><span id="hud-player-avatar"></span></div>
+                    <div class="stat-glass"><i class="fas fa-heart" style="color: #fb7185;"></i> <span id="lives">5</span></div>
+                    <div class="stat-glass"><i class="fas fa-coins" style="color: #fbbf24;"></i> <span id="coins">0</span></div>
+                    <div class="stat-glass"><i class="fas fa-star" style="color: #38bdf8;"></i> <span id="score">0</span></div>
+                </div>
+                <div class="hud-group">
+                    <div class="stat-glass"><i class="fas fa-flag" style="color: #34d399;"></i> م. <span id="level">1</span></div>
+                    <button class="hud-btn" id="pauseBtn" title="إيقاف مؤقت"><i class="fas fa-pause"></i></button>
+                </div>
+            </div>
+
+            <div id="startScreen">
+                <h2 id="levelTitleHUD">المستوى الأول: الانطلاق</h2>
+                <button id="startBtn" class="big-start-btn"><i class="fas fa-play"></i> ابدأ التحدي</button>
+            </div>
+        </div>
+        
+        <div class="mobile-hud" dir="ltr">
+            <div class="d-pad">
+                <button class="mobile-btn left-btn"><i class="fas fa-arrow-left"></i></button>
+                <button class="mobile-btn right-btn"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="action-pad">
+                <button class="mobile-btn jump-btn"><i class="fas fa-arrow-up"></i></button>
+            </div>
+        </div>
+
+        <div class="desktop-instructions">
+            التحكم: استخدم الأسهم <kbd>←</kbd> <kbd>→</kbd> للحركة، ومفتاح <kbd>↑</kbd> أو <kbd>Space</kbd> للقفز
+        </div>
+
+        <div class="question-modal" id="questionModal">
+            <div class="question-content">
+                <h2><i class="fas fa-puzzle-piece"></i> تحدي الحساب</h2>
+                <div class="question" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="result" id="resultMessage"></div>
+                <button class="continue-btn" id="continueBtn">استمرار <i class="fas fa-arrow-left"></i></button>
+            </div>
+        </div>
+        
+        <div class="win-modal" id="winModal">
+            <div class="win-content">
+                <h2><i class="fas fa-trophy"></i> تهانينا!</h2>
+                <div class="trophy"><i class="fas fa-trophy"></i></div>
+                <div class="win-stats">
+                    <div><span>المستويات المكتملة:</span><span id="winLevels">5/5</span></div>
+                    <div><span>النقاط الإجمالية:</span><span id="winScore">0</span></div>
+                    <div><span>العملات المجموعة:</span><span id="winCoins">0</span></div>
+                </div>
+                <p id="save-status-win" style="color: var(--primary); margin-top: 10px; font-weight: bold;">جاري تسجيل النتيجة...</p>
+                <button class="continue-btn" id="restartBtn" style="margin-top: 20px;"><i class="fas fa-redo"></i> العودة للرئيسية</button>
+            </div>
+        </div>
+    </div>
+
+    <iframe id="hidden_iframe_score" name="hidden_iframe_score" onload="handleScoreLoad()" style="display:none;"></iframe>
+    <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
+        <input id="form-name" name="name" type="hidden"/>
+        <input id="form-school" name="school" type="hidden"/>
+        <input id="form-score" name="score" type="hidden"/>
+    </form>
+    
+    <iframe id="hidden_iframe_questions" name="hidden_iframe_questions" onload="handleQuestionsLoad()" style="display:none;"></iframe>
+    <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display: none;" target="hidden_iframe_questions">
+        <input id="qform-name" name="name" type="hidden"/>
+        <input id="qform-school" name="school" type="hidden"/>
+        <input id="qform-score" name="score" type="hidden" value="QUESTIONS"/> </form>
+
+    <script>
+        // --- 1. إعدادات جوجل شيت والمعلم/الطالب ---
+        const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+        const avatars = ["🦁","🦋","🤖","🥷","👨‍🔬","👩‍🔬","🐺","🦊","🐯","🐼","🐰","🐹","🐻","🐥","🦉","🐧","🫅","👸","🦸‍♂️","🦸‍♀️","🕵️","🧙‍♂️","🧚‍♀️","🚀","🛸","⭐","🔥","⚡"];
+        let selectedAvatar = avatars[0];
+        let gameQuestions = [], currentRoomPIN = "", refreshInterval;
+        let qBlockCount = 0;
+        let currentQIndex = 0; // لتعقب أي سؤال نحن فيه باللعبة
+
+        const defaultQuestions = [
+            { q: "ما هي عاصمة الأردن؟", opts: ["القدس", "عمان", "بغداد", "دمشق"], ans: 1 },
+            { q: "كم عدد ألوان قوس قزح؟", opts: ["5", "6", "7", "8"], ans: 2 },
+            { q: "\\( 5 \\times 5 = ? \\)", opts: ["20", "25", "30", "15"], ans: 1 },
+            { q: "ما هو الحيوان الملقب بملك الغابة؟", opts: ["النمر", "الفيل", "الأسد", "الزرافة"], ans: 2 },
+            { q: "\\( \\frac{1}{2} + \\frac{1}{2} = ? \\)", opts: ["0", "0.5", "1", "2"], ans: 2 }
+        ];
+
+        function setupAvatars() {
+            const container = document.getElementById('avatar-container');
+            if(!container) return;
+            container.innerHTML = '';
+            avatars.forEach(a => {
+                const div = document.createElement('div');
+                div.className = 'avatar-item' + (a === selectedAvatar ? ' selected' : '');
+                div.innerText = a;
+                div.onclick = () => {
+                    document.querySelectorAll('.avatar-item').forEach(i => i.classList.remove('selected'));
+                    div.classList.add('selected'); selectedAvatar = a;
+                };
+                container.appendChild(div);
+            });
+        }
+        setupAvatars();
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            if(id) {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('active');
+            }
+        }
+        function goToStudentLogin() { showScreen('screen-student-login'); }
+
+        // --- 2. محرر الرياضيات ---
+        const mf = document.getElementById('formula');
+        mf.smartMode = true; 
+        let targetInputField = null; 
+        mf.addEventListener('focusin', (e) => { e.preventDefault(); if (window.mathVirtualKeyboard) window.mathVirtualKeyboard.hide(); });
+        mf.addEventListener('keydown', (e) => { if (e.key === ' ') { e.preventDefault(); mf.insert('\\text{ }'); } });
+        function addMath(val, e) { if (e) e.preventDefault(); mf.focus(); mf.insert(val); }
+        function insertMathCode(latex, e) { if (e) e.preventDefault(); mf.focus(); mf.insert(latex); }
+        function addMathSpace(e) { if (e) e.preventDefault(); mf.focus(); mf.insert('\\text{ }'); }
+        function backspaceMath(e) { if (e) e.preventDefault(); mf.focus(); mf.executeCommand('deleteBackward'); }
+        function showMathTab(tabId, event) {
+            document.querySelectorAll('.custom-keyboard').forEach(kb => kb.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.math-tab').forEach(t => t.classList.remove('active'));
+            if(event) event.currentTarget.classList.add('active');
+        }
+        function openMathModal(inputElement) {
+            targetInputField = inputElement;
+            document.getElementById('math-modal-overlay').style.display = 'flex';
+            mf.value = ''; setTimeout(() => mf.focus(), 100);
+        }
+        function closeMathModal() {
+            document.getElementById('math-modal-overlay').style.display = 'none';
+            if (targetInputField) { targetInputField.value += " \\(" + mf.value + "\\) "; targetInputField = null; }
+        }
+
+        // --- 3. إعداد أسئلة المعلم ---
+        function openTeacherSetup() {
+            document.getElementById('questions-list').innerHTML = '';
+            qBlockCount = 0; addQuestionBlock(); showScreen('screen-teacher-setup');
+        }
+        function addQuestionBlock() {
+            const container = document.getElementById('questions-list');
+            const blockId = `q-block-${qBlockCount}`;
+            const html = `
+                <div class="q-block" id="${blockId}">
+                    <h3><span>السؤال ${qBlockCount + 1}</span>
+                    ${qBlockCount > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}</h3>
+                    <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0;">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                    <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="0" checked><input type="text" class="q-opt-input" placeholder="الخيار الأول (▲)" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
+                    <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="1"><input type="text" class="q-opt-input" placeholder="الخيار الثاني (◆)" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
+                    <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="2"><input type="text" class="q-opt-input" placeholder="الخيار الثالث (●)" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
+                    <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="3"><input type="text" class="q-opt-input" placeholder="الخيار الرابع (■)" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html); qBlockCount++;
+        }
+
+        function saveQuestionsToSheet() {
+            const blocks = document.querySelectorAll('.q-block');
+            let customQuestions = []; let isValid = true;
+            blocks.forEach((block) => {
+                const title = block.querySelector('.q-title-input').value.trim();
+                const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
+                const correctRadio = block.querySelector('input[type="radio"]:checked');
+                if (!title || opts.some(opt => !opt)) isValid = false;
+                if (correctRadio) customQuestions.push({ q: title, opts: opts, ans: parseInt(correctRadio.value) });
+            });
+
+            if (!isValid || customQuestions.length === 0) { alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!"); return; }
+
+            currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+            const jsonQuestions = JSON.stringify(customQuestions);
+            
+            document.getElementById('qform-name').value = currentRoomPIN; 
+            document.getElementById('qform-school').value = jsonQuestions; 
+            
+            document.getElementById('saving-status').style.display = 'block';
+            document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
+            document.getElementById('questionsForm').submit();
+
+            document.getElementById('display-room-pin').innerText = currentRoomPIN;
+            const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+            document.getElementById('game-url-input').value = gameUrl;
+            
+            showScreen('screen-teacher');
+            refreshInterval = setInterval(fetchLeaderboard, 4000);
+        }
+
+        async function fetchLeaderboard() {
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                let players = json.table.rows.filter(r => r.c[1]?.v.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS");
+                players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+                
+                const tbody = document.getElementById('leaderboard-body');
+                if(!tbody) return; tbody.innerHTML = '';
+                players.forEach((p, i) => {
+                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+                    tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.c[0].v}</td><td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.c[2].v}</td></tr>`;
+                });
+                document.getElementById('loading-board').style.display = players.length ? 'none' : 'block';
+                document.getElementById('leaderboard').style.display = players.length ? 'table' : 'none';
+            } catch(e) {}
+        }
+
+        function copyGameLink() {
+            const input = document.getElementById('game-url-input');
+            input.select(); document.execCommand('copy');
+            const btn = document.getElementById('copy-btn');
+            btn.innerText = "تم النسخ! ✔️"; btn.style.backgroundColor = "var(--success)";
+            setTimeout(()=>{ btn.innerText = "نسخ الرابط"; btn.style.backgroundColor = "var(--primary)"; }, 2000);
+        }
+
+        // --- 4. بدء تدفق الطالب وجلب الأسئلة للعبة ماريو ---
+        async function startStudentFlow() {
+            const name = document.getElementById('input-student-name').value.trim();
+            const pin = document.getElementById('input-room-pin').value.trim();
+            if (!name || !pin) { alert("يرجى إدخال الاسم ورقم الغرفة"); return; }
+            
+            document.getElementById('form-name').value = `${selectedAvatar} ${name}`;
+            document.getElementById('form-school').value = pin;
+            document.getElementById('hud-player-avatar').innerText = selectedAvatar;
+            
+            document.getElementById('screen-loading-sheet').style.display = 'flex';
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                let foundQuestions = null;
+                for(let i = rows.length - 1; i >= 0; i--) {
+                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
+                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
+                            foundQuestions = JSON.parse(rows[i].c[1].v.toString()); break;
+                        }
+                    }
+                }
+                gameQuestions = (foundQuestions && foundQuestions.length > 0) ? foundQuestions : defaultQuestions;
+            } catch (err) { gameQuestions = defaultQuestions; }
+            
+            document.getElementById('screen-loading-sheet').style.display = 'none';
+            
+            // إخفاء الـ UI وعرض لعبة ماريو
+            document.getElementById('ui-container').style.display = 'none';
+            document.body.classList.add('mario-mode');
+            document.getElementById('game-view').style.display = 'flex';
+            
+            currentQIndex = 0;
+            resetGame(); // من ملف ماريو، لتهيئة مستويات اللعبة والبدء
+        }
+
+        // ======================================================================
+        // 5. محرك لعبة الماريو (مستورد بالكامل مع تعديل الأسئلة)
+        // ======================================================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const coinsDisplay = document.getElementById('coins');
+        const livesDisplay = document.getElementById('lives');
+        const levelDisplay = document.getElementById('level');
+        const scoreDisplay = document.getElementById('score');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const startScreen = document.getElementById('startScreen');
+        const levelTitleHUD = document.getElementById('levelTitleHUD');
+        const questionModal = document.getElementById('questionModal');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const resultMessage = document.getElementById('resultMessage');
+        const continueBtn = document.getElementById('continueBtn');
+        const winModal = document.getElementById('winModal');
+        const playerContainer = document.getElementById('player-container');
+        const playerCat = document.getElementById('player-cat');
+        const catVisuals = document.getElementById('visuals');
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = true; 
+        function playSound(frequency, type = 'sine', duration = 0.1, volume = 0.3) {
+            if (!soundEnabled) return;
+            if (audioContext.state === 'suspended') audioContext.resume();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.type = type; oscillator.frequency.value = frequency;
+            gainNode.gain.value = volume; oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration); 
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        const GRAVITY = 0.6; const JUMP_FORCE = -15; const PLAYER_SPEED = 7; const MAX_LIVES = 5; const TOTAL_LEVELS = 5;
+        let gameState = { running: false, paused: false, coins: 0, lives: MAX_LIVES, level: 1, score: 0, questionsSolved: 0, questionActive: false };
+        let playerAnimation = { frame: 0, timer: 0, interval: 100, direction: 1 };
+        const player = { x: 100, y: canvas.height - 200, width: 45, height: 65, velocityX: 0, velocityY: 0, jumping: false };
+        
+        const levels = [
+            {
+                name: "المستوى الأول",
+                platforms: [{ x: 0, y: canvas.height - 50, width: canvas.width, height: 50, color: '#4a3520' }, { x: 200, y: canvas.height - 150, width: 120, height: 25, color: '#2e8b57', moving: false }, { x: 450, y: canvas.height - 220, width: 120, height: 25, color: '#2e8b57', moving: false }, { x: 700, y: canvas.height - 150, width: 120, height: 25, color: '#2e8b57', moving: false }, { x: 350, y: canvas.height - 300, width: 100, height: 25, color: '#2e8b57', moving: false }],
+                coins: [{ x: 250, y: canvas.height - 190, radius: 12, collected: false, rotation: 0 }, { x: 500, y: canvas.height - 260, radius: 12, collected: false, rotation: 0 }, { x: 750, y: canvas.height - 190, radius: 12, collected: false, rotation: 0 }, { x: 380, y: canvas.height - 340, radius: 12, collected: false, rotation: 0 }],
+                enemies: [{ x: 300, y: canvas.height - 90, width: 45, height: 45, speed: 3, direction: 1, type: 'math' }, { x: 600, y: canvas.height - 90, width: 45, height: 45, speed: 2.5, direction: -1, type: 'math' }],
+                flag: { x: canvas.width - 120, y: canvas.height - 180, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            },
+            {
+                name: "المستوى الثاني",
+                platforms: [{ x: 0, y: canvas.height - 50, width: canvas.width, height: 50, color: '#4a3520' }, { x: 150, y: canvas.height - 180, width: 100, height: 25, color: '#3a7ca5', moving: true, speed: 2, startX: 150, endX: 300 }, { x: 350, y: canvas.height - 250, width: 100, height: 25, color: '#3a7ca5', moving: true, speed: 1.8, startX: 350, endX: 500 }, { x: 600, y: canvas.height - 180, width: 100, height: 25, color: '#3a7ca5', moving: true, speed: 2.2, startX: 500, endX: 700 }, { x: 250, y: canvas.height - 350, width: 100, height: 25, color: '#3a7ca5', moving: false }],
+                coins: [{ x: 200, y: canvas.height - 220, radius: 12, collected: false, rotation: 0 }, { x: 400, y: canvas.height - 290, radius: 12, collected: false, rotation: 0 }, { x: 650, y: canvas.height - 220, radius: 12, collected: false, rotation: 0 }, { x: 300, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }, { x: 500, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }],
+                enemies: [{ x: 200, y: canvas.height - 90, width: 45, height: 45, speed: 2.8, direction: 1, type: 'decimal' }, { x: 450, y: canvas.height - 90, width: 45, height: 45, speed: 3.2, direction: -1, type: 'decimal' }, { x: 700, y: canvas.height - 90, width: 45, height: 45, speed: 2.5, direction: 1, type: 'decimal' }],
+                flag: { x: 100, y: canvas.height - 400, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            },
+            {
+                name: "المستوى الثالث",
+                platforms: [{ x: 0, y: canvas.height - 50, width: canvas.width, height: 50, color: '#4a3520' }, { x: 100, y: canvas.height - 200, width: 150, height: 25, color: '#8a4f7d', moving: false }, { x: 350, y: canvas.height - 280, width: 150, height: 25, color: '#8a4f7d', moving: false }, { x: 600, y: canvas.height - 200, width: 150, height: 25, color: '#8a4f7d', moving: false }, { x: 250, y: canvas.height - 380, width: 120, height: 25, color: '#8a4f7d', moving: true, speed: 2.5, startX: 150, endX: 400 }, { x: 500, y: canvas.height - 380, width: 120, height: 25, color: '#8a4f7d', moving: true, speed: 2.2, startX: 400, endX: 650 }],
+                coins: [{ x: 170, y: canvas.height - 240, radius: 12, collected: false, rotation: 0 }, { x: 420, y: canvas.height - 320, radius: 12, collected: false, rotation: 0 }, { x: 670, y: canvas.height - 240, radius: 12, collected: false, rotation: 0 }, { x: 300, y: canvas.height - 420, radius: 12, collected: false, rotation: 0 }, { x: 550, y: canvas.height - 420, radius: 12, collected: false, rotation: 0 }],
+                enemies: [{ x: 150, y: canvas.height - 90, width: 45, height: 45, speed: 3.5, direction: 1, type: 'negative' }, { x: 400, y: canvas.height - 90, width: 45, height: 45, speed: 3, direction: -1, type: 'negative' }, { x: 650, y: canvas.height - 90, width: 45, height: 45, speed: 3.2, direction: 1, type: 'negative' }, { x: 300, y: canvas.height - 420, width: 45, height: 45, speed: 2, direction: 1, type: 'negative' }],
+                flag: { x: 750, y: canvas.height - 430, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            },
+            {
+                name: "المستوى الرابع",
+                platforms: [{ x: 0, y: canvas.height - 50, width: canvas.width, height: 50, color: '#4a3520' }, { x: 100, y: canvas.height - 180, width: 100, height: 25, color: '#c96d00', moving: true, speed: 2.5, startX: 100, endX: 300 }, { x: 300, y: canvas.height - 280, width: 100, height: 25, color: '#c96d00', moving: true, speed: 2, startX: 300, endX: 500 }, { x: 500, y: canvas.height - 380, width: 100, height: 25, color: '#c96d00', moving: true, speed: 2.8, startX: 400, endX: 700 }, { x: 200, y: canvas.height - 380, width: 80, height: 25, color: '#c96d00', moving: true, speed: 1.5, startX: 200, endX: 400 }, { x: 600, y: canvas.height - 280, width: 80, height: 25, color: '#c96d00', moving: true, speed: 1.8, startX: 500, endX: 700 }, { x: 350, y: canvas.height - 480, width: 120, height: 25, color: '#c96d00', moving: false }],
+                coins: [{ x: 150, y: canvas.height - 220, radius: 12, collected: false, rotation: 0 }, { x: 350, y: canvas.height - 320, radius: 12, collected: false, rotation: 0 }, { x: 550, y: canvas.height - 420, radius: 12, collected: false, rotation: 0 }, { x: 250, y: canvas.height - 420, radius: 12, collected: false, rotation: 0 }, { x: 650, y: canvas.height - 320, radius: 12, collected: false, rotation: 0 }, { x: 400, y: canvas.height - 520, radius: 12, collected: false, rotation: 0 }],
+                enemies: [{ x: 200, y: canvas.height - 90, width: 45, height: 45, speed: 3.5, direction: 1, type: 'math' }, { x: 400, y: canvas.height - 90, width: 45, height: 45, speed: 3.2, direction: -1, type: 'decimal' }, { x: 600, y: canvas.height - 90, width: 45, height: 45, speed: 3.8, direction: 1, type: 'negative' }, { x: 300, y: canvas.height - 420, width: 45, height: 45, speed: 2.5, direction: 1, type: 'math' }, { x: 500, y: canvas.height - 420, width: 45, height: 45, speed: 2.2, direction: -1, type: 'decimal' }],
+                flag: { x: 400, y: canvas.height - 530, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            },
+            {
+                name: "المستوى الخامس",
+                platforms: [{ x: 0, y: canvas.height - 50, width: canvas.width, height: 50, color: '#4a3520' }, { x: 100, y: canvas.height - 150, width: 100, height: 25, color: '#b30047', moving: true, speed: 3, startX: 100, endX: 300 }, { x: 300, y: canvas.height - 250, width: 100, height: 25, color: '#b30047', moving: true, speed: 2.5, startX: 300, endX: 500 }, { x: 500, y: canvas.height - 350, width: 100, height: 25, color: '#b30047', moving: true, speed: 3.2, startX: 400, endX: 700 }, { x: 150, y: canvas.height - 350, width: 80, height: 25, color: '#b30047', moving: true, speed: 2, startX: 150, endX: 400 }, { x: 350, y: canvas.height - 450, width: 80, height: 25, color: '#b30047', moving: true, speed: 2.8, startX: 350, endX: 650 }, { x: 550, y: canvas.height - 250, width: 80, height: 25, color: '#b30047', moving: true, speed: 1.8, startX: 450, endX: 650 }, { x: 200, y: canvas.height - 550, width: 120, height: 25, color: '#b30047', moving: false }],
+                coins: [{ x: 150, y: canvas.height - 190, radius: 12, collected: false, rotation: 0 }, { x: 350, y: canvas.height - 290, radius: 12, collected: false, rotation: 0 }, { x: 550, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }, { x: 200, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }, { x: 400, y: canvas.height - 490, radius: 12, collected: false, rotation: 0 }, { x: 600, y: canvas.height - 290, radius: 12, collected: false, rotation: 0 }, { x: 250, y: canvas.height - 590, width: 45, height: 45, radius: 12, collected: false, rotation: 0 }],
+                enemies: [{ x: 150, y: canvas.height - 90, width: 45, height: 45, speed: 4, direction: 1, type: 'math' }, { x: 350, y: canvas.height - 90, width: 45, height: 45, speed: 3.8, direction: -1, type: 'decimal' }, { x: 550, y: canvas.height - 90, width: 45, height: 45, speed: 4.2, direction: 1, type: 'negative' }, { x: 250, y: canvas.height - 390, width: 45, height: 45, speed: 3, direction: 1, type: 'math' }, { x: 450, y: canvas.height - 490, width: 45, height: 45, speed: 2.8, direction: -1, type: 'decimal' }, { x: 650, y: canvas.height - 290, width: 45, height: 45, speed: 3.5, direction: 1, type: 'negative' }],
+                flag: { x: 750, y: canvas.height - 590, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            }
+        ];
+        
+        let currentLevel = null, platforms = [], coins = [], enemies = [], flag = null;
+
+        function loadLevel(levelNum) {
+            if (levelNum > levels.length) { showWinScreen(); return; }
+            gameState.level = levelNum; levelDisplay.textContent = gameState.level;
+            currentLevel = levels[levelNum - 1];
+            platforms = JSON.parse(JSON.stringify(currentLevel.platforms));
+            coins = JSON.parse(JSON.stringify(currentLevel.coins));
+            enemies = JSON.parse(JSON.stringify(currentLevel.enemies));
+            flag = JSON.parse(JSON.stringify(currentLevel.flag));
+            resetPlayer();
+            
+            levelTitleHUD.textContent = currentLevel.name;
+            startScreen.style.display = 'flex';
+            startScreen.style.opacity = '1';
+        }
+
+        function drawPlayer() {
+            if (!gameState.running && !gameState.questionActive) { playerContainer.style.display = 'none'; return; } 
+            else { playerContainer.style.display = 'block'; }
+            if (player.velocityX > 0) playerAnimation.direction = 1;
+            if (player.velocityX < 0) playerAnimation.direction = -1;
+            if (Math.abs(player.velocityX) > 0.5 && !player.jumping) catVisuals.classList.add('walking'); else catVisuals.classList.remove('walking');
+            if (player.jumping || player.velocityY !== 0) catVisuals.classList.add('is-jumping'); else catVisuals.classList.remove('is-jumping');
+            const bottomX = player.x + player.width / 2; const bottomY = player.y + player.height;
+            playerContainer.style.left = `${(bottomX / canvas.width) * 100}%`; playerContainer.style.top = `${(bottomY / canvas.height) * 100}%`;
+            const scaleX = canvas.clientWidth / canvas.width; const scaleY = canvas.clientHeight / canvas.height;
+            playerCat.style.transform = `scale(${scaleX * playerAnimation.direction}, ${scaleY})`;
+        }
+
+        function drawPlatforms() {
+            platforms.forEach(platform => {
+                ctx.fillStyle = platform.color; ctx.beginPath(); ctx.roundRect(platform.x, platform.y, platform.width, platform.height, 8); ctx.fill();
+                if (['#2e8b57', '#3a7ca5', '#8a4f7d'].includes(platform.color)) {
+                    ctx.fillStyle = platform.color === '#2e8b57' ? '#3cb371' : platform.color === '#3a7ca5' ? '#5aa0cc' : '#a56b9b';
+                    ctx.fillRect(platform.x, platform.y, platform.width, 8);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                    for (let i = 0; i < platform.width; i += 25) ctx.fillRect(platform.x + i, platform.y + 5, 15, 3);
+                }
+            });
+        }
+        function drawCoins() {
+            coins.forEach(coin => {
+                if (!coin.collected) {
+                    coin.rotation += 0.12; const scale = Math.sin(coin.rotation) * 0.2 + 0.8;
+                    ctx.save(); ctx.translate(coin.x, coin.y); ctx.rotate(coin.rotation); ctx.scale(scale, scale);
+                    ctx.beginPath(); ctx.arc(0, 0, coin.radius, 0, Math.PI * 2); ctx.fillStyle = '#f59e0b'; ctx.fill();
+                    ctx.strokeStyle = '#d97706'; ctx.lineWidth = 3; ctx.stroke();
+                    ctx.beginPath(); ctx.arc(0, 0, coin.radius * 0.6, 0, Math.PI * 2); ctx.strokeStyle = '#d97706'; ctx.stroke();
+                    ctx.restore();
+                }
+            });
+        }
+        function drawEnemies() {
+            enemies.forEach(enemy => {
+                ctx.fillStyle = enemy.type === 'math' ? '#8b5cf6' : enemy.type === 'decimal' ? '#3b82f6' : '#ef4444';
+                ctx.beginPath(); ctx.roundRect(enemy.x, enemy.y, enemy.width, enemy.height, 10); ctx.fill();
+                ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(enemy.x + 15, enemy.y + 15, 7, 0, Math.PI * 2); ctx.arc(enemy.x + enemy.width - 15, enemy.y + 15, 7, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'black'; const eyeOffset = enemy.direction > 0 ? 3 : -3;
+                ctx.beginPath(); ctx.arc(enemy.x + 15 + eyeOffset, enemy.y + 15, 3, 0, Math.PI * 2); ctx.arc(enemy.x + enemy.width - 15 + eyeOffset, enemy.y + 15, 3, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(enemy.x + enemy.width/2, enemy.y + 30, 10, 0, Math.PI); ctx.stroke();
+            });
+        }
+        function drawFlag() {
+            flag.waving += 0.06;
+            ctx.fillStyle = '#d97706'; ctx.fillRect(flag.x, flag.y, 8, flag.height);
+            ctx.fillStyle = '#10b981'; ctx.beginPath(); ctx.moveTo(flag.x + 8, flag.y);
+            const waveOffset = Math.sin(flag.waving) * 15;
+            ctx.quadraticCurveTo(flag.x + 8 + flag.width/2, flag.y + flag.height/4 + waveOffset, flag.x + 8 + flag.width, flag.y + flag.height/3);
+            ctx.quadraticCurveTo(flag.x + 8 + flag.width*0.6, flag.y + flag.height*0.6 + waveOffset, flag.x + 8, flag.y + (flag.height * 2) / 3);
+            ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#059669'; ctx.beginPath(); ctx.arc(flag.x + 8 + flag.width/2, flag.y + flag.height/2, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#1e293b'; ctx.beginPath(); ctx.roundRect(flag.x - 15, flag.y + flag.height, 30, flag.baseHeight, 5); ctx.fill();
+        }
+        function drawBackground() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0f172a'); gradient.addColorStop(1, '#1e293b');
+            ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            for (let i = 0; i < 80; i++) {
+                const x = Math.random() * canvas.width, y = Math.random() * canvas.height * 0.7, size = Math.random() * 2;
+                ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.fillStyle = '#334155';
+            ctx.beginPath(); ctx.moveTo(0, canvas.height - 50); ctx.lineTo(100, canvas.height - 250); ctx.lineTo(200, canvas.height - 50); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(150, canvas.height - 50); ctx.lineTo(250, canvas.height - 220); ctx.lineTo(350, canvas.height - 50); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(300, canvas.height - 50); ctx.lineTo(400, canvas.height - 280); ctx.lineTo(500, canvas.height - 50); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(600, canvas.height - 50); ctx.lineTo(700, canvas.height - 300); ctx.lineTo(800, canvas.height - 50); ctx.fill();
+        }
+
+        function updateAnimations(deltaTime) {
+            playerAnimation.timer += deltaTime;
+            if (playerAnimation.timer > playerAnimation.interval) { playerAnimation.timer = 0; playerAnimation.frame = (playerAnimation.frame + 1) % 8; }
+            platforms.forEach(platform => { if (platform.moving) { platform.x += platform.speed; if (platform.x > platform.endX || platform.x < platform.startX) platform.speed *= -1; } });
+            flag.waving += 0.02;
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground(); drawPlatforms(); drawCoins(); drawEnemies(); drawFlag(); drawPlayer(); 
+            if (gameState.paused) {
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.6)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 40px Tajawal'; ctx.textAlign = 'center';
+                ctx.fillText('اللعبة متوقفة', canvas.width / 2, canvas.height / 2); ctx.textAlign = 'right';
+            }
+        }
+
+        function update() {
+            if (!gameState.running || gameState.paused || gameState.questionActive) return;
+            const now = Date.now(), deltaTime = now - (update.lastTime || now); update.lastTime = now;
+            updateAnimations(deltaTime);
+            player.velocityY += GRAVITY; player.x += player.velocityX; player.y += player.velocityY;
+            
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+            
+            player.jumping = true;
+            platforms.forEach(platform => {
+                if (player.x < platform.x + platform.width && player.x + player.width > platform.x && player.y + player.height > platform.y && player.y + player.height < platform.y + platform.height && player.velocityY > 0) {
+                    player.jumping = false; player.velocityY = 0; player.y = platform.y - player.height;
+                    if (platform.moving) player.x += platform.speed;
+                }
+            });
+            
+            enemies.forEach(enemy => {
+                enemy.x += enemy.speed * enemy.direction;
+                if (enemy.x <= 0 || enemy.x + enemy.width >= canvas.width) enemy.direction *= -1;
+                if (player.x < enemy.x + enemy.width && player.x + player.width > enemy.x && player.y < enemy.y + enemy.height && player.y + player.height > enemy.y) playerHit();
+            });
+            
+            coins.forEach(coin => {
+                if (!coin.collected) {
+                    const distance = Math.sqrt(Math.pow(player.x + player.width/2 - coin.x, 2) + Math.pow(player.y + player.height/2 - coin.y, 2));
+                    if (distance < player.width/2 + coin.radius) {
+                        coin.collected = true; gameState.coins++; gameState.score += 150; coinsDisplay.textContent = gameState.coins; scoreDisplay.textContent = gameState.score; playSound(880, 'sine', 0.1, 0.3);
+                    }
+                }
+            });
+            
+            if (player.x + player.width > flag.x && player.x < flag.x + flag.width && player.y + player.height > flag.y && player.y < flag.y + flag.height) {
+                showQuestion(); playSound(500, 'sine', 0.15, 0.4); playSound(650, 'sine', 0.15, 0.4); playSound(800, 'sine', 0.15, 0.4);
+            }
+            if (player.y > canvas.height) playerHit();
+            drawGame(); requestAnimationFrame(update);
+        }
+
+        // --- تعديل: استخدام أسئلة Sheet بدل العشوائية ---
+        function showQuestion() {
+            gameState.questionActive = true; gameState.running = false; 
+            
+            // سحب السؤال الحالي من المصفوفة (يلف في حال انتهاء الأسئلة)
+            const q = gameQuestions[currentQIndex % gameQuestions.length];
+            
+            questionText.innerHTML = q.q; 
+            resultMessage.textContent = ""; 
+            resultMessage.className = "result";
+            
+            // معالجة رموز الرياضيات
+            if (window.MathJax) MathJax.typesetPromise([questionText]);
+
+            questionModal.style.display = "flex"; 
+            continueBtn.style.display = "none";
+            optionsContainer.innerHTML = "";
+            
+            q.opts.forEach((optionText, idx) => {
+                const optionElement = document.createElement('div'); 
+                optionElement.className = 'option'; 
+                optionElement.innerHTML = optionText;
+                
+                optionElement.onclick = () => checkCustomAnswer(idx, q.ans, q.opts);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            if (window.MathJax) MathJax.typesetPromise([optionsContainer]);
+        }
+
+        function checkCustomAnswer(selectedIndex, correctIndex, opts) {
+            const optionsElements = document.querySelectorAll('.option');
+            optionsElements.forEach((opt, idx) => {
+                opt.onclick = null;
+                if (idx === correctIndex) opt.classList.add('correct'); 
+                else if (idx === selectedIndex) opt.classList.add('incorrect');
+            });
+            
+            if (selectedIndex === correctIndex) {
+                resultMessage.textContent = "إجابة صحيحة! +500 نقطة"; 
+                resultMessage.classList.add("correct"); 
+                gameState.score += 500; 
+                gameState.questionsSolved++;
+                scoreDisplay.textContent = gameState.score; 
+                playSound(600, 'sine', 0.1, 0.4); 
+                playSound(800, 'sine', 0.1, 0.4);
+            } else {
+                resultMessage.textContent = `إجابة خاطئة! الإجابة الصحيحة: ${opts[correctIndex]}`; 
+                resultMessage.classList.add("incorrect"); 
+                playSound(200, 'square', 0.2, 0.5); 
+                playerHit();
+            }
+            
+            currentQIndex++; // الانتقال للسؤال التالي للـ Flag القادم
+            continueBtn.style.display = "block";
+        }
+
+        function playerHit() {
+            playSound(150, 'sawtooth', 0.1, 0.4); gameState.lives--; livesDisplay.textContent = gameState.lives;
+            if (gameState.lives <= 0) gameOver(); else resetPlayer();
+        }
+
+        function resetPlayer() { player.x = 100; player.y = canvas.height - 200; player.velocityX = 0; player.velocityY = 0; player.jumping = false; }
+
+        function nextLevel() {
+            const nextLevelNum = gameState.level + 1;
+            if (nextLevelNum > levels.length) { showWinScreen(); return; }
+            loadLevel(nextLevelNum); gameState.running = false; gameState.paused = false; gameState.questionActive = false;
+            questionModal.style.display = "none"; pauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; drawGame();
+        }
+
+        function gameOver() {
+            gameState.running = false; 
+            gameState.questionActive = true; 
+            playSound(100, 'sawtooth', 1, 0.5); 
+            playSound(75, 'sawtooth', 1, 0.5); 
+
+            // تعديل شكل نافذة الفوز لتصبح نافذة نهاية اللعبة
+            const winTitle = document.querySelector('.win-content h2');
+            if(winTitle) {
+                winTitle.innerHTML = '<i class="fas fa-gamepad"></i> انتهت المحاولات!';
+                winTitle.style.color = '#ef4444'; // تغيير اللون للأحمر
+            }
+            const trophyIcon = document.querySelector('.trophy');
+            if(trophyIcon) trophyIcon.style.display = 'none';
+
+            // تحديث وعرض الإحصائيات النهائية
+            document.getElementById('winLevels').textContent = `${gameState.level - 1}/${TOTAL_LEVELS}`; 
+            document.getElementById('winScore').textContent = gameState.score; 
+            document.getElementById('winCoins').textContent = gameState.coins;
+            
+            // إظهار النافذة
+            winModal.style.display = "flex";
+
+            // إرسال النتيجة النهائية للشيت لتظهر عند المعلم
+            document.getElementById('form-score').value = gameState.score;
+            document.getElementById('scoreForm').submit();
+        }
+
+        function handleKeyDown(e) {
+            if (!gameState.running || gameState.questionActive) return;
+            switch(e.key) {
+                case 'ArrowLeft': player.velocityX = -PLAYER_SPEED; break;
+                case 'ArrowRight': player.velocityX = PLAYER_SPEED; break;
+                case ' ': case 'Spacebar': case 'ArrowUp':
+                    if (!player.jumping) { player.velocityY = JUMP_FORCE; player.jumping = true; playSound(440, 'triangle', 0.15, 0.4); } break;
+            }
+        }
+        function handleKeyUp(e) {
+            if (!gameState.running || gameState.questionActive) return;
+            switch(e.key) { case 'ArrowLeft': case 'ArrowRight': case 'ArrowUp': player.velocityX = 0; break; }
+        }
+        function setupMobileControls() {
+            document.querySelector('.left-btn').addEventListener('touchstart', (e) => { e.preventDefault(); if (gameState.running) player.velocityX = -PLAYER_SPEED; });
+            document.querySelector('.left-btn').addEventListener('touchend', (e) => { e.preventDefault(); if (player.velocityX < 0) player.velocityX = 0; });
+            document.querySelector('.right-btn').addEventListener('touchstart', (e) => { e.preventDefault(); if (gameState.running) player.velocityX = PLAYER_SPEED; });
+            document.querySelector('.right-btn').addEventListener('touchend', (e) => { e.preventDefault(); if (player.velocityX > 0) player.velocityX = 0; });
+            const jumpHandler = (e) => { e.preventDefault(); if (gameState.running && !player.jumping) { player.velocityY = JUMP_FORCE; player.jumping = true; playSound(440, 'triangle', 0.15, 0.4); } };
+            document.querySelector('.jump-btn').addEventListener('touchstart', jumpHandler);
+        }
+
+        function startGame() {
+            if (audioContext.state === 'suspended') audioContext.resume();
+            startScreen.style.opacity = '0';
+            setTimeout(() => { startScreen.style.display = 'none'; }, 300);
+            if (!gameState.running) { gameState.running = true; gameState.paused = false; gameState.questionActive = false; update.lastTime = Date.now(); update(); }
+        }
+
+        function pauseGame() {
+            if (gameState.running && !gameState.paused) { 
+                gameState.paused = true; pauseBtn.innerHTML = '<i class="fas fa-play"></i>'; drawGame();
+            } else if (gameState.running && gameState.paused) { 
+                gameState.paused = false; pauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; update.lastTime = Date.now(); update(); 
+            }
+        }
+
+        function resetGame() {
+            gameState.running = false; gameState.paused = false; gameState.questionActive = false; gameState.coins = 0; gameState.lives = MAX_LIVES; gameState.level = 1; gameState.score = 0; gameState.questionsSolved = 0;
+            coinsDisplay.textContent = gameState.coins; livesDisplay.textContent = gameState.lives; levelDisplay.textContent = gameState.level; scoreDisplay.textContent = gameState.score;
+            pauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; winModal.style.display = "none";
+            loadLevel(1); drawGame();
+        }
+
+        function showWinScreen() {
+            gameState.running = false; gameState.questionActive = true; playSound(1000, 'sine', 0.2, 0.5); playSound(1200, 'sine', 0.2, 0.5); playSound(1500, 'sine', 0.2, 0.5);
+            document.getElementById('winLevels').textContent = `${TOTAL_LEVELS}/${TOTAL_LEVELS}`; document.getElementById('winScore').textContent = gameState.score; document.getElementById('winCoins').textContent = gameState.coins;
+            winModal.style.display = "flex";
+            
+            // إرسال النتيجة للشيت
+            document.getElementById('form-score').value = gameState.score;
+            document.getElementById('scoreForm').submit();
+        }
+
+        window.addEventListener('keydown', handleKeyDown); window.addEventListener('keyup', handleKeyUp);
+        startBtn.addEventListener('click', startGame); pauseBtn.addEventListener('click', pauseGame);
+        setupMobileControls();
+        continueBtn.addEventListener('click', () => { questionModal.style.display = "none"; nextLevel(); });
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            window.location.href = window.location.href.split('?')[0]; // إعادة تحميل لإرجاع اللاعب للرئيسية
+        });
+        
+    </script>
+</body>
+</html>

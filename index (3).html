@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>منصة التحدي التفاعلية - الممتعة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<!-- مكتبة الرياضيات -->
+<script src="https://unpkg.com/mathlive"></script>
+<style>
+        /* ========================================= */
+        /* متغيرات وأنماط اللعبة الأصلية             */
+        /* ========================================= */
+        :root {
+            --primary: #46178f;
+            --primary-dark: #321067;
+            --secondary: #eb2730;
+            --success: #26890c;
+            --info: #1368ce;
+            --warning: #ffa602;
+            --light: #f2f2f2;
+            --white: #ffffff;
+            --k-red: #e21b3c;
+            --k-red-dark: #b81631;
+            --k-blue: #1368ce;
+            --k-blue-dark: #0f54a8;
+            --k-yellow: #d89e00;
+            --k-yellow-dark: #b08100;
+            --k-green: #26890c;
+            --k-green-dark: #1e6d0a;
+            
+            /* متغيرات لوحة الرياضيات المنبثقة */
+            --word-blue: #2b579a;
+            --math-bg: #f3f2f1;
+            --key-bg: #ffffff;
+            --key-border: #d2d2d2;
+            --key-hover: #e1dfdd;
+            --action-bg: #adb5bd;
+            --kb-bg: #d1d4d9;
+        } 
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; } 
+
+        body {
+            background: linear-gradient(-45deg, #46178f, #1368ce, #e21b3c, #ffa602);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        } 
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .mute-btn {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.9); border: none; border-radius: 50%;
+            width: 50px; height: 50px; font-size: 24px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .mute-btn:hover { transform: scale(1.15); background: #fff; }
+
+        .screen {
+            display: none; width: 100%; max-width: 900px; padding: 20px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; position: relative; z-index: 10;
+        }
+        .screen.active { display: flex; } 
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        } 
+
+        .card {
+            background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 550px; text-align: center;
+            backdrop-filter: blur(10px);
+        } 
+
+        h1 { color: var(--primary); margin-bottom: 25px; font-size: 38px; text-shadow: 2px 2px 0px rgba(0,0,0,0.05); }
+        h2 { color: #333; margin-bottom: 20px; font-size: 28px; }
+        
+        .btn {
+            width: 100%; padding: 16px; border: none; border-radius: 8px;
+            font-size: 20px; font-weight: 900; cursor: pointer;
+            margin-bottom: 15px; color: var(--white);
+            transition: all 0.1s; position: relative; top: 0;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+        }
+        .btn:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0.2); }
+        
+        .btn-primary { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
+        .btn-teacher { background-color: var(--info); box-shadow: 0 6px 0 var(--k-blue-dark); }
+        .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 var(--k-red-dark); }
+        .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; margin-top: 10px; } 
+        .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark); }
+
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 18px; margin-bottom: 20px;
+            border: 3px solid #ddd; border-radius: 8px;
+            font-size: 18px; font-weight: bold; text-align: center;
+            transition: border-color 0.3s;
+        }
+        input:focus { outline: none; border-color: var(--primary); }
+
+        /* Teacher Setup UI */
+        .q-builder-container {
+            width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.95);
+            padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            max-height: 80vh; overflow-y: auto; text-align: right;
+        }
+        .q-block {
+            background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 20px;
+            border: 2px solid #eee; position: relative;
+        }
+        .q-block h3 { margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .q-block input.q-title { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ccc; font-size: 18px; text-align: right; }
+        .opt-row { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .opt-row input[type="text"] { flex: 1; padding: 10px; margin-bottom: 0; border: 2px solid #ccc; font-size: 16px; text-align: right; }
+        .opt-row input[type="radio"] { width: 25px; height: 25px; accent-color: var(--success); cursor: pointer; flex-shrink: 0; }
+        .remove-q-btn { background: var(--k-red); color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .math-trigger-btn { background: #46178f; color: white; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 0 #321067;}
+        .math-trigger-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #321067; }
+        
+        .avatar-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+            margin: 20px 0; max-height: 200px; overflow-y: auto;
+            padding: 10px; background: #f5f5f5; border-radius: 12px;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.05);
+        }
+        .avatar-item {
+            font-size: 38px; padding: 10px; cursor: pointer; border-radius: 50%;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center;
+            background: white; box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        .avatar-item:hover { transform: scale(1.15); z-index: 2; }
+        .avatar-item.selected { background: var(--warning); transform: scale(1.2); box-shadow: 0 0 0 4px var(--primary); z-index: 3; }
+
+        .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; }
+        th, td { padding: 18px; text-align: center; font-size: 20px; background: white; }
+        th { background: var(--primary); color: white; font-weight: 900; }
+        tr td:first-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        tr td:last-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        tbody tr { box-shadow: 0 3px 10px rgba(0,0,0,0.08); transition: transform 0.2s; }
+        tbody tr:hover { transform: scale(1.02); }
+
+        /* Game UI */
+        .game-header { 
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; padding: 15px 25px; background: rgba(255,255,255,0.95);
+            border-radius: 12px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); 
+            flex-wrap: wrap; gap: 10px;
+        }
+        .player-info { font-size: 22px; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .score-badge { font-size: 24px; font-weight: 900; color: white; background: var(--primary); padding: 5px 20px; border-radius: 30px; }
+        
+        .streak-badge {
+            font-size: 20px; font-weight: bold; color: var(--white); background: var(--warning); 
+            padding: 5px 15px; border-radius: 30px; display: none; align-items: center; gap: 5px;
+            animation: pulse 1s infinite alternate; box-shadow: 0 2px 10px rgba(255, 166, 2, 0.5);
+        }
+
+        .timer-container { width: 100%; background: #ddd; height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .timer-bar { height: 100%; background: var(--primary); width: 100%; transition: width 0.1s linear, background-color 0.3s; }
+        .timer-bar.danger { background: var(--k-red); animation: pulse 0.5s infinite alternate; }
+
+        @keyframes pulse { from { opacity: 1; transform: scale(1); } to { opacity: 0.8; transform: scale(1.05); } }
+
+        .powerup-btn {
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            border: none; border-radius: 30px; padding: 10px 20px;
+            font-size: 18px; font-weight: bold; color: #fff; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+            display: flex; align-items: center; gap: 8px; margin: 0 auto 20px;
+            transition: transform 0.2s;
+        }
+        .powerup-btn:hover { transform: scale(1.1); }
+        .powerup-btn:active { transform: scale(0.95); }
+
+        .question-box { 
+            background: white; padding: 40px 30px; border-radius: 16px; margin-bottom: 30px; 
+            font-size: 32px; font-weight: 900; text-align: center; width: 100%; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); color: #222; border-top: 8px solid var(--primary);
+        }
+
+        .display-text {
+            white-space: pre-wrap;
+            word-spacing: 0.15em;
+            overflow-wrap: anywhere;
+            unicode-bidi: plaintext;
+        }
+        
+        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+        
+        .ans-btn {
+            border: none; border-radius: 12px; color: white; font-size: 26px; font-weight: bold; cursor: pointer;
+            min-height: 140px; display: flex; align-items: center; padding: 20px; gap: 20px;
+            transition: transform 0.1s, top 0.1s, box-shadow 0.1s, opacity 0.3s; position: relative; top: 0;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.3); text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            opacity: 0; animation: slideUp 0.5s forwards;
+        }
+        .ans-btn:active { top: 8px; box-shadow: 0 0px 0 rgba(0,0,0,0.3); }
+        .ans-icon { font-size: 35px; width: 50px; text-align: center; }
+
+        .ans-btn:nth-child(1) { animation-delay: 0.1s; }
+        .ans-btn:nth-child(2) { animation-delay: 0.2s; }
+        .ans-btn:nth-child(3) { animation-delay: 0.3s; }
+        .ans-btn:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
+        
+        .bg-red { background-color: var(--k-red); box-shadow: 0 8px 0 var(--k-red-dark); }
+        .bg-blue { background-color: var(--k-blue); box-shadow: 0 8px 0 var(--k-blue-dark); }
+        .bg-yellow { background-color: var(--k-yellow); box-shadow: 0 8px 0 var(--k-yellow-dark); color: #333; text-shadow: none; }
+        .bg-green { background-color: var(--k-green); box-shadow: 0 8px 0 var(--k-green-dark); }
+        
+        #screen-countdown, #screen-loading-sheet {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;
+            background: rgba(70, 23, 143, 0.95); display: none; flex-direction: column; 
+            align-items: center; justify-content: center; color: white; backdrop-filter: blur(5px);
+        }
+        #countdown-number { font-size: 150px; font-weight: 900; animation: pop 1s infinite; text-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        #countdown-text { font-size: 40px; font-weight: bold; margin-bottom: 20px; }
+
+        .loader-spinner {
+            border: 8px solid rgba(255,255,255,0.3); border-top: 8px solid white;
+            border-radius: 50%; width: 80px; height: 80px; animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+
+        #feedback-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
+            flex-direction: column; align-items: center; justify-content: center; color: white;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        #feedback-icon { font-size: 120px; margin-bottom: 20px; animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #feedback-text { font-size: 50px; font-weight: 900; animation: slideUp 0.5s; }
+        #feedback-points { font-size: 35px; font-weight: bold; margin-top: 10px; background: rgba(0,0,0,0.2); padding: 5px 20px; border-radius: 30px; animation: fadeIn 1s; }
+
+        @keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.5); } 100% { transform: scale(1); } }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-15px); }
+            20%, 40%, 60%, 80% { transform: translateX(15px); }
+        }
+        .shake-screen { animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both; background: var(--k-red) !important; }
+
+        .floating-points {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: var(--k-green); font-size: 60px; font-weight: 900; z-index: 3000; pointer-events: none;
+            text-shadow: 3px 3px 0 #fff, -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff;
+            animation: floatUpFade 1.5s ease-out forwards;
+        }
+        @keyframes floatUpFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -60%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1); }
+        }
+
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+
+        #review-container { display: none; text-align: right; width: 100%; max-height: 400px; overflow-y: auto; padding: 10px; border-top: 2px solid #eee; margin-top: 20px; }
+        .review-item { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-right: 5px solid var(--primary); }
+        .review-q { font-weight: bold; font-size: 18px; color: #333; margin-bottom: 5px; }
+        .review-ans { font-size: 16px; display: flex; justify-content: space-between; }
+        .correct-ans { color: var(--success); font-weight: bold; }
+        .wrong-ans { color: var(--k-red); font-weight: bold; }
+
+        /* ========================================= */
+        /* ستايل لوحة الرياضيات (المحرر المنبثق)    */
+        /* ========================================= */
+        #math-modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 99999; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .math-modal-content {
+            width: 95%; max-width: 800px; background: var(--math-bg);
+            border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid #d2d2d2;
+        }
+
+        .math-header {
+            background-color: var(--word-blue); color: white; padding: 15px;
+            font-weight: 600; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        .math-close-btn {
+            background: var(--success); color: white; border: none; padding: 8px 15px;
+            border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px;
+        }
+
+        .math-editor-container { padding: 20px 10px; display: flex; justify-content: center; background: white;}
+
+        math-field {
+            font-size: 1.8rem; width: 100%; min-height: 120px;
+            border: 2px solid var(--word-blue); padding: 15px;
+            border-radius: 8px; background: #fff; outline: none;
+        }
+
+        .math-keyboard-wrapper { background: var(--kb-bg); border-top: 1px solid #bbb; }
+        .math-keyboard-tabs { display: flex; background: #e9ecef; border-bottom: 1px solid #ccc; overflow-x: auto; }
+        
+        .math-tab {
+            flex: 1; min-width: 80px; padding: 12px 5px; text-align: center;
+            font-size: 0.95rem; cursor: pointer; color: #555; transition: 0.2s; white-space: nowrap; font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .math-tab.active { background: white; font-weight: bold; color: var(--word-blue); }
+
+        .custom-keyboard {
+            padding: 5px; display: none; flex-direction: column; gap: 5px;
+            user-select: none; max-height: 320px; overflow-y: auto; font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .custom-keyboard.active { display: flex; }
+
+        .kb-row { display: flex; justify-content: center; gap: 4px; width: 100%; }
+        
+        .key {
+            background: var(--key-bg); border: none; border-bottom: 2px solid #999;
+            border-radius: 5px; height: 50px; flex: 1; min-width: 35px; max-width: 60px;
+            font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #333; touch-action: manipulation;
+        }
+        .key:active { background: var(--key-hover); transform: translateY(1px); border-bottom-width: 1px; }
+        .key.action { background: var(--action-bg); color: white; font-size: 1rem; max-width: none; }
+        .key.num { background: #f8f9fa; font-weight: bold; border-color: #bbb; }
+        .key.space { flex: 5; max-width: none; background: #f8f9fa; font-size: 1rem; color: #444; font-weight: bold; }
+
+        .math-icon { display: inline-flex; align-items: center; justify-content: center; font-family: 'Times New Roman', serif; font-style: italic; pointer-events: none; }
+        .frac-icon { flex-direction: column; font-size: 0.75em; line-height: 1.1; }
+        .frac-icon .line { border-top: 1px solid #333; width: 12px; margin: 1px 0; }
+        .root-icon { align-items: center; }
+        .root-icon .radicand { border-top: 1.2px solid #333; padding-top: 1px; margin-left: 1px; font-style: italic; }
+
+        @media (max-width: 600px) {
+            .answers-grid { grid-template-columns: 1fr; }
+            .ans-btn { min-height: 100px; font-size: 22px; }
+            .question-box { font-size: 24px; padding: 25px 15px; }
+            .room-pin { font-size: 45px; }
+            h1 { font-size: 30px; }
+            .game-header { flex-direction: column; align-items: stretch; text-align: center; }
+            .player-info { justify-content: center; }
+            .q-builder-container { padding: 15px; }
+            .key { height: 45px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<button class="mute-btn" id="mute-btn" onclick="toggleMute()">🔊</button>
+<canvas id="confetti-canvas"></canvas>
+<script>
+        // --- Define global Iframe callbacks at the top to prevent ReferenceErrors ---
+        function handleScoreLoad() {
+            const screen = document.getElementById('screen-student-result');
+            if (screen && screen.classList.contains('active')) {
+                const status = document.getElementById('final-status');
+                if (status) {
+                    status.innerText = "تم تسجيل نتيجتك بنجاح في لوحة الشرف! 🌟";
+                    status.style.color = "var(--success)";
+                }
+            }
+        }
+
+        function handleQuestionsLoad() {
+            const screen = document.getElementById('screen-teacher');
+            if (screen && screen.classList.contains('active')) {
+                const status = document.getElementById('saving-status');
+                if (status) {
+                    status.innerText = "✅ تم حفظ الأسئلة بنجاح! يمكن للطلاب الدخول الآن.";
+                    status.style.color = "var(--success)";
+                }
+            }
+        }
+    </script>
+<!-- شاشة التحميل عند جلب بيانات الإكسل -->
+<div id="screen-loading-sheet">
+<div class="loader-spinner"></div>
+<div style="font-size: 28px; font-weight: bold; margin-top: 20px;">جاري جلب أسئلة التحدي من المعلم...</div>
+</div>
+<!-- شاشة العد التنازلي -->
+<div id="screen-countdown">
+<div id="countdown-text">استعد!</div>
+<div id="countdown-number">3</div>
+</div>
+<!-- الرئيسية -->
+<div class="screen active" id="screen-home">
+<div class="card">
+<h1>🎮 التحدي الأكبر</h1>
+<p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
+<button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
+<button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
+</div>
+</div>
+<!-- إعداد أسئلة المعلم -->
+<div class="screen" id="screen-teacher-setup">
+<div class="q-builder-container">
+<h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
+<p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
+<div id="questions-list"></div>
+<button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
+<div style="margin-top: 30px; display: flex; gap: 10px;">
+<button class="btn btn-primary" onclick="saveQuestionsToSheet()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
+<button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">إلغاء</button>
+</div>
+</div>
+</div>
+<!-- المعلم: اللوبي (غرفة الانتظار) -->
+<div class="screen" id="screen-teacher">
+<div style="width: 100%; text-align: center;">
+<div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
+<h2>انضموا الآن! رمز الغرفة:</h2>
+<div class="room-pin" id="display-room-pin">000000</div>
+<p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام الموحد...</p>
+<div id="qr-container" style="margin: 20px 0;">
+<img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
+<p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
+</div>
+<div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
+<input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
+<button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
+</div>
+</div>
+<table id="leaderboard" style="display: none;">
+<thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+<tbody id="leaderboard-body"></tbody>
+</table>
+<div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
+                ⏳ بانتظار دخول الأبطال وحل الأسئلة...
+            </div>
+<button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
+</div>
+</div>
+<!-- الطالب: الدخول واختيار الشخصية -->
+<div class="screen" id="screen-student-login">
+<div class="card">
+<h2>أدخل بياناتك للانطلاق 🚀</h2>
+<input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
+<input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
+<p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
+<div class="avatar-grid" id="avatar-container"></div>
+<button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
+<button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
+</div>
+</div>
+<!-- الطالب: اللعب -->
+<div class="screen" id="screen-student-game" style="max-width: 1000px;">
+<div class="game-header">
+<div class="player-info">
+<span id="player-avatar-display" style="font-size: 35px;"></span>
+<span id="player-name-display"></span>
+</div>
+<div class="streak-badge" id="streak-badge">🔥 <span id="streak-count">2</span> متتالي!</div>
+<div class="score-badge">النقاط: <span id="score-display">0</span></div>
+</div>
+<div class="timer-container"><div class="timer-bar" id="timer-bar"></div></div>
+<button class="powerup-btn" id="powerup-5050" onclick="use5050()">💡 مساعدة 50/50 (استخدام واحد)</button>
+<div class="question-box display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div>
+<div class="answers-grid">
+<button class="ans-btn bg-red" id="btn-ans-0" onclick="submitAnswer(0)"><span class="ans-icon">▲</span> <span class="display-text" id="ans-text-0" style="direction: rtl;"></span></button>
+<button class="ans-btn bg-blue" id="btn-ans-1" onclick="submitAnswer(1)"><span class="ans-icon">◆</span> <span class="display-text" id="ans-text-1" style="direction: rtl;"></span></button>
+<button class="ans-btn bg-yellow" id="btn-ans-2" onclick="submitAnswer(2)"><span class="ans-icon">●</span> <span class="display-text" id="ans-text-2" style="direction: rtl;"></span></button>
+<button class="ans-btn bg-green" id="btn-ans-3" onclick="submitAnswer(3)"><span class="ans-icon">■</span> <span class="display-text" id="ans-text-3" style="direction: rtl;"></span></button>
+</div>
+</div>
+<div id="feedback-overlay">
+<div id="feedback-icon"></div>
+<div id="feedback-text"></div>
+<div id="feedback-points"></div>
+</div>
+<!-- الطالب: النتيجة -->
+<div class="screen" id="screen-student-result">
+<div class="card" style="padding: 50px 30px; max-width: 650px;">
+<h2 id="final-avatar" style="font-size: 100px; margin-bottom: 10px; animation: bounceIn 1s;"></h2>
+<h2 id="final-player-name" style="font-size: 35px;"></h2>
+<p style="color: #666; font-size: 22px; font-weight: bold; margin-top: 10px;">نهاية التحدي، رصيدك هو:</p>
+<h1 id="final-score-display" style="font-size: 90px; color: var(--primary); margin: 10px 0; text-shadow: 3px 3px 0px rgba(0,0,0,0.1);">0</h1>
+<p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--info);">جاري حفظ النتيجة...</p>
+<!-- زر المراجعة -->
+<button class="btn btn-action" onclick="toggleReview()">📝 مراجعة إجاباتي</button>
+<div id="review-container"></div>
+<button class="btn btn-primary" onclick="window.location.href = window.location.href.split('?')[0]" style="font-size: 22px; margin-top:15px;">العب مرة أخرى</button>
+</div>
+</div>
+<!-- نافذة محرر الرياضيات المنبثقة (Modal) -->
+<div id="math-modal-overlay">
+<div class="math-modal-content">
+<div class="math-header">
+<span>📝 محرر الرياضيات الشامل</span>
+<button class="math-close-btn" onclick="closeMathModal()">✓ إدراج وحفظ</button>
+</div>
+<div class="math-editor-container">
+<math-field id="formula" virtual-keyboard-policy="manual"></math-field>
+</div>
+<div class="math-keyboard-wrapper">
+<div class="math-keyboard-tabs">
+<div class="math-tab active" onclick="showMathTab('math_combined', event)">الأرقام والرموز</div>
+<div class="math-tab" onclick="showMathTab('letters', event)">عربي</div>
+<div class="math-tab" onclick="showMathTab('english', event)">English</div>
+</div>
+<!-- لوحة الأرقام والرموز المدمجة -->
+<div class="custom-keyboard active" id="math_combined">
+<div class="kb-row">
+<button class="key num" onpointerdown="addMath('1', event)">1</button>
+<button class="key num" onpointerdown="addMath('2', event)">2</button>
+<button class="key num" onpointerdown="addMath('3', event)">3</button>
+<button class="key num" onpointerdown="addMath('4', event)">4</button>
+<button class="key num" onpointerdown="addMath('5', event)">5</button>
+<button class="key num" onpointerdown="addMath('6', event)">6</button>
+<button class="key num" onpointerdown="addMath('7', event)">7</button>
+<button class="key num" onpointerdown="addMath('8', event)">8</button>
+<button class="key num" onpointerdown="addMath('9', event)">9</button>
+<button class="key num" onpointerdown="addMath('0', event)">0</button>
+</div>
+<div class="kb-row">
+<button class="key action" onpointerdown="addMath('+', event)">+</button>
+<button class="key action" onpointerdown="addMath('-', event)">-</button>
+<button class="key action" onpointerdown="addMath('\\times', event)">×</button>
+<button class="key action" onpointerdown="addMath('\\div', event)">÷</button>
+<button class="key action" onpointerdown="addMath('=', event)">=</button>
+<button class="key" onpointerdown="addMath('.', event)">.</button>
+<button class="key" onpointerdown="insertMathCode('&lt;', event)">&lt;</button>
+<button class="key" onpointerdown="insertMathCode('&gt;', event)">&gt;</button>
+<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="insertMathCode('\\frac{#@}{#?}', event)"><span class="math-icon frac-icon"><span>a</span><span class="line"></span><span>b</span></span></button>
+<button class="key" onpointerdown="insertMathCode('^{#?}', event)"><span class="math-icon">x<sup style="font-size:0.7em;">n</sup></span></button>
+<button class="key" onpointerdown="insertMathCode('\\sqrt{#?}', event)"><span class="math-icon root-icon"><span>√</span><span class="radicand">x</span></span></button>
+<button class="key" onpointerdown="insertMathCode('\\sqrt[#?]{#?}', event)"><span class="math-icon root-icon"><sup style="font-size:0.5em; font-style:normal;">n</sup><span>√</span><span class="radicand">x</span></span></button>
+<button class="key" onpointerdown="insertMathCode('\\le', event)">≤</button>
+<button class="key" onpointerdown="insertMathCode('\\ge', event)">≥</button>
+<button class="key" onpointerdown="insertMathCode('\\neq', event)">≠</button>
+<button class="key" onpointerdown="insertMathCode('\\approx', event)">≈</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="insertMathCode('^\\circ', event)">°</button>
+<button class="key" onpointerdown="insertMathCode('\\angle', event)">∠</button>
+<button class="key" onpointerdown="insertMathCode('\\pi', event)">π</button>
+<button class="key" onpointerdown="insertMathCode('\\infty', event)">∞</button>
+<button class="key" onpointerdown="insertMathCode('\\Delta', event)">Δ</button>
+<button class="key" onpointerdown="insertMathCode('\\pm', event)">±</button>
+<button class="key" onpointerdown="insertMathCode('\\{', event)">{</button>
+<button class="key" onpointerdown="insertMathCode('\\}', event)">}</button>
+<button class="key" onpointerdown="insertMathCode('(', event)">(</button>
+<button class="key" onpointerdown="insertMathCode(')', event)">)</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="insertMathCode('\\sin', event)">sin</button>
+<button class="key" onpointerdown="insertMathCode('\\cos', event)">cos</button>
+<button class="key" onpointerdown="insertMathCode('\\tan', event)">tan</button>
+<button class="key" onpointerdown="insertMathCode('\\theta', event)">θ</button>
+<button class="key" onpointerdown="insertMathCode('\\alpha', event)">α</button>
+<button class="key" onpointerdown="insertMathCode('\\int', event)">∫</button>
+<button class="key" onpointerdown="insertMathCode('\\sum', event)">Σ</button>
+<button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
+</div>
+</div>
+<!-- لوحة العربي -->
+<div class="custom-keyboard" id="letters">
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('ض', event)">ض</button>
+<button class="key" onpointerdown="addMath('ص', event)">ص</button>
+<button class="key" onpointerdown="addMath('ث', event)">ث</button>
+<button class="key" onpointerdown="addMath('ق', event)">ق</button>
+<button class="key" onpointerdown="addMath('ف', event)">ف</button>
+<button class="key" onpointerdown="addMath('غ', event)">غ</button>
+<button class="key" onpointerdown="addMath('ع', event)">ع</button>
+<button class="key" onpointerdown="addMath('ه', event)">ه</button>
+<button class="key" onpointerdown="addMath('خ', event)">خ</button>
+<button class="key" onpointerdown="addMath('ح', event)">ح</button>
+<button class="key" onpointerdown="addMath('ج', event)">ج</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('ش', event)">ش</button>
+<button class="key" onpointerdown="addMath('س', event)">س</button>
+<button class="key" onpointerdown="addMath('ي', event)">ي</button>
+<button class="key" onpointerdown="addMath('ب', event)">ب</button>
+<button class="key" onpointerdown="addMath('ل', event)">ل</button>
+<button class="key" onpointerdown="addMath('ا', event)">ا</button>
+<button class="key" onpointerdown="addMath('ت', event)">ت</button>
+<button class="key" onpointerdown="addMath('ن', event)">ن</button>
+<button class="key" onpointerdown="addMath('م', event)">م</button>
+<button class="key" onpointerdown="addMath('ك', event)">ك</button>
+<button class="key" onpointerdown="addMath('ط', event)">ط</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('ئ', event)">ئ</button>
+<button class="key" onpointerdown="addMath('ء', event)">ء</button>
+<button class="key" onpointerdown="addMath('ؤ', event)">ؤ</button>
+<button class="key" onpointerdown="addMath('ر', event)">ر</button>
+<button class="key" onpointerdown="addMath('ى', event)">ى</button>
+<button class="key" onpointerdown="addMath('ة', event)">ة</button>
+<button class="key" onpointerdown="addMath('و', event)">و</button>
+<button class="key" onpointerdown="addMath('ز', event)">ز</button>
+<button class="key" onpointerdown="addMath('ظ', event)">ظ</button>
+<button class="key" onpointerdown="addMath('د', event)">د</button>
+<button class="key" onpointerdown="addMath('ذ', event)">ذ</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('أ', event)">أ</button>
+<button class="key" onpointerdown="addMath('إ', event)">إ</button>
+<button class="key" onpointerdown="addMath('آ', event)">آ</button>
+<button class="key" onpointerdown="addMath('؟', event)">؟</button>
+<button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
+<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
+</div>
+</div>
+<!-- لوحة الإنجليزي -->
+<div class="custom-keyboard" id="english">
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('q', event)">q</button>
+<button class="key" onpointerdown="addMath('w', event)">w</button>
+<button class="key" onpointerdown="addMath('e', event)">e</button>
+<button class="key" onpointerdown="addMath('r', event)">r</button>
+<button class="key" onpointerdown="addMath('t', event)">t</button>
+<button class="key" onpointerdown="addMath('y', event)">y</button>
+<button class="key" onpointerdown="addMath('u', event)">u</button>
+<button class="key" onpointerdown="addMath('i', event)">i</button>
+<button class="key" onpointerdown="addMath('o', event)">o</button>
+<button class="key" onpointerdown="addMath('p', event)">p</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('a', event)">a</button>
+<button class="key" onpointerdown="addMath('s', event)">s</button>
+<button class="key" onpointerdown="addMath('d', event)">d</button>
+<button class="key" onpointerdown="addMath('f', event)">f</button>
+<button class="key" onpointerdown="addMath('g', event)">g</button>
+<button class="key" onpointerdown="addMath('h', event)">h</button>
+<button class="key" onpointerdown="addMath('j', event)">j</button>
+<button class="key" onpointerdown="addMath('k', event)">k</button>
+<button class="key" onpointerdown="addMath('l', event)">l</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('z', event)">z</button>
+<button class="key" onpointerdown="addMath('x', event)">x</button>
+<button class="key" onpointerdown="addMath('c', event)">c</button>
+<button class="key" onpointerdown="addMath('v', event)">v</button>
+<button class="key" onpointerdown="addMath('b', event)">b</button>
+<button class="key" onpointerdown="addMath('n', event)">n</button>
+<button class="key" onpointerdown="addMath('m', event)">m</button>
+<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫</button>
+</div>
+<div class="kb-row">
+<button class="key space" onpointerdown="addMathSpace(event)">Space</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Iframe Forms for Apps Script -->
+<iframe id="hidden_iframe_score" name="hidden_iframe_score" onload="handleScoreLoad()" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
+<input id="form-name" name="name" type="hidden"/>
+<input id="form-school" name="school" type="hidden"/>
+<input id="form-score" name="score" type="hidden"/>
+</form>
+<iframe id="hidden_iframe_questions" name="hidden_iframe_questions" onload="handleQuestionsLoad()" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display: none;" target="hidden_iframe_questions">
+<input id="qform-name" name="name" type="hidden"/>
+<input id="qform-school" name="school" type="hidden"/>
+<input id="qform-score" name="score" type="hidden" value="QUESTIONS"/> <!-- Identifier to skip in leaderboard -->
+</form>
+<script>
+        // ========================================== //
+        // أكواد محرر الرياضيات المنبثق               //
+        // ========================================== //
+        const mf = document.getElementById('formula');
+        mf.smartMode = true; 
+        let targetInputField = null; // سيخزن الحقل الذي نقوم بالكتابة فيه حالياً
+
+        mf.addEventListener('focusin', (e) => {
+            e.preventDefault();
+            if (window.mathVirtualKeyboard) window.mathVirtualKeyboard.hide();
+        });
+
+        // التقاط زر المسافة من لوحة المفاتيح العادية
+        mf.addEventListener('keydown', (e) => {
+            if (e.key === ' ') {
+                e.preventDefault(); // إيقاف السلوك الافتراضي الذي يتجاهل المسافة
+                mf.insert('\\text{ }'); // إجبار المحرر على إدراج مسافة فعلية
+            }
+        });
+
+        function addMath(val, e) {
+            if (e) e.preventDefault();
+            mf.focus(); mf.insert(val);
+        }
+
+        function insertMathCode(latex, e) {
+            if (e) e.preventDefault();
+            mf.focus(); mf.insert(latex); 
+        }
+
+        function addMathSpace(e) {
+            if (e) e.preventDefault();
+            mf.focus(); mf.insert('\\text{ }'); 
+        }
+
+        function backspaceMath(e) {
+            if (e) e.preventDefault();
+            mf.focus(); mf.executeCommand('deleteBackward');
+        }
+
+        function showMathTab(tabId, event) {
+            document.querySelectorAll('.custom-keyboard').forEach(kb => kb.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.math-tab').forEach(t => t.classList.remove('active'));
+            if(event) event.currentTarget.classList.add('active');
+        }
+
+        // فتح لوحة الرياضيات وربطها بالحقل النصي المجاور لها
+        function openMathModal(inputElement) {
+            targetInputField = inputElement;
+            document.getElementById('math-modal-overlay').style.display = 'flex';
+            mf.value = ''; // تصفير المحرر عند كل فتحة جديدة
+            setTimeout(() => mf.focus(), 100);
+        }
+
+        // إغلاق لوحة الرياضيات وتحويل المعادلات إلى نص للحقل الأصلي
+        function closeMathModal() {
+            document.getElementById('math-modal-overlay').style.display = 'none';
+            if (targetInputField) {
+                // دمج القيمة السابقة مع القيمة الجديدة المكتوبة في المحرر
+                targetInputField.value += " \\(" + mf.value + "\\) ";
+                targetInputField = null;
+            }
+        }
+
+        // ========================================== //
+        // أكواد اللعبة الأصلية (بدون تعديل جوهري)   //
+        // ========================================== //
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let isMuted = false;
+        let bgmInterval, bgmStep = 0, currentBgmType = null;
+
+        const avatars = ["🦁","🦋","🤖","🥷","👨‍🔬","👩‍🔬","🐺","🦊","🐯","🐼","🐰","🐹","🐻","🐥","🦉","🐧","🫅","👸","🦸‍♂️","🦸‍♀️","🕵️","🧙‍♂️","🧚‍♀️","🚀","🛸","⭐","🔥","⚡"];
+        let selectedAvatar = avatars[0];
+
+        function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+        function toggleMute() { isMuted = !isMuted; document.getElementById('mute-btn').innerText = isMuted ? "🔇" : "🔊"; }
+        
+        function playTone(freq, type, dur, vol = 0.05) {
+            if (isMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + dur);
+            } catch(e){}
+        }
+
+        function playBGM(type) {
+            stopBGM(); initAudio(); currentBgmType = type; bgmStep = 0;
+            const speed = type === 'lobby' ? 250 : 180;
+            bgmInterval = setInterval(() => {
+                const notes = type === 'lobby' ? [261, 329, 392, 523, 392, 329] : [110, 880, 0, 880];
+                if (notes[bgmStep % notes.length] > 0) playTone(notes[bgmStep % notes.length], 'sine', 0.08, 0.01);
+                bgmStep++;
+            }, speed);
+        }
+        function stopBGM() { clearInterval(bgmInterval); }
+
+        function setupAvatars() {
+            const container = document.getElementById('avatar-container');
+            if(!container) return;
+            container.innerHTML = '';
+            avatars.forEach(a => {
+                const div = document.createElement('div');
+                div.className = 'avatar-item' + (a === selectedAvatar ? ' selected' : '');
+                div.innerText = a;
+                div.onclick = () => {
+                    playTone(500, 'sine', 0.05);
+                    document.querySelectorAll('.avatar-item').forEach(i => i.classList.remove('selected'));
+                    div.classList.add('selected'); selectedAvatar = a;
+                };
+                container.appendChild(div);
+            });
+        }
+
+        const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+        
+        const defaultQuestions = [
+            { q: "ما هي عاصمة الأردن؟", opts: ["القدس", "عمان", "بغداد", "دمشق"], ans: 1 },
+            { q: "كم عدد ألوان قوس قزح؟", opts: ["5", "6", "7", "8"], ans: 2 },
+            { q: "ما هو الكوكب الملقب بالأحمر؟", opts: ["المريخ", "المشتري", "الزهرة", "زحل"], ans: 0 },
+            { q: "ما هو الحيوان الملقب بملك الغابة؟", opts: ["النمر", "الفيل", "الأسد", "الزرافة"], ans: 2 },
+            { q: "ما هي لغة البرمجة الأساسية لتطوير واجهات الويب؟", opts: ["Python", "C++", "JavaScript", "Java"], ans: 2 }
+        ];
+
+        let gameQuestions = [], currentRoomPIN = "", refreshInterval;
+        let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 15;
+        const TOTAL_TIME = 15;
+        let currentStreak = 0, powerUpUsed = false, userAnswersHistory = [];
+
+        let qBlockCount = 0;
+
+        function openTeacherSetup() {
+            document.getElementById('questions-list').innerHTML = '';
+            qBlockCount = 0;
+            addQuestionBlock();
+            showScreen('screen-teacher-setup');
+        }
+
+        // تم التعديل هنا لإضافة زر الحاسبة (🧮) بجانب الحقول
+        function addQuestionBlock() {
+            const container = document.getElementById('questions-list');
+            const blockId = `q-block-${qBlockCount}`;
+            const html = `
+                <div class="q-block" id="${blockId}">
+                    <h3>
+                        <span>السؤال ${qBlockCount + 1}</span>
+                        ${qBlockCount > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
+                    </h3>
+                    <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0;">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                    
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${qBlockCount}" value="0" checked title="حدد الإجابة الصحيحة">
+                        <input type="text" class="q-opt-input" placeholder="الخيار الأول (▲)" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${qBlockCount}" value="1" title="حدد الإجابة الصحيحة">
+                        <input type="text" class="q-opt-input" placeholder="الخيار الثاني (◆)" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${qBlockCount}" value="2" title="حدد الإجابة الصحيحة">
+                        <input type="text" class="q-opt-input" placeholder="الخيار الثالث (●)" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${qBlockCount}" value="3" title="حدد الإجابة الصحيحة">
+                        <input type="text" class="q-opt-input" placeholder="الخيار الرابع (■)" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            qBlockCount++;
+        }
+
+        function saveQuestionsToSheet() {
+            const blocks = document.querySelectorAll('.q-block');
+            let customQuestions = [];
+            let isValid = true;
+
+            blocks.forEach((block, index) => {
+                const title = block.querySelector('.q-title-input').value.trim();
+                const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
+                const correctRadio = block.querySelector('input[type="radio"]:checked');
+                
+                if (!title || opts.some(opt => !opt)) isValid = false;
+                
+                if (correctRadio) {
+                    customQuestions.push({
+                        q: title,
+                        opts: opts,
+                        ans: parseInt(correctRadio.value)
+                    });
+                }
+            });
+
+            if (!isValid || customQuestions.length === 0) {
+                alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!");
+                return;
+            }
+
+            playBGM('lobby');
+            currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+            const jsonQuestions = JSON.stringify(customQuestions);
+            
+            document.getElementById('qform-name').value = currentRoomPIN; 
+            document.getElementById('qform-school').value = jsonQuestions; 
+            
+            document.getElementById('saving-status').style.display = 'block';
+            document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
+            document.getElementById('questionsForm').submit();
+
+            document.getElementById('display-room-pin').innerText = currentRoomPIN;
+            const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+            document.getElementById('game-url-input').value = gameUrl;
+            
+            const qrImg = document.getElementById('room-qr-code');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+            qrImg.style.display = 'block';
+
+            showScreen('screen-teacher');
+            refreshInterval = setInterval(fetchLeaderboard, 4000);
+        }
+
+        window.onload = () => {
+            setupAvatars();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('pin')) {
+                const pinInput = document.getElementById('input-room-pin');
+                if(pinInput) pinInput.value = urlParams.get('pin');
+                showScreen('screen-student-login');
+            }
+        };
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            if(id) {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('active');
+            }
+        }
+
+        function goToStudentLogin() { showScreen('screen-student-login'); }
+
+        async function startStudentFlow() {
+            const name = document.getElementById('input-student-name').value.trim();
+            const pin = document.getElementById('input-room-pin').value.trim();
+            
+            if (!name || !pin) { alert("يرجى إدخال الاسم ورقم الغرفة"); return; }
+            
+            document.getElementById('player-name-display').innerText = name;
+            document.getElementById('player-avatar-display').innerText = selectedAvatar;
+            document.getElementById('form-name').value = `${selectedAvatar} ${name}`;
+            document.getElementById('form-school').value = pin;
+            
+            document.getElementById('screen-loading-sheet').style.display = 'flex';
+            
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                
+                let foundQuestions = null;
+                for(let i = rows.length - 1; i >= 0; i--) {
+                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
+                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
+                            foundQuestions = JSON.parse(rows[i].c[1].v.toString());
+                            break;
+                        }
+                    }
+                }
+
+                if (foundQuestions && foundQuestions.length > 0) {
+                    gameQuestions = foundQuestions;
+                } else {
+                    gameQuestions = defaultQuestions;
+                }
+            } catch (err) {
+                gameQuestions = defaultQuestions;
+            }
+
+            document.getElementById('screen-loading-sheet').style.display = 'none';
+            currentQIndex = 0; studentScore = 0; currentStreak = 0; powerUpUsed = false; userAnswersHistory = [];
+            startCountdown();
+        }
+
+        function startCountdown() {
+            showScreen(null); 
+            const cdScreen = document.getElementById('screen-countdown');
+            const numEl = document.getElementById('countdown-number');
+            cdScreen.style.display = 'flex';
+            
+            let count = 3; numEl.innerText = count; playTone(800, 'sine', 0.1, 0.1);
+
+            const iv = setInterval(() => {
+                count--;
+                if(count > 0) { numEl.innerText = count; playTone(800, 'sine', 0.1, 0.1); } 
+                else if(count === 0) { numEl.innerText = "انطلق!"; playTone(1200, 'sine', 0.4, 0.1); } 
+                else {
+                    clearInterval(iv); cdScreen.style.display = 'none';
+                    showScreen('screen-student-game'); loadNextQuestion();
+                }
+            }, 1000);
+        }
+
+        function loadNextQuestion() {
+            if (currentQIndex >= gameQuestions.length) { endGame(); return; }
+            playBGM('game');
+            const q = gameQuestions[currentQIndex];
+            
+            // عرض النص كنص عادي حتى لا تختفي المسافات بين الكلمات
+            document.getElementById('question-text').textContent = q.q;
+
+            if (window.MathLive) {
+                MathLive.renderMathInElement(document.getElementById('question-text'));
+                for(let i=0; i<4; i++) {
+                    MathLive.renderMathInElement(document.getElementById(`ans-text-${i}`));
+                }
+            }
+            
+            for(let i=0; i<4; i++) {
+                let btn = document.getElementById(`btn-ans-${i}`);
+                document.getElementById(`ans-text-${i}`).textContent = q.opts[i];
+                btn.style.opacity = '1';
+                btn.style.visibility = 'visible';
+                btn.disabled = false;
+                btn.style.animation = 'none'; btn.offsetHeight; btn.style.animation = null;
+            }
+
+            timeLeft = TOTAL_TIME; updateTimerBar();
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1; updateTimerBar();
+                if (timeLeft <= 0) { clearInterval(timerInterval); submitAnswer(-1); }
+            }, 100);
+        }
+
+        function updateTimerBar() {
+            const bar = document.getElementById('timer-bar');
+            const pct = (timeLeft / TOTAL_TIME) * 100;
+            bar.style.width = Math.max(0, pct) + '%';
+            if(timeLeft <= 3) bar.classList.add('danger'); else bar.classList.remove('danger');
+        }
+
+        function use5050() {
+            if(powerUpUsed) return;
+            powerUpUsed = true;
+            document.getElementById('powerup-5050').style.display = 'none';
+            playTone(1000, 'sine', 0.3, 0.1);
+            
+            let q = gameQuestions[currentQIndex];
+            let hiddenCount = 0;
+            for(let i=0; i<4; i++) {
+                if(i !== q.ans && hiddenCount < 2) {
+                    let btn = document.getElementById(`btn-ans-${i}`);
+                    btn.style.opacity = '0.2';
+                    btn.disabled = true;
+                    hiddenCount++;
+                }
+            }
+        }
+
+        function showFloatingPoints(points) {
+            const el = document.createElement('div');
+            el.className = 'floating-points';
+            el.innerText = `+${points}`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1500);
+        }
+
+        function submitAnswer(idx) {
+            clearInterval(timerInterval); stopBGM();
+            const q = gameQuestions[currentQIndex];
+            const correct = (idx === q.ans);
+            
+            let basePoints = correct ? Math.round((timeLeft/TOTAL_TIME)*1000) : 0;
+            let multiplier = 1 + (currentStreak * 0.1);
+            let finalPoints = Math.round(basePoints * multiplier);
+
+            const oldScore = studentScore;
+            studentScore += finalPoints;
+            animateScore(oldScore, studentScore);
+            
+            userAnswersHistory.push({
+                question: q.q,
+                userAnswer: idx !== -1 ? q.opts[idx] : "لم يجب",
+                correctAnswer: q.opts[q.ans],
+                isCorrect: correct
+            });
+
+            const overlay = document.getElementById('feedback-overlay');
+            overlay.style.display = 'flex';
+            
+            if (correct) {
+                currentStreak++;
+                overlay.style.backgroundColor = 'rgba(38,137,12,0.95)';
+                document.getElementById('feedback-icon').innerText = "✔️";
+                document.getElementById('feedback-text').innerText = currentStreak > 2 ? "تتابع أسطوري! 🔥" : "إجابة صحيحة!";
+                document.getElementById('feedback-points').innerText = `+${finalPoints} نقطة`;
+                document.getElementById('feedback-points').style.display = "block";
+                
+                const streakBadge = document.getElementById('streak-badge');
+                if(currentStreak >= 2) {
+                    streakBadge.style.display = 'flex';
+                    document.getElementById('streak-count').innerText = currentStreak;
+                }
+                
+                showFloatingPoints(finalPoints);
+                playTone(600, 'sine', 0.1, 0.1); setTimeout(()=>playTone(800, 'sine', 0.2, 0.1), 100);
+            } else {
+                currentStreak = 0;
+                document.getElementById('streak-badge').style.display = 'none';
+                
+                overlay.style.backgroundColor = 'rgba(226,27,60,0.95)';
+                document.getElementById('feedback-icon').innerText = "❌";
+                document.getElementById('feedback-text').innerText = "للأسف، إجابة خاطئة";
+                document.getElementById('feedback-points').style.display = "none";
+                
+                document.body.classList.add('shake-screen');
+                setTimeout(() => document.body.classList.remove('shake-screen'), 600);
+                
+                playTone(200, 'sawtooth', 0.3, 0.1);
+            }
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                currentQIndex++; 
+                if(currentQIndex < gameQuestions.length) startCountdown();
+                else endGame();
+            }, 2500);
+        }
+
+        function animateScore(oldScore, newScore) {
+            const el = document.getElementById('score-display');
+            if(!el) return;
+            let current = oldScore;
+            const diff = newScore - oldScore;
+            if(diff === 0) { el.innerText = newScore; return; }
+            const step = Math.max(1, Math.floor(diff / 20));
+            const timer = setInterval(() => {
+                current += step;
+                if(current >= newScore) { current = newScore; clearInterval(timer); }
+                el.innerText = current;
+            }, 30);
+        }
+
+        function fireConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            const pieces = []; const colors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#46178f'];
+            
+            for(let i=0; i<150; i++) {
+                pieces.push({
+                    x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
+                    w: Math.random() * 10 + 5, h: Math.random() * 10 + 5,
+                    vx: Math.random() * 4 - 2, vy: Math.random() * 5 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rot: Math.random() * 360, rotSpeed: Math.random() * 10 - 5
+                });
+            }
+            function update() {
+                ctx.clearRect(0,0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.x += p.vx; p.y += p.vy; p.rot += p.rotSpeed;
+                    if(p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+                    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+                    ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
+                });
+                requestAnimationFrame(update);
+            }
+            update();
+        }
+
+        function toggleReview() {
+            const container = document.getElementById('review-container');
+            if(container.style.display === 'block') {
+                container.style.display = 'none'; return;
+            }
+            container.innerHTML = '<h3>ملخص الإجابات:</h3><br>';
+            userAnswersHistory.forEach((ans, i) => {
+                container.innerHTML += `
+                    <div class="review-item" style="border-right-color: ${ans.isCorrect ? 'var(--success)' : 'var(--k-red)'}">
+                        <div class="review-q display-text">${i+1}. ${ans.question}</div>
+                        <div class="review-ans">
+                            <span>إجابتك: <span class="${ans.isCorrect ? 'correct-ans' : 'wrong-ans'} display-text">${ans.userAnswer}</span></span>
+                            ${!ans.isCorrect ? `<span>الصحيحة: <span class="correct-ans display-text">${ans.correctAnswer}</span></span>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            container.style.display = 'block';
+            container.scrollIntoView({behavior: "smooth"});
+        }
+
+        function endGame() {
+            showScreen('screen-student-result');
+            document.getElementById('final-avatar').innerText = selectedAvatar;
+            document.getElementById('final-player-name').innerText = document.getElementById('input-student-name').value;
+            animateScore(0, studentScore); 
+            document.getElementById('final-score-display').innerText = studentScore;
+            
+            document.getElementById('form-score').value = studentScore;
+            document.getElementById('scoreForm').submit();
+            
+            playTone(400, 'sine', 0.1); setTimeout(()=>playTone(600, 'sine', 0.1), 150); setTimeout(()=>playTone(800, 'sine', 0.4), 300);
+            fireConfetti();
+        }
+
+        async function fetchLeaderboard() {
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                
+                let players = json.table.rows.filter(r => r.c[1]?.v.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS");
+                players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+                
+                const tbody = document.getElementById('leaderboard-body');
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                players.forEach((p, i) => {
+                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+                    tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.c[0].v}</td><td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.c[2].v}</td></tr>`;
+                });
+                const loadingBoard = document.getElementById('loading-board');
+                const leaderboard = document.getElementById('leaderboard');
+                if(loadingBoard) loadingBoard.style.display = players.length ? 'none' : 'block';
+                if(leaderboard) leaderboard.style.display = players.length ? 'table' : 'none';
+            } catch(e) {}
+        }
+
+        function copyGameLink() {
+            const input = document.getElementById('game-url-input');
+            input.select(); document.execCommand('copy');
+            const btn = document.getElementById('copy-btn');
+            btn.innerText = "تم النسخ! ✔️"; btn.style.backgroundColor = "var(--success)";
+            setTimeout(()=>{ btn.innerText = "نسخ الرابط"; btn.style.backgroundColor = "var(--primary)"; }, 2000);
+        }
+    </script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const questionText = document.getElementById("questionText");
+    if (questionText && window.MathLive) {
+        const observer = new MutationObserver(() => {
+            MathLive.renderMathInElement(questionText);
+        });
+        observer.observe(questionText, { childList: true });
+    }
+});
+</script></body>
+</html>
