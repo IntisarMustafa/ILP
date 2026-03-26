@@ -160,6 +160,12 @@
 
         .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
         
+        table.lb-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; color:#333;}
+        .lb-table th, .lb-table td { padding: 18px; text-align: center; font-size: 20px; background: white; }
+        .lb-table th { background: var(--primary); color: white; font-weight: 900; }
+        .lb-table tr td:first-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        .lb-table tr td:last-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+
         /* ========================================= */
         /* أنماط لعبة فلابي بيرد الأساسية            */
         /* ========================================= */
@@ -483,6 +489,14 @@
                 </div>
 
             </div>
+            <table class="lb-table" id="leaderboard" style="display: none;">
+                <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+            <div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
+                ⏳ بانتظار دخول الأبطال وحل الأسئلة...
+            </div>
+            
             <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
         </div>
     </div>
@@ -505,7 +519,7 @@
             <h2 id="final-player-name" style="font-size: 35px;"></h2>
             <p style="color: #666; font-size: 22px; font-weight: bold; margin-top: 10px;">نهاية التحدي، رصيدك هو:</p>
             <h1 id="final-score-display-result" style="font-size: 90px; color: var(--primary); margin: 10px 0; text-shadow: 3px 3px 0px rgba(0,0,0,0.1);">0</h1>
-            <p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--success);">تم تسجيل نتيجتك بنجاح!</p>
+            <p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--primary);">جاري تسجيل النتيجة في لوحة المعلم...</p>
             <button class="btn btn-primary" onclick="window.location.reload()" style="font-size: 22px; margin-top:15px;">العودة للرئيسية</button>
         </div>
     </div>
@@ -725,13 +739,39 @@
     <audio id="correctAnswerSound" src="https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg" preload="auto"></audio>
     <audio id="wrongAnswerSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
-    <iframe id="hidden_iframe_score" name="hidden_iframe_score" style="display:none;"></iframe>
+    <script>
+        // دوال معالجة تحميل الإطارات المخفية
+        function handleScoreLoad() {
+            const screen = document.getElementById('screen-student-result');
+            if (screen && screen.classList.contains('active')) {
+                const status = document.getElementById('final-status');
+                if (status) {
+                    status.innerText = "✅ تم تسجيل النتيجة بنجاح في لوحة المعلم!";
+                    status.style.color = "var(--success)";
+                }
+            }
+        }
+
+        function handleQuestionsLoad() {
+            const screen = document.getElementById('screen-teacher');
+            if (screen && screen.classList.contains('active')) {
+                const status = document.getElementById('saving-status');
+                if (status) {
+                    status.innerText = "✅ تم حفظ الأسئلة بنجاح! يمكن للطلاب الدخول الآن.";
+                    status.style.color = "var(--success)";
+                }
+            }
+        }
+    </script>
+
+    <iframe id="hidden_iframe_score" name="hidden_iframe_score" onload="handleScoreLoad()" style="display:none;"></iframe>
     <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
         <input id="form-name" name="name" type="hidden"/>
         <input id="form-school" name="school" type="hidden"/>
         <input id="form-score" name="score" type="hidden"/>
     </form>
-    <iframe id="hidden_iframe_questions" name="hidden_iframe_questions" style="display:none;"></iframe>
+    
+    <iframe id="hidden_iframe_questions" name="hidden_iframe_questions" onload="handleQuestionsLoad()" style="display:none;"></iframe>
     <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display: none;" target="hidden_iframe_questions">
         <input id="qform-name" name="name" type="hidden"/>
         <input id="qform-school" name="school" type="hidden"/>
@@ -739,6 +779,10 @@
     </form>
 
     <script>
+        // إعدادات Google Sheets
+        const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+        let currentRoomPIN = "", refreshInterval;
+
         // ========================================== //
         // 1. أكواد محرر الرياضيات المنبثق            //
         // ========================================== //
@@ -818,7 +862,7 @@
                 if (targetInputField) {
                     if (mathValue && mathValue.trim() !== '') {
                         // إضافة القيمة مع صيغة LaTeX
-                        const latexValue = " $" + mathValue + "$ ";
+                        const latexValue = " \\(" + mathValue + "\\) "; // تعديل الصيغة لتناسب MathJax
                         
                         // استخدام طريقة أكثر أماناً لإضافة النص في موضع المؤشر
                         const start = targetInputField.selectionStart || targetInputField.value.length;
@@ -964,9 +1008,12 @@
 
             globalGameQuestions = customQuestions;
             
-            let currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+            currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
             document.getElementById('qform-name').value = currentRoomPIN; 
             document.getElementById('qform-school').value = JSON.stringify(customQuestions); 
+            
+            document.getElementById('saving-status').style.display = 'block';
+            document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
             document.getElementById('questionsForm').submit();
 
             document.getElementById('display-room-pin').innerText = currentRoomPIN;
@@ -976,19 +1023,40 @@
                 titleDisplay.innerText = "عنوان التحدي: " + quizTitle;
             }
             
-            // New Code Added for QR Code & Link Sharing
             const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
             document.getElementById('game-url-input').value = gameUrl;
             
             const qrImg = document.getElementById('room-qr-code');
             qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
             qrImg.style.display = 'block';
-            // End New Code
             
             showScreen('screen-teacher');
             
+            // تحديث لوحة الصدارة بانتظام
+            refreshInterval = setInterval(fetchLeaderboard, 4000);
+            
             sessionStorage.setItem('room_' + currentRoomPIN, JSON.stringify(customQuestions));
             sessionStorage.setItem('room_' + currentRoomPIN + '_title', quizTitle);
+        }
+
+        // دالة جلب لوحة الصدارة
+        async function fetchLeaderboard() {
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                let players = json.table.rows.filter(r => r.c[1]?.v.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS");
+                players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+                
+                const tbody = document.getElementById('leaderboard-body');
+                if(!tbody) return; tbody.innerHTML = '';
+                players.forEach((p, i) => {
+                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+                    tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.c[0].v}</td><td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.c[2].v}</td></tr>`;
+                });
+                document.getElementById('loading-board').style.display = players.length ? 'none' : 'block';
+                document.getElementById('leaderboard').style.display = players.length ? 'table' : 'none';
+            } catch(e) {}
         }
 
         // دالة نسخ الرابط
@@ -1002,7 +1070,7 @@
 
         function goToStudentLogin() { showScreen('screen-student-login'); }
 
-        function startStudentFlow() {
+        async function startStudentFlow() {
             const name = document.getElementById('input-student-name').value.trim();
             const pin = document.getElementById('input-room-pin').value.trim();
             
@@ -1013,18 +1081,51 @@
             document.getElementById('final-avatar').innerText = selectedAvatar;
             document.getElementById('final-player-name').innerText = name;
 
-            let roomData = sessionStorage.getItem('room_' + pin);
-            if(roomData) {
-                globalGameQuestions = JSON.parse(roomData);
-            } else if (globalGameQuestions.length === 0) {
-                globalGameQuestions = defaultQuestions;
+            // إظهار شاشة التحميل
+            document.getElementById('screen-loading-sheet').style.display = 'flex';
+            
+            try {
+                // محاولة جلب الأسئلة من Google Sheets
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                let foundQuestions = null;
+                
+                // البحث عن الأسئلة المرتبطة برقم الغرفة
+                for(let i = rows.length - 1; i >= 0; i--) {
+                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
+                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
+                            foundQuestions = JSON.parse(rows[i].c[1].v.toString()); break;
+                        }
+                    }
+                }
+                
+                // تعيين الأسئلة
+                if (foundQuestions && foundQuestions.length > 0) {
+                    globalGameQuestions = foundQuestions;
+                } else {
+                    // التحقق من sessionStorage كخطة بديلة إذا فشل الجلب
+                    let roomData = sessionStorage.getItem('room_' + pin);
+                    if(roomData) {
+                        globalGameQuestions = JSON.parse(roomData);
+                    } else {
+                        globalGameQuestions = defaultQuestions;
+                    }
+                }
+            } catch (err) { 
+                console.error("خطأ في جلب الأسئلة", err);
+                globalGameQuestions = defaultQuestions; 
             }
+            
+            // إخفاء شاشة التحميل
+            document.getElementById('screen-loading-sheet').style.display = 'none';
 
             let roomTitle = sessionStorage.getItem('room_' + pin + '_title');
             if (roomTitle) {
                 document.querySelector('#start-screen h2').textContent = roomTitle;
             } else {
-                document.querySelector('#start-screen h2').textContent = 'لعبة الطائر الجبري';
+                document.querySelector('#start-screen h2').textContent = 'لعبة الطائر الفهمان';
             }
 
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1302,6 +1403,7 @@
 
         function displayQuestion() {
             questionActive = true;
+            // اختيار سؤال عشوائي من الأسئلة المستدعاة
             const randomIndex = Math.floor(Math.random() * globalGameQuestions.length);
             currentQuestion = globalGameQuestions[randomIndex];
 
