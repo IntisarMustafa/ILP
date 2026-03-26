@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة الطائر الفهمان -</title>
+    <title>لعبة الطائر الجبري - منصة التحدي التفاعلية</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
     
@@ -15,6 +15,31 @@
             "HTML-CSS": { linebreaks: { automatic: true } },
             SVG: { linebreaks: { automatic: true } }
         });
+    </script>
+
+    <script>
+        // دوال للتحكم في رسائل التأكيد عند الحفظ في شيت جوجل
+        function handleScoreLoad() {
+            const screen = document.getElementById('screen-student-result');
+            if (screen && screen.classList.contains('active')) {
+                const status = document.getElementById('final-status');
+                if (status) {
+                    status.innerText = "تم تسجيل نتيجتك بنجاح في لوحة الشرف! 🌟";
+                    status.style.color = "var(--success)";
+                }
+            }
+        }
+
+        function handleQuestionsLoad() {
+            const screen = document.getElementById('screen-teacher');
+            if (screen && screen.classList.contains('active')) {
+                const status = document.getElementById('saving-status');
+                if (status) {
+                    status.innerText = "✅ تم حفظ الأسئلة بنجاح! بانتظار دخول الطلاب...";
+                    status.style.color = "var(--success)";
+                }
+            }
+        }
     </script>
 
     <style>
@@ -160,6 +185,7 @@
 
         .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
         
+        /* تنسيقات لوحة الشرف الخاصة بالمعلم */
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; }
         th, td { padding: 18px; text-align: center; font-size: 20px; background: white; }
         th { background: var(--primary); color: white; font-weight: 900; }
@@ -438,43 +464,19 @@
             .continue-btn { font-size: 1.4rem; padding: 12px 20px;}
         }
     </style>
-
-    <script>
-        function handleScoreLoad() {
-            const screen = document.getElementById('screen-student-result');
-            if (screen && screen.classList.contains('active')) {
-                const status = document.getElementById('final-status');
-                if (status) {
-                    status.innerText = "تم تسجيل نتيجتك بنجاح في لوحة الشرف! 🌟";
-                    status.style.color = "var(--success)";
-                }
-            }
-        }
-
-        function handleQuestionsLoad() {
-            const screen = document.getElementById('screen-teacher');
-            if (screen && screen.classList.contains('active')) {
-                const status = document.getElementById('saving-status');
-                if (status) {
-                    status.innerText = "✅ تم حفظ الأسئلة بنجاح! بانتظار الطلاب...";
-                    status.style.color = "var(--success)";
-                }
-            }
-        }
-    </script>
 </head>
 <body>
     <button class="mute-btn" id="mute-btn" onclick="toggleMute(event)">🔊</button>
 
     <div id="screen-loading-sheet" style="display:none; position:fixed; width:100%; height:100%; background:rgba(70,23,143,0.95); z-index:1000; flex-direction:column; align-items:center; justify-content:center; color:white;">
         <div style="border:8px solid rgba(255,255,255,0.3); border-top:8px solid white; border-radius:50%; width:80px; height:80px; animation:spin 1s linear infinite;"></div>
-        <div style="font-size:28px; font-weight:bold; margin-top:20px;">جاري جلب أسئلة التحدي من المعلم...</div>
+        <div style="font-size:28px; font-weight:bold; margin-top:20px;">جاري تجهيز التحدي...</div>
     </div>
     <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
 
     <div class="screen active" id="screen-home">
         <div class="card">
-            <h1>🎮 منصة التعلّم التفاعلية_الطائر الفهمان</h1>
+            <h1>🎮 منصة التحدي و الطائر الجبري</h1>
             <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
             <button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
             <button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
@@ -513,9 +515,8 @@
                     <input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
                     <button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
                 </div>
-
             </div>
-            
+
             <table id="leaderboard" style="display: none;">
                 <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
                 <tbody id="leaderboard-body"></tbody>
@@ -523,7 +524,7 @@
             <div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
                 ⏳ بانتظار دخول الأبطال وحل الأسئلة...
             </div>
-            
+
             <button class="btn btn-back" onclick="closeTeacherRoom()" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
         </div>
     </div>
@@ -572,7 +573,7 @@
             </div>
 
             <div class="start-screen" id="start-screen">
-                <h2>لعبة الطائر الفهمان</h2>
+                <h2>لعبة الطائر الجبري</h2>
                 <p>انقر على الشاشة للبدء</p>
                 <div class="tap-to-start-indicator">🫳 انقر أو المس للقفز!</div>
             </div>
@@ -780,6 +781,7 @@
     </form>
 
     <script>
+        // تعريف المعرف الخاص بجوجل شيت لاستخدامه في جلب الأسئلة ولوحة الشرف
         const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
         let refreshInterval;
 
@@ -820,14 +822,19 @@
                 return;
             }
             
+            // تخزين الحقل المستهدف
             targetInputField = inputElement;
+            
+            // إظهار اللوحة
             const overlay = document.getElementById('math-modal-overlay');
             if (overlay) {
                 overlay.style.display = 'flex';
             }
             
+            // تصفير المحرر والتركيز عليه
             if (mf) {
                 mf.value = '';
+                // تأخير بسيط لضمان ظهور اللوحة قبل التركيز
                 setTimeout(() => {
                     try {
                         mf.focus();
@@ -838,42 +845,57 @@
             }
         }
 
+        // === تم تصحيح ترتيب الأوامر في هذه الدالة لتجنب فقدان القيمة عند الإخفاء ===
         function closeMathModal() {
             try {
+                // 1. التأكد من وجود محرر الرياضيات
                 if (!mf) {
+                    console.error('محرر الرياضيات غير موجود');
                     const overlay = document.getElementById('math-modal-overlay');
                     if (overlay) overlay.style.display = 'none';
                     return;
                 }
 
+                // 2. استخراج القيمة أولاً قبل القيام بأي تعديلات في واجهة المستخدم
                 let mathValue = mf.value;
+                console.log('القيمة المستخرجة:', mathValue);
                 
+                // 3. إضافتها للحقل المستهدف (إن وُجدت)
                 if (targetInputField) {
                     if (mathValue && mathValue.trim() !== '') {
+                        // إضافة القيمة مع صيغة LaTeX
                         const latexValue = " $" + mathValue + "$ ";
+                        
+                        // استخدام طريقة أكثر أماناً لإضافة النص في موضع المؤشر
                         const start = targetInputField.selectionStart || targetInputField.value.length;
                         const end = targetInputField.selectionEnd || targetInputField.value.length;
                         const text = targetInputField.value;
                         targetInputField.value = text.substring(0, start) + latexValue + text.substring(end);
                         
+                        // تحديث مكان المؤشر بعد النص المضاف
                         const newPos = start + latexValue.length;
                         targetInputField.setSelectionRange(newPos, newPos);
 
+                        // تحديث أحداث التغيير لتحديث واجهة المستخدم والتحقق من صحة البيانات
                         targetInputField.dispatchEvent(new Event('input', { bubbles: true }));
                         targetInputField.dispatchEvent(new Event('change', { bubbles: true }));
                     }
+                    // إعادة التركيز على الحقل
                     targetInputField.focus();
-                    targetInputField = null; 
+                    targetInputField = null; // إعادة التعيين للاستخدام التالي
                 }
                 
+                // 4. إخفاء اللوحة كخطوة أخيرة
                 const overlay = document.getElementById('math-modal-overlay');
                 if (overlay) {
                     overlay.style.display = 'none';
                 }
                 
+                // 5. تفريغ محرر الرياضيات ليكون جاهزاً للمرة القادمة
                 mf.value = '';
             } catch (error) {
                 console.error('خطأ في إغلاق محرر الرياضيات:', error);
+                // التأكد من إخفاء اللوحة حتى في حالة الخطأ
                 const overlay = document.getElementById('math-modal-overlay');
                 if (overlay) overlay.style.display = 'none';
             }
@@ -883,11 +905,11 @@
         // 2. أكواد واجهة المنصة وغرف المعلم          //
         // ========================================== //
         const bgmMusic = document.getElementById('bgmMusic');
-        bgmMusic.volume = 0.3; 
+        bgmMusic.volume = 0.3; // خفض صوت الموسيقى قليلاً كي لا يزعج اللاعب
 
         let isMuted = false;
         function toggleMute(event) { 
-            if(event) event.stopPropagation(); 
+            if(event) event.stopPropagation(); // يمنع النقر من تشغيل قفزة الطائر
             isMuted = !isMuted; 
             document.getElementById('mute-btn').innerText = isMuted ? "🔇" : "🔊"; 
             if (isMuted) {
@@ -957,6 +979,7 @@
             qBlockCount++;
         }
 
+        // تم التعديل لحفظ البيانات في الشيت واستدعاء دالة fetchLeaderboard
         function saveQuestionsToRoom() {
             const titleInput = document.getElementById('quiz-title-input');
             const quizTitle = titleInput ? titleInput.value.trim() : '';
@@ -995,6 +1018,7 @@
             
             document.getElementById('saving-status').style.display = 'block';
             document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
+            
             document.getElementById('questionsForm').submit();
 
             document.getElementById('display-room-pin').innerText = currentRoomPIN;
@@ -1012,7 +1036,9 @@
             qrImg.style.display = 'block';
             
             showScreen('screen-teacher');
-            refreshInterval = setInterval(() => fetchLeaderboard(currentRoomPIN), 4000);
+            
+            if(window.refreshInterval) clearInterval(window.refreshInterval);
+            window.refreshInterval = setInterval(() => fetchLeaderboard(currentRoomPIN), 4000);
         }
 
         // جلب لوحة الشرف للمعلم
@@ -1032,22 +1058,22 @@
                     let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
                     tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.c[0].v}</td><td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.c[2].v}</td></tr>`;
                 });
-                
                 const loadingBoard = document.getElementById('loading-board');
                 const leaderboard = document.getElementById('leaderboard');
-                
                 if(loadingBoard) loadingBoard.style.display = players.length ? 'none' : 'block';
                 if(leaderboard) leaderboard.style.display = players.length ? 'table' : 'none';
             } catch(e) {
-                console.error("خطأ في جلب لوحة الشرف:", e);
+                console.error("Error fetching leaderboard", e);
             }
         }
 
+        // دالة إغلاق غرفة المعلم
         function closeTeacherRoom() {
-            clearInterval(refreshInterval);
+            clearInterval(window.refreshInterval);
             showScreen('screen-home');
         }
 
+        // دالة نسخ الرابط
         function copyGameLink() {
             const input = document.getElementById('game-url-input');
             input.select(); document.execCommand('copy');
@@ -1058,6 +1084,7 @@
 
         function goToStudentLogin() { showScreen('screen-student-login'); }
 
+        // تم التعديل لاستدعاء الأسئلة من شيت جوجل
         async function startStudentFlow() {
             const name = document.getElementById('input-student-name').value.trim();
             const pin = document.getElementById('input-room-pin').value.trim();
@@ -1093,13 +1120,13 @@
                     globalGameQuestions = defaultQuestions;
                 }
             } catch (err) {
-                console.error("خطأ في جلب الأسئلة، استخدام الأسئلة الافتراضية:", err);
+                console.error("خطأ في جلب الأسئلة من جوجل، سيتم استخدام الأسئلة الافتراضية", err);
                 globalGameQuestions = defaultQuestions;
             }
 
             document.getElementById('screen-loading-sheet').style.display = 'none';
 
-            document.querySelector('#start-screen h2').textContent = 'لعبة الطائر الفهمان';
+            document.querySelector('#start-screen h2').textContent = 'لعبة الطائر الجبري';
 
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('game-container-wrapper').classList.add('active');
@@ -1172,6 +1199,7 @@
             currentDifficultyIndex = 0;
             updateDifficulty();
 
+            // تشغيل الموسيقى
             if (!isMuted) bgmMusic.play().catch(e=>{});
 
             document.querySelectorAll('.pipe').forEach(pipe => pipe.remove());
@@ -1190,7 +1218,7 @@
 
         function pauseGameForQuestion() {
             gamePaused = true;
-            bgmMusic.pause();
+            bgmMusic.pause(); // إيقاف الموسيقى عند ظهور السؤال للتركيز
             cancelAnimationFrame(animationFrameId);
             clearInterval(pipeIntervalId);
             displayQuestion();
@@ -1200,7 +1228,7 @@
             questionModal.style.display = 'none';
             gamePaused = false; questionActive = false;
 
-            if (!isMuted) bgmMusic.play().catch(e=>{});
+            if (!isMuted) bgmMusic.play().catch(e=>{}); // استئناف الموسيقى
 
             pipes.forEach(pipe => { pipe.top.remove(); pipe.bottom.remove(); });
             pipes = []; 
@@ -1362,7 +1390,7 @@
             gameRunning = false; gamePaused = false; questionActive = false;
             clearInterval(pipeIntervalId); cancelAnimationFrame(animationFrameId);
 
-            bgmMusic.pause();
+            bgmMusic.pause(); // إيقاف الموسيقى
 
             if (!isMuted) { gameOverSound.currentTime = 0; gameOverSound.play().catch(e=>{}); }
             birdWing.style.animation = 'none'; bird.style.transform = 'rotate(90deg)';
@@ -1419,11 +1447,12 @@
             }
         }
 
+        // تم التعديل لإرسال النتيجة إلى الشيت عند الضغط على زر "إنهاء وإرسال النتيجة"
         restartBtn.addEventListener('click', () => {
             document.getElementById('form-score').value = score;
             document.getElementById('final-score-display-result').innerText = score;
             
-            // إرسال النتيجة إلى Google Sheets
+            // إرسال البيانات من خلال الـ form
             document.getElementById('scoreForm').submit();
 
             document.getElementById('game-container-wrapper').classList.remove('active');
@@ -1432,6 +1461,7 @@
 
         continueBtn.addEventListener('click', resumeGameAfterQuestion);
 
+        // تم إضافة الاستثناء لزر الصوت لتجنب القفز عند كتم أو تفعيل الصوت
         document.addEventListener('click', (e) => {
             if (e.target.id !== 'restart-game' && !e.target.closest('#start-screen') && !e.target.closest('#question-modal') && !e.target.closest('.screen') && e.target.id !== 'mute-btn' && !e.target.closest('#mute-btn')) jump();
         });
