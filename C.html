@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title> القط والهدف: منصة التحدي التفاعلية</title>
+    <title> القط والهدف: منصة التعلّم التفاعلية</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
@@ -450,6 +450,12 @@
                     <h2>انضموا الآن! رمز الغرفة:</h2>
                     <div class="room-pin" id="display-room-pin">000000</div>
                     <p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام الموحد...</p>
+                    
+                    <div id="qr-container" style="margin: 20px 0;">
+                        <img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
+                        <p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
+                    </div>
+
                     <div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
                         <input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
                         <button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
@@ -866,6 +872,11 @@
             document.getElementById('display-room-pin').innerText = currentRoomPIN;
             const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
             document.getElementById('game-url-input').value = gameUrl;
+            
+            // الإضافة الجديدة: توليد وعرض الـ QR Code
+            const qrImg = document.getElementById('room-qr-code');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+            qrImg.style.display = 'block';
             
             showScreen('screen-teacher');
             refreshInterval = setInterval(fetchLeaderboard, 4000);
