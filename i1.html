@@ -115,6 +115,7 @@
         .game-card:nth-child(3) { animation-delay: 0.3s; }
         .game-card:nth-child(4) { animation-delay: 0.4s; }
         .game-card:nth-child(5) { animation-delay: 0.5s; }
+        .game-card:nth-child(6) { animation-delay: 0.6s; }
 
         .game-card::before {
             content: '';
@@ -135,6 +136,7 @@
         .card-mario { border-top: 5px solid #f59e0b; }
         .card-flappy { border-top: 5px solid #10b981; }
         .card-space { border-top: 5px solid #3b82f6; }
+        .card-candy { border-top: 5px solid #ec4899; } /* لون كاندي كرش (وردي) */
 
         .game-card:hover {
             transform: translateY(-12px);
@@ -174,6 +176,7 @@
         .mario-bg { background: linear-gradient(135deg, #fef3c7, #fcd34d); }
         .flappy-bg { background: linear-gradient(135deg, #d1fae5, #6ee7b7); }
         .space-bg { background: linear-gradient(135deg, #e0f2fe, #7dd3fc); }
+        .candy-bg { background: linear-gradient(135deg, #fce7f3, #fbcfe8); } /* خلفية كاندي كرش */
 
         .icon-box svg {
             width: 65px;
@@ -273,28 +276,21 @@
                 </div>
             </a>
 
-            <!-- 2. الطيور الذكية (تمت إزالة الخط الزهري ليصبح نقياً ومثاليا) -->
+            <!-- 2. الطيور الذكية -->
             <a href="B.html" class="game-card card-angry">
                 <div class="icon-box angry-bg">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="birdGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
                         </defs>
-                        <!-- ريشة الرأس -->
                         <path d="M 45 15 C 35 0 60 -5 55 15 Z" fill="url(#birdGrad)" />
-                        <!-- جسم الطائر الأحمر الصافي -->
                         <circle cx="50" cy="52" r="35" fill="url(#birdGrad)" />
-                        
-                        <!-- الحواجب الغاضبة -->
                         <rect x="23" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(16 35 35)" />
                         <rect x="52" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(-16 65 35)" />
-                        <!-- العيون -->
                         <circle cx="38" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1" />
                         <circle cx="62" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1" />
                         <circle cx="42" cy="48" r="3.5" fill="#0f172a" />
                         <circle cx="58" cy="48" r="3.5" fill="#0f172a" />
-                        
-                        <!-- المنقار المتصل -->
                         <path d="M 43 60 L 50 72 L 57 60 Z" fill="#d97706" />
                         <path d="M 36 57 L 50 67 L 64 57 L 50 49 Z" fill="#fbbf24" stroke="#b45309" stroke-width="1" stroke-linejoin="round" />
                     </svg>
@@ -322,8 +318,6 @@
                         <circle cx="31" cy="54" r="2.5" fill="#78350f" />
                         <circle cx="69" cy="54" r="2.5" fill="#78350f" />
                         <text x="50" y="47" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#ffffff" text-anchor="middle">?</text>
-                        
-                        <!-- رأس القط توم -->
                         <path d="M 37 62 L 25 45 L 48 55 Z" fill="url(#tomGrad)" />
                         <path d="M 63 62 L 75 45 L 52 55 Z" fill="url(#tomGrad)" />
                         <path d="M 35 59 L 29 50 L 43 55 Z" fill="#fbcfe8" />
@@ -409,8 +403,64 @@
                 </div>
             </a>
 
+            <!-- 6. مرح الأشكال (كاندي كرش) -->
+            <a href="F.html" class="game-card card-candy">
+                <div class="icon-box candy-bg">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="candyRed" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>
+                            <linearGradient id="candyBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>
+                            <linearGradient id="candyYellow" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient>
+                            <linearGradient id="candyGreen" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
+                            <clipPath id="stripedCandyClip">
+                                <circle cx="50" cy="50" r="18" />
+                            </clipPath>
+                        </defs>
+                        
+                        <!-- الماسة الصفراء (أعلى اليسار) -->
+                        <g transform="translate(-3, -2)">
+                            <rect x="25" y="18" width="16" height="16" rx="4" transform="rotate(45 33 26)" fill="url(#candyYellow)" stroke="#a16207" stroke-width="1.5" />
+                            <ellipse cx="30" cy="22" rx="4" ry="2" transform="rotate(-45 30 22)" fill="#ffffff" opacity="0.7" />
+                        </g>
+
+                        <!-- حبة الجيلي الخضراء (أعلى اليمين) -->
+                        <g transform="translate(3, -5)">
+                            <rect x="62" y="20" width="22" height="14" rx="7" transform="rotate(-20 73 27)" fill="url(#candyGreen)" stroke="#15803d" stroke-width="1.5" />
+                            <ellipse cx="69" cy="23" rx="5" ry="2" transform="rotate(-20 69 23)" fill="#ffffff" opacity="0.7" />
+                        </g>
+
+                        <!-- حبة الكاندي المغلفة الزرقاء (أسفل اليمين) -->
+                        <g transform="translate(4, 5)">
+                            <!-- أطراف الغلاف -->
+                            <path d="M 66 68 L 82 60 L 80 78 Z" fill="url(#candyBlue)" stroke="#1e3a8a" stroke-width="1" stroke-linejoin="round" />
+                            <path d="M 66 68 L 50 60 L 52 78 Z" fill="url(#candyBlue)" stroke="#1e3a8a" stroke-width="1" stroke-linejoin="round" />
+                            <!-- قلب الكاندي -->
+                            <circle cx="66" cy="69" r="10" fill="url(#candyBlue)" stroke="#1e40af" stroke-width="1.5" />
+                            <ellipse cx="63" cy="65" rx="4" ry="2" transform="rotate(-30 63 65)" fill="#ffffff" opacity="0.7" />
+                        </g>
+
+                        <!-- حبة الكاندي الحمراء المخططة (في المنتصف وهي الأكبر) -->
+                        <circle cx="50" cy="50" r="18" fill="url(#candyRed)" stroke="#991b1b" stroke-width="2" />
+                        <g clip-path="url(#stripedCandyClip)">
+                            <rect x="20" y="32" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
+                            <rect x="20" y="47" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
+                            <rect x="20" y="62" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
+                        </g>
+                        <!-- لمعة خفيفة للكرة المخططة -->
+                        <path d="M 38 40 A 12 12 0 0 1 50 34" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8" />
+                    </svg>
+                </div>
+                <h2 class="game-title">مرح الأشكال</h2>
+                <p class="game-desc">طابق الأشكال والألوان للإجابة على الأسئلة وتجاوز المراحل في هذه اللعبة الممتعة.</p>
+                <div class="action-arrow">
+                    <span>ابدأ اللعب</span>
+                    <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
+                </div>
+            </a>
+
         </div>
     </div>
 
 </body>
 </html>
+
