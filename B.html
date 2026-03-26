@@ -351,7 +351,7 @@
                 <div class="bird-indicator"><i class="fas fa-angry"></i><span>جاهز للإطلاق!</span></div>
                 <div class="power-bar"><div class="power-fill" id="power-fill"></div></div>
                 <div class="game-over-overlay" id="gameOverOverlay">
-                    <div class="game-over-content"><h2 id="gameOverTitle"></h2><p id="gameOverScore"></p><button id="restartBtn">إعادة تشغيل</button><button id="nextLevelBtn">المستوى التالي</button></div>
+                    <div class="game-over-content"><h2 id="gameOverTitle"></h2><p id="gameOverScore"></p><button id="nextLevelBtn">المستوى التالي</button></div>
                 </div>
                 <div class="question-overlay" id="questionScreen">
                     <div class="question-content">
@@ -360,7 +360,10 @@
                     </div>
                 </div>
             </div>
-            <div class="controls"><button id="sound-toggle">تشغيل الصوت</button><button id="resetBtn">إعادة ضبط</button></div>
+            <div class="controls">
+                <button id="sound-toggle">تشغيل الصوت</button>
+                <button id="endBtn" style="background: linear-gradient(to bottom, #e21b3c, #b81631); box-shadow: 0 4px 12px rgba(226, 27, 60, 0.4);">إنهاء وإرسال</button>
+            </div>
             <div class="instructions"><h3>كيف تلعب:</h3><p>اسحب الطائر للخلف ← حرر لإطلاقه ← دمر الأهداف لتنهي المرحلة</p><p>عند نفاد الطيور يظهر سؤال، الإجابة الصحيحة تمنحك 3 طيور إضافية.</p></div>
         </div>
     </div>
@@ -542,14 +545,13 @@
     </div>
 
     <script>
-        // ✅ إضافة الدالة المسؤولة عن تأكيد إرسال النتيجة للشيت
         function handleScoreLoad() {
             const screen = document.getElementById('screen-student-result');
             if (screen && screen.classList.contains('active')) {
                 const status = document.getElementById('final-status');
                 if (status) {
                     status.innerText = "✅ تم إرسال نتيجتك بنجاح!";
-                    status.style.color = "#26890c"; // اللون الأخضر للنجاح
+                    status.style.color = "#26890c"; 
                 }
             }
         }
@@ -923,13 +925,38 @@
 
         function nextBird(){ if(releasedBirds.some(b=>b.launched && (Math.abs(b.velocity.x)>0.5||Math.abs(b.velocity.y)>0.5))){ setTimeout(nextBird,500); return; } const targets=gameObjects.filter(obj=>obj instanceof TargetBird); if(targets.length===0){ playSound(1000,'triangle',0.5,0.6); showGameOverMessage('لقد نجحت!',`نقاطك: ${score}`,true,false); } else if(birdsLeft>0){ loadNextBird(); } else { showQuestion(); } }
         function showQuestion(){ if(!gameQuestions.length) return; gameRunning=false; const q = gameQuestions[Math.floor(Math.random()*gameQuestions.length)]; document.getElementById('questionText').innerHTML = q.q; MathLive.renderMathInElement(document.getElementById('questionText')); const container=document.getElementById('optionsContainer'); container.innerHTML=''; q.opts.forEach((opt,idx)=>{ const btn=document.createElement('button'); btn.textContent=opt; btn.classList.add('option-btn'); btn.onclick=()=>checkAnswer(idx,q.ans,q.q); container.appendChild(btn); }); document.getElementById('feedbackText').innerHTML=''; document.getElementById('explanation').style.display='none'; document.getElementById('questionScreen').classList.add('visible'); }
-        function checkAnswer(selected,correct,questionText){ const btns=document.querySelectorAll('.option-btn'); btns.forEach(b=>b.disabled=true); if(selected===correct){ birdsLeft+=3; updateUI(); playSound(523.25,'sine',0.2,0.5); document.getElementById('feedbackText').innerHTML='✓ إجابة صحيحة! +3 طيور'; document.getElementById('feedbackText').style.color='#2ecc71'; setTimeout(()=>{ document.getElementById('questionScreen').classList.remove('visible'); gameRunning=true; loadNextBird(); },2000); } else { playSound(200,'square',0.5,0.6); document.getElementById('feedbackText').innerHTML='❌ إجابة خاطئة! انتهت اللعبة.'; document.getElementById('feedbackText').style.color='#e74c3c'; setTimeout(()=>{ showGameOverMessage('انتهت اللعبة!',`نقاطك: ${score}`,false,false); document.getElementById('questionScreen').classList.remove('visible'); },2000); } }
-        function showGameOverMessage(title,scoreMsg,levelComplete,gameWon){ document.getElementById('gameOverTitle').innerText=title; document.getElementById('gameOverScore').innerText=scoreMsg; document.getElementById('gameOverOverlay').classList.add('visible'); if(gameWon) { document.getElementById('nextLevelBtn').style.display='none'; document.getElementById('restartBtn').style.display='block'; } else if(levelComplete){ document.getElementById('nextLevelBtn').style.display='block'; document.getElementById('restartBtn').style.display='none'; } else { document.getElementById('nextLevelBtn').style.display='none'; document.getElementById('restartBtn').style.display='block'; } }
-        function resetGame(){ score=0; currentLevel=1; gameRunning=true; loadLevel(currentLevel); updateUI(); document.getElementById('gameOverOverlay').classList.remove('visible'); }
+        
+        // ✅ التعديل هنا: إنهاء اللعبة عند الإجابة الخاطئة وإرسال النتيجة فوراً
+        function checkAnswer(selected,correct,questionText){ 
+            const btns=document.querySelectorAll('.option-btn'); 
+            btns.forEach(b=>b.disabled=true); 
+            if(selected===correct){ 
+                birdsLeft+=3; updateUI(); playSound(523.25,'sine',0.2,0.5); 
+                document.getElementById('feedbackText').innerHTML='✓ إجابة صحيحة! +3 طيور'; 
+                document.getElementById('feedbackText').style.color='#2ecc71'; 
+                setTimeout(()=>{ 
+                    document.getElementById('questionScreen').classList.remove('visible'); 
+                    gameRunning=true; loadNextBird(); 
+                },2000); 
+            } else { 
+                playSound(200,'square',0.5,0.6); 
+                document.getElementById('feedbackText').innerHTML='❌ إجابة خاطئة! انتهت اللعبة.'; 
+                document.getElementById('feedbackText').style.color='#e74c3c'; 
+                
+                // الانتقال إلى دالة endGame مباشرة لضمان وصول النتيجة للمعلم
+                setTimeout(()=>{ 
+                    document.getElementById('questionScreen').classList.remove('visible'); 
+                    endGame(); 
+                },2000); 
+            } 
+        }
+        
+        function showGameOverMessage(title,scoreMsg,levelComplete,gameWon){ document.getElementById('gameOverTitle').innerText=title; document.getElementById('gameOverScore').innerText=scoreMsg; document.getElementById('gameOverOverlay').classList.add('visible'); if(gameWon) { document.getElementById('nextLevelBtn').style.display='none';  } else if(levelComplete){ document.getElementById('nextLevelBtn').style.display='block';  } else { document.getElementById('nextLevelBtn').style.display='none'; } }
+        
         function nextLevel(){ currentLevel++; loadLevel(currentLevel); document.getElementById('gameOverOverlay').classList.remove('visible'); }
         function updateUI(){ document.getElementById('score').innerText=score; document.getElementById('birds-left').innerText=birdsLeft; document.getElementById('level').innerText=currentLevel; }
         
-        // ✅ الدالة المسؤولة عن إنهاء اللعبة وإرسال النتيجة
+        // ✅ دالة إنهاء اللعبة (تتكفل بإرسال البيانات ونقل الطالب للنتيجة النهائية)
         function endGame(){ 
             const finalScore = score; 
             
@@ -960,7 +987,18 @@
             detectCollisions(); requestAnimationFrame(gameLoop); 
         }
 
-        function initGame(){ canvas=document.getElementById('gameCanvas'); ctx=canvas.getContext('2d'); setupCanvas(); gameLoop(); const resetBtnGame=document.getElementById('resetBtn'); if(resetBtnGame) resetBtnGame.onclick=resetGame; const nextBtn=document.getElementById('nextLevelBtn'); if(nextBtn) nextBtn.onclick=nextLevel; const restartBtnGame=document.getElementById('restartBtn'); if(restartBtnGame) restartBtnGame.onclick=resetGame; const soundBtn=document.getElementById('sound-toggle'); if(soundBtn) soundBtn.onclick=()=>{ soundEnabled=!soundEnabled; soundBtn.innerText=soundEnabled?'إيقاف الصوت':'تشغيل الصوت'; }; canvas.addEventListener('touchstart',handleStart,{passive:false}); canvas.addEventListener('touchmove',handleMove,{passive:false}); canvas.addEventListener('touchend',handleEnd); canvas.addEventListener('mousedown',handleStart); canvas.addEventListener('mousemove',handleMove); canvas.addEventListener('mouseup',handleEnd); }
+        function initGame(){ 
+            canvas=document.getElementById('gameCanvas'); ctx=canvas.getContext('2d'); 
+            setupCanvas(); gameLoop(); 
+            
+            // ✅ ربط زر "إنهاء وإرسال" بدالة endGame لتمكين الإرسال اليدوي إذا رغب الطالب
+            const endBtn = document.getElementById('endBtn'); 
+            if(endBtn) endBtn.onclick = endGame; 
+            
+            const nextBtn=document.getElementById('nextLevelBtn'); if(nextBtn) nextBtn.onclick=nextLevel; 
+            const soundBtn=document.getElementById('sound-toggle'); if(soundBtn) soundBtn.onclick=()=>{ soundEnabled=!soundEnabled; soundBtn.innerText=soundEnabled?'إيقاف الصوت':'تشغيل الصوت'; }; 
+            canvas.addEventListener('touchstart',handleStart,{passive:false}); canvas.addEventListener('touchmove',handleMove,{passive:false}); canvas.addEventListener('touchend',handleEnd); canvas.addEventListener('mousedown',handleStart); canvas.addEventListener('mousemove',handleMove); canvas.addEventListener('mouseup',handleEnd); 
+        }
         function handleStart(e){ if(!gameRunning||!currentBird||currentBird.launched) return; const pos=getEventPos(e); const dx=pos.x-slingshot.x, dy=pos.y-slingshot.y; if(Math.sqrt(dx*dx+dy*dy)<currentBird.radius*2){ input.active=true; e.preventDefault(); } }
         function handleMove(e){ if(!gameRunning||!input.active||!currentBird||currentBird.launched) return; const pos=getEventPos(e); let dx=pos.x-slingshot.x, dy=pos.y-slingshot.y; const maxDist=canvas.width*0.2; const dist=Math.min(maxDist,Math.sqrt(dx*dx+dy*dy)); const angle=Math.atan2(dy,dx); const nx=slingshot.x+Math.cos(angle)*dist, ny=slingshot.y+Math.sin(angle)*dist; currentBird.x=nx; currentBird.y=ny; input.power=dist/maxDist; document.getElementById('power-fill').style.width=`${input.power*100}%`; e.preventDefault(); }
         function handleEnd(e){ if(!gameRunning||!input.active||!currentBird||currentBird.launched) return; input.active=false; const dx=slingshot.x-currentBird.x, dy=slingshot.y-currentBird.y; const factor=Math.min(canvas.width,canvas.height)*0.001; currentBird.velocity.x=dx*factor; currentBird.velocity.y=dy*factor; currentBird.launched=true; releasedBirds.push(currentBird); currentBird=null; document.getElementById('power-fill').style.width='0%'; setTimeout(()=>nextBird(),birdLaunchDelay); }
