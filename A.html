@@ -1,12 +1,10 @@
 <!DOCTYPE html>
-
 <html dir="rtl" lang="ar">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>منصة التحدي التفاعلية - الممتعة</title>
+<title>منصة التعلّم التفاعلية -لعبة المسابقة</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
-<!-- مكتبة الرياضيات -->
 <script src="https://unpkg.com/mathlive"></script>
 <style>
         /* ========================================= */
@@ -390,17 +388,14 @@
             }
         }
     </script>
-<!-- شاشة التحميل عند جلب بيانات الإكسل -->
 <div id="screen-loading-sheet">
 <div class="loader-spinner"></div>
-<div style="font-size: 28px; font-weight: bold; margin-top: 20px;">جاري جلب أسئلة التحدي من المعلم...</div>
+<div style="font-size: 28px; font-weight: bold; margin-top: 20px;" id="loading-text">جاري جلب أسئلة التحدي من المعلم...</div>
 </div>
-<!-- شاشة العد التنازلي -->
 <div id="screen-countdown">
 <div id="countdown-text">استعد!</div>
 <div id="countdown-number">3</div>
 </div>
-<!-- الرئيسية -->
 <div class="screen active" id="screen-home">
 <div class="card">
 <h1>🎮 التحدي الأكبر</h1>
@@ -409,10 +404,21 @@
 <button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
 </div>
 </div>
-<!-- إعداد أسئلة المعلم -->
 <div class="screen" id="screen-teacher-setup">
 <div class="q-builder-container">
 <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
+
+<div style="background: #f3f2f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed #ccc;">
+    <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استرداد غرفة سابقة</h3>
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <input type="number" id="existing-room-pin" placeholder="أدخل رقم الغرفة المحفوظة (PIN)" style="margin-bottom: 0; flex: 2; min-width: 200px;">
+        <button class="btn btn-action" onclick="loadExistingRoom()" style="margin-bottom: 0; flex: 1; padding: 18px; min-width: 150px;">فتح الغرفة</button>
+    </div>
+</div>
+
+<hr style="border: 1px solid #ddd; margin-bottom: 25px;">
+<h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ أو إنشاء أسئلة جديدة</h3>
+
 <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
 <div id="questions-list"></div>
 <button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
@@ -422,7 +428,6 @@
 </div>
 </div>
 </div>
-<!-- المعلم: اللوبي (غرفة الانتظار) -->
 <div class="screen" id="screen-teacher">
 <div style="width: 100%; text-align: center;">
 <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
@@ -448,7 +453,6 @@
 <button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
 </div>
 </div>
-<!-- الطالب: الدخول واختيار الشخصية -->
 <div class="screen" id="screen-student-login">
 <div class="card">
 <h2>أدخل بياناتك للانطلاق 🚀</h2>
@@ -460,7 +464,6 @@
 <button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
 </div>
 </div>
-<!-- الطالب: اللعب -->
 <div class="screen" id="screen-student-game" style="max-width: 1000px;">
 <div class="game-header">
 <div class="player-info">
@@ -485,7 +488,6 @@
 <div id="feedback-text"></div>
 <div id="feedback-points"></div>
 </div>
-<!-- الطالب: النتيجة -->
 <div class="screen" id="screen-student-result">
 <div class="card" style="padding: 50px 30px; max-width: 650px;">
 <h2 id="final-avatar" style="font-size: 100px; margin-bottom: 10px; animation: bounceIn 1s;"></h2>
@@ -493,13 +495,11 @@
 <p style="color: #666; font-size: 22px; font-weight: bold; margin-top: 10px;">نهاية التحدي، رصيدك هو:</p>
 <h1 id="final-score-display" style="font-size: 90px; color: var(--primary); margin: 10px 0; text-shadow: 3px 3px 0px rgba(0,0,0,0.1);">0</h1>
 <p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--info);">جاري حفظ النتيجة...</p>
-<!-- زر المراجعة -->
 <button class="btn btn-action" onclick="toggleReview()">📝 مراجعة إجاباتي</button>
 <div id="review-container"></div>
 <button class="btn btn-primary" onclick="window.location.href = window.location.href.split('?')[0]" style="font-size: 22px; margin-top:15px;">العب مرة أخرى</button>
 </div>
 </div>
-<!-- نافذة محرر الرياضيات المنبثقة (Modal) -->
 <div id="math-modal-overlay">
 <div class="math-modal-content">
 <div class="math-header">
@@ -515,7 +515,6 @@
 <div class="math-tab" onclick="showMathTab('letters', event)">عربي</div>
 <div class="math-tab" onclick="showMathTab('english', event)">English</div>
 </div>
-<!-- لوحة الأرقام والرموز المدمجة -->
 <div class="custom-keyboard active" id="math_combined">
 <div class="kb-row">
 <button class="key num" onpointerdown="addMath('1', event)">1</button>
@@ -573,7 +572,6 @@
 <button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
 </div>
 </div>
-<!-- لوحة العربي -->
 <div class="custom-keyboard" id="letters">
 <div class="kb-row">
 <button class="key" onpointerdown="addMath('ض', event)">ض</button>
@@ -623,7 +621,6 @@
 <button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
 </div>
 </div>
-<!-- لوحة الإنجليزي -->
 <div class="custom-keyboard" id="english">
 <div class="kb-row">
 <button class="key" onpointerdown="addMath('q', event)">q</button>
@@ -665,7 +662,6 @@
 </div>
 </div>
 </div>
-<!-- Iframe Forms for Apps Script -->
 <iframe id="hidden_iframe_score" name="hidden_iframe_score" onload="handleScoreLoad()" style="display:none;"></iframe>
 <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
 <input id="form-name" name="name" type="hidden"/>
@@ -676,8 +672,7 @@
 <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display: none;" target="hidden_iframe_questions">
 <input id="qform-name" name="name" type="hidden"/>
 <input id="qform-school" name="school" type="hidden"/>
-<input id="qform-score" name="score" type="hidden" value="QUESTIONS"/> <!-- Identifier to skip in leaderboard -->
-</form>
+<input id="qform-score" name="score" type="hidden" value="QUESTIONS"/> </form>
 <script>
         // ========================================== //
         // أكواد محرر الرياضيات المنبثق               //
@@ -862,6 +857,69 @@
             `;
             container.insertAdjacentHTML('beforeend', html);
             qBlockCount++;
+        }
+
+        // ========================================== //
+        // دالة استرداد غرفة سابقة للمعلم             //
+        // ========================================== //
+        async function loadExistingRoom() {
+            const pin = document.getElementById('existing-room-pin').value.trim();
+            if (!pin) {
+                alert("يرجى إدخال رقم الغرفة!");
+                return;
+            }
+
+            const loadingScreen = document.getElementById('screen-loading-sheet');
+            const loadingText = document.getElementById('loading-text');
+            loadingScreen.style.display = 'flex';
+            loadingText.innerText = "جاري البحث عن بيانات الغرفة السابقة...";
+
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                
+                let roomFound = false;
+                for(let i = rows.length - 1; i >= 0; i--) {
+                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
+                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
+                            roomFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (roomFound) {
+                    currentRoomPIN = pin;
+                    document.getElementById('display-room-pin').innerText = currentRoomPIN;
+                    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+                    document.getElementById('game-url-input').value = gameUrl;
+                    
+                    const qrImg = document.getElementById('room-qr-code');
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+                    qrImg.style.display = 'block';
+
+                    document.getElementById('saving-status').style.display = 'none'; // لا داعي لرسالة الحفظ
+                    loadingScreen.style.display = 'none';
+
+                    playBGM('lobby');
+                    showScreen('screen-teacher');
+                    
+                    if (refreshInterval) clearInterval(refreshInterval);
+                    refreshInterval = setInterval(fetchLeaderboard, 4000);
+                    fetchLeaderboard(); // تشغيل فوري لتحديث اللوحة
+                } else {
+                    loadingScreen.style.display = 'none';
+                    alert("عذراً! لم يتم العثور على أسئلة محفوظة لرمز الغرفة هذا. تأكد من الرقم أو قم بإنشاء أسئلة جديدة.");
+                }
+            } catch (err) {
+                loadingScreen.style.display = 'none';
+                alert("حدث خطأ أثناء الاتصال بقاعدة البيانات. تأكد من اتصالك بالإنترنت.");
+            }
+            
+            // إعادة النص لحالته الأصلية لاستخدامه لاحقاً من قبل الطالب
+            loadingText.innerText = "جاري جلب أسئلة التحدي من المعلم...";
         }
 
         function saveQuestionsToSheet() {
