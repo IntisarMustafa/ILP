@@ -295,6 +295,12 @@
         <div class="q-builder-container">
             <h2 style="text-align: center;">📝 إعداد أسئلة التحدي</h2>
             
+            <div style="background: #f0f4f8; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #46178f; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <span style="font-weight: bold; color: #46178f; white-space: nowrap;">استيراد من غرفة سابقة:</span>
+                <input type="number" id="import-pin-input" placeholder="رقم الغرفة (PIN)" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; margin-bottom: 0;">
+                <button class="btn btn-action" id="import-btn" style="margin-bottom: 0; padding: 10px 20px; width: auto;" onclick="fetchPreviousQuestions()">استيراد الأسئلة</button>
+            </div>
+            
             <input type="text" id="lesson-title-input" placeholder="عنوان الدرس (مثال: الجمع والطرح)" required>
 
             <div id="questions-list"></div>
@@ -589,7 +595,74 @@
             qBlockCount++;
         }
         
+        // الدالة الجديدة لاستيراد الأسئلة من غرفة سابقة
+        async function fetchPreviousQuestions() {
+            const pinToImport = document.getElementById('import-pin-input').value.trim();
+            if (!pinToImport) {
+                alert("يرجى إدخال رقم الغرفة أولاً!");
+                return;
+            }
+
+            const btn = document.getElementById('import-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "جاري الاستيراد...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                let found = null;
+
+                for (let i = json.table.rows.length - 1; i >= 0; i--) {
+                    if (json.table.rows[i]?.c[0]?.v?.toString() === pinToImport) {
+                        const cellData = json.table.rows[i]?.c[1]?.v?.toString();
+                        if (cellData && cellData.startsWith('{')) {
+                            found = JSON.parse(cellData);
+                            break;
+                        } else if (cellData && cellData.startsWith('[')) {
+                            found = { title: "تحدي مستورد", questions: JSON.parse(cellData) };
+                            break;
+                        }
+                    }
+                }
+
+                if (found && found.questions && found.questions.length > 0) {
+                    document.getElementById('lesson-title-input').value = found.title || '';
+                    document.getElementById('questions-list').innerHTML = ''; 
+                    qBlockCount = 0;
+
+                    found.questions.forEach((qData) => {
+                        addQuestionBlock();
+                        const currentBlockId = `q-block-${qBlockCount - 1}`;
+                        const block = document.getElementById(currentBlockId);
+
+                        block.querySelector('.q-title-input').value = qData.q;
+                        const optInputs = block.querySelectorAll('.q-opt-input');
+                        const radios = block.querySelectorAll('input[type="radio"]');
+
+                        qData.opts.forEach((opt, idx) => {
+                            if (optInputs[idx]) optInputs[idx].value = opt;
+                        });
+
+                        if (radios[qData.ans]) {
+                            radios[qData.ans].checked = true;
+                        }
+                    });
+                    alert("✅ تم استيراد الأسئلة بنجاح! يمكنك الآن التعديل عليها أو النقر على 'حفظ وإنشاء الغرفة' لإنشاء تحدي جديد.");
+                } else {
+                    alert("❌ لم يتم العثور على أسئلة لهذا الرقم. تأكد من إدخال رقم الغرفة الصحيح.");
+                }
+            } catch (e) {
+                alert("❌ حدث خطأ أثناء الاتصال بالخادم.");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
         function openTeacherSetup() { 
+            document.getElementById('import-pin-input').value = '';
             document.getElementById('lesson-title-input').value = ''; 
             document.getElementById('questions-list').innerHTML = ''; 
             qBlockCount=0; 
