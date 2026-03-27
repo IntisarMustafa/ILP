@@ -417,7 +417,7 @@
     </script>
     <div id="screen-loading-sheet">
         <div class="loader-spinner"></div>
-        <div style="font-size: 28px; font-weight: bold; margin-top: 20px;">جاري جلب أسئلة التحدي من المعلم...</div>
+        <div id="loading-sheet-text" style="font-size: 28px; font-weight: bold; margin-top: 20px;">جاري جلب أسئلة التحدي من المعلم...</div>
     </div>
 
     <div id="ui-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
@@ -434,6 +434,16 @@
         <div class="screen" id="screen-teacher-setup">
             <div class="q-builder-container">
                 <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
+                
+                <div style="background: #f0f4f8; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 2px dashed #a0aec0; text-align: center;">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">🔄 هل لديك أسئلة سابقة؟</h3>
+                    <input type="number" id="reuse-pin-input" placeholder="أدخل رقم الغرفة السابق لاسترجاع الأسئلة" style="width: 100%; max-width: 400px; margin-bottom: 15px; font-size: 16px;">
+                    <button class="btn btn-action" onclick="reuseQuestions()" style="width: 100%; max-width: 400px; font-size: 18px;">استرجاع وإنشاء غرفة جديدة</button>
+                    <p id="reuse-status" style="display: none; color: var(--k-red); margin-top: 10px; font-weight: bold;"></p>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 20px; color: #666; font-weight: bold;">--- أو قم بإدخال أسئلة جديدة ---</div>
+
                 <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
                 <div id="questions-list"></div>
                 <button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
@@ -824,6 +834,8 @@
         // --- 3. إعداد أسئلة المعلم ---
         function openTeacherSetup() {
             document.getElementById('questions-list').innerHTML = '';
+            document.getElementById('reuse-status').style.display = 'none';
+            document.getElementById('reuse-pin-input').value = '';
             qBlockCount = 0; addQuestionBlock(); showScreen('screen-teacher-setup');
         }
         function addQuestionBlock() {
@@ -844,6 +856,68 @@
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html); qBlockCount++;
+        }
+
+        // --- ميزة استرجاع الأسئلة للمعلم ---
+        async function reuseQuestions() {
+            const pin = document.getElementById('reuse-pin-input').value.trim();
+            const statusEl = document.getElementById('reuse-status');
+            if (!pin) {
+                statusEl.innerText = "يرجى إدخال رقم غرفة صحيح!";
+                statusEl.style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('screen-loading-sheet').style.display = 'flex';
+            document.getElementById('loading-sheet-text').innerText = "⏳ جاري البحث عن الأسئلة...";
+            
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                let foundQuestions = null;
+                for(let i = rows.length - 1; i >= 0; i--) {
+                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
+                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
+                            foundQuestions = JSON.parse(rows[i].c[1].v.toString()); break;
+                        }
+                    }
+                }
+                
+                document.getElementById('screen-loading-sheet').style.display = 'none';
+                
+                if (foundQuestions && foundQuestions.length > 0) {
+                    // إنشاء الغرفة باستخدام الأسئلة المسترجعة
+                    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+                    const jsonQuestions = JSON.stringify(foundQuestions);
+                    
+                    document.getElementById('qform-name').value = currentRoomPIN; 
+                    document.getElementById('qform-school').value = jsonQuestions; 
+                    
+                    document.getElementById('saving-status').style.display = 'block';
+                    document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام وإعداد الغرفة...";
+                    document.getElementById('questionsForm').submit();
+
+                    document.getElementById('display-room-pin').innerText = currentRoomPIN;
+                    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+                    document.getElementById('game-url-input').value = gameUrl;
+                    
+                    const qrImg = document.getElementById('room-qr-code');
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+                    qrImg.style.display = 'block';
+                    
+                    showScreen('screen-teacher');
+                    refreshInterval = setInterval(fetchLeaderboard, 4000);
+                } else {
+                    statusEl.innerText = "❌ لم يتم العثور على أسئلة مرتبطة بهذا الرقم!";
+                    statusEl.style.display = 'block';
+                }
+            } catch (err) { 
+                document.getElementById('screen-loading-sheet').style.display = 'none';
+                statusEl.innerText = "⚠️ حدث خطأ أثناء الاتصال بالخادم!";
+                statusEl.style.display = 'block';
+            }
         }
 
         function saveQuestionsToSheet() {
@@ -919,7 +993,10 @@
             document.getElementById('form-school').value = pin;
             document.getElementById('hud-player-avatar').innerText = selectedAvatar;
             
+            // تحديث نص التحميل للمستخدم ليكون واضحاً للطلاب
+            document.getElementById('loading-sheet-text').innerText = "⏳ جاري جلب أسئلة التحدي من المعلم...";
             document.getElementById('screen-loading-sheet').style.display = 'flex';
+            
             try {
                 const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
                 const text = await res.text();
