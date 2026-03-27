@@ -462,7 +462,7 @@
 
     <div id="screen-loading-sheet" style="display:none; position:fixed; width:100%; height:100%; background:rgba(70,23,143,0.95); z-index:1000; flex-direction:column; align-items:center; justify-content:center; color:white;">
         <div style="border:8px solid rgba(255,255,255,0.3); border-top:8px solid white; border-radius:50%; width:80px; height:80px; animation:spin 1s linear infinite;"></div>
-        <div style="font-size:28px; font-weight:bold; margin-top:20px;">جاري تجهيز التحدي...</div>
+        <div id="loading-text" style="font-size:28px; font-weight:bold; margin-top:20px;">جاري تجهيز التحدي...</div>
     </div>
     <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
 
@@ -472,6 +472,12 @@
             <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
             <button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
             <button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
+            
+            <div style="margin-top: 25px; padding-top: 25px; border-top: 2px dashed #ccc;">
+                <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استنساخ غرفة سابقة</h3>
+                <input type="number" id="existing-room-pin" placeholder="أدخل رقم الغرفة القديم (PIN)" style="margin-bottom: 15px;">
+                <button class="btn btn-action" onclick="loadExistingRoom()">استنساخ وفتح غرفة جديدة</button>
+            </div>
         </div>
     </div>
 
@@ -965,6 +971,94 @@
             showScreen('screen-teacher');
             if(window.refreshInterval) clearInterval(window.refreshInterval);
             window.refreshInterval = setInterval(() => fetchLeaderboard(currentRoomPIN), 4000);
+        }
+
+        // ========================================== //
+        // دالة استرداد غرفة سابقة للمعلم (معدلة للاستنساخ) //
+        // ========================================== //
+        async function loadExistingRoom() {
+            const pin = document.getElementById('existing-room-pin').value.trim();
+            if (!pin) {
+                alert("يرجى إدخال رقم الغرفة!");
+                return;
+            }
+
+            const loadingScreen = document.getElementById('screen-loading-sheet');
+            const loadingText = document.getElementById('loading-text');
+            loadingScreen.style.display = 'flex';
+            if(loadingText) loadingText.innerText = "جاري البحث عن الغرفة واستنساخ الأسئلة...";
+
+            try {
+                // الاتصال بشيت الإكسل لجلب البيانات
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                
+                let roomFound = false;
+                let copiedQuestions = ""; 
+
+                // البحث عن الغرفة المطلوبة من الأسفل للأعلى (لإيجاد أحدث نسخة)
+                for(let i = rows.length - 1; i >= 0; i--) {
+                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
+                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
+                            roomFound = true;
+                            // نسخ الأسئلة الموجودة في الخلية المجاورة
+                            copiedQuestions = rows[i].c[1].v.toString(); 
+                            break;
+                        }
+                    }
+                }
+
+                if (roomFound) {
+                    // 1. توليد رقم غرفة جديد كلياً
+                    let currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+
+                    // 2. إرسال البيانات لإنشاء سطر جديد باستخدام النموذج المخفي
+                    document.getElementById('qform-name').value = currentRoomPIN; 
+                    document.getElementById('qform-school').value = copiedQuestions; 
+                    
+                    const savingStatus = document.getElementById('saving-status');
+                    if(savingStatus) {
+                        savingStatus.style.display = 'block';
+                        savingStatus.innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
+                    }
+                    
+                    document.getElementById('questionsForm').submit(); 
+
+                    // 3. تحديث واجهة المستخدم لعرض الرقم الجديد والباركود
+                    document.getElementById('display-room-pin').innerText = currentRoomPIN;
+                    
+                    const titleDisplay = document.getElementById('teacher-room-title-display');
+                    if (titleDisplay) titleDisplay.innerText = "نسخة من تحدي غرفة: " + pin;
+
+                    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+                    document.getElementById('game-url-input').value = gameUrl;
+                    
+                    const qrImg = document.getElementById('room-qr-code');
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+                    qrImg.style.display = 'block';
+
+                    loadingScreen.style.display = 'none';
+
+                    if (!isMuted) bgmMusic.play().catch(e=>{});
+                    showScreen('screen-teacher');
+                    
+                    // إعادة تشغيل عداد جلب لوحة الشرف للغرفة الجديدة
+                    if (window.refreshInterval) clearInterval(window.refreshInterval);
+                    window.refreshInterval = setInterval(() => fetchLeaderboard(currentRoomPIN), 4000);
+                    fetchLeaderboard(currentRoomPIN); 
+                } else {
+                    loadingScreen.style.display = 'none';
+                    alert("عذراً! لم يتم العثور على أسئلة محفوظة لرمز الغرفة هذا. تأكد من الرقم أو قم بإنشاء أسئلة جديدة.");
+                }
+            } catch (err) {
+                loadingScreen.style.display = 'none';
+                alert("حدث خطأ أثناء الاتصال بقاعدة البيانات. تأكد من اتصالك بالإنترنت.");
+            }
+            
+            // إعادة النص لحالته الأصلية
+            if(loadingText) loadingText.innerText = "جاري تجهيز التحدي...";
         }
 
         async function fetchLeaderboard(pin) {
