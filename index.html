@@ -8,15 +8,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f8fafc;
+            --bg-color: #f0f4f8;
             --text-main: #0f172a;
             --text-muted: #475569;
-            --card-bg: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.85);
             --primary: #4f46e5;
-            /* ظلال عصرية واحترافية */
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
-            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            --primary-hover: #4338ca;
+            
+            /* ظلال عصرية */
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
         }
 
         * {
@@ -28,9 +30,6 @@
         body {
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg-color);
-            /* خلفية نقاط احترافية وهادئة */
-            background-image: radial-gradient(rgba(148, 163, 184, 0.2) 1.5px, transparent 1.5px);
-            background-size: 30px 30px;
             color: var(--text-main);
             line-height: 1.6;
             min-height: 100vh;
@@ -38,78 +37,133 @@
             flex-direction: column;
             align-items: center;
             padding: 60px 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* خلفية مرحة واحترافية (أشكال ضبابية عائمة) */
+        .bg-blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: floatBlobs 20s infinite alternate ease-in-out;
+        }
+
+        .blob-1 { top: -10%; right: -10%; width: 500px; height: 500px; background: #c4b5fd; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; left: -10%; width: 600px; height: 600px; background: #93c5fd; animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 30%; width: 400px; height: 400px; background: #fbcfe8; animation-delay: -10s; }
+
+        @keyframes floatBlobs {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
         }
 
         .container {
             width: 100%;
             max-width: 1200px;
+            position: relative;
+            z-index: 10;
         }
 
+        /* تنسيق الترويسة */
         .header {
             text-align: center;
-            margin-bottom: 80px;
+            margin-bottom: 70px;
             position: relative;
             animation: fadeInDown 0.8s ease-out;
         }
 
         .header h1 {
-            font-size: 3.2rem;
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
             font-weight: 900;
             margin-bottom: 20px;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #1e293b, var(--primary));
+            background: linear-gradient(135deg, #1e293b, var(--primary), #9333ea);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: inline-block;
             position: relative;
+            animation: gradientText 5s linear infinite;
+        }
+
+        @keyframes gradientText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .header h1::after {
             content: '';
             position: absolute;
-            bottom: -12px;
+            bottom: -15px;
             left: 50%;
             transform: translateX(-50%);
-            width: 100px;
+            width: 80px;
             height: 6px;
             background: linear-gradient(90deg, var(--primary), #c084fc);
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4);
+            transition: width 0.3s ease;
+        }
+
+        .header:hover h1::after {
+            width: 120px;
         }
 
         .header p {
             color: var(--text-muted);
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin: 30px auto 0;
+            font-size: 1.15rem;
+            max-width: 650px;
+            margin: 35px auto 0;
             font-weight: 600;
+            background: rgba(255,255,255,0.6);
+            padding: 15px 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.8);
         }
 
+        /* شبكة الألعاب */
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 35px;
         }
 
         .game-card {
             background-color: var(--card-bg);
-            border-radius: 28px;
-            padding: 45px 30px;
+            border-radius: 30px;
+            padding: 40px 30px;
             text-align: center;
             text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
             box-shadow: var(--shadow-md);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
-            border: 1px solid rgba(255,255,255,0.8);
-            z-index: 1;
+            border: 1px solid rgba(255,255,255,1);
+            backdrop-filter: blur(15px);
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(40px);
             animation: fadeInUp 0.8s ease-out forwards;
+            overflow: hidden;
         }
 
+        /* تأخير الظهور المتتابع للبطاقات */
         .game-card:nth-child(1) { animation-delay: 0.1s; }
         .game-card:nth-child(2) { animation-delay: 0.2s; }
         .game-card:nth-child(3) { animation-delay: 0.3s; }
@@ -117,110 +171,134 @@
         .game-card:nth-child(5) { animation-delay: 0.5s; }
         .game-card:nth-child(6) { animation-delay: 0.6s; }
 
+        /* خط علوي ملون لكل بطاقة بناءً على المتغير */
         .game-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(248,250,252,0.8) 100%);
-            border-radius: 28px;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.5s ease;
+            height: 6px;
+            background: var(--theme-color);
+            transition: height 0.3s ease;
         }
 
-        .card-kahoot { border-top: 5px solid #8b5cf6; }
-        .card-angry { border-top: 5px solid #ef4444; }
-        .card-mario { border-top: 5px solid #f59e0b; }
-        .card-flappy { border-top: 5px solid #10b981; }
-        .card-space { border-top: 5px solid #3b82f6; }
-        .card-candy { border-top: 5px solid #ec4899; } /* لون كاندي كرش (وردي) */
-
         .game-card:hover {
-            transform: translateY(-12px);
-            box-shadow: var(--shadow-lg);
-            border-color: #f1f5f9;
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px -12px var(--theme-color-light);
+            border-color: rgba(255,255,255,1);
         }
 
         .game-card:hover::before {
-            opacity: 1;
-        }
-
-        .game-card:hover .icon-box {
-            transform: scale(1.05) translateY(-5px);
-            box-shadow: 0 15px 25px rgba(0,0,0,0.1);
-        }
-
-        .game-card:hover .action-arrow {
-            opacity: 1;
-            transform: translateX(0);
+            height: 10px;
         }
 
         .icon-box {
-            width: 120px;
-            height: 120px;
-            border-radius: 35px;
+            width: 110px;
+            height: 110px;
+            border-radius: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 30px;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.7), 0 10px 20px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, var(--theme-bg-1), var(--theme-bg-2));
+            box-shadow: inset 0 3px 6px rgba(255,255,255,0.8), 0 15px 25px rgba(0,0,0,0.06);
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
 
-        .kahoot-bg { background: linear-gradient(135deg, #ede9fe, #c4b5fd); }
-        .angry-bg { background: linear-gradient(135deg, #fee2e2, #fca5a5); }
-        .mario-bg { background: linear-gradient(135deg, #fef3c7, #fcd34d); }
-        .flappy-bg { background: linear-gradient(135deg, #d1fae5, #6ee7b7); }
-        .space-bg { background: linear-gradient(135deg, #e0f2fe, #7dd3fc); }
-        .candy-bg { background: linear-gradient(135deg, #fce7f3, #fbcfe8); } /* خلفية كاندي كرش */
-
         .icon-box svg {
-            width: 65px;
-            height: 65px;
-            transition: all 0.4s ease;
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.1));
+            width: 60px;
+            height: 60px;
+            transition: all 0.5s ease;
+            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.15));
+        }
+
+        /* تأثير مرح على الأيقونة عند التحويم */
+        .game-card:hover .icon-box {
+            transform: scale(1.1) rotate(5deg);
+            border-radius: 40px;
+        }
+        
+        .game-card:hover .icon-box svg {
+            transform: scale(1.15) translateY(-5px);
+            animation: floatIcon 2s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(-5px); }
+            50% { transform: translateY(-12px); }
         }
 
         .game-title {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 800;
             color: var(--text-main);
             margin-bottom: 15px;
         }
 
         .game-desc {
-            font-size: 1rem;
+            font-size: 1.05rem;
             color: var(--text-muted);
             line-height: 1.7;
             font-weight: 600;
             flex-grow: 1;
+            margin-bottom: 25px;
         }
 
-        .action-arrow {
-            margin-top: 25px;
-            opacity: 0;
-            transform: translateX(15px);
-            transition: all 0.4s ease;
-            color: var(--primary);
+        /* زر الإجراء (انتقل للعبة) */
+        .action-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 1rem;
-            background: #f1f5f9;
-            padding: 8px 20px;
-            border-radius: 20px;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            background: var(--text-main);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            width: 100%;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
 
-        .action-arrow svg {
-            width: 18px;
-            height: 18px;
-            margin-right: 8px;
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--theme-color);
+            z-index: -1;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scaleX(0);
+            transform-origin: right;
+        }
+
+        .game-card:hover .action-btn {
+            color: white;
+            box-shadow: 0 10px 20px -5px var(--theme-color-light);
+            transform: translateY(-2px);
+        }
+
+        .game-card:hover .action-btn::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
             fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover .action-btn svg {
+            transform: translateX(-5px);
         }
 
         @keyframes fadeInDown {
@@ -229,20 +307,27 @@
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
-            .header h1 { font-size: 2.4rem; }
-            .header p { font-size: 1.05rem; }
-            .games-grid { grid-template-columns: 1fr; gap: 30px; max-width: 400px; margin: 0 auto; }
+            body { padding: 40px 15px; }
+            .header h1 { font-size: 2.2rem; }
+            .header p { padding: 15px; font-size: 1rem; }
+            .games-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; gap: 25px; }
             .game-card { padding: 35px 25px; }
-            .game-card:hover { transform: translateY(-5px); }
         }
     </style>
 </head>
 <body>
+
+    <!-- الأشكال العائمة في الخلفية -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
 
     <div class="container">
         <div class="header">
@@ -253,8 +338,8 @@
         <div class="games-grid">
             
             <!-- 1. تحدي الأسئلة المباشر -->
-            <a href="A.html" class="game-card card-kahoot">
-                <div class="icon-box kahoot-bg">
+            <a href="A.html" class="game-card" style="--theme-color: #8b5cf6; --theme-color-light: rgba(139, 92, 246, 0.4); --theme-bg-1: #ede9fe; --theme-bg-2: #c4b5fd;">
+                <div class="icon-box">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient>
@@ -270,15 +355,15 @@
                 </div>
                 <h2 class="game-title">تحدي الأسئلة المباشر</h2>
                 <p class="game-desc">لعبة تفاعلية سريعة لأسئلة الاختيار من متعدد، مثالية للمراجعات والتقييم الختامي.</p>
-                <div class="action-arrow">
-                    <span>ابدأ اللعب</span>
+                <div class="action-btn">
+                    <span>انتقل للعبة</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
 
             <!-- 2. الطيور الذكية -->
-            <a href="B.html" class="game-card card-angry">
-                <div class="icon-box angry-bg">
+            <a href="B.html" class="game-card" style="--theme-color: #ef4444; --theme-color-light: rgba(239, 68, 68, 0.4); --theme-bg-1: #fee2e2; --theme-bg-2: #fca5a5;">
+                <div class="icon-box">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="birdGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
@@ -297,15 +382,15 @@
                 </div>
                 <h2 class="game-title">الطيور الذكية</h2>
                 <p class="game-desc">أجب إجابة صحيحة لتصويب الطائر وهدم العقبات، ادمج الفيزياء بالمعرفة.</p>
-                <div class="action-arrow">
-                    <span>ابدأ اللعب</span>
+                <div class="action-btn">
+                    <span>انتقل للعبة</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
 
             <!-- 3. القط والهدف -->
-            <a href="C.html" class="game-card card-mario">
-                <div class="icon-box mario-bg">
+            <a href="C.html" class="game-card" style="--theme-color: #f59e0b; --theme-color-light: rgba(245, 158, 11, 0.4); --theme-bg-1: #fef3c7; --theme-bg-2: #fcd34d;">
+                <div class="icon-box">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="boxGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
@@ -338,15 +423,15 @@
                 </div>
                 <h2 class="game-title">القط والهدف</h2>
                 <p class="game-desc">لعبة منصات ومراحل كلاسيكية، تجاوز التحديات واجمع النقاط للوصول للهدف.</p>
-                <div class="action-arrow">
-                    <span>ابدأ اللعب</span>
+                <div class="action-btn">
+                    <span>انتقل للعبة</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
 
             <!-- 4. الطائر الفهمان -->
-            <a href="D.html" class="game-card card-flappy">
-                <div class="icon-box flappy-bg">
+            <a href="D.html" class="game-card" style="--theme-color: #10b981; --theme-color-light: rgba(16, 185, 129, 0.4); --theme-bg-1: #d1fae5; --theme-bg-2: #6ee7b7;">
+                <div class="icon-box">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="pipeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4ade80"/><stop offset="30%" stop-color="#22c55e"/><stop offset="100%" stop-color="#14532d"/></linearGradient>
@@ -368,15 +453,15 @@
                 </div>
                 <h2 class="game-title">الطائر الفهمان</h2>
                 <p class="game-desc">طير بأمان عبر أنابيب الأسئلة بالاعتماد على ذكائك وسرعة إجاباتك.</p>
-                <div class="action-arrow">
-                    <span>ابدأ اللعب</span>
+                <div class="action-btn">
+                    <span>انتقل للعبة</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
 
             <!-- 5. لعبة المركبة الفضائية -->
-            <a href="E.html" class="game-card card-space">
-                <div class="icon-box space-bg">
+            <a href="E.html" class="game-card" style="--theme-color: #3b82f6; --theme-color-light: rgba(59, 130, 246, 0.4); --theme-bg-1: #e0f2fe; --theme-bg-2: #7dd3fc;">
+                <div class="icon-box">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="rocketBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#94a3b8"/></linearGradient>
@@ -396,16 +481,16 @@
                     </svg>
                 </div>
                 <h2 class="game-title">المركبة الفضائية</h2>
-                <p class="game-desc">قم بقيادة مركبتك وتجاوز الكويكبات عبر الإجابة الصحيحة للوصول إلى الكوكب الهدف.</p>
-                <div class="action-arrow">
-                    <span>ابدأ اللعب</span>
+                <p class="game-desc">قم بقيادة مركبتك وتجاوز الكويكبات عبر الإجابة الصحيحة للوصول إلى الكوكب.</p>
+                <div class="action-btn">
+                    <span>انتقل للعبة</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
 
-            <!-- 6. مرح الأشكال (كاندي كرش) -->
-            <a href="F.html" class="game-card card-candy">
-                <div class="icon-box candy-bg">
+            <!-- 6. مرح الأشكال -->
+            <a href="F.html" class="game-card" style="--theme-color: #ec4899; --theme-color-light: rgba(236, 72, 153, 0.4); --theme-bg-1: #fce7f3; --theme-bg-2: #fbcfe8;">
+                <div class="icon-box">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="candyRed" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>
@@ -416,44 +501,33 @@
                                 <circle cx="50" cy="50" r="18" />
                             </clipPath>
                         </defs>
-                        
-                        <!-- الماسة الصفراء (أعلى اليسار) -->
                         <g transform="translate(-3, -2)">
                             <rect x="25" y="18" width="16" height="16" rx="4" transform="rotate(45 33 26)" fill="url(#candyYellow)" stroke="#a16207" stroke-width="1.5" />
                             <ellipse cx="30" cy="22" rx="4" ry="2" transform="rotate(-45 30 22)" fill="#ffffff" opacity="0.7" />
                         </g>
-
-                        <!-- حبة الجيلي الخضراء (أعلى اليمين) -->
                         <g transform="translate(3, -5)">
                             <rect x="62" y="20" width="22" height="14" rx="7" transform="rotate(-20 73 27)" fill="url(#candyGreen)" stroke="#15803d" stroke-width="1.5" />
                             <ellipse cx="69" cy="23" rx="5" ry="2" transform="rotate(-20 69 23)" fill="#ffffff" opacity="0.7" />
                         </g>
-
-                        <!-- حبة الكاندي المغلفة الزرقاء (أسفل اليمين) -->
                         <g transform="translate(4, 5)">
-                            <!-- أطراف الغلاف -->
                             <path d="M 66 68 L 82 60 L 80 78 Z" fill="url(#candyBlue)" stroke="#1e3a8a" stroke-width="1" stroke-linejoin="round" />
                             <path d="M 66 68 L 50 60 L 52 78 Z" fill="url(#candyBlue)" stroke="#1e3a8a" stroke-width="1" stroke-linejoin="round" />
-                            <!-- قلب الكاندي -->
                             <circle cx="66" cy="69" r="10" fill="url(#candyBlue)" stroke="#1e40af" stroke-width="1.5" />
                             <ellipse cx="63" cy="65" rx="4" ry="2" transform="rotate(-30 63 65)" fill="#ffffff" opacity="0.7" />
                         </g>
-
-                        <!-- حبة الكاندي الحمراء المخططة (في المنتصف وهي الأكبر) -->
                         <circle cx="50" cy="50" r="18" fill="url(#candyRed)" stroke="#991b1b" stroke-width="2" />
                         <g clip-path="url(#stripedCandyClip)">
                             <rect x="20" y="32" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
                             <rect x="20" y="47" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
                             <rect x="20" y="62" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
                         </g>
-                        <!-- لمعة خفيفة للكرة المخططة -->
                         <path d="M 38 40 A 12 12 0 0 1 50 34" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8" />
                     </svg>
                 </div>
                 <h2 class="game-title">مرح الأشكال</h2>
                 <p class="game-desc">طابق الأشكال والألوان للإجابة على الأسئلة وتجاوز المراحل في هذه اللعبة الممتعة.</p>
-                <div class="action-arrow">
-                    <span>ابدأ اللعب</span>
+                <div class="action-btn">
+                    <span>انتقل للعبة</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
@@ -463,4 +537,5 @@
 
 </body>
 </html>
+
 
