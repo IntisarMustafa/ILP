@@ -1521,7 +1521,7 @@
                     feedbackMessageElement.style.color = "#00b09b";
                     
                     gameState.currentLevelScore += 50; 
-                    scoreElement.textContent = gameState.totalScore + gameState.currentLevelScore;
+                    scoreElement.textContent = gameState.totalScore + Math.floor(gameState.currentLevelScore);
 
                     setTimeout(() => {
                         questionOverlay.classList.add('hidden');
@@ -1603,7 +1603,7 @@
             }
             
             function nextLevel() {
-                gameState.totalScore += gameState.currentLevelScore;
+                gameState.totalScore += Math.floor(gameState.currentLevelScore);
                 gameState.level++; gameState.gameTime = 0; gameState.isLevelComplete = false; gameState.paused = false;
                 gameState.currentLevelScore = 0;
                 gameState.pathSpeed = 1 + (gameState.level - 1) * 0.5;
@@ -1633,8 +1633,9 @@
                     return;
                 }
                 
-                gameState.currentLevelScore = Math.floor(gameState.gameTime * 10);
-                scoreElement.textContent = gameState.totalScore + gameState.currentLevelScore;
+                // نزيد النقاط بناءً على الوقت تدريجياً لتجنب مسح نقاط الأسئلة
+                gameState.currentLevelScore += 10 * dtSec;
+                scoreElement.textContent = gameState.totalScore + Math.floor(gameState.currentLevelScore);
                 
                 let dy = 0; const speed = 300; 
                 if (gameState.keys.ArrowUp || gameState.keys.w) dy = -speed;
@@ -1666,21 +1667,22 @@
                 draw(deltaTime);
                 
                 if (gameState.gameOver) {
+                    let finalScore = gameState.totalScore + Math.floor(gameState.currentLevelScore);
                     if (!scoreSubmitted && studentSessionName) {
-                        document.getElementById('form-score').value = gameState.totalScore;
+                        document.getElementById('form-score').value = finalScore;
                         document.getElementById('scoreForm').submit();
                         scoreSubmitted = true;
                     }
 
                     overlayTitle.textContent = 'انتهت اللعبة!';
-                    overlayMessage.textContent = `نقاطك الإجمالية: ${gameState.totalScore}`;
+                    overlayMessage.textContent = `نقاطك الإجمالية: ${finalScore}`;
                     overlayBtn.textContent = 'إعادة التشغيل';
                     homeBtn.style.display = 'inline-block';
                     overlay.classList.remove('hidden');
                     stopThrusterSound(); stopBackgroundMelody();
                 } else if (gameState.isLevelComplete) { 
                     overlayTitle.textContent = 'انتهى المستوى!';
-                    overlayMessage.textContent = `لقد جمعت ${gameState.currentLevelScore} نقطة.\nالمجموع: ${gameState.totalScore + gameState.currentLevelScore}`;
+                    overlayMessage.textContent = `لقد جمعت ${Math.floor(gameState.currentLevelScore)} نقطة.\nالمجموع: ${gameState.totalScore + Math.floor(gameState.currentLevelScore)}`;
                     overlayBtn.textContent = 'المستوى التالي';
                     homeBtn.style.display = 'none';
                     overlay.classList.remove('hidden');
