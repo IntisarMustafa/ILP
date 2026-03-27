@@ -860,7 +860,7 @@
         }
 
         // ========================================== //
-        // دالة استرداد غرفة سابقة للمعلم             //
+        // دالة استرداد غرفة سابقة للمعلم (معدلة للاستنساخ) //
         // ========================================== //
         async function loadExistingRoom() {
             const pin = document.getElementById('existing-room-pin').value.trim();
@@ -872,26 +872,43 @@
             const loadingScreen = document.getElementById('screen-loading-sheet');
             const loadingText = document.getElementById('loading-text');
             loadingScreen.style.display = 'flex';
-            loadingText.innerText = "جاري البحث عن بيانات الغرفة السابقة...";
+            loadingText.innerText = "جاري البحث عن الغرفة واستنساخ الأسئلة...";
 
             try {
+                // الاتصال بشيت الإكسل لجلب البيانات
                 const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
                 const text = await res.text();
                 const json = JSON.parse(text.substring(47, text.length - 2));
                 const rows = json.table.rows;
                 
                 let roomFound = false;
+                let copiedQuestions = ""; // متغير جديد لحفظ الأسئلة المستنسخة
+
+                // البحث عن الغرفة المطلوبة من الأسفل للأعلى (لإيجاد أحدث نسخة)
                 for(let i = rows.length - 1; i >= 0; i--) {
                     if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
                         if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
                             roomFound = true;
+                            // نسخ الأسئلة الموجودة في الخلية المجاورة
+                            copiedQuestions = rows[i].c[1].v.toString(); 
                             break;
                         }
                     }
                 }
 
                 if (roomFound) {
-                    currentRoomPIN = pin;
+                    // 1. توليد رقم غرفة جديد كلياً
+                    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+
+                    // 2. إرسال البيانات لإنشاء سطر جديد باستخدام النموذج المخفي الموجود مسبقاً
+                    document.getElementById('qform-name').value = currentRoomPIN; // وضع الرقم الجديد
+                    document.getElementById('qform-school').value = copiedQuestions; // وضع الأسئلة المنسوخة
+                    
+                    document.getElementById('saving-status').style.display = 'block';
+                    document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
+                    document.getElementById('questionsForm').submit(); // حفظ السطر الجديد في الإكسل
+
+                    // 3. تحديث واجهة المستخدم لعرض الرقم الجديد والباركود
                     document.getElementById('display-room-pin').innerText = currentRoomPIN;
                     const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
                     document.getElementById('game-url-input').value = gameUrl;
@@ -900,15 +917,15 @@
                     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
                     qrImg.style.display = 'block';
 
-                    document.getElementById('saving-status').style.display = 'none'; // لا داعي لرسالة الحفظ
                     loadingScreen.style.display = 'none';
 
                     playBGM('lobby');
                     showScreen('screen-teacher');
                     
+                    // إعادة تشغيل عداد جلب لوحة الشرف
                     if (refreshInterval) clearInterval(refreshInterval);
                     refreshInterval = setInterval(fetchLeaderboard, 4000);
-                    fetchLeaderboard(); // تشغيل فوري لتحديث اللوحة
+                    fetchLeaderboard(); 
                 } else {
                     loadingScreen.style.display = 'none';
                     alert("عذراً! لم يتم العثور على أسئلة محفوظة لرمز الغرفة هذا. تأكد من الرقم أو قم بإنشاء أسئلة جديدة.");
