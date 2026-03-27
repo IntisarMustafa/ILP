@@ -102,7 +102,7 @@
             text-align: right;
         }
         
-        #lesson-title-input {
+        #lesson-title-input, #existing-room-pin {
             width: 100%;
             padding: 15px;
             margin-bottom: 25px;
@@ -113,6 +113,16 @@
             font-weight: bold;
             color: #333;
             background-color: #f0f4f8;
+        }
+
+        #input-room-pin, #input-student-name {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
         }
 
         .q-block {
@@ -279,27 +289,63 @@
             height: auto !important;
             flex-grow: 1 !important;
         }
+
+        /* تنسيق شاشة التحميل المنبثقة */
+        #screen-loading-sheet {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 99999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        #screen-loading-sheet i {
+            font-size: 60px;
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+        #loading-text {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <div id="screen-loading-sheet">
+        <i class="fas fa-spinner fa-spin"></i>
+        <h2 id="loading-text">جاري المعالجة...</h2>
+    </div>
+
     <div class="screen active" id="screen-home">
         <div class="card">
             <h1>🎮 الطيور الذكية التعليمية</h1>
             <p style="margin-bottom: 25px; font-size: 18px;">أنشئ مسابقتك الخاصة بالأسئلة الرياضية!</p>
-            <button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
+            <button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة جديدة</button>
+            <button class="btn btn-action" onclick="showScreen('screen-teacher-load')">🔄 استنساخ مسابقة سابقة</button>
+            <hr style="margin: 20px 0; border: 1px solid #eee;">
             <button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-teacher-load">
+        <div class="card">
+            <h2>استعادة غرفة سابقة 🔄</h2>
+            <p style="margin-bottom: 20px;">أدخل رمز الغرفة القديم لنسخ أسئلتها وإنشاء غرفة جديدة للطلاب.</p>
+            <input id="existing-room-pin" type="number" placeholder="رقم الغرفة القديم (PIN)">
+            <button class="btn btn-primary" onclick="loadExistingRoom()">استنساخ وفتح الغرفة</button>
+            <button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
         </div>
     </div>
 
     <div class="screen" id="screen-teacher-setup">
         <div class="q-builder-container">
             <h2 style="text-align: center;">📝 إعداد أسئلة التحدي</h2>
-            
-            <div style="background: #f0f4f8; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #46178f; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <span style="font-weight: bold; color: #46178f; white-space: nowrap;">استيراد من غرفة سابقة:</span>
-                <input type="number" id="import-pin-input" placeholder="رقم الغرفة (PIN)" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; margin-bottom: 0;">
-                <button class="btn btn-action" id="import-btn" style="margin-bottom: 0; padding: 10px 20px; width: auto;" onclick="fetchPreviousQuestions()">استيراد الأسئلة</button>
-            </div>
             
             <input type="text" id="lesson-title-input" placeholder="عنوان الدرس (مثال: الجمع والطرح)" required>
 
@@ -578,15 +624,97 @@
     </form>
 
     <script>
-        // -------------------- نظام الأسئلة --------------------
+        // -------------------- المتغيرات الأساسية --------------------
         const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
         let gameQuestions = [];
         let gameLessonTitle = "تحدي الرياضيات"; 
         let currentRoomPIN = "";
         let selectedAvatar = "🦁";
+        let refreshInterval = null; // متغير لحفظ العداد
         const avatars = ["🦁","🦋","🤖","🥷","👨‍🔬","🐺","🦊","🐯","🐼","🐰","🐹","🐻","🦉","🫅","👸","🦸‍♂️","🚀","⭐","🔥"];
         
         let qBlockCount = 0;
+        
+        // ========================================== //
+        // دالة استرداد غرفة سابقة للمعلم (الاستنساخ) //
+        // ========================================== //
+        async function loadExistingRoom() {
+            const pin = document.getElementById('existing-room-pin').value.trim();
+            if (!pin) {
+                alert("يرجى إدخال رقم الغرفة!");
+                return;
+            }
+
+            const loadingScreen = document.getElementById('screen-loading-sheet');
+            const loadingText = document.getElementById('loading-text');
+            loadingScreen.style.display = 'flex';
+            loadingText.innerText = "جاري البحث عن الغرفة واستنساخ الأسئلة...";
+
+            try {
+                // الاتصال بشيت الإكسل لجلب البيانات
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                
+                let roomFound = false;
+                let copiedQuestions = ""; // متغير لحفظ الأسئلة المستنسخة
+
+                // البحث عن الغرفة المطلوبة من الأسفل للأعلى (لإيجاد أحدث نسخة)
+                for(let i = rows.length - 1; i >= 0; i--) {
+                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
+                        if(rows[i].c[1] && rows[i].c[1].v && (rows[i].c[1].v.toString().trim().startsWith('[') || rows[i].c[1].v.toString().trim().startsWith('{'))) {
+                            roomFound = true;
+                            // نسخ الأسئلة الموجودة في الخلية المجاورة
+                            copiedQuestions = rows[i].c[1].v.toString(); 
+                            break;
+                        }
+                    }
+                }
+
+                if (roomFound) {
+                    // 1. توليد رقم غرفة جديد كلياً
+                    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+
+                    // 2. إرسال البيانات لإنشاء سطر جديد باستخدام النموذج المخفي الموجود مسبقاً
+                    document.getElementById('qform-name').value = currentRoomPIN; // وضع الرقم الجديد
+                    document.getElementById('qform-school').value = copiedQuestions; // وضع الأسئلة المنسوخة
+                    
+                    document.getElementById('saving-status').style.display = 'block';
+                    document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
+                    document.getElementById('questionsForm').submit(); // حفظ السطر الجديد في الإكسل
+
+                    // 3. تحديث واجهة المستخدم لعرض الرقم الجديد والباركود
+                    document.getElementById('display-room-pin').innerText = currentRoomPIN;
+                    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+                    document.getElementById('game-url-input').value = gameUrl;
+                    
+                    const qrImg = document.getElementById('room-qr-code');
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+                    qrImg.style.display = 'block';
+
+                    loadingScreen.style.display = 'none';
+
+                    // تم إيقاف دالة playBGM('lobby') لعدم وجودها في الكود لتجنب الأخطاء
+                    // playBGM('lobby'); 
+                    
+                    showScreen('screen-teacher');
+                    
+                    // إعادة تشغيل عداد جلب لوحة الشرف
+                    if (refreshInterval) clearInterval(refreshInterval);
+                    refreshInterval = setInterval(fetchLeaderboard, 4000);
+                    fetchLeaderboard(); 
+                } else {
+                    loadingScreen.style.display = 'none';
+                    alert("عذراً! لم يتم العثور على أسئلة محفوظة لرمز الغرفة هذا. تأكد من الرقم أو قم بإنشاء أسئلة جديدة.");
+                }
+            } catch (err) {
+                loadingScreen.style.display = 'none';
+                alert("حدث خطأ أثناء الاتصال بقاعدة البيانات. تأكد من اتصالك بالإنترنت.");
+            }
+        }
+
+        // باقي دوال المعلم والطالب
         function addQuestionBlock() {
             const container = document.getElementById('questions-list');
             const blockId = `q-block-${qBlockCount}`;
@@ -595,74 +723,7 @@
             qBlockCount++;
         }
         
-        // الدالة الجديدة لاستيراد الأسئلة من غرفة سابقة
-        async function fetchPreviousQuestions() {
-            const pinToImport = document.getElementById('import-pin-input').value.trim();
-            if (!pinToImport) {
-                alert("يرجى إدخال رقم الغرفة أولاً!");
-                return;
-            }
-
-            const btn = document.getElementById('import-btn');
-            const originalText = btn.innerText;
-            btn.innerText = "جاري الاستيراد...";
-            btn.disabled = true;
-
-            try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-                const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
-                let found = null;
-
-                for (let i = json.table.rows.length - 1; i >= 0; i--) {
-                    if (json.table.rows[i]?.c[0]?.v?.toString() === pinToImport) {
-                        const cellData = json.table.rows[i]?.c[1]?.v?.toString();
-                        if (cellData && cellData.startsWith('{')) {
-                            found = JSON.parse(cellData);
-                            break;
-                        } else if (cellData && cellData.startsWith('[')) {
-                            found = { title: "تحدي مستورد", questions: JSON.parse(cellData) };
-                            break;
-                        }
-                    }
-                }
-
-                if (found && found.questions && found.questions.length > 0) {
-                    document.getElementById('lesson-title-input').value = found.title || '';
-                    document.getElementById('questions-list').innerHTML = ''; 
-                    qBlockCount = 0;
-
-                    found.questions.forEach((qData) => {
-                        addQuestionBlock();
-                        const currentBlockId = `q-block-${qBlockCount - 1}`;
-                        const block = document.getElementById(currentBlockId);
-
-                        block.querySelector('.q-title-input').value = qData.q;
-                        const optInputs = block.querySelectorAll('.q-opt-input');
-                        const radios = block.querySelectorAll('input[type="radio"]');
-
-                        qData.opts.forEach((opt, idx) => {
-                            if (optInputs[idx]) optInputs[idx].value = opt;
-                        });
-
-                        if (radios[qData.ans]) {
-                            radios[qData.ans].checked = true;
-                        }
-                    });
-                    alert("✅ تم استيراد الأسئلة بنجاح! يمكنك الآن التعديل عليها أو النقر على 'حفظ وإنشاء الغرفة' لإنشاء تحدي جديد.");
-                } else {
-                    alert("❌ لم يتم العثور على أسئلة لهذا الرقم. تأكد من إدخال رقم الغرفة الصحيح.");
-                }
-            } catch (e) {
-                alert("❌ حدث خطأ أثناء الاتصال بالخادم.");
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
-        }
-
         function openTeacherSetup() { 
-            document.getElementById('import-pin-input').value = '';
             document.getElementById('lesson-title-input').value = ''; 
             document.getElementById('questions-list').innerHTML = ''; 
             qBlockCount=0; 
@@ -705,7 +766,8 @@
             qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`;
             qr.style.display = 'block';
             showScreen('screen-teacher');
-            setInterval(fetchLeaderboard, 4000);
+            if(refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(fetchLeaderboard, 4000);
         }
 
         async function fetchLeaderboard() { try { const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`); const text = await res.text(); const json = JSON.parse(text.substring(47, text.length-2)); let players = json.table.rows.filter(r=> r.c[1]?.v.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS"); players.sort((a,b)=> (b.c[2]?.v||0) - (a.c[2]?.v||0)); const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = ''; players.forEach((p,i)=> tbody.innerHTML += `<tr><td>${i+1} ${i===0?'🥇':i===1?'🥈':i===2?'🥉':'🏅'}</td><td>${p.c[0].v}</td><td>${p.c[2].v}</td></tr>`); document.getElementById('loading-board').style.display = players.length ? 'none' : 'block'; document.getElementById('leaderboard').style.display = players.length ? 'table' : 'none'; } catch(e) {} }
@@ -999,7 +1061,6 @@
         function nextBird(){ if(releasedBirds.some(b=>b.launched && (Math.abs(b.velocity.x)>0.5||Math.abs(b.velocity.y)>0.5))){ setTimeout(nextBird,500); return; } const targets=gameObjects.filter(obj=>obj instanceof TargetBird); if(targets.length===0){ playSound(1000,'triangle',0.5,0.6); showGameOverMessage('لقد نجحت!',`نقاطك: ${score}`,true,false); } else if(birdsLeft>0){ loadNextBird(); } else { showQuestion(); } }
         function showQuestion(){ if(!gameQuestions.length) return; gameRunning=false; const q = gameQuestions[Math.floor(Math.random()*gameQuestions.length)]; document.getElementById('questionText').innerHTML = q.q; MathLive.renderMathInElement(document.getElementById('questionText')); const container=document.getElementById('optionsContainer'); container.innerHTML=''; q.opts.forEach((opt,idx)=>{ const btn=document.createElement('button'); btn.textContent=opt; btn.classList.add('option-btn'); btn.onclick=()=>checkAnswer(idx,q.ans,q.q); container.appendChild(btn); }); document.getElementById('feedbackText').innerHTML=''; document.getElementById('explanation').style.display='none'; document.getElementById('questionScreen').classList.add('visible'); }
         
-        // ✅ التعديل هنا: إنهاء اللعبة عند الإجابة الخاطئة وإرسال النتيجة فوراً
         function checkAnswer(selected,correct,questionText){ 
             const btns=document.querySelectorAll('.option-btn'); 
             btns.forEach(b=>b.disabled=true); 
@@ -1016,7 +1077,6 @@
                 document.getElementById('feedbackText').innerHTML='❌ إجابة خاطئة! انتهت اللعبة.'; 
                 document.getElementById('feedbackText').style.color='#e74c3c'; 
                 
-                // الانتقال إلى دالة endGame مباشرة لضمان وصول النتيجة للمعلم
                 setTimeout(()=>{ 
                     document.getElementById('questionScreen').classList.remove('visible'); 
                     endGame(); 
@@ -1029,27 +1089,22 @@
         function nextLevel(){ currentLevel++; loadLevel(currentLevel); document.getElementById('gameOverOverlay').classList.remove('visible'); }
         function updateUI(){ document.getElementById('score').innerText=score; document.getElementById('birds-left').innerText=birdsLeft; document.getElementById('level').innerText=currentLevel; }
         
-        // ✅ دالة إنهاء اللعبة (تتكفل بإرسال البيانات ونقل الطالب للنتيجة النهائية)
         function endGame(){ 
             const finalScore = score; 
             
-            // تحديث واجهة المستخدم بالنتيجة
             document.getElementById('final-avatar').innerText = selectedAvatar; 
             document.getElementById('final-player-name').innerText = document.getElementById('input-student-name').value; 
             document.getElementById('final-score-display').innerText = finalScore; 
             
-            // تهيئة حالة الإرسال لتظهر بشكل "جاري الإرسال"
             const statusEl = document.getElementById('final-status');
             if(statusEl) {
                 statusEl.innerText = "⏳ جاري إرسال النتيجة...";
                 statusEl.style.color = "#1368ce";
             }
             
-            // ملء النموذج الخفي بالقيمة وإرساله
             document.getElementById('form-score').value = finalScore; 
             document.getElementById('scoreForm').submit(); 
             
-            // الانتقال إلى شاشة النتيجة النهائية
             showScreen('screen-student-result'); 
         }
         
@@ -1064,7 +1119,6 @@
             canvas=document.getElementById('gameCanvas'); ctx=canvas.getContext('2d'); 
             setupCanvas(); gameLoop(); 
             
-            // ✅ ربط زر "إنهاء وإرسال" بدالة endGame لتمكين الإرسال اليدوي إذا رغب الطالب
             const endBtn = document.getElementById('endBtn'); 
             if(endBtn) endBtn.onclick = endGame; 
             
