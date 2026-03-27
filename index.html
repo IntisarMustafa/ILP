@@ -8,13 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* زيادة تباين ألوان الخلفية والنصوص */
-            --bg-color: #eef2f6; /* خلفية أغمق قليلاً لإبراز البطاقات المضيئة */
-            --text-main: #020617; /* أسود داكن جداً لتباين أعلى */
-            --text-muted: #475569; /* رمادي داكن لسهولة القراءة */
+            --bg-color: #eef2f6; 
+            --text-main: #020617; 
+            --text-muted: #475569; 
             --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.75) 100%);
             
-            /* ظلال عميقة واحترافية */
             --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             --shadow-md: 0 15px 35px -5px rgba(15, 23, 42, 0.08);
             --shadow-hover: 0 30px 60px -15px rgba(15, 23, 42, 0.15);
@@ -40,7 +38,6 @@
             position: relative;
         }
 
-        /* خلفية الأشكال الضبابية بألوان أكثر إشراقاً */
         .bg-blobs {
             position: fixed;
             top: 0;
@@ -71,23 +68,22 @@
 
         .container {
             width: 100%;
-            max-width: 1250px;
+            max-width: 1200px; /* عرض مثالي لثلاث بطاقات */
             position: relative;
             z-index: 10;
         }
 
-        /* تنسيق الترويسة */
         .header {
             text-align: center;
-            margin-bottom: 80px;
+            margin-bottom: 70px;
             position: relative;
             animation: fadeInDown 1s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .header h1 {
-            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-size: clamp(2.5rem, 6vw, 3.8rem);
             font-weight: 900;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             letter-spacing: -1px;
             background: linear-gradient(135deg, #020617, var(--text-main), #4338ca);
             background-size: 200% auto;
@@ -98,30 +94,30 @@
 
         .header p {
             color: var(--text-muted);
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             max-width: 750px;
             margin: 0 auto;
             font-weight: 600;
             background: rgba(255, 255, 255, 0.8);
-            padding: 18px 40px;
+            padding: 15px 35px;
             border-radius: 100px;
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 1);
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
         }
 
-        /* شبكة الألعاب */
+        /* شبكة الألعاب - تعديل لظهور 3 بطاقات */
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 40px;
+            /* تم تقليل minmax إلى 300px لضمان احتواء 3 بطاقات في الشاشات العادية */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px; 
         }
 
-        /* البطاقات بلمسة زجاجية ثلاثية الأبعاد */
         .game-card {
             background: var(--card-bg);
-            border-radius: 30px;
-            padding: 45px 30px 40px;
+            border-radius: 28px;
+            padding: 35px 25px 30px;
             text-align: center;
             text-decoration: none;
             display: flex;
@@ -130,7 +126,6 @@
             box-shadow: var(--shadow-md);
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
-            /* حدود متدرجة لإعطاء بروز */
             border-top: 2px solid rgba(255, 255, 255, 1);
             border-left: 2px solid rgba(255, 255, 255, 1);
             border-right: 1px solid rgba(255, 255, 255, 0.4);
@@ -143,7 +138,6 @@
             overflow: hidden;
         }
 
-        /* تأثير التوهج في الخلفية عند التمرير */
         .game-card::before {
             content: '';
             position: absolute;
@@ -163,7 +157,7 @@
         .game-card:nth-child(6) { animation-delay: 0.6s; }
 
         .game-card:hover {
-            transform: translateY(-15px) scale(1.02);
+            transform: translateY(-12px) scale(1.02);
             box-shadow: var(--shadow-hover);
         }
 
@@ -171,7 +165,6 @@
             opacity: 1;
         }
 
-        /* الأيقونات - تكبير الحجم والتباين */
         .icon-wrapper {
             position: relative;
             z-index: 1;
@@ -180,52 +173,52 @@
 
         @keyframes floatIcon {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
+            50% { transform: translateY(-10px); }
         }
 
+        /* تصغير الصندوق وتكبير الرسمة داخله */
         .icon-box {
-            width: 140px; /* تكبير الحجم من 100 إلى 140 */
-            height: 140px;
-            border-radius: 35px;
+            width: 110px; /* تم التصغير من 140px */
+            height: 110px; /* تم التصغير من 140px */
+            border-radius: 28px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             background: linear-gradient(135deg, var(--theme-bg-1), var(--theme-bg-2));
             box-shadow: 
                 inset 0 4px 8px rgba(255, 255, 255, 0.9), 
-                0 15px 30px -5px var(--theme-color-shadow);
+                0 12px 25px -5px var(--theme-color-shadow);
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
             border: 2px solid rgba(255,255,255,0.6);
         }
 
         .icon-box svg {
-            width: 85px; /* تكبير الـ SVG بشكل ملحوظ */
-            height: 85px;
+            width: 80px; /* رسمة كبيرة تأخذ مساحة أكبر من الصندوق */
+            height: 80px; 
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15));
         }
 
         .game-card:hover .icon-box {
-            transform: scale(1.08) rotate(-3deg);
-            border-radius: 40px;
+            transform: scale(1.06) rotate(-3deg);
+            border-radius: 32px;
             box-shadow: 
                 inset 0 4px 8px rgba(255, 255, 255, 1), 
-                0 25px 40px -10px var(--theme-color-shadow);
+                0 20px 35px -8px var(--theme-color-shadow);
         }
         
         .game-card:hover .icon-box svg {
-            transform: scale(1.15);
-            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.25));
+            transform: scale(1.15); /* تكبير ممتع عند تمرير الماوس */
+            filter: drop-shadow(0 12px 18px rgba(0,0,0,0.25));
         }
 
-        /* النصوص */
         .game-title {
-            font-size: 1.75rem;
+            font-size: 1.5rem; /* حجم مناسب لـ 3 أعمدة */
             font-weight: 900;
             color: var(--text-main);
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             position: relative;
             z-index: 1;
             transition: color 0.3s ease;
@@ -236,41 +229,38 @@
         }
 
         .game-desc {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: var(--text-muted);
-            line-height: 1.7;
+            line-height: 1.6;
             font-weight: 600;
             flex-grow: 1;
-            margin-bottom: 35px;
-            padding: 0 10px;
+            margin-bottom: 30px;
+            padding: 0 5px;
             position: relative;
             z-index: 1;
         }
 
-        /* --- تصميم الأزرار: تباين عالي ولون صريح مسبقاً --- */
         .action-btn {
             position: relative;
             z-index: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             font-weight: 800;
-            font-size: 1.15rem;
-            /* الحالة الافتراضية الآن أصبحت قوية وواضحة */
+            font-size: 1.1rem;
             background-color: var(--theme-color); 
             color: #ffffff;
-            padding: 16px 35px;
+            padding: 14px 30px;
             border-radius: 100px;
             width: 100%;
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             border: none;
             cursor: pointer;
-            box-shadow: 0 8px 20px -5px var(--theme-color-shadow);
+            box-shadow: 0 8px 18px -5px var(--theme-color-shadow);
             overflow: hidden;
         }
 
-        /* تأثير اللمعة على الزر */
         .action-btn::after {
             content: '';
             position: absolute;
@@ -281,16 +271,16 @@
         }
 
         .action-btn svg {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             fill: currentColor;
             transition: transform 0.4s ease;
         }
 
         .game-card:hover .action-btn {
             background-color: var(--theme-color-hover);
-            box-shadow: 0 15px 25px -5px var(--theme-color-shadow);
-            transform: translateY(-3px);
+            box-shadow: 0 12px 22px -5px var(--theme-color-shadow);
+            transform: translateY(-2px);
         }
 
         .game-card:hover .action-btn::after {
@@ -298,7 +288,7 @@
         }
 
         .game-card:hover .action-btn svg {
-            transform: translateX(-8px) scale(1.1); 
+            transform: translateX(-6px) scale(1.1); 
         }
 
         @keyframes fadeInDown {
@@ -311,22 +301,19 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* استجابة الشاشات الصغيرة */
         @media (max-width: 768px) {
             body { padding: 40px 15px; }
-            .header h1 { font-size: 2.2rem; }
-            .header p { padding: 15px 20px; font-size: 1.05rem; }
-            .games-grid { grid-template-columns: 1fr; max-width: 450px; margin: 0 auto; gap: 30px; }
-            .game-card { padding: 40px 25px; }
-            .icon-box { width: 110px; height: 110px; margin-bottom: 25px; }
-            .icon-box svg { width: 65px; height: 65px; }
-            .game-title { font-size: 1.5rem; }
+            .header h1 { font-size: 2rem; }
+            .header p { padding: 15px 20px; font-size: 1rem; }
+            .games-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; gap: 25px; }
+            .game-card { padding: 35px 20px; }
+            .icon-box { width: 100px; height: 100px; }
+            .icon-box svg { width: 70px; height: 70px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- الأشكال العائمة في الخلفية -->
     <div class="bg-blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -341,7 +328,7 @@
 
         <div class="games-grid">
             
-            <!-- 1. تحدي الأسئلة المباشر (بنفسجي قوي) -->
+            <!-- 1. تحدي الأسئلة المباشر -->
             <a href="A.html" class="game-card" style="
                 --theme-color: #7c3aed; 
                 --theme-color-hover: #6d28d9;
@@ -373,7 +360,7 @@
                 </div>
             </a>
 
-            <!-- 2. الطيور الذكية (أحمر ناري) -->
+            <!-- 2. الطيور الذكية -->
             <a href="B.html" class="game-card" style="
                 --theme-color: #e11d48; 
                 --theme-color-hover: #be123c;
@@ -408,7 +395,7 @@
                 </div>
             </a>
 
-            <!-- 3. القط والهدف (برتقالي ساطع) -->
+            <!-- 3. القط والهدف -->
             <a href="C.html" class="game-card" style="
                 --theme-color: #ea580c; 
                 --theme-color-hover: #c2410c;
@@ -457,7 +444,7 @@
                 </div>
             </a>
 
-            <!-- 4. الطائر الفهمان (أخضر زمردي) -->
+            <!-- 4. الطائر الفهمان -->
             <a href="D.html" class="game-card" style="
                 --theme-color: #059669; 
                 --theme-color-hover: #047857;
@@ -495,7 +482,7 @@
                 </div>
             </a>
 
-            <!-- 5. لعبة المركبة الفضائية (أزرق ملكي) -->
+            <!-- 5. لعبة المركبة الفضائية -->
             <a href="E.html" class="game-card" style="
                 --theme-color: #2563eb; 
                 --theme-color-hover: #1d4ed8;
@@ -532,7 +519,7 @@
                 </div>
             </a>
 
-            <!-- 6. مرح الأشكال (وردي فاقع) -->
+            <!-- 6. مرح الأشكال -->
             <a href="F.html" class="game-card" style="
                 --theme-color: #db2777; 
                 --theme-color-hover: #be185d;
@@ -589,4 +576,5 @@
 
 </body>
 </html>
+
 
