@@ -2,21 +2,122 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصات طائرة - كتابة العدد النسبي بالصورة العشرية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منصات طائرة - منصة التعلم التفاعلية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* General styling */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* ========================================= */
+        /* متغيرات وأنماط نظام المعلم والطالب المدمجة */
+        /* ========================================= */
+        :root {
+            --primary: #46178f;
+            --primary-dark: #321067;
+            --secondary: #eb2730;
+            --success: #26890c;
+            --info: #1368ce;
+            --warning: #ffa602;
+            --light: #f2f2f2;
+            --white: #ffffff;
+            --k-red: #e21b3c;
+            --k-red-dark: #b81631;
+            --k-blue: #1368ce;
+            --k-blue-dark: #0f54a8;
+            --k-yellow: #d89e00;
+            --k-yellow-dark: #b08100;
+            --k-green: #26890c;
+            --k-green-dark: #1e6d0a;
+        }[span_5](start_span)[span_5](end_span)
+
+        /* إضافة خط Cairo للنظام الجديد مع الحفاظ على خطوط اللعبة */
+        .edu-system { font-family: 'Cairo', sans-serif; }[span_6](start_span)[span_6](end_span)
+
+        .screen {
+            display: none; width: 100%; max-width: 900px; padding: 20px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; position: relative; z-index: 1000;
+            background: linear-gradient(-45deg, #46178f, #1368ce, #e21b3c, #ffa602);
+            background-size: 400% 400%;
+        }[span_7](start_span)[span_7](end_span)
+        
+        .screen.active { display: flex; }[span_8](start_span)[span_8](end_span)
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }[span_9](start_span)[span_9](end_span)
+
+        .edu-card {
+            background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 550px; text-align: center;
+            backdrop-filter: blur(10px);
+        }[span_10](start_span)[span_10](end_span)
+
+        .edu-system h1 { color: var(--primary); margin-bottom: 25px; font-size: 38px; text-shadow: 2px 2px 0px rgba(0,0,0,0.05); }[span_11](start_span)[span_11](end_span)
+        .edu-system h2 { color: #333; margin-bottom: 20px; font-size: 28px; }[span_12](start_span)[span_12](end_span)
+        
+        .edu-btn {
+            width: 100%; padding: 16px; border: none; border-radius: 8px;
+            font-size: 20px; font-weight: 900; cursor: pointer;
+            margin-bottom: 15px; color: var(--white);
+            transition: all 0.1s; position: relative; top: 0;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+        }[span_13](start_span)[span_13](end_span)
+        .edu-btn:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0.2); }[span_14](start_span)[span_14](end_span)
+        
+        .btn-teacher { background-color: var(--info); box-shadow: 0 6px 0 var(--k-blue-dark); }[span_15](start_span)[span_15](end_span)
+        .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 var(--k-red-dark); }[span_16](start_span)[span_16](end_span)
+        .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; margin-top: 10px; }[span_17](start_span)[span_17](end_span)
+        .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark); }[span_18](start_span)[span_18](end_span)
+
+        .edu-input {
+            width: 100%; padding: 18px; margin-bottom: 20px;
+            border: 3px solid #ddd; border-radius: 8px;
+            font-size: 18px; font-weight: bold; text-align: center;
+            transition: border-color 0.3s;
+            color: #333;
+        }[span_19](start_span)[span_19](end_span)
+        .edu-input:focus { outline: none; border-color: var(--primary); }[span_20](start_span)[span_20](end_span)
+
+        /* Teacher Setup UI */
+        .q-builder-container {
+            width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.95);
+            padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            max-height: 80vh; overflow-y: auto; text-align: right;
+        }[span_21](start_span)[span_21](end_span)
+        .q-block {
+            background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 20px;
+            border: 2px solid #eee; position: relative;
+        }[span_22](start_span)[span_22](end_span)
+        .q-block h3 { margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }[span_23](start_span)[span_23](end_span)
+        .q-block input.q-title { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ccc; font-size: 18px; text-align: right; color:#333; }[span_24](start_span)[span_24](end_span)
+        .opt-row { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }[span_25](start_span)[span_25](end_span)
+        .opt-row input[type="text"] { flex: 1; padding: 10px; margin-bottom: 0; border: 2px solid #ccc; font-size: 16px; text-align: right; color:#333;}[span_26](start_span)[span_26](end_span)
+        .opt-row input[type="radio"] { width: 25px; height: 25px; accent-color: var(--success); cursor: pointer; flex-shrink: 0; }[span_27](start_span)[span_27](end_span)
+        .remove-q-btn { background: var(--k-red); color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }[span_28](start_span)[span_28](end_span)
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; }[span_29](start_span)[span_29](end_span)
+        th, td { padding: 18px; text-align: center; font-size: 20px; background: white; color: #333;}[span_30](start_span)[span_30](end_span)
+        th { background: var(--primary); color: white; font-weight: 900; }[span_31](start_span)[span_31](end_span)
+        tr td:first-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }[span_32](start_span)[span_32](end_span)
+        tr td:last-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }[span_33](start_span)[span_33](end_span)
+
+
+        /* ========================================= */
+        /* General styling للعبة الأصلية (بدون تعديل) */
+        /* ========================================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: radial-gradient(circle at top left, #1a2a6c, #1d3557, #0f1429); color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; direction: rtl; }
-        .game-container { width: 100%; max-width: 900px; height: 90vh; max-height: 700px; position: relative; box-shadow: 0 0 60px rgba(0, 0, 0, 0.9); border-radius: 20px; overflow: hidden; border: 2px solid rgba(76, 201, 240, 0.3); }
+        .game-container { width: 100%; max-width: 900px; height: 90vh; max-height: 700px; position: relative; box-shadow: 0 0 60px rgba(0, 0, 0, 0.9); border-radius: 20px; overflow: hidden; border: 2px solid rgba(76, 201, 240, 0.3); display: none; /* مخفية في البداية */ }
+        
         /* Start and End Screens */
-        .start-screen, .end-screen, .question-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(12, 26, 58, 0.98), rgba(15, 20, 41, 0.98)); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; text-align: center; }
+        .start-screen, .end-screen, .question-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(12, 26, 58, 0.98), rgba(15, 20, 41, 0.98)); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         .end-screen { background: linear-gradient(135deg, rgba(58, 12, 26, 0.95), rgba(41, 15, 20, 0.95)); display: none; }
         .question-modal { background: linear-gradient(135deg, rgba(29, 53, 87, 0.95), rgba(45, 123, 157, 0.95)); z-index: 120; display: none; padding: 15px; }
-        .logo { font-size: 4.5rem; font-weight: 900; margin-bottom: 20px; background: linear-gradient(45deg, #4cc9f0, #4361ee, #7209b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(76, 201, 240, 0.6); animation: pulseGlow 2s infinite alternate; }
+        .logo { font-size: 4.5rem; font-weight: 900; margin-bottom: 20px; background: linear-gradient(45deg, #4cc9f0, #4361ee, #7209b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(76, 201, 240, 0.6); animation: pulseGlow 2s infinite alternate; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         @keyframes pulseGlow { 0% { text-shadow: 0 0 20px rgba(76, 201, 240, 0.4); } 100% { text-shadow: 0 0 40px rgba(76, 201, 240, 0.8); } }
-        .subtitle { font-size: 1.8rem; margin-bottom: 30px; color: #f1faee; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); }
+        .subtitle { font-size: 1.8rem; margin-bottom: 30px; color: #f1faee; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         /* Character Selection */
         .characters { display: flex; gap: 25px; margin: 20px 0; flex-wrap: wrap; justify-content: center; }
         .character { width: 80px; height: 80px; border-radius: 15px; background: linear-gradient(135deg, #1d3557, #457b9d); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: all 0.3s ease; border: 4px solid transparent; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden; }
@@ -24,11 +125,11 @@
         .character:hover::before { transform: translateX(100%) skewX(-30deg); }
         .character.active { border-color: #4cc9f0; box-shadow: 0 0 25px rgba(76, 201, 240, 0.9); transform: translateY(-8px) scale(1.05); }
         .character i { font-size: 3rem; color: #f1faee; margin-bottom: 5px; }
-        .character span { font-size: 0.9rem; color: #f1faee; font-weight: 600; }
+        .character span { font-size: 0.9rem; color: #f1faee; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         .character:nth-child(2) i { color: #ff9e00; }
         .character:nth-child(3) i { color: #ff0054; }
         /* Buttons */
-        .btn { background: linear-gradient(45deg, #4361ee, #3a0ca3); color: white; border: none; padding: 16px 40px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; margin: 15px; box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6); display: flex; align-items: center; gap: 10px; position: relative; overflow: hidden; z-index: 1; }
+        .btn { background: linear-gradient(45deg, #4361ee, #3a0ca3); color: white; border: none; padding: 16px 40px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; margin: 15px; box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6); display: flex; align-items: center; gap: 10px; position: relative; overflow: hidden; z-index: 1; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         .btn::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255, 255, 255, 0.2); border-radius: 50%; transition: width 0.4s ease-out, height 0.4s ease-out, top 0.4s ease-out, left 0.4s ease-out; transform: translate(-50%, -50%); z-index: -1; }
         .btn:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(67, 97, 238, 0.8); }
         .btn:hover::before { width: 200%; height: 200%; top: -50%; left: -50%; }
@@ -36,18 +137,18 @@
         .music-toggle-btn { position: absolute; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 10px 15px; font-size: 1.2rem; border-radius: 50%; cursor: pointer; z-index: 101; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5); transition: background 0.3s ease, transform 0.2s ease; }
         .music-toggle-btn:hover { background: rgba(0, 0, 0, 0.7); transform: scale(1.05); }
         /* Controls Info */
-        .controls-info { display: flex; flex-wrap: wrap; justify-content: center; margin: 25px 0; gap: 12px; }
+        .controls-info { display: flex; flex-wrap: wrap; justify-content: center; margin: 25px 0; gap: 12px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         .control-item { background: rgba(76, 201, 240, 0.2); padding: 12px 20px; border-radius: 18px; font-size: 1.1rem; transition: all 0.3s; border: 1px solid rgba(76, 201, 240, 0.4); }
         .control-item:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(76, 201, 240, 0.4); background: rgba(76, 201, 240, 0.35); }
         /* Stats Display */
-        .stats { display: flex; gap: 25px; margin-top: 25px; background: rgba(0, 0, 0, 0.4); padding: 15px 35px; border-radius: 20px; font-size: 1.2rem; border: 1px solid rgba(255, 255, 255, 0.1); flex-wrap: wrap; justify-content: center; }
+        .stats { display: flex; gap: 25px; margin-top: 25px; background: rgba(0, 0, 0, 0.4); padding: 15px 35px; border-radius: 20px; font-size: 1.2rem; border: 1px solid rgba(255, 255, 255, 0.1); flex-wrap: wrap; justify-content: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         .stat { display: flex; flex-direction: column; align-items: center; }
         .stat-value { font-size: 2rem; font-weight: 700; color: #4cc9f0; text-shadow: 0 0 15px rgba(76, 201, 240, 0.7); }
         /* Scroll Indicator */
         .scroll-indicator { position: absolute; bottom: 20px; animation: bounce 1.3s infinite; font-size: 1.8rem; color: #4cc9f0; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         /* Game Area Elements */
-        #game-area { width: 100%; height: 100%; background: linear-gradient(to bottom, #1d3557, #0f1429); position: relative; overflow: hidden; }
+        #game-area { width: 100%; height: 100%; background: linear-gradient(to bottom, #1d3557, #0f1429); position: relative; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         .background-element { position: absolute; background: rgba(76, 201, 240, 0.1); border-radius: 8px; animation: backgroundMove linear infinite; }
         .background-element:nth-child(odd) { background: rgba(255, 255, 255, 0.05); border-radius: 50%; }
         @keyframes backgroundMove { from { transform: translateX(0); } to { transform: translateX(-100%); } }
@@ -56,16 +157,12 @@
         .ground { bottom: 0; border-top: 4px solid #4cc9f0; box-shadow: 0 -8px 20px rgba(76, 201, 240, 0.6); }
         .ceiling { top: 0; border-bottom: 4px solid #4cc9f0; box-shadow: 0 8px 20px rgba(76, 201, 240, 0.6); }
         
-        /* ========================================= */
-        /* تعديل CSS للكائن (Player) لحل مشكلة القفز */
-        /* ========================================= */
         .player { 
             position: absolute; width: 45px; height: 45px; 
             background: linear-gradient(135deg, #4361ee, #3a0ca3); 
             border-radius: 8px; bottom: 63px; left: 50px; z-index: 20; 
             display: flex; justify-content: center; align-items: center; 
             box-shadow: 0 0 25px rgba(67, 97, 238, 0.9); border: 2px solid #4cc9f0; 
-            /* تم حذف transition الذي كان يعيق حركة القفز ويسبب تعارض مع حلقة الأوامر */
             transition: none; 
         }
         
@@ -104,7 +201,7 @@
         /* Game Info & Progress */
         .progress-container { position: absolute; top: 20px; left: 20px; right: 20px; background: rgba(0, 0, 0, 0.4); height: 12px; border-radius: 10px; z-index: 50; border: 1px solid rgba(255, 255, 255, 0.1); }
         .progress-bar { height: 100%; background: linear-gradient(to right, #4cc9f0, #3a0ca3); border-radius: 10px; width: 0%; transition: width 0.5s ease; box-shadow: 0 0 15px rgba(76, 201, 240, 0.9); }
-        .game-info { position: absolute; top: 40px; right: 20px; display: flex; gap: 20px; z-index: 50; flex-wrap: wrap; justify-content: center; }
+        .game-info { position: absolute; top: 40px; right: 20px; display: flex; gap: 20px; z-index: 50; flex-wrap: wrap; justify-content: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         .info-item { background: rgba(0, 0, 0, 0.4); padding: 8px 15px; border-radius: 20px; font-size: 1.1rem; border: 1px solid rgba(255, 255, 255, 0.1); }
         .info-value { font-weight: 700; color: #4cc9f0; }
         /* Overlays & Effects */
@@ -112,7 +209,7 @@
         .particle { position: absolute; border-radius: 50%; pointer-events: none; animation: fadeOutParticle 0.8s forwards; opacity: 0.9; }
         .success-particles { position: absolute; border-radius: 50%; animation: successParticle 1.2s forwards; opacity: 0.9; pointer-events: none; }
         @keyframes successParticle { 0% { transform: translate(0, 0) scale(0.5); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
-        .pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; font-size: 3.5rem; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+        .pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; font-size: 3.5rem; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         
         .sliding { animation: slide 0.45s ease-out forwards; }
         @keyframes slide { 0% { transform: scale(1, 1) rotate(0deg); } 50% { transform: scale(1.5, 0.5) rotate(0deg); } 100% { transform: scale(1, 1) rotate(0deg); } }
@@ -123,9 +220,9 @@
         @keyframes obstaclePassed { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .glow-effect { animation: glow 1.5s infinite alternate; }
         @keyframes glow { from { filter: drop-shadow(0 0 5px #4361ee); } to { filter: drop-shadow(0 0 20px #4cc9f0); } }
-        .level-up { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4.5rem; font-weight: bold; color: #4cc9f0; text-shadow: 0 0 25px rgba(76, 201, 240, 0.9); animation: levelUp 1.2s forwards; z-index: 70; display: none; }
+        .level-up { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4.5rem; font-weight: bold; color: #4cc9f0; text-shadow: 0 0 25px rgba(76, 201, 240, 0.9); animation: levelUp 1.2s forwards; z-index: 70; display: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         @keyframes levelUp { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } }
-        #game-message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: white; background: rgba(0, 0, 0, 0.7); padding: 20px 40px; border-radius: 15px; z-index: 110; display: none; opacity: 0; animation: fadeInOutMessage 2s forwards; text-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
+        #game-message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: white; background: rgba(0, 0, 0, 0.7); padding: 20px 40px; border-radius: 15px; z-index: 110; display: none; opacity: 0; animation: fadeInOutMessage 2s forwards; text-shadow: 0 0 15px rgba(255, 255, 255, 0.5); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         @keyframes fadeInOutMessage { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } }
         /* Flying platform styles */
         .flying-platform { position: absolute; background: linear-gradient(135deg, #4361ee, #3a0ca3); border-radius: 8px; box-shadow: 0 0 25px rgba(67, 97, 238, 0.8); z-index: 15; border: 2px solid rgba(76, 201, 240, 0.5); transition: transform 0.1s ease-out; display: flex; justify-content: center; align-items: center; overflow: hidden; }
@@ -149,10 +246,9 @@
         .feedback-message.incorrect { color: #e74c3c; text-shadow: 0 0 10px rgba(231, 76, 60, 0.8); }
         /* Multiple Choice Options */
         .options-container { display: flex; flex-direction: column; gap: 12px; width: 90%; max-width: 500px; margin-bottom: 20px; }
-        .option-btn { background: rgba(76, 201, 240, 0.2); color: white; border: 2px solid #4cc9f0; padding: 12px 20px; font-size: clamp(1.0rem, 3.5vw, 1.2rem); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-align: initial; direction: ltr; unicode-bidi: embed; word-break: break-word; overflow-wrap: break-word; }
+        .option-btn { background: rgba(76, 201, 240, 0.2); color: white; border: 2px solid #4cc9f0; padding: 12px 20px; font-size: clamp(1.0rem, 3.5vw, 1.2rem); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-align: initial; direction: ltr; unicode-bidi: embed; word-break: break-word; overflow-wrap: break-word; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         .option-btn:hover { background: rgba(76, 201, 240, 0.4); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(76, 201, 240, 0.5); }
         .option-btn.selected { background: linear-gradient(45deg, #4361ee, #3a0ca3); border-color: #7209b7; box-shadow: 0 0 20px rgba(67, 97, 238, 0.8); }
-        /* New CSS for Correct/Incorrect answer display */
         .option-btn.correct-answer { background: #2ecc71 !important; border-color: #27ae60 !important; box-shadow: 0 0 20px rgba(46, 204, 113, 0.8) !important; animation: glowCorrect 1s infinite alternate; }
         @keyframes glowCorrect {
             from { box-shadow: 0 0 10px rgba(46, 204, 113, 0.8); }
@@ -169,11 +265,79 @@
         @media (max-width: 480px) { .logo { font-size: 2.8rem; } .subtitle { font-size: 1.2rem; } .character { width: 60px; height: 60px; } .character i { font-size: 2rem; } .btn { padding: 12px 25px; font-size: 1.1rem; } .mobile-btn { width: 60px; height: 60px; font-size: 1.8rem; } .stats { gap: 10px; padding: 8px 15px; } .stat-value { font-size: 1.6rem; } .info-item { font-size: 0.9rem; padding: 6px 12px; } }
     </style>
 </head>
-<body>
-    <div class="game-container">
+<body class="edu-system">
+
+    <!-- شاشة اختيار الدور الأساسية (مستوحاة من التصميم المرفق) -->
+    <div id="role-selection" class="screen active">
+        <div class="edu-card">
+            <h1>منصة التعلم التفاعلية</h1>
+            <h2>اختر دورك للبدء</h2>
+            <button class="edu-btn btn-teacher" onclick="showScreen('teacher-screen')">
+                <i class="fas fa-chalkboard-teacher"></i> دخول المعلم
+            </button>
+            <button class="edu-btn btn-student" onclick="showScreen('student-screen')">
+                <i class="fas fa-user-graduate"></i> دخول الطالب
+            </button>
+        </div>
+    </div>
+
+    <!-- شاشة المعلم لإضافة الأسئلة (مستوحاة من التصميم المرفق) -->
+    <div id="teacher-screen" class="screen">
+        <div class="q-builder-container">
+            <h1><i class="fas fa-cog"></i> إعداد أسئلة اللعبة</h1>
+            <p style="color: #666; margin-bottom: 20px;">ملاحظة: يمكنك استخدام الرموز الرياضية بوضعها بين علامتي $ (مثال: $\frac{1}{2}$)</p>
+            <div id="questions-list">
+                <!-- سيتم إضافة الأسئلة هنا عبر JavaScript -->
+            </div>
+            <button class="edu-btn btn-action" onclick="addNewQuestionBlock()">
+                <i class="fas fa-plus"></i> إضافة سؤال جديد
+            </button>
+            <button class="edu-btn btn-primary" onclick="saveQuestionsToStorage()">
+                <i class="fas fa-save"></i> حفظ الأسئلة واعتمادها
+            </button>
+            <button class="edu-btn btn-back" onclick="showScreen('role-selection')">عودة</button>
+        </div>
+    </div>
+
+    <!-- شاشة الطالب لتسجيل الدخول (مستوحاة من التصميم المرفق) -->
+    <div id="student-screen" class="screen">
+        <div class="edu-card">
+            <h1>مرحباً بك يا بطل!</h1>
+            <h2>أدخل اسمك للبدء في المغامرة</h2>
+            <input type="text" id="student-name-input" class="edu-input" placeholder="اكتب اسمك هنا..." autocomplete="off">
+            <button class="edu-btn btn-primary" onclick="startStudentGame()">
+                <i class="fas fa-play"></i> انطلق!
+            </button>
+            <button class="edu-btn btn-back" onclick="showScreen('role-selection')">عودة</button>
+        </div>
+    </div>
+
+    <!-- شاشة لوحة الصدارة (Leaderboard) بعد انتهاء اللعبة -->
+    <div id="leaderboard-screen" class="screen">
+        <div class="edu-card">
+            <h1><i class="fas fa-trophy"></i> لوحة الشرف</h1>
+            <table id="leaderboard-table">
+                <thead>
+                    <tr><th>الاسم</th><th>النتيجة</th><th>المنصات</th></tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- النتائج ستظهر هنا -->
+                </tbody>
+            </table>
+            <button class="edu-btn btn-primary" onclick="showScreen('role-selection'); location.reload();">
+                <i class="fas fa-home"></i> العودة للرئيسية
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ========================================================================= -->
+    <!-- حاوية اللعبة الأصلية (تم إخفاؤها في البداية وتظهر فقط للطالب بعد الدخول) -->
+    <!-- ========================================================================= -->
+    <div class="game-container" id="main-game-container">
         <div id="start-screen" class="start-screen">
             <h1 class="logo">منصات طائرة</h1>
-            <p class="subtitle">اقفز على المنصات وتجنب العقبات المثلثة!</p>
+            <p class="subtitle" id="welcome-student-text">اقفز على المنصات وتجنب العقبات المثلثة!</p>
             <div class="characters">
                 <div class="character active" data-character="1">
                     <i class="fas fa-cube"></i>
@@ -225,7 +389,8 @@
                 <div class="stat"><span>المنصات</span><span id="final-platforms" class="stat-value">0</span></div>
                 <div class="stat"><span>النقود</span><span id="final-coins" class="stat-value">0</span></div>
             </div>
-            <button id="restart-btn" class="btn glow-effect"><i class="fas fa-redo"></i> إعادة تشغيل</button>
+            <button id="restart-btn" class="btn glow-effect"><i class="fas fa-redo"></i> العب مجدداً</button>
+            <button id="view-leaderboard-btn" class="btn" style="background: var(--warning); color: #333;" onclick="showLeaderboardFromGame()"><i class="fas fa-list-ol"></i> لوحة الشرف</button>
         </div>
         <button id="music-toggle-btn" class="music-toggle-btn"><i class="fas fa-volume-up"></i></button>
         
@@ -254,7 +419,188 @@
         };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    
     <script>
+        // =========================================================================
+        // سكربت النظام التعليمي المضاف (إدارة الشاشات، المعلم، والطالب)
+        // =========================================================================
+
+        let currentStudentName = "طالب مجهول";
+
+        // دالة للتنقل بين الشاشات
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen, .game-container').forEach(el => {
+                el.classList.remove('active');
+                if(el.classList.contains('game-container')) el.style.display = 'none';
+            });
+            const target = document.getElementById(screenId);
+            if (target) {
+                target.classList.add('active');
+                if(screenId === 'main-game-container') {
+                    target.style.display = 'block';
+                    document.body.classList.remove('edu-system'); // إعادة التنسيق الخاص باللعبة
+                } else {
+                    document.body.classList.add('edu-system'); // تطبيق تنسيق شاشات التعليم
+                }
+            }
+        }
+
+        // --- وظائف المعلم ---
+        let questionCounter = 0;
+
+        function addNewQuestionBlock(qData = null) {
+            const list = document.getElementById('questions-list');
+            const qId = `q-${questionCounter++}`;
+            
+            const block = document.createElement('div');
+            block.className = 'q-block';
+            block.id = qId;
+
+            // القيم الافتراضية إذا كان الحقل فارغاً
+            const qText = qData ? qData.question : '';
+            const opts = qData ? qData.options : ['', '', '', ''];
+            const correctIdx = qData ? qData.correctOptionIndex : 0;
+
+            block.innerHTML = `
+                <h3>سؤال جديد <button class="remove-q-btn" onclick="document.getElementById('${qId}').remove()"><i class="fas fa-trash"></i> حذف</button></h3>
+                <input type="text" class="q-title" placeholder="أدخل نص السؤال هنا (استخدم $ للرموز الرياضية)..." value="${qText.replace(/"/g, '&quot;')}">
+                
+                <div class="opt-row">
+                    <input type="radio" name="correct-${qId}" value="0" ${correctIdx === 0 ? 'checked' : ''}>
+                    <input type="text" class="q-opt" placeholder="الخيار الأول..." value="${opts[0].replace(/"/g, '&quot;')}">
+                </div>
+                <div class="opt-row">
+                    <input type="radio" name="correct-${qId}" value="1" ${correctIdx === 1 ? 'checked' : ''}>
+                    <input type="text" class="q-opt" placeholder="الخيار الثاني..." value="${opts[1].replace(/"/g, '&quot;')}">
+                </div>
+                <div class="opt-row">
+                    <input type="radio" name="correct-${qId}" value="2" ${correctIdx === 2 ? 'checked' : ''}>
+                    <input type="text" class="q-opt" placeholder="الخيار الثالث..." value="${opts[2].replace(/"/g, '&quot;')}">
+                </div>
+                <div class="opt-row">
+                    <input type="radio" name="correct-${qId}" value="3" ${correctIdx === 3 ? 'checked' : ''}>
+                    <input type="text" class="q-opt" placeholder="الخيار الرابع..." value="${opts[3].replace(/"/g, '&quot;')}">
+                </div>
+            `;
+            list.appendChild(block);
+        }
+
+        function saveQuestionsToStorage() {
+            const blocks = document.querySelectorAll('.q-block');
+            const customQuestions = [];
+            
+            blocks.forEach(block => {
+                const title = block.querySelector('.q-title').value;
+                const optInputs = block.querySelectorAll('.q-opt');
+                const radioInputs = block.querySelectorAll('input[type="radio"]');
+                
+                let correctIdx = 0;
+                radioInputs.forEach((radio, idx) => {
+                    if(radio.checked) correctIdx = idx;
+                });
+
+                if(title.trim() !== '') {
+                    customQuestions.push({
+                        type: 'multiple-choice',
+                        question: title,
+                        options: [optInputs[0].value, optInputs[1].value, optInputs[2].value, optInputs[3].value],
+                        correctOptionIndex: correctIdx
+                    });
+                }
+            });
+
+            if(customQuestions.length > 0) {
+                localStorage.setItem('gameCustomQuestions', JSON.stringify(customQuestions));
+                alert('تم حفظ الأسئلة بنجاح! يمكن للطلاب الآن اللعب بها.');
+                // تحديث مصفوفة الأسئلة في اللعبة
+                gameQuestions = customQuestions;
+            } else {
+                alert('لم يتم حفظ أي أسئلة. يرجى كتابة سؤال واحد على الأقل.');
+                localStorage.removeItem('gameCustomQuestions'); // للعودة للأسئلة الافتراضية
+            }
+        }
+
+        function loadTeacherQuestions() {
+            const saved = localStorage.getItem('gameCustomQuestions');
+            if(saved) {
+                const parsed = JSON.parse(saved);
+                document.getElementById('questions-list').innerHTML = '';
+                parsed.forEach(q => addNewQuestionBlock(q));
+            } else {
+                addNewQuestionBlock(); // مربع فارغ واحد كبداية
+            }
+        }
+
+        // --- وظائف الطالب ---
+        function startStudentGame() {
+            const nameInput = document.getElementById('student-name-input').value.trim();
+            if(nameInput === '') {
+                alert('الرجاء إدخال اسمك للبدء!');
+                return;
+            }
+            currentStudentName = nameInput;
+            document.getElementById('welcome-student-text').innerText = `أهلاً بك يا ${currentStudentName}! اقفز على المنصات وتجنب العقبات.`;
+            showScreen('main-game-container');
+        }
+
+        // --- وظائف عرض النتائج (لوحة الشرف) ---
+        function saveStudentScore(score, platforms) {
+            let leaderboard = JSON.parse(localStorage.getItem('gameLeaderboard')) || [];
+            leaderboard.push({ name: currentStudentName, score: score, platforms: platforms });
+            // ترتيب تنازلي حسب النتيجة
+            leaderboard.sort((a, b) => b.score - a.score);
+            // الاحتفاظ بأفضل 10 فقط
+            if(leaderboard.length > 10) leaderboard = leaderboard.slice(0, 10);
+            localStorage.setItem('gameLeaderboard', JSON.stringify(leaderboard));
+        }
+
+        function showLeaderboardFromGame() {
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+            const leaderboard = JSON.parse(localStorage.getItem('gameLeaderboard')) || [];
+            
+            if(leaderboard.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">لا توجد نتائج مسجلة حتى الآن</td></tr>';
+            } else {
+                leaderboard.forEach(entry => {
+                    tbody.innerHTML += `<tr><td>${entry.name}</td><td>${entry.score}</td><td>${entry.platforms}</td></tr>`;
+                });
+            }
+            showScreen('leaderboard-screen');
+        }
+
+        // استدعاء التحميل الأولي لشاشة المعلم
+        loadTeacherQuestions();
+
+        // =========================================================================
+        // سكربت اللعبة الأصلية (تم الاحتفاظ به بالكامل مع تعديل مصدر الأسئلة فقط)
+        // =========================================================================
+
+        // الأسئلة الافتراضية في حال لم يضف المعلم أي سؤال
+        const defaultQuestions = [
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{3}{4}$ في صورة عشرية.', options: ['0.25', '0.5', '0.75', '1.25'], correctOptionIndex: 2 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{5}$ في صورة عشرية.', options: ['0.1', '0.2', '0.5', '0.05'], correctOptionIndex: 1 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{2}{5}$ في صورة عشرية.', options: ['0.2', '0.4', '0.5', '0.6'], correctOptionIndex: 1 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{3}{5}$ في صورة عشرية.', options: ['0.3', '0.6', '0.15', '0.35'], correctOptionIndex: 1 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{4}{5}$ في صورة عشرية.', options: ['0.4', '0.8', '0.16', '0.45'], correctOptionIndex: 1 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{8}$ في صورة عشرية.', options: ['0.125', '0.25', '0.5', '0.8'], correctOptionIndex: 0 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{3}{8}$ في صورة عشرية.', options: ['0.375', '0.3', '0.83', '0.38'], correctOptionIndex: 0 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{5}{8}$ في صورة عشرية.', options: ['0.5', '0.625', '0.58', '0.6'], correctOptionIndex: 1 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{7}{8}$ في صورة عشرية.', options: ['0.78', '0.875', '0.7', '0.8'], correctOptionIndex: 1 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{3}$ في صورة عشرية .', options: ['0.13', '0.3', '0.333...', '0.3444...'], correctOptionIndex: 2 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{2}{3}$ في صورة عشرية .', options: ['0.23', '0.333...', '0.666...', '0.6'], correctOptionIndex: 2 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{6}$ في صورة عشرية .', options: ['0.16', '0.1666...', '0.16', '0.1777...'], correctOptionIndex: 1 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{5}{6}$ في صورة عشرية .', options: ['0.8333...', '0.84', '0.85', '0.8666...'], correctOptionIndex: 0 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{2}$ في صورة عشرية.', options: ['0.1', '0.2', '0.5', '0.05'], correctOptionIndex: 2 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{4}$ في صورة عشرية.', options: ['0.25', '0.5', '0.75', '0.1'], correctOptionIndex: 0 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{3}{10}$ في صورة عشرية.', options: ['0.3', '0.03', '0.13', '0.33'], correctOptionIndex: 0 },
+            { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{7}{10}$ في صورة عشرية.', options: ['0.7', '0.07', '0.17', '0.77'], correctOptionIndex: 0 }
+        ];
+
+        // مصفوفة الأسئلة الفعالة للعبة (تقرأ من الـ localStorage أو تستخدم الافتراضي)
+        let gameQuestions = JSON.parse(localStorage.getItem('gameCustomQuestions')) || defaultQuestions;
+
+
         // Global variables for the music player
         let isPlaying = false;
         let nextNoteTime = 0.0;
@@ -484,26 +830,6 @@
             let currentCorrectOptionIndex = -1;
             let currentSelectedOptionIndex = -1;
             let collidedObstacleRef = null;
-
-            const questions = [
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{3}{4}$ في صورة عشرية.', options: ['0.25', '0.5', '0.75', '1.25'], correctOptionIndex: 2 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{5}$ في صورة عشرية.', options: ['0.1', '0.2', '0.5', '0.05'], correctOptionIndex: 1 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{2}{5}$ في صورة عشرية.', options: ['0.2', '0.4', '0.5', '0.6'], correctOptionIndex: 1 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{3}{5}$ في صورة عشرية.', options: ['0.3', '0.6', '0.15', '0.35'], correctOptionIndex: 1 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{4}{5}$ في صورة عشرية.', options: ['0.4', '0.8', '0.16', '0.45'], correctOptionIndex: 1 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{8}$ في صورة عشرية.', options: ['0.125', '0.25', '0.5', '0.8'], correctOptionIndex: 0 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{3}{8}$ في صورة عشرية.', options: ['0.375', '0.3', '0.83', '0.38'], correctOptionIndex: 0 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{5}{8}$ في صورة عشرية.', options: ['0.5', '0.625', '0.58', '0.6'], correctOptionIndex: 1 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{7}{8}$ في صورة عشرية.', options: ['0.78', '0.875', '0.7', '0.8'], correctOptionIndex: 1 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{3}$ في صورة عشرية .', options: ['0.13', '0.3', '0.333...', '0.3444...'], correctOptionIndex: 2 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{2}{3}$ في صورة عشرية .', options: ['0.23', '0.333...', '0.666...', '0.6'], correctOptionIndex: 2 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{6}$ في صورة عشرية .', options: ['0.16', '0.1666...', '0.16', '0.1777...'], correctOptionIndex: 1 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{5}{6}$ في صورة عشرية .', options: ['0.8333...', '0.84', '0.85', '0.8666...'], correctOptionIndex: 0 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{2}$ في صورة عشرية.', options: ['0.1', '0.2', '0.5', '0.05'], correctOptionIndex: 2 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{1}{4}$ في صورة عشرية.', options: ['0.25', '0.5', '0.75', '0.1'], correctOptionIndex: 0 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{3}{10}$ في صورة عشرية.', options: ['0.3', '0.03', '0.13', '0.33'], correctOptionIndex: 0 },
-                { type: 'multiple-choice', question: 'اكتب الكسر $\\frac{7}{10}$ في صورة عشرية.', options: ['0.7', '0.07', '0.17', '0.77'], correctOptionIndex: 0 }
-            ];
 
             function playSound(frequency, type = 'sine', duration = 0.1, volume = 0.3) {
                 if (!soundEnabled) return;
@@ -1014,7 +1340,8 @@
 
             function showQuestion() {
                 gamePaused = true;
-                const q = questions[Math.floor(Math.random() * questions.length)];
+                // استخدام gameQuestions المحدّثة من نظام المعلم بدلاً من questions
+                const q = gameQuestions[Math.floor(Math.random() * gameQuestions.length)];
                 questionTextElement.innerHTML = q.question;
                 feedbackMessageElement.textContent = '';
                 feedbackMessageElement.classList.remove('correct', 'incorrect');
@@ -1167,6 +1494,9 @@
                 if (score > highScore) { highScore = score; localStorage.setItem('gdHighScore', highScore); highScoreElement.textContent = highScore; }
                 endScreen.style.display = 'flex'; finalScoreElement.textContent = score; finalHighScoreElement.textContent = highScore;
                 finalPlatformsElement.textContent = platformsPassed; finalCoinsElement.textContent = coinsCollected; stopMusic();
+                
+                // إضافة وظيفة حفظ النتيجة الخاصة بالطالب الجديد
+                saveStudentScore(score, platformsPassed);
             }
 
             function jump() {
@@ -1175,7 +1505,6 @@
                 playerVelocity = jumpForce * gravityDirection;
                 playSound(440, 'sine', 0.1, 0.2);
                 
-                // تم إزالة إضافة كلاس "jumping" الذي يتعارض مع الـ CSS ويزعزع الجافاسكربت
                 if (playerMode !== 'ship') { rotationSpeed = -4 * gravityDirection; }
                 createParticles(player.offsetLeft + player.offsetWidth / 2, player.offsetTop + (gravityDirection === 1 ? player.offsetHeight : 0), playerMode === 'ship' ? '#ff9e00' : '#4cc9f0');
             }
@@ -1192,7 +1521,6 @@
                 }
             }
 
-            // تعريف دوال القفز على نطاق window لتستطيع أزرار HTML من الوصول إليها
             window.jumpAction = function(e) { e.preventDefault(); jump(); };
             window.slideAction = function(e) { e.preventDefault(); slide(); };
 
@@ -1254,15 +1582,13 @@
                 if (e.key === 'r' || e.key === 'R' || e.key === 'ق') { startGame(); }
             });
 
-            // Touch support for jump/ascend 
             document.addEventListener('touchstart', (e) => {
                 if (questionModal.style.display === 'flex') { return; }
-                if (e.target.closest('#music-toggle-btn') || e.target.closest('.btn') || e.target.closest('.pause-overlay') || e.target.closest('.mobile-controls')) { return; }
+                if (e.target.closest('#music-toggle-btn') || e.target.closest('.btn') || e.target.closest('.pause-overlay') || e.target.closest('.mobile-controls') || document.getElementById('role-selection').classList.contains('active') || document.getElementById('teacher-screen').classList.contains('active') || document.getElementById('student-screen').classList.contains('active')) { return; }
                 const gameAreaRect = gameArea.getBoundingClientRect();
                 const touchX = e.touches[0].clientX;
                 const touchY = e.touches[0].clientY;
                 if (touchX >= gameAreaRect.left && touchX <= gameAreaRect.right && touchY >= gameAreaRect.top && touchY <= gameAreaRect.bottom) {
-                    // e.preventDefault(); (تم إيقافها للسماح بالتفاعل الطبيعي للشاشة)
                     if (gameRunning && !gamePaused) { jump(); }
                 }
             });
