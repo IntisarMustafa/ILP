@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>قوالب الألعاب التعليمية | منصة احترافية</title>
-    <!-- استدعاء خط القاهرة -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- استدعاء خط القاهرة بأوزان متعددة -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f8fafc; /* لون خلفية أفتح وأنظف */
-            --text-main: #0f172a;
-            --text-muted: #64748b; /* رمادي ألطف للعين */
-            --card-bg: rgba(255, 255, 255, 0.7); /* شفافية زجاجية أفضل */
-            --primary: #4f46e5;
+            /* زيادة تباين ألوان الخلفية والنصوص */
+            --bg-color: #eef2f6; /* خلفية أغمق قليلاً لإبراز البطاقات المضيئة */
+            --text-main: #020617; /* أسود داكن جداً لتباين أعلى */
+            --text-muted: #475569; /* رمادي داكن لسهولة القراءة */
+            --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.75) 100%);
             
-            /* ظلال احترافية ناعمة */
+            /* ظلال عميقة واحترافية */
             --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
-            --shadow-hover: 0 20px 40px -10px rgba(15, 23, 42, 0.1);
+            --shadow-md: 0 15px 35px -5px rgba(15, 23, 42, 0.08);
+            --shadow-hover: 0 30px 60px -15px rgba(15, 23, 42, 0.15);
         }
 
         * {
@@ -40,7 +40,7 @@
             position: relative;
         }
 
-        /* خلفية مرحة واحترافية (أشكال ضبابية عائمة) */
+        /* خلفية الأشكال الضبابية بألوان أكثر إشراقاً */
         .bg-blobs {
             position: fixed;
             top: 0;
@@ -55,23 +55,23 @@
         .blob {
             position: absolute;
             border-radius: 50%;
-            filter: blur(100px); /* زيادة الضبابية لمظهر أنعم */
-            opacity: 0.5;
-            animation: floatBlobs 20s infinite alternate ease-in-out;
+            filter: blur(120px);
+            opacity: 0.6;
+            animation: floatBlobs 25s infinite alternate ease-in-out;
         }
 
-        .blob-1 { top: -10%; right: -10%; width: 50vw; height: 50vw; max-width: 600px; max-height: 600px; background: #c4b5fd; animation-delay: 0s; }
-        .blob-2 { bottom: -10%; left: -10%; width: 60vw; height: 60vw; max-width: 700px; max-height: 700px; background: #bae6fd; animation-delay: -5s; }
-        .blob-3 { top: 40%; left: 30%; width: 40vw; height: 40vw; max-width: 500px; max-height: 500px; background: #fbcfe8; animation-delay: -10s; }
+        .blob-1 { top: -15%; right: -10%; width: 50vw; height: 50vw; max-width: 650px; background: #a78bfa; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; left: -10%; width: 60vw; height: 60vw; max-width: 750px; background: #7dd3fc; animation-delay: -5s; }
+        .blob-3 { top: 30%; left: 20%; width: 45vw; height: 45vw; max-width: 550px; background: #f472b6; animation-delay: -10s; }
 
         @keyframes floatBlobs {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, 30px) scale(1.05); }
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(40px, 60px) scale(1.1) rotate(15deg); }
         }
 
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1250px;
             position: relative;
             z-index: 10;
         }
@@ -79,73 +79,82 @@
         /* تنسيق الترويسة */
         .header {
             text-align: center;
-            margin-bottom: 70px;
+            margin-bottom: 80px;
             position: relative;
-            animation: fadeInDown 0.8s ease-out;
+            animation: fadeInDown 1s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .header h1 {
-            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-size: clamp(2.5rem, 6vw, 4rem);
             font-weight: 900;
-            margin-bottom: 20px;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #0f172a, var(--primary), #7e22ce);
+            margin-bottom: 25px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #020617, var(--text-main), #4338ca);
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: inline-block;
-            position: relative;
-            animation: gradientText 6s linear infinite;
-        }
-
-        @keyframes gradientText {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
 
         .header p {
             color: var(--text-muted);
-            font-size: 1.15rem;
-            max-width: 680px;
-            margin: 20px auto 0;
-            font-weight: 500;
-            background: rgba(255, 255, 255, 0.6);
-            padding: 15px 30px;
-            border-radius: 100px; /* شكل بيضاوي أنيق */
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: var(--shadow-sm);
+            font-size: 1.25rem;
+            max-width: 750px;
+            margin: 0 auto;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 18px 40px;
+            border-radius: 100px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
         }
 
         /* شبكة الألعاب */
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 40px;
         }
 
+        /* البطاقات بلمسة زجاجية ثلاثية الأبعاد */
         .game-card {
-            background-color: var(--card-bg);
-            border-radius: 24px;
-            padding: 35px 25px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 45px 30px 40px;
             text-align: center;
             text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
             box-shadow: var(--shadow-md);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            /* حدود متدرجة لإعطاء بروز */
+            border-top: 2px solid rgba(255, 255, 255, 1);
+            border-left: 2px solid rgba(255, 255, 255, 1);
+            border-right: 1px solid rgba(255, 255, 255, 0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(40px);
             animation: fadeInUp 0.8s ease-out forwards;
+            overflow: hidden;
         }
 
-        /* تأخير الظهور المتتابع للبطاقات */
+        /* تأثير التوهج في الخلفية عند التمرير */
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 0%, var(--theme-color-light) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 0;
+            pointer-events: none;
+        }
+
         .game-card:nth-child(1) { animation-delay: 0.1s; }
         .game-card:nth-child(2) { animation-delay: 0.2s; }
         .game-card:nth-child(3) { animation-delay: 0.3s; }
@@ -154,48 +163,71 @@
         .game-card:nth-child(6) { animation-delay: 0.6s; }
 
         .game-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-15px) scale(1.02);
             box-shadow: var(--shadow-hover);
-            border-color: #ffffff;
-            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        /* الأيقونات - تكبير الحجم والتباين */
+        .icon-wrapper {
+            position: relative;
+            z-index: 1;
+            animation: floatIcon 6s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
         }
 
         .icon-box {
-            width: 100px;
-            height: 100px;
-            border-radius: 24px;
+            width: 140px; /* تكبير الحجم من 100 إلى 140 */
+            height: 140px;
+            border-radius: 35px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             background: linear-gradient(135deg, var(--theme-bg-1), var(--theme-bg-2));
-            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.9), 0 10px 20px rgba(0, 0, 0, 0.05);
-            transition: all 0.4s ease;
+            box-shadow: 
+                inset 0 4px 8px rgba(255, 255, 255, 0.9), 
+                0 15px 30px -5px var(--theme-color-shadow);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
+            border: 2px solid rgba(255,255,255,0.6);
         }
 
         .icon-box svg {
-            width: 55px;
-            height: 55px;
-            transition: all 0.4s ease;
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.1));
+            width: 85px; /* تكبير الـ SVG بشكل ملحوظ */
+            height: 85px;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
         }
 
         .game-card:hover .icon-box {
-            transform: scale(1.05) translateY(-5px);
-            border-radius: 30px;
-            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.9), 0 15px 25px var(--theme-color-light);
+            transform: scale(1.08) rotate(-3deg);
+            border-radius: 40px;
+            box-shadow: 
+                inset 0 4px 8px rgba(255, 255, 255, 1), 
+                0 25px 40px -10px var(--theme-color-shadow);
         }
         
         .game-card:hover .icon-box svg {
-            transform: scale(1.1);
+            transform: scale(1.15);
+            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.25));
         }
 
+        /* النصوص */
         .game-title {
-            font-size: 1.5rem;
-            font-weight: 800;
+            font-size: 1.75rem;
+            font-weight: 900;
             color: var(--text-main);
-            margin-bottom: 12px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
             transition: color 0.3s ease;
         }
 
@@ -204,72 +236,91 @@
         }
 
         .game-desc {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: var(--text-muted);
-            line-height: 1.6;
-            font-weight: 500;
+            line-height: 1.7;
+            font-weight: 600;
             flex-grow: 1;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
             padding: 0 10px;
+            position: relative;
+            z-index: 1;
         }
 
-        /* --- تصميم الأزرار الاحترافي الجديد --- */
+        /* --- تصميم الأزرار: تباين عالي ولون صريح مسبقاً --- */
         .action-btn {
+            position: relative;
+            z-index: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            font-weight: 700;
-            font-size: 1.05rem;
-            /* الحالة الافتراضية: لون هادئ مبني على Theme البطاقة */
-            background-color: var(--theme-bg-1);
-            color: var(--theme-color);
-            padding: 14px 30px;
-            border-radius: 100px; /* حواف دائرية بالكامل */
+            gap: 15px;
+            font-weight: 800;
+            font-size: 1.15rem;
+            /* الحالة الافتراضية الآن أصبحت قوية وواضحة */
+            background-color: var(--theme-color); 
+            color: #ffffff;
+            padding: 16px 35px;
+            border-radius: 100px;
             width: 100%;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid transparent;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            border: none;
             cursor: pointer;
+            box-shadow: 0 8px 20px -5px var(--theme-color-shadow);
+            overflow: hidden;
+        }
+
+        /* تأثير اللمعة على الزر */
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            transition: left 0.6s ease;
         }
 
         .action-btn svg {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             fill: currentColor;
-            transition: transform 0.3s ease;
+            transition: transform 0.4s ease;
         }
 
-        /* تأثير الزر عند تمرير الماوس على البطاقة أو الزر */
         .game-card:hover .action-btn {
-            background-color: var(--theme-color);
-            color: #ffffff;
-            box-shadow: 0 8px 20px -6px var(--theme-color);
-            transform: translateY(-2px);
+            background-color: var(--theme-color-hover);
+            box-shadow: 0 15px 25px -5px var(--theme-color-shadow);
+            transform: translateY(-3px);
+        }
+
+        .game-card:hover .action-btn::after {
+            left: 200%;
         }
 
         .game-card:hover .action-btn svg {
-            transform: translateX(-6px); /* السهم يتحرك لليسار */
+            transform: translateX(-8px) scale(1.1); 
         }
 
         @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
+            from { opacity: 0; transform: translateY(-40px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* استجابة الشاشات الصغيرة */
         @media (max-width: 768px) {
-            body { padding: 30px 15px; }
-            .header h1 { font-size: 2rem; }
-            .header p { padding: 15px 20px; font-size: 1rem; border-radius: 20px; }
-            .games-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; gap: 20px; }
-            .game-card { padding: 30px 20px; }
-            .icon-box { width: 85px; height: 85px; }
-            .icon-box svg { width: 45px; height: 45px; }
+            body { padding: 40px 15px; }
+            .header h1 { font-size: 2.2rem; }
+            .header p { padding: 15px 20px; font-size: 1.05rem; }
+            .games-grid { grid-template-columns: 1fr; max-width: 450px; margin: 0 auto; gap: 30px; }
+            .game-card { padding: 40px 25px; }
+            .icon-box { width: 110px; height: 110px; margin-bottom: 25px; }
+            .icon-box svg { width: 65px; height: 65px; }
+            .game-title { font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -290,21 +341,29 @@
 
         <div class="games-grid">
             
-            <!-- 1. تحدي الأسئلة المباشر -->
-            <a href="A.html" class="game-card" style="--theme-color: #8b5cf6; --theme-color-light: rgba(139, 92, 246, 0.3); --theme-bg-1: #ede9fe; --theme-bg-2: #ddd6fe;">
-                <div class="icon-box">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient>
-                            <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
-                            <linearGradient id="yellowGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient>
-                            <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#15803d"/></linearGradient>
-                        </defs>
-                        <rect x="55" y="55" width="28" height="28" rx="6" fill="url(#greenGrad)" stroke="#ffffff" stroke-width="2.5" transform="rotate(-10 69 69)" />
-                        <circle cx="28" cy="72" r="16" fill="url(#yellowGrad)" stroke="#ffffff" stroke-width="2.5" />
-                        <rect x="65" y="15" width="22" height="22" rx="4" fill="url(#blueGrad)" stroke="#ffffff" stroke-width="2.5" transform="rotate(45 76 26)" />
-                        <path d="M 28 12 L 48 45 L 8 45 Z" fill="url(#redGrad)" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" />
-                    </svg>
+            <!-- 1. تحدي الأسئلة المباشر (بنفسجي قوي) -->
+            <a href="A.html" class="game-card" style="
+                --theme-color: #7c3aed; 
+                --theme-color-hover: #6d28d9;
+                --theme-color-shadow: rgba(124, 58, 237, 0.4); 
+                --theme-color-light: rgba(124, 58, 237, 0.15); 
+                --theme-bg-1: #f5f3ff; 
+                --theme-bg-2: #ddd6fe;">
+                <div class="icon-wrapper">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient>
+                                <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
+                                <linearGradient id="yellowGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient>
+                                <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#15803d"/></linearGradient>
+                            </defs>
+                            <rect x="55" y="55" width="28" height="28" rx="6" fill="url(#greenGrad)" stroke="#ffffff" stroke-width="2.5" transform="rotate(-10 69 69)" />
+                            <circle cx="28" cy="72" r="16" fill="url(#yellowGrad)" stroke="#ffffff" stroke-width="2.5" />
+                            <rect x="65" y="15" width="22" height="22" rx="4" fill="url(#blueGrad)" stroke="#ffffff" stroke-width="2.5" transform="rotate(45 76 26)" />
+                            <path d="M 28 12 L 48 45 L 8 45 Z" fill="url(#redGrad)" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" />
+                        </svg>
+                    </div>
                 </div>
                 <h2 class="game-title">الأسئلة المباشرة</h2>
                 <p class="game-desc">لعبة تفاعلية سريعة لأسئلة الاختيار من متعدد، مثالية للمراجعات والتقييم الختامي.</p>
@@ -314,24 +373,32 @@
                 </div>
             </a>
 
-            <!-- 2. الطيور الذكية -->
-            <a href="B.html" class="game-card" style="--theme-color: #ef4444; --theme-color-light: rgba(239, 68, 68, 0.3); --theme-bg-1: #fee2e2; --theme-bg-2: #fecaca;">
-                <div class="icon-box">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="birdGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
-                        </defs>
-                        <path d="M 45 15 C 35 0 60 -5 55 15 Z" fill="url(#birdGrad)" />
-                        <circle cx="50" cy="52" r="35" fill="url(#birdGrad)" />
-                        <rect x="23" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(16 35 35)" />
-                        <rect x="52" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(-16 65 35)" />
-                        <circle cx="38" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1" />
-                        <circle cx="62" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1" />
-                        <circle cx="42" cy="48" r="3.5" fill="#0f172a" />
-                        <circle cx="58" cy="48" r="3.5" fill="#0f172a" />
-                        <path d="M 43 60 L 50 72 L 57 60 Z" fill="#d97706" />
-                        <path d="M 36 57 L 50 67 L 64 57 L 50 49 Z" fill="#fbbf24" stroke="#b45309" stroke-width="1" stroke-linejoin="round" />
-                    </svg>
+            <!-- 2. الطيور الذكية (أحمر ناري) -->
+            <a href="B.html" class="game-card" style="
+                --theme-color: #e11d48; 
+                --theme-color-hover: #be123c;
+                --theme-color-shadow: rgba(225, 29, 72, 0.4); 
+                --theme-color-light: rgba(225, 29, 72, 0.15); 
+                --theme-bg-1: #fff1f2; 
+                --theme-bg-2: #fecdd3;">
+                <div class="icon-wrapper">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="birdGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
+                            </defs>
+                            <path d="M 45 15 C 35 0 60 -5 55 15 Z" fill="url(#birdGrad)" />
+                            <circle cx="50" cy="52" r="35" fill="url(#birdGrad)" />
+                            <rect x="23" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(16 35 35)" />
+                            <rect x="52" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(-16 65 35)" />
+                            <circle cx="38" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1" />
+                            <circle cx="62" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1" />
+                            <circle cx="42" cy="48" r="3.5" fill="#0f172a" />
+                            <circle cx="58" cy="48" r="3.5" fill="#0f172a" />
+                            <path d="M 43 60 L 50 72 L 57 60 Z" fill="#d97706" />
+                            <path d="M 36 57 L 50 67 L 64 57 L 50 49 Z" fill="#fbbf24" stroke="#b45309" stroke-width="1" stroke-linejoin="round" />
+                        </svg>
+                    </div>
                 </div>
                 <h2 class="game-title">الطيور الذكية</h2>
                 <p class="game-desc">أجب إجابة صحيحة لتصويب الطائر وهدم العقبات، ادمج الفيزياء بالمعرفة.</p>
@@ -341,38 +408,46 @@
                 </div>
             </a>
 
-            <!-- 3. القط والهدف -->
-            <a href="C.html" class="game-card" style="--theme-color: #f59e0b; --theme-color-light: rgba(245, 158, 11, 0.3); --theme-bg-1: #fef3c7; --theme-bg-2: #fde68a;">
-                <div class="icon-box">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="boxGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
-                            <linearGradient id="tomGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#64748b"/><stop offset="100%" stop-color="#334155"/></linearGradient>
-                            <linearGradient id="muzzleGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient>
-                        </defs>
-                        <rect x="25" y="10" width="50" height="50" rx="6" fill="url(#boxGrad)" stroke="#b45309" stroke-width="2"/>
-                        <circle cx="31" cy="16" r="2.5" fill="#78350f" />
-                        <circle cx="69" cy="16" r="2.5" fill="#78350f" />
-                        <circle cx="31" cy="54" r="2.5" fill="#78350f" />
-                        <circle cx="69" cy="54" r="2.5" fill="#78350f" />
-                        <text x="50" y="47" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#ffffff" text-anchor="middle">?</text>
-                        <path d="M 37 62 L 25 45 L 48 55 Z" fill="url(#tomGrad)" />
-                        <path d="M 63 62 L 75 45 L 52 55 Z" fill="url(#tomGrad)" />
-                        <path d="M 35 59 L 29 50 L 43 55 Z" fill="#fbcfe8" />
-                        <path d="M 65 59 L 71 50 L 57 55 Z" fill="#fbcfe8" />
-                        <circle cx="50" cy="73" r="19" fill="url(#tomGrad)" />
-                        <path d="M 37 77 Q 50 68 63 77 Q 67 88 50 90 Q 33 88 37 77 Z" fill="url(#muzzleGrad)" />
-                        <ellipse cx="43" cy="67" rx="4.5" ry="7" fill="#fde047" stroke="#1e293b" stroke-width="0.5" />
-                        <ellipse cx="57" cy="67" rx="4.5" ry="7" fill="#fde047" stroke="#1e293b" stroke-width="0.5" />
-                        <circle cx="44" cy="68" r="2.5" fill="#15803d" />
-                        <circle cx="56" cy="68" r="2.5" fill="#15803d" />
-                        <ellipse cx="50" cy="76" rx="3.5" ry="2.5" fill="#020617" />
-                        <path d="M 45 82 Q 50 85 55 82" fill="none" stroke="#020617" stroke-width="1.5" stroke-linecap="round" />
-                        <line x1="22" y1="75" x2="35" y2="78" stroke="#1e293b" stroke-width="1" stroke-linecap="round" />
-                        <line x1="20" y1="81" x2="33" y2="81" stroke="#1e293b" stroke-width="1" stroke-linecap="round" />
-                        <line x1="78" y1="75" x2="65" y2="78" stroke="#1e293b" stroke-width="1" stroke-linecap="round" />
-                        <line x1="80" y1="81" x2="67" y2="81" stroke="#1e293b" stroke-width="1" stroke-linecap="round" />
-                    </svg>
+            <!-- 3. القط والهدف (برتقالي ساطع) -->
+            <a href="C.html" class="game-card" style="
+                --theme-color: #ea580c; 
+                --theme-color-hover: #c2410c;
+                --theme-color-shadow: rgba(234, 88, 12, 0.4); 
+                --theme-color-light: rgba(234, 88, 12, 0.15); 
+                --theme-bg-1: #fff7ed; 
+                --theme-bg-2: #fed7aa;">
+                <div class="icon-wrapper">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="boxGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+                                <linearGradient id="tomGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#64748b"/><stop offset="100%" stop-color="#334155"/></linearGradient>
+                                <linearGradient id="muzzleGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient>
+                            </defs>
+                            <rect x="25" y="10" width="50" height="50" rx="6" fill="url(#boxGrad)" stroke="#b45309" stroke-width="2"/>
+                            <circle cx="31" cy="16" r="2.5" fill="#78350f" />
+                            <circle cx="69" cy="16" r="2.5" fill="#78350f" />
+                            <circle cx="31" cy="54" r="2.5" fill="#78350f" />
+                            <circle cx="69" cy="54" r="2.5" fill="#78350f" />
+                            <text x="50" y="47" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#ffffff" text-anchor="middle">?</text>
+                            <path d="M 37 62 L 25 45 L 48 55 Z" fill="url(#tomGrad)" />
+                            <path d="M 63 62 L 75 45 L 52 55 Z" fill="url(#tomGrad)" />
+                            <path d="M 35 59 L 29 50 L 43 55 Z" fill="#fbcfe8" />
+                            <path d="M 65 59 L 71 50 L 57 55 Z" fill="#fbcfe8" />
+                            <circle cx="50" cy="73" r="19" fill="url(#tomGrad)" />
+                            <path d="M 37 77 Q 50 68 63 77 Q 67 88 50 90 Q 33 88 37 77 Z" fill="url(#muzzleGrad)" />
+                            <ellipse cx="43" cy="67" rx="4.5" ry="7" fill="#fde047" stroke="#1e293b" stroke-width="0.5" />
+                            <ellipse cx="57" cy="67" rx="4.5" ry="7" fill="#fde047" stroke="#1e293b" stroke-width="0.5" />
+                            <circle cx="44" cy="68" r="2.5" fill="#15803d" />
+                            <circle cx="56" cy="68" r="2.5" fill="#15803d" />
+                            <ellipse cx="50" cy="76" rx="3.5" ry="2.5" fill="#020617" />
+                            <path d="M 45 82 Q 50 85 55 82" fill="none" stroke="#020617" stroke-width="1.5" stroke-linecap="round" />
+                            <line x1="22" y1="75" x2="35" y2="78" stroke="#1e293b" stroke-width="1" stroke-linecap="round" />
+                            <line x1="20" y1="81" x2="33" y2="81" stroke="#1e293b" stroke-width="1" stroke-linecap="round" />
+                            <line x1="78" y1="75" x2="65" y2="78" stroke="#1e293b" stroke-width="1" stroke-linecap="round" />
+                            <line x1="80" y1="81" x2="67" y2="81" stroke="#1e293b" stroke-width="1" stroke-linecap="round" />
+                        </svg>
+                    </div>
                 </div>
                 <h2 class="game-title">القط والهدف</h2>
                 <p class="game-desc">لعبة منصات ومراحل كلاسيكية، تجاوز التحديات واجمع النقاط للوصول للهدف.</p>
@@ -382,27 +457,35 @@
                 </div>
             </a>
 
-            <!-- 4. الطائر الفهمان -->
-            <a href="D.html" class="game-card" style="--theme-color: #10b981; --theme-color-light: rgba(16, 185, 129, 0.3); --theme-bg-1: #d1fae5; --theme-bg-2: #a7f3d0;">
-                <div class="icon-box">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="pipeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4ade80"/><stop offset="30%" stop-color="#22c55e"/><stop offset="100%" stop-color="#14532d"/></linearGradient>
-                            <linearGradient id="flappyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#eab308"/></linearGradient>
-                            <linearGradient id="wingGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient>
-                        </defs>
-                        <rect x="70" y="55" width="20" height="45" fill="url(#pipeGrad)" stroke="#064e3b" stroke-width="2" />
-                        <rect x="66" y="47" width="28" height="12" fill="url(#pipeGrad)" stroke="#064e3b" stroke-width="2" rx="3" />
-                        <circle cx="35" cy="45" r="16" fill="url(#flappyGrad)" stroke="#ca8a04" stroke-width="2" />
-                        <path d="M 20 45 Q 12 40 25 55 Q 30 50 20 45 Z" fill="url(#wingGrad)" stroke="#94a3b8" stroke-width="1.5" />
-                        <circle cx="43" cy="40" r="5" fill="#ffffff" stroke="#ca8a04" stroke-width="1" />
-                        <circle cx="45" cy="40" r="2" fill="#0f172a" />
-                        <path d="M 46 48 Q 62 43 64 50 Q 62 57 46 52 Z" fill="#ea580c" stroke="#c2410c" stroke-width="1.5" />
-                        <path d="M 35 15 L 18 22 L 35 29 L 52 22 Z" fill="#1e293b" />
-                        <rect x="28" y="26" width="14" height="8" fill="#0f172a" />
-                        <path d="M 50 22 L 50 38" stroke="#f59e0b" stroke-width="2" />
-                        <circle cx="50" cy="38" r="2.5" fill="#f59e0b" />
-                    </svg>
+            <!-- 4. الطائر الفهمان (أخضر زمردي) -->
+            <a href="D.html" class="game-card" style="
+                --theme-color: #059669; 
+                --theme-color-hover: #047857;
+                --theme-color-shadow: rgba(5, 150, 105, 0.4); 
+                --theme-color-light: rgba(5, 150, 105, 0.15); 
+                --theme-bg-1: #ecfdf5; 
+                --theme-bg-2: #a7f3d0;">
+                <div class="icon-wrapper">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="pipeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4ade80"/><stop offset="30%" stop-color="#22c55e"/><stop offset="100%" stop-color="#14532d"/></linearGradient>
+                                <linearGradient id="flappyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#eab308"/></linearGradient>
+                                <linearGradient id="wingGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient>
+                            </defs>
+                            <rect x="70" y="55" width="20" height="45" fill="url(#pipeGrad)" stroke="#064e3b" stroke-width="2" />
+                            <rect x="66" y="47" width="28" height="12" fill="url(#pipeGrad)" stroke="#064e3b" stroke-width="2" rx="3" />
+                            <circle cx="35" cy="45" r="16" fill="url(#flappyGrad)" stroke="#ca8a04" stroke-width="2" />
+                            <path d="M 20 45 Q 12 40 25 55 Q 30 50 20 45 Z" fill="url(#wingGrad)" stroke="#94a3b8" stroke-width="1.5" />
+                            <circle cx="43" cy="40" r="5" fill="#ffffff" stroke="#ca8a04" stroke-width="1" />
+                            <circle cx="45" cy="40" r="2" fill="#0f172a" />
+                            <path d="M 46 48 Q 62 43 64 50 Q 62 57 46 52 Z" fill="#ea580c" stroke="#c2410c" stroke-width="1.5" />
+                            <path d="M 35 15 L 18 22 L 35 29 L 52 22 Z" fill="#1e293b" />
+                            <rect x="28" y="26" width="14" height="8" fill="#0f172a" />
+                            <path d="M 50 22 L 50 38" stroke="#f59e0b" stroke-width="2" />
+                            <circle cx="50" cy="38" r="2.5" fill="#f59e0b" />
+                        </svg>
+                    </div>
                 </div>
                 <h2 class="game-title">الطائر الفهمان</h2>
                 <p class="game-desc">طير بأمان عبر أنابيب الأسئلة بالاعتماد على ذكائك وسرعة إجاباتك.</p>
@@ -412,26 +495,34 @@
                 </div>
             </a>
 
-            <!-- 5. لعبة المركبة الفضائية -->
-            <a href="E.html" class="game-card" style="--theme-color: #3b82f6; --theme-color-light: rgba(59, 130, 246, 0.3); --theme-bg-1: #dbeafe; --theme-bg-2: #bfdbfe;">
-                <div class="icon-box">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="rocketBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#94a3b8"/></linearGradient>
-                            <linearGradient id="rocketFin" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
-                            <linearGradient id="flameGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#ef4444"/></linearGradient>
-                            <linearGradient id="windowGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
-                        </defs>
-                        <path d="M 40 70 Q 50 100 60 70 Q 50 80 40 70 Z" fill="url(#flameGrad)" />
-                        <path d="M 45 70 Q 50 85 55 70 Z" fill="#fef08a" />
-                        <path d="M 35 50 L 18 75 L 35 70 Z" fill="url(#rocketFin)" stroke="#1e3a8a" stroke-width="1" />
-                        <path d="M 65 50 L 82 75 L 65 70 Z" fill="url(#rocketFin)" stroke="#1e3a8a" stroke-width="1" />
-                        <path d="M 50 12 C 70 35 65 75 50 75 C 35 75 30 35 50 12 Z" fill="url(#rocketBody)" stroke="#64748b" stroke-width="1.5" />
-                        <path d="M 48 65 L 52 65 L 52 82 L 48 82 Z" fill="url(#rocketFin)" />
-                        <path d="M 50 12 C 57 19 59.5 27 60 30 L 40 30 C 40.5 27 43 19 50 12 Z" fill="url(#rocketFin)" />
-                        <circle cx="50" cy="45" r="9" fill="url(#windowGrad)" stroke="#cbd5e1" stroke-width="2" />
-                        <path d="M 46 41 A 5 5 0 0 1 52 40" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
-                    </svg>
+            <!-- 5. لعبة المركبة الفضائية (أزرق ملكي) -->
+            <a href="E.html" class="game-card" style="
+                --theme-color: #2563eb; 
+                --theme-color-hover: #1d4ed8;
+                --theme-color-shadow: rgba(37, 99, 235, 0.4); 
+                --theme-color-light: rgba(37, 99, 235, 0.15); 
+                --theme-bg-1: #eff6ff; 
+                --theme-bg-2: #bfdbfe;">
+                <div class="icon-wrapper">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="rocketBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#94a3b8"/></linearGradient>
+                                <linearGradient id="rocketFin" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
+                                <linearGradient id="flameGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#ef4444"/></linearGradient>
+                                <linearGradient id="windowGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
+                            </defs>
+                            <path d="M 40 70 Q 50 100 60 70 Q 50 80 40 70 Z" fill="url(#flameGrad)" />
+                            <path d="M 45 70 Q 50 85 55 70 Z" fill="#fef08a" />
+                            <path d="M 35 50 L 18 75 L 35 70 Z" fill="url(#rocketFin)" stroke="#1e3a8a" stroke-width="1" />
+                            <path d="M 65 50 L 82 75 L 65 70 Z" fill="url(#rocketFin)" stroke="#1e3a8a" stroke-width="1" />
+                            <path d="M 50 12 C 70 35 65 75 50 75 C 35 75 30 35 50 12 Z" fill="url(#rocketBody)" stroke="#64748b" stroke-width="1.5" />
+                            <path d="M 48 65 L 52 65 L 52 82 L 48 82 Z" fill="url(#rocketFin)" />
+                            <path d="M 50 12 C 57 19 59.5 27 60 30 L 40 30 C 40.5 27 43 19 50 12 Z" fill="url(#rocketFin)" />
+                            <circle cx="50" cy="45" r="9" fill="url(#windowGrad)" stroke="#cbd5e1" stroke-width="2" />
+                            <path d="M 46 41 A 5 5 0 0 1 52 40" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+                        </svg>
+                    </div>
                 </div>
                 <h2 class="game-title">المركبة الفضائية</h2>
                 <p class="game-desc">قم بقيادة مركبتك وتجاوز الكويكبات عبر الإجابة الصحيحة للوصول إلى الكوكب.</p>
@@ -441,41 +532,49 @@
                 </div>
             </a>
 
-            <!-- 6. مرح الأشكال -->
-            <a href="F.html" class="game-card" style="--theme-color: #ec4899; --theme-color-light: rgba(236, 72, 153, 0.3); --theme-bg-1: #fce7f3; --theme-bg-2: #fbcfe8;">
-                <div class="icon-box">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="candyRed" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>
-                            <linearGradient id="candyBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>
-                            <linearGradient id="candyYellow" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient>
-                            <linearGradient id="candyGreen" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
-                            <clipPath id="stripedCandyClip">
-                                <circle cx="50" cy="50" r="18" />
-                            </clipPath>
-                        </defs>
-                        <g transform="translate(-3, -2)">
-                            <rect x="25" y="18" width="16" height="16" rx="4" transform="rotate(45 33 26)" fill="url(#candyYellow)" stroke="#a16207" stroke-width="1.5" />
-                            <ellipse cx="30" cy="22" rx="4" ry="2" transform="rotate(-45 30 22)" fill="#ffffff" opacity="0.7" />
-                        </g>
-                        <g transform="translate(3, -5)">
-                            <rect x="62" y="20" width="22" height="14" rx="7" transform="rotate(-20 73 27)" fill="url(#candyGreen)" stroke="#15803d" stroke-width="1.5" />
-                            <ellipse cx="69" cy="23" rx="5" ry="2" transform="rotate(-20 69 23)" fill="#ffffff" opacity="0.7" />
-                        </g>
-                        <g transform="translate(4, 5)">
-                            <path d="M 66 68 L 82 60 L 80 78 Z" fill="url(#candyBlue)" stroke="#1e3a8a" stroke-width="1" stroke-linejoin="round" />
-                            <path d="M 66 68 L 50 60 L 52 78 Z" fill="url(#candyBlue)" stroke="#1e3a8a" stroke-width="1" stroke-linejoin="round" />
-                            <circle cx="66" cy="69" r="10" fill="url(#candyBlue)" stroke="#1e40af" stroke-width="1.5" />
-                            <ellipse cx="63" cy="65" rx="4" ry="2" transform="rotate(-30 63 65)" fill="#ffffff" opacity="0.7" />
-                        </g>
-                        <circle cx="50" cy="50" r="18" fill="url(#candyRed)" stroke="#991b1b" stroke-width="2" />
-                        <g clip-path="url(#stripedCandyClip)">
-                            <rect x="20" y="32" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
-                            <rect x="20" y="47" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
-                            <rect x="20" y="62" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
-                        </g>
-                        <path d="M 38 40 A 12 12 0 0 1 50 34" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8" />
-                    </svg>
+            <!-- 6. مرح الأشكال (وردي فاقع) -->
+            <a href="F.html" class="game-card" style="
+                --theme-color: #db2777; 
+                --theme-color-hover: #be185d;
+                --theme-color-shadow: rgba(219, 39, 119, 0.4); 
+                --theme-color-light: rgba(219, 39, 119, 0.15); 
+                --theme-bg-1: #fdf2f8; 
+                --theme-bg-2: #fbcfe8;">
+                <div class="icon-wrapper">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="candyRed" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>
+                                <linearGradient id="candyBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>
+                                <linearGradient id="candyYellow" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient>
+                                <linearGradient id="candyGreen" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
+                                <clipPath id="stripedCandyClip">
+                                    <circle cx="50" cy="50" r="18" />
+                                </clipPath>
+                            </defs>
+                            <g transform="translate(-3, -2)">
+                                <rect x="25" y="18" width="16" height="16" rx="4" transform="rotate(45 33 26)" fill="url(#candyYellow)" stroke="#a16207" stroke-width="1.5" />
+                                <ellipse cx="30" cy="22" rx="4" ry="2" transform="rotate(-45 30 22)" fill="#ffffff" opacity="0.7" />
+                            </g>
+                            <g transform="translate(3, -5)">
+                                <rect x="62" y="20" width="22" height="14" rx="7" transform="rotate(-20 73 27)" fill="url(#candyGreen)" stroke="#15803d" stroke-width="1.5" />
+                                <ellipse cx="69" cy="23" rx="5" ry="2" transform="rotate(-20 69 23)" fill="#ffffff" opacity="0.7" />
+                            </g>
+                            <g transform="translate(4, 5)">
+                                <path d="M 66 68 L 82 60 L 80 78 Z" fill="url(#candyBlue)" stroke="#1e3a8a" stroke-width="1" stroke-linejoin="round" />
+                                <path d="M 66 68 L 50 60 L 52 78 Z" fill="url(#candyBlue)" stroke="#1e3a8a" stroke-width="1" stroke-linejoin="round" />
+                                <circle cx="66" cy="69" r="10" fill="url(#candyBlue)" stroke="#1e40af" stroke-width="1.5" />
+                                <ellipse cx="63" cy="65" rx="4" ry="2" transform="rotate(-30 63 65)" fill="#ffffff" opacity="0.7" />
+                            </g>
+                            <circle cx="50" cy="50" r="18" fill="url(#candyRed)" stroke="#991b1b" stroke-width="2" />
+                            <g clip-path="url(#stripedCandyClip)">
+                                <rect x="20" y="32" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
+                                <rect x="20" y="47" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
+                                <rect x="20" y="62" width="60" height="6" transform="rotate(45 50 50)" fill="#ffffff" opacity="0.9" />
+                            </g>
+                            <path d="M 38 40 A 12 12 0 0 1 50 34" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8" />
+                        </svg>
+                    </div>
                 </div>
                 <h2 class="game-title">مرح الأشكال</h2>
                 <p class="game-desc">طابق الأشكال والألوان للإجابة على الأسئلة وتجاوز المراحل في هذه اللعبة الممتعة.</p>
