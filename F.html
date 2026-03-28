@@ -740,13 +740,27 @@ async function loadExistingRoom() {
     ];
     const BOARD_SIZE = 8;
     const SVG_SHAPES = {
-        square:`<rect x="15" y="15" width="70" height="70" rx="15" ry="15"/>`,
-        triangle:`<polygon points="50,15 85,85 15,85" />`,
-        star:`<polygon points="50,10 61.8,38.2 93,38.2 68.2,59 79.4,87 50,70 20.6,87 31.8,59 7,38.2 38.2,38.2" />`,
-        sun:`<circle cx="50" cy="50" r="25"/><line x1="50" y1="10" x2="50" y2="90" stroke-width="4" stroke="currentColor"/><line x1="10" y1="50" x2="90" y2="50" stroke-width="4" stroke="currentColor"/><line x1="20" y1="20" x2="80" y2="80" stroke-width="4" stroke="currentColor"/><line x1="20" y1="80" x2="80" y2="20" stroke-width="4" stroke="currentColor"/>`,
-        flower:`<path d="M50,10 A40,40 0 0 1 80,40 A40,40 0 0 1 80,60 A40,40 0 0 1 50,90 A40,40 0 0 1 20,60 A40,40 0 0 1 20,40 A40,40 0 0 1 50,10Z" />`,
-        diamond:`<polygon points="50,10 90,50 50,90 10,50"/>`
-    };
+    square: `<rect x="25" y="25" width="50" height="50" rx="15" ry="15"/>
+             <polygon points="25,35 5,15 5,85 25,65"/>
+             <polygon points="75,35 95,15 95,85 75,65"/>
+             <rect x="35" y="35" width="10" height="15" rx="5" fill="#fff" opacity="0.5"/>`,
+    triangle: `<path d="M50,10 C 70,40 90,60 90,75 C 90,95 70,95 50,95 C 30,95 10,95 10,75 C 10,60 30,40 50,10 Z"/>
+               <ellipse cx="35" cy="75" rx="6" ry="10" transform="rotate(-30 35 75)" fill="#fff" opacity="0.5"/>`,
+    star: `<path d="M50 5 L61 35 L95 35 L67 55 L78 85 L50 65 L22 85 L33 55 L5 35 L39 35 Z"/>
+           <polygon points="50,25 55,40 70,40 58,50 62,65 50,55 38,65 42,50 30,40 45,40" fill="#fff" opacity="0.4"/>`,
+    sun: `<circle cx="50" cy="50" r="40"/>
+          <path d="M50,15 Q75,15 75,40 T50,65 T25,40 T50,15"
+          fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.5"/>`,
+    flower: `<circle cx="50" cy="20" r="18"/>
+             <circle cx="80" cy="40" r="18"/>
+             <circle cx="70" cy="75" r="18"/>
+             <circle cx="30" cy="75" r="18"/>
+             <circle cx="20" cy="40" r="18"/>
+             <circle cx="50" cy="50" r="25"/>
+             <circle cx="50" cy="50" r="12" fill="#fff" opacity="0.6"/>`,
+    diamond: `<polygon points="50,5 90,40 50,95 10,40"/>
+              <polygon points="50,15 75,40 50,80 25,40" fill="#fff" opacity="0.4"/>`
+};
     const COLORS = ['red','blue','green','yellow','purple','orange'];
     const SHAPES = Object.keys(SVG_SHAPES);
     
