@@ -402,6 +402,7 @@
 <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
 <button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
 <button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
+<button class="btn btn-action" onclick="showScreen('screen-standalone-leaderboard')" style="margin-top: 15px; background-color: var(--success); color: white; box-shadow: 0 6px 0 var(--k-green-dark);">🏆 البحث عن لوحة صدارة سابقة</button>
 </div>
 </div>
 <div class="screen" id="screen-teacher-setup">
@@ -496,9 +497,32 @@
 <h1 id="final-score-display" style="font-size: 90px; color: var(--primary); margin: 10px 0; text-shadow: 3px 3px 0px rgba(0,0,0,0.1);">0</h1>
 <p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--info);">جاري حفظ النتيجة...</p>
 <button class="btn btn-action" onclick="toggleReview()">📝 مراجعة إجاباتي</button>
+<button class="btn btn-action" onclick="viewCurrentRoomLeaderboard()" style="font-size: 22px; margin-top:15px; background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark);">🏆 عرض لوحة الصدارة</button>
 <div id="review-container"></div>
 <button class="btn btn-primary" onclick="window.location.href = window.location.href.split('?')[0]" style="font-size: 22px; margin-top:15px;">العب مرة أخرى</button>
 </div>
+</div>
+<div class="screen" id="screen-standalone-leaderboard">
+    <div class="card" style="max-width: 800px; width: 100%;">
+        <h2>🏆 لوحة الصدارة</h2>
+        <p style="margin-bottom: 20px; color: #666;">أدخل رقم الغرفة (PIN) لعرض ترتيب الأبطال</p>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="number" id="search-leaderboard-pin" placeholder="أدخل رقم الغرفة..." style="margin-bottom: 0; flex: 2;">
+            <button class="btn btn-action" onclick="searchStandaloneLeaderboard()" style="margin-bottom: 0; flex: 1;">بحث</button>
+        </div>
+
+        <table id="standalone-leaderboard-table" style="display: none;">
+            <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+            <tbody id="standalone-leaderboard-body"></tbody>
+        </table>
+
+        <div id="standalone-loading-board" style="display:none; font-size: 18px; font-weight: bold; color: var(--primary);">
+            ⏳ جاري البحث عن البيانات...
+        </div>
+
+        <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top: 25px;">العودة للرئيسية</button>
+    </div>
 </div>
 <div id="math-modal-overlay">
 <div class="math-modal-content">
@@ -1302,6 +1326,66 @@
             const btn = document.getElementById('copy-btn');
             btn.innerText = "تم النسخ! ✔️"; btn.style.backgroundColor = "var(--success)";
             setTimeout(()=>{ btn.innerText = "نسخ الرابط"; btn.style.backgroundColor = "var(--primary)"; }, 2000);
+        }
+
+        // ========================================== //
+        // أكواد شاشة لوحة الصدارة المستقلة الجديدة   //
+        // ========================================== //
+
+        function viewCurrentRoomLeaderboard() {
+            const pinField = document.getElementById('input-room-pin');
+            const pin = pinField ? pinField.value : currentRoomPIN;
+            const searchInput = document.getElementById('search-leaderboard-pin');
+            if (searchInput) searchInput.value = pin || '';
+            showScreen('screen-standalone-leaderboard');
+            searchStandaloneLeaderboard();
+        }
+
+        async function searchStandaloneLeaderboard() {
+            const pin = document.getElementById('search-leaderboard-pin').value.trim();
+
+            if (!pin) {
+                alert('يرجى إدخال رقم الغرفة للبحث!');
+                return;
+            }
+
+            const tbody = document.getElementById('standalone-leaderboard-body');
+            const table = document.getElementById('standalone-leaderboard-table');
+            const loading = document.getElementById('standalone-loading-board');
+
+            table.style.display = 'none';
+            loading.style.display = 'block';
+            loading.innerText = "⏳ جاري جلب البيانات من النظام...";
+            tbody.innerHTML = '';
+
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+
+                let players = json.table.rows.filter(r => r.c[1]?.v?.toString() === pin && r.c[2]?.v !== "QUESTIONS");
+                players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+
+                if (players.length === 0) {
+                    loading.innerText = "لا توجد نتائج مسجلة لهذه الغرفة حتى الآن.";
+                    return;
+                }
+
+                players.forEach((p, i) => {
+                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${i+1} ${medal}</td>
+                            <td style="font-weight: bold;">${p.c[0].v}</td>
+                            <td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.c[2].v}</td>
+                        </tr>`;
+                });
+
+                loading.style.display = 'none';
+                table.style.display = 'table';
+            } catch (e) {
+                loading.innerText = "❌ حدث خطأ أثناء جلب البيانات. تأكد من اتصالك بالإنترنت.";
+            }
         }
     </script>
 <script>
