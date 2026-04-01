@@ -888,7 +888,6 @@
                 document.getElementById('screen-loading-sheet').style.display = 'none';
                 
                 if (foundQuestions && foundQuestions.length > 0) {
-                    // إنشاء الغرفة باستخدام الأسئلة المسترجعة
                     currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
                     const jsonQuestions = JSON.stringify(foundQuestions);
                     
@@ -947,7 +946,6 @@
             const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
             document.getElementById('game-url-input').value = gameUrl;
             
-            // الإضافة الجديدة: توليد وعرض الـ QR Code
             const qrImg = document.getElementById('room-qr-code');
             qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
             qrImg.style.display = 'block';
@@ -993,7 +991,6 @@
             document.getElementById('form-school').value = pin;
             document.getElementById('hud-player-avatar').innerText = selectedAvatar;
             
-            // تحديث نص التحميل للمستخدم ليكون واضحاً للطلاب
             document.getElementById('loading-sheet-text').innerText = "⏳ جاري جلب أسئلة التحدي من المعلم...";
             document.getElementById('screen-loading-sheet').style.display = 'flex';
             
@@ -1015,17 +1012,16 @@
             
             document.getElementById('screen-loading-sheet').style.display = 'none';
             
-            // إخفاء الـ UI وعرض لعبة ماريو
             document.getElementById('ui-container').style.display = 'none';
             document.body.classList.add('mario-mode');
             document.getElementById('game-view').style.display = 'flex';
             
             currentQIndex = 0;
-            resetGame(); // من ملف ماريو، لتهيئة مستويات اللعبة والبدء
+            resetGame(); 
         }
 
         // ======================================================================
-        // 5. محرك لعبة الماريو (مستورد بالكامل مع تعديل الأسئلة)
+        // 5. محرك لعبة الماريو (مع المستويات العشرة الجديدة)
         // ======================================================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -1062,7 +1058,9 @@
             oscillator.stop(audioContext.currentTime + duration);
         }
         
-        const GRAVITY = 0.6; const JUMP_FORCE = -15; const PLAYER_SPEED = 7; const MAX_LIVES = 5; const TOTAL_LEVELS = 5;
+        const GRAVITY = 0.6; const JUMP_FORCE = -15; const PLAYER_SPEED = 7; const MAX_LIVES = 5; 
+        const TOTAL_LEVELS = 10; // ← هنا تم تغيير العدد ليصبح 10 مستويات!
+        
         let gameState = { running: false, paused: false, coins: 0, lives: MAX_LIVES, level: 1, score: 0, questionsSolved: 0, questionActive: false };
         let playerAnimation = { frame: 0, timer: 0, interval: 100, direction: 1 };
         const player = { x: 100, y: canvas.height - 200, width: 45, height: 65, velocityX: 0, velocityY: 0, jumping: false };
@@ -1099,9 +1097,83 @@
             {
                 name: "المستوى الخامس",
                 platforms: [{ x: 0, y: canvas.height - 50, width: canvas.width, height: 50, color: '#4a3520' }, { x: 100, y: canvas.height - 150, width: 100, height: 25, color: '#b30047', moving: true, speed: 3, startX: 100, endX: 300 }, { x: 300, y: canvas.height - 250, width: 100, height: 25, color: '#b30047', moving: true, speed: 2.5, startX: 300, endX: 500 }, { x: 500, y: canvas.height - 350, width: 100, height: 25, color: '#b30047', moving: true, speed: 3.2, startX: 400, endX: 700 }, { x: 150, y: canvas.height - 350, width: 80, height: 25, color: '#b30047', moving: true, speed: 2, startX: 150, endX: 400 }, { x: 350, y: canvas.height - 450, width: 80, height: 25, color: '#b30047', moving: true, speed: 2.8, startX: 350, endX: 650 }, { x: 550, y: canvas.height - 250, width: 80, height: 25, color: '#b30047', moving: true, speed: 1.8, startX: 450, endX: 650 }, { x: 200, y: canvas.height - 550, width: 120, height: 25, color: '#b30047', moving: false }],
-                coins: [{ x: 150, y: canvas.height - 190, radius: 12, collected: false, rotation: 0 }, { x: 350, y: canvas.height - 290, radius: 12, collected: false, rotation: 0 }, { x: 550, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }, { x: 200, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }, { x: 400, y: canvas.height - 490, radius: 12, collected: false, rotation: 0 }, { x: 600, y: canvas.height - 290, radius: 12, collected: false, rotation: 0 }, { x: 250, y: canvas.height - 590, width: 45, height: 45, radius: 12, collected: false, rotation: 0 }],
+                coins: [{ x: 150, y: canvas.height - 190, radius: 12, collected: false, rotation: 0 }, { x: 350, y: canvas.height - 290, radius: 12, collected: false, rotation: 0 }, { x: 550, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }, { x: 200, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }, { x: 400, y: canvas.height - 490, radius: 12, collected: false, rotation: 0 }, { x: 600, y: canvas.height - 290, radius: 12, collected: false, rotation: 0 }, { x: 250, y: canvas.height - 590, radius: 12, collected: false, rotation: 0 }],
                 enemies: [{ x: 150, y: canvas.height - 90, width: 45, height: 45, speed: 4, direction: 1, type: 'math' }, { x: 350, y: canvas.height - 90, width: 45, height: 45, speed: 3.8, direction: -1, type: 'decimal' }, { x: 550, y: canvas.height - 90, width: 45, height: 45, speed: 4.2, direction: 1, type: 'negative' }, { x: 250, y: canvas.height - 390, width: 45, height: 45, speed: 3, direction: 1, type: 'math' }, { x: 450, y: canvas.height - 490, width: 45, height: 45, speed: 2.8, direction: -1, type: 'decimal' }, { x: 650, y: canvas.height - 290, width: 45, height: 45, speed: 3.5, direction: 1, type: 'negative' }],
                 flag: { x: 750, y: canvas.height - 590, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            },
+            // ↓↓↓ بداية المستويات الجديدة (من 6 إلى 10) ↓↓↓
+            {
+                name: "المستوى السادس",
+                platforms: [
+                    { x: 0, y: canvas.height - 50, width: 150, height: 50, color: '#4a3520' }, 
+                    { x: 250, y: canvas.height - 50, width: 150, height: 50, color: '#4a3520' }, 
+                    { x: 500, y: canvas.height - 50, width: 400, height: 50, color: '#4a3520' },
+                    { x: 150, y: canvas.height - 150, width: 80, height: 25, color: '#5b21b6', moving: true, speed: 3.5, startX: 100, endX: 250 },
+                    { x: 350, y: canvas.height - 250, width: 80, height: 25, color: '#5b21b6', moving: false },
+                    { x: 550, y: canvas.height - 350, width: 100, height: 25, color: '#5b21b6', moving: true, speed: 4, startX: 450, endX: 700 }
+                ],
+                coins: [{ x: 190, y: canvas.height - 190, radius: 12, collected: false, rotation: 0 }, { x: 390, y: canvas.height - 290, radius: 12, collected: false, rotation: 0 }, { x: 600, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }],
+                enemies: [{ x: 550, y: canvas.height - 90, width: 45, height: 45, speed: 4.5, direction: 1, type: 'negative' }],
+                flag: { x: 800, y: canvas.height - 140, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            },
+            {
+                name: "المستوى السابع",
+                platforms: [
+                    { x: 0, y: canvas.height - 50, width: 100, height: 50, color: '#4a3520' },
+                    { x: 200, y: canvas.height - 150, width: 60, height: 25, color: '#047857', moving: false },
+                    { x: 350, y: canvas.height - 250, width: 60, height: 25, color: '#047857', moving: false },
+                    { x: 500, y: canvas.height - 350, width: 60, height: 25, color: '#047857', moving: false },
+                    { x: 700, y: canvas.height - 250, width: 100, height: 25, color: '#047857', moving: true, speed: 2, startX: 650, endX: 850 },
+                    { x: 750, y: canvas.height - 50, width: 150, height: 50, color: '#4a3520' }
+                ],
+                coins: [{ x: 230, y: canvas.height - 190, radius: 12, collected: false, rotation: 0 }, { x: 380, y: canvas.height - 290, radius: 12, collected: false, rotation: 0 }, { x: 530, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }],
+                enemies: [{ x: 750, y: canvas.height - 90, width: 45, height: 45, speed: 3, direction: -1, type: 'math' }],
+                flag: { x: 820, y: canvas.height - 140, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            },
+            {
+                name: "المستوى الثامن",
+                platforms: [
+                    { x: 0, y: canvas.height - 50, width: canvas.width, height: 50, color: '#4a3520' },
+                    { x: 100, y: canvas.height - 200, width: 80, height: 25, color: '#b91c1c', moving: false },
+                    { x: 300, y: canvas.height - 300, width: 80, height: 25, color: '#b91c1c', moving: true, speed: 2.5, startX: 250, endX: 450 },
+                    { x: 550, y: canvas.height - 200, width: 80, height: 25, color: '#b91c1c', moving: false },
+                    { x: 700, y: canvas.height - 350, width: 80, height: 25, color: '#b91c1c', moving: false }
+                ],
+                coins: [{ x: 140, y: canvas.height - 240, radius: 12, collected: false, rotation: 0 }, { x: 340, y: canvas.height - 340, radius: 12, collected: false, rotation: 0 }, { x: 590, y: canvas.height - 240, radius: 12, collected: false, rotation: 0 }, { x: 740, y: canvas.height - 390, radius: 12, collected: false, rotation: 0 }],
+                enemies: [
+                    { x: 150, y: canvas.height - 90, width: 45, height: 45, speed: 4, direction: 1, type: 'decimal' },
+                    { x: 300, y: canvas.height - 90, width: 45, height: 45, speed: 3.5, direction: -1, type: 'math' },
+                    { x: 450, y: canvas.height - 90, width: 45, height: 45, speed: 5, direction: 1, type: 'negative' },
+                    { x: 600, y: canvas.height - 90, width: 45, height: 45, speed: 4, direction: -1, type: 'decimal' }
+                ],
+                flag: { x: 720, y: canvas.height - 440, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            },
+            {
+                name: "المستوى التاسع",
+                platforms: [
+                    { x: 0, y: canvas.height - 50, width: 200, height: 50, color: '#4a3520' },
+                    { x: 250, y: canvas.height - 180, width: 80, height: 25, color: '#1d4ed8', moving: true, speed: 3, startX: 200, endX: 350 },
+                    { x: 400, y: canvas.height - 300, width: 80, height: 25, color: '#1d4ed8', moving: true, speed: 3, startX: 350, endX: 500 },
+                    { x: 550, y: canvas.height - 420, width: 80, height: 25, color: '#1d4ed8', moving: true, speed: 3, startX: 500, endX: 650 },
+                    { x: 750, y: canvas.height - 500, width: 120, height: 25, color: '#1d4ed8', moving: false }
+                ],
+                coins: [{ x: 290, y: canvas.height - 220, radius: 12, collected: false, rotation: 0 }, { x: 440, y: canvas.height - 340, radius: 12, collected: false, rotation: 0 }, { x: 590, y: canvas.height - 460, radius: 12, collected: false, rotation: 0 }],
+                enemies: [{ x: 50, y: canvas.height - 90, width: 45, height: 45, speed: 3, direction: 1, type: 'negative' }],
+                flag: { x: 800, y: canvas.height - 590, width: 35, height: 90, baseHeight: 45, waving: 0 }
+            },
+            {
+                name: "المستوى العاشر والأخير",
+                platforms: [
+                    { x: 0, y: canvas.height - 50, width: 120, height: 50, color: '#4a3520' },
+                    { x: 200, y: canvas.height - 180, width: 60, height: 25, color: '#a21caf', moving: true, speed: 5, startX: 150, endX: 350 },
+                    { x: 450, y: canvas.height - 320, width: 60, height: 25, color: '#a21caf', moving: false },
+                    { x: 200, y: canvas.height - 460, width: 60, height: 25, color: '#a21caf', moving: true, speed: 4, startX: 150, endX: 350 },
+                    { x: 500, y: canvas.height - 550, width: 80, height: 25, color: '#a21caf', moving: true, speed: 6, startX: 450, endX: 700 },
+                    { x: 800, y: canvas.height - 550, width: 100, height: 25, color: '#a21caf', moving: false }
+                ],
+                coins: [{ x: 230, y: canvas.height - 220, radius: 12, collected: false, rotation: 0 }, { x: 480, y: canvas.height - 360, radius: 12, collected: false, rotation: 0 }, { x: 230, y: canvas.height - 500, radius: 12, collected: false, rotation: 0 }],
+                enemies: [{ x: 50, y: canvas.height - 90, width: 45, height: 45, speed: 4, direction: 1, type: 'math' }],
+                flag: { x: 830, y: canvas.height - 640, width: 35, height: 90, baseHeight: 45, waving: 0 }
             }
         ];
         
@@ -1138,10 +1210,9 @@
         function drawPlatforms() {
             platforms.forEach(platform => {
                 ctx.fillStyle = platform.color; ctx.beginPath(); ctx.roundRect(platform.x, platform.y, platform.width, platform.height, 8); ctx.fill();
-                if (['#2e8b57', '#3a7ca5', '#8a4f7d'].includes(platform.color)) {
-                    ctx.fillStyle = platform.color === '#2e8b57' ? '#3cb371' : platform.color === '#3a7ca5' ? '#5aa0cc' : '#a56b9b';
-                    ctx.fillRect(platform.x, platform.y, platform.width, 8);
+                if (['#2e8b57', '#3a7ca5', '#8a4f7d', '#5b21b6', '#047857', '#b91c1c', '#1d4ed8', '#a21caf'].includes(platform.color)) {
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                    ctx.fillRect(platform.x, platform.y, platform.width, 8);
                     for (let i = 0; i < platform.width; i += 25) ctx.fillRect(platform.x + i, platform.y + 5, 15, 3);
                 }
             });
@@ -1251,18 +1322,15 @@
             drawGame(); requestAnimationFrame(update);
         }
 
-        // --- تعديل: استخدام أسئلة Sheet بدل العشوائية ---
         function showQuestion() {
             gameState.questionActive = true; gameState.running = false; 
             
-            // سحب السؤال الحالي من المصفوفة (يلف في حال انتهاء الأسئلة)
             const q = gameQuestions[currentQIndex % gameQuestions.length];
             
             questionText.innerHTML = q.q; 
             resultMessage.textContent = ""; 
             resultMessage.className = "result";
             
-            // معالجة رموز الرياضيات
             if (window.MathJax) MathJax.typesetPromise([questionText]);
 
             questionModal.style.display = "flex"; 
@@ -1304,7 +1372,7 @@
                 playerHit();
             }
             
-            currentQIndex++; // الانتقال للسؤال التالي للـ Flag القادم
+            currentQIndex++; 
             continueBtn.style.display = "block";
         }
 
@@ -1328,24 +1396,20 @@
             playSound(100, 'sawtooth', 1, 0.5); 
             playSound(75, 'sawtooth', 1, 0.5); 
 
-            // تعديل شكل نافذة الفوز لتصبح نافذة نهاية اللعبة
             const winTitle = document.querySelector('.win-content h2');
             if(winTitle) {
                 winTitle.innerHTML = '<i class="fas fa-gamepad"></i> انتهت المحاولات!';
-                winTitle.style.color = '#ef4444'; // تغيير اللون للأحمر
+                winTitle.style.color = '#ef4444'; 
             }
             const trophyIcon = document.querySelector('.trophy');
             if(trophyIcon) trophyIcon.style.display = 'none';
 
-            // تحديث وعرض الإحصائيات النهائية
             document.getElementById('winLevels').textContent = `${gameState.level - 1}/${TOTAL_LEVELS}`; 
             document.getElementById('winScore').textContent = gameState.score; 
             document.getElementById('winCoins').textContent = gameState.coins;
             
-            // إظهار النافذة
             winModal.style.display = "flex";
 
-            // إرسال النتيجة النهائية للشيت لتظهر عند المعلم
             document.getElementById('form-score').value = gameState.score;
             document.getElementById('scoreForm').submit();
         }
@@ -1391,6 +1455,16 @@
             gameState.running = false; gameState.paused = false; gameState.questionActive = false; gameState.coins = 0; gameState.lives = MAX_LIVES; gameState.level = 1; gameState.score = 0; gameState.questionsSolved = 0;
             coinsDisplay.textContent = gameState.coins; livesDisplay.textContent = gameState.lives; levelDisplay.textContent = gameState.level; scoreDisplay.textContent = gameState.score;
             pauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; winModal.style.display = "none";
+            
+            // إعادة ضبط شاشة الفوز لحالتها الأصلية
+            const winTitle = document.querySelector('.win-content h2');
+            if(winTitle) {
+                winTitle.innerHTML = '<i class="fas fa-trophy"></i> تهانينا!';
+                winTitle.style.color = '#f59e0b'; 
+            }
+            const trophyIcon = document.querySelector('.trophy');
+            if(trophyIcon) trophyIcon.style.display = 'block';
+
             loadLevel(1); drawGame();
         }
 
@@ -1399,7 +1473,6 @@
             document.getElementById('winLevels').textContent = `${TOTAL_LEVELS}/${TOTAL_LEVELS}`; document.getElementById('winScore').textContent = gameState.score; document.getElementById('winCoins').textContent = gameState.coins;
             winModal.style.display = "flex";
             
-            // إرسال النتيجة للشيت
             document.getElementById('form-score').value = gameState.score;
             document.getElementById('scoreForm').submit();
         }
@@ -1409,7 +1482,7 @@
         setupMobileControls();
         continueBtn.addEventListener('click', () => { questionModal.style.display = "none"; nextLevel(); });
         document.getElementById('restartBtn').addEventListener('click', () => {
-            window.location.href = window.location.href.split('?')[0]; // إعادة تحميل لإرجاع اللاعب للرئيسية
+            window.location.href = window.location.href.split('?')[0]; 
         });
         
     </script>
