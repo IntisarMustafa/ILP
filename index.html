@@ -155,6 +155,7 @@
         .game-card:nth-child(4) { animation-delay: 0.4s; }
         .game-card:nth-child(5) { animation-delay: 0.5s; }
         .game-card:nth-child(6) { animation-delay: 0.6s; }
+        .game-card:nth-child(7) { animation-delay: 0.7s; } /* إضافة توقيت للبطاقة السابعة */
 
         .game-card:hover {
             transform: translateY(-12px) scale(1.02);
@@ -360,7 +361,46 @@
                 </div>
             </a>
 
-            <!-- 2. الطيور الذكية -->
+            <!-- 2. مسابقة مباشرة 2 (البطاقة الجديدة) -->
+            <a href="A2.html" class="game-card" style="
+                --theme-color: #0891b2; 
+                --theme-color-hover: #0e7490;
+                --theme-color-shadow: rgba(8, 145, 178, 0.4); 
+                --theme-color-light: rgba(8, 145, 178, 0.15); 
+                --theme-bg-1: #ecfeff; 
+                --theme-bg-2: #cffafe;">
+                <div class="icon-wrapper">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="cupGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient>
+                                <linearGradient id="baseGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#334155"/><stop offset="100%" stop-color="#0f172a"/></linearGradient>
+                                <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0891b2"/><stop offset="100%" stop-color="#155e75"/></linearGradient>
+                            </defs>
+                            <!-- Base -->
+                            <path d="M 35 85 L 65 85 L 70 95 L 30 95 Z" fill="url(#baseGrad)" />
+                            <rect x="42" y="70" width="16" height="15" fill="url(#baseGrad)" />
+                            <!-- Handles -->
+                            <path d="M 30 35 C 15 35 15 55 35 55" fill="none" stroke="url(#cupGrad)" stroke-width="6" stroke-linecap="round" />
+                            <path d="M 70 35 C 85 35 85 55 65 55" fill="none" stroke="url(#cupGrad)" stroke-width="6" stroke-linecap="round" />
+                            <!-- Cup -->
+                            <path d="M 25 20 L 75 20 C 75 55 65 70 50 70 C 35 70 25 55 25 20 Z" fill="url(#cupGrad)" stroke="#ffffff" stroke-width="2" />
+                            <!-- Star inside Cup -->
+                            <path d="M 50 35 L 53 42 L 60 42 L 54 47 L 56 54 L 50 50 L 44 54 L 46 47 L 40 42 L 47 42 Z" fill="#ffffff" />
+                            <!-- Top Cover / Rim -->
+                            <ellipse cx="50" cy="20" rx="25" ry="6" fill="url(#accentGrad)" stroke="#ffffff" stroke-width="2" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="game-title">مسابقة مباشرة 2</h2>
+                <p class="game-desc">نسخة مطورة ومميزة من الأسئلة المباشرة مع تحديات إضافية لتعزيز الحماس والمنافسة.</p>
+                <div class="action-btn">
+                    <span>انتقل للعبة</span>
+                    <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
+                </div>
+            </a>
+
+            <!-- 3. الطيور الذكية -->
             <a href="B.html" class="game-card" style="
                 --theme-color: #e11d48; 
                 --theme-color-hover: #be123c;
@@ -395,7 +435,7 @@
                 </div>
             </a>
 
-            <!-- 3. القط والهدف -->
+            <!-- 4. القط والهدف -->
             <a href="C.html" class="game-card" style="
                 --theme-color: #ea580c; 
                 --theme-color-hover: #c2410c;
@@ -444,7 +484,7 @@
                 </div>
             </a>
 
-            <!-- 4. الطائر الفهمان -->
+            <!-- 5. الطائر الفهمان -->
             <a href="D.html" class="game-card" style="
                 --theme-color: #059669; 
                 --theme-color-hover: #047857;
@@ -482,7 +522,7 @@
                 </div>
             </a>
 
-            <!-- 5. لعبة المركبة الفضائية -->
+            <!-- 6. لعبة المركبة الفضائية -->
             <a href="E.html" class="game-card" style="
                 --theme-color: #2563eb; 
                 --theme-color-hover: #1d4ed8;
@@ -519,7 +559,7 @@
                 </div>
             </a>
 
-            <!-- 6. مرح الأشكال -->
+            <!-- 7. مرح الأشكال -->
             <a href="F.html" class="game-card" style="
                 --theme-color: #db2777; 
                 --theme-color-hover: #be185d;
@@ -576,5 +616,4 @@
 
 </body>
 </html>
-
 
