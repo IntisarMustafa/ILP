@@ -1119,7 +1119,7 @@
             {
                 name: "المستوى السابع",
                 platforms: [
-                    { x: 0, y: canvas.height - 50, width: 100, height: 50, color: '#4a3520' },
+                    { x: 0, y: canvas.height - 50, width: 200, height: 50, color: '#4a3520' },
                     { x: 200, y: canvas.height - 150, width: 60, height: 25, color: '#047857', moving: false },
                     { x: 350, y: canvas.height - 250, width: 60, height: 25, color: '#047857', moving: false },
                     { x: 500, y: canvas.height - 350, width: 60, height: 25, color: '#047857', moving: false },
@@ -1358,13 +1358,16 @@
             });
             
             if (selectedIndex === correctIndex) {
-                resultMessage.textContent = "إجابة صحيحة! +500 نقطة"; 
+                resultMessage.textContent = "إجابة صحيحة! +500 نقطة + محاولة إضافية ❤️"; 
                 resultMessage.classList.add("correct"); 
                 gameState.score += 500; 
                 gameState.questionsSolved++;
+                gameState.lives++; // إضافة صحة إضافية
                 scoreDisplay.textContent = gameState.score; 
+                livesDisplay.textContent = gameState.lives; // تحديث عرض القلوب
                 playSound(600, 'sine', 0.1, 0.4); 
                 playSound(800, 'sine', 0.1, 0.4);
+                playSound(1000, 'sine', 0.2, 0.3); // صوت إضافي للمكافأة
             } else {
                 resultMessage.textContent = `إجابة خاطئة! الإجابة الصحيحة: ${opts[correctIndex]}`; 
                 resultMessage.classList.add("incorrect"); 
