@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -67,7 +68,7 @@
 
         .container {
             width: 100%;
-            max-width: 1200px; /* عرض مثالي لثلاث بطاقات */
+            max-width: 1200px; 
             position: relative;
             z-index: 10;
         }
@@ -105,10 +106,8 @@
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
         }
 
-        /* شبكة الألعاب - تعديل لظهور 3 بطاقات */
         .games-grid {
             display: grid;
-            /* تم تقليل minmax إلى 300px لضمان احتواء 3 بطاقات في الشاشات العادية */
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px; 
         }
@@ -154,7 +153,8 @@
         .game-card:nth-child(4) { animation-delay: 0.4s; }
         .game-card:nth-child(5) { animation-delay: 0.5s; }
         .game-card:nth-child(6) { animation-delay: 0.6s; }
-        .game-card:nth-child(7) { animation-delay: 0.7s; } /* إضافة توقيت للبطاقة السابعة */
+        .game-card:nth-child(7) { animation-delay: 0.7s; } 
+        .game-card:nth-child(8) { animation-delay: 0.8s; } /* إضافة توقيت للبطاقة الثامنة */
 
         .game-card:hover {
             transform: translateY(-12px) scale(1.02);
@@ -176,10 +176,9 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* تصغير الصندوق وتكبير الرسمة داخله */
         .icon-box {
-            width: 110px; /* تم التصغير من 140px */
-            height: 110px; /* تم التصغير من 140px */
+            width: 110px; 
+            height: 110px; 
             border-radius: 28px;
             display: flex;
             justify-content: center;
@@ -195,7 +194,7 @@
         }
 
         .icon-box svg {
-            width: 80px; /* رسمة كبيرة تأخذ مساحة أكبر من الصندوق */
+            width: 80px; 
             height: 80px; 
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15));
@@ -210,12 +209,12 @@
         }
         
         .game-card:hover .icon-box svg {
-            transform: scale(1.15); /* تكبير ممتع عند تمرير الماوس */
+            transform: scale(1.15); 
             filter: drop-shadow(0 12px 18px rgba(0,0,0,0.25));
         }
 
         .game-title {
-            font-size: 1.5rem; /* حجم مناسب لـ 3 أعمدة */
+            font-size: 1.5rem; 
             font-weight: 900;
             color: var(--text-main);
             margin-bottom: 12px;
@@ -391,6 +390,56 @@
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
+
+            <!-- بداية القالب الجديد المُضاف: الكرة الحمراء والكرة الزرقاء -->
+            <a href="H.html" class="game-card" style="
+                --theme-color: #6366f1; 
+                --theme-color-hover: #4f46e5;
+                --theme-color-shadow: rgba(99, 102, 241, 0.4); 
+                --theme-color-light: rgba(99, 102, 241, 0.15); 
+                --theme-bg-1: #e0e7ff; 
+                --theme-bg-2: #c7d2fe;">
+                <div class="icon-wrapper">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <radialGradient id="redBallGrad" cx="30%" cy="30%" r="70%">
+                                    <stop offset="0%" stop-color="#fca5a5"/>
+                                    <stop offset="50%" stop-color="#ef4444"/>
+                                    <stop offset="100%" stop-color="#7f1d1d"/>
+                                </radialGradient>
+                                <radialGradient id="blueBallGrad" cx="30%" cy="30%" r="70%">
+                                    <stop offset="0%" stop-color="#93c5fd"/>
+                                    <stop offset="50%" stop-color="#3b82f6"/>
+                                    <stop offset="100%" stop-color="#1e3a8a"/>
+                                </radialGradient>
+                            </defs>
+                            <!-- ظلال الكرات -->
+                            <ellipse cx="32" cy="78" rx="16" ry="5" fill="#94a3b8" opacity="0.6"/>
+                            <ellipse cx="68" cy="62" rx="14" ry="4" fill="#94a3b8" opacity="0.6"/>
+                            
+                            <!-- الكرة الحمراء -->
+                            <circle cx="32" cy="60" r="18" fill="url(#redBallGrad)" stroke="#b91c1c" stroke-width="1.5"/>
+                            <!-- الكرة الزرقاء -->
+                            <circle cx="68" cy="46" r="16" fill="url(#blueBallGrad)" stroke="#1d4ed8" stroke-width="1.5"/>
+                            
+                            <!-- لمعان الكرات -->
+                            <path d="M 22 52 A 10 10 0 0 1 36 46" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7" />
+                            <path d="M 59 39 A 9 9 0 0 1 71 33" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7" />
+                            
+                            <!-- خط حركة/ربط جمالي -->
+                            <path d="M 45 42 Q 50 35 55 45" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/>
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="game-title">الكرة الحمراء والزرقاء</h2>
+                <p class="game-desc">لعبة تحدي ألوان ممتعة، استخدم الكرات لتمييز الإجابة الصحيحة واختبر سرعة بديهتك.</p>
+                <div class="action-btn">
+                    <span>انتقل للعبة</span>
+                    <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
+                </div>
+            </a>
+            <!-- نهاية القالب الجديد -->
 
             <a href="B.html" class="game-card" style="
                 --theme-color: #e11d48; 
@@ -603,3 +652,5 @@
 
 </body>
 </html>
+
+```
