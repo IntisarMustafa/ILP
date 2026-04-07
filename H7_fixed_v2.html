@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Emoji Ball Pro - Interactive Platform</title>
+    <script src="https://cdn.tailwindcss.com">
+// === QR Code Features Added ===
+function generateRoomLinkAndQR() {
+    if (!currentRoomPIN) return;
+    const baseUrl = window.location.origin + window.location.pathname;
+    const roomUrl = baseUrl + "?pin=" + currentRoomPIN;
+    const input = document.getElementById('game-url-input');
+    if (input) input.value = roomUrl;
+    const qrImg = document.getElementById('room-qr-code');
+    if (qrImg) {
+        qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(roomUrl);
+        qrImg.style.display = 'block';
+    }
+}
+
+function copyGameLink() {
+    const urlInput = document.getElementById('game-url-input');
+    if (!urlInput) return;
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(urlInput.value);
+}
+// =================================
+
+</script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js">
+// === QR Code Features Added ===
+function generateRoomLinkAndQR() {
+    if (!currentRoomPIN) return;
+    const baseUrl = window.location.origin + window.location.pathname;
+    const roomUrl = baseUrl + "?pin=" + currentRoomPIN;
+    const input = document.getElementById('game-url-input');
+    if (input) input.value = roomUrl;
+    const qrImg = document.getElementById('room-qr-code');
+    if (qrImg) {
+        qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(roomUrl);
+        qrImg.style.display = 'block';
+    }
+}
+
+function copyGameLink() {
+    const urlInput = document.getElementById('game-url-input');
+    if (!urlInput) return;
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(urlInput.value);
+}
+// =================================
+
+</script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js">
+// === QR Code Features Added ===
+function generateRoomLinkAndQR() {
+    if (!currentRoomPIN) return;
+    const baseUrl = window.location.origin + window.location.pathname;
+    const roomUrl = baseUrl + "?pin=" + currentRoomPIN;
+    const input = document.getElementById('game-url-input');
+    if (input) input.value = roomUrl;
+    const qrImg = document.getElementById('room-qr-code');
+    if (qrImg) {
+        qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(roomUrl);
+        qrImg.style.display = 'block';
+    }
+}
+
+function copyGameLink() {
+    const urlInput = document.getElementById('game-url-input');
+    if (!urlInput) return;
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(urlInput.value);
+}
+// =================================
+
+</script>
+    <script src="https://unpkg.com/mathlive">
+// === QR Code Features Added ===
+function generateRoomLinkAndQR() {
+    if (!currentRoomPIN) return;
+    const baseUrl = window.location.origin + window.location.pathname;
+    const roomUrl = baseUrl + "?pin=" + currentRoomPIN;
+    const input = document.getElementById('game-url-input');
+    if (input) input.value = roomUrl;
+    const qrImg = document.getElementById('room-qr-code');
+    if (qrImg) {
+        qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(roomUrl);
+        qrImg.style.display = 'block';
+    }
+}
+
+function copyGameLink() {
+    const urlInput = document.getElementById('game-url-input');
+    if (!urlInput) return;
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(urlInput.value);
+}
+// =================================
+
+</script>
+
+    <style>
+        /* ========================================= */
+        /* متغيرات وأنماط نظام الأسئلة التفاعلي       */
+        /* ========================================= */
+        :root {
+            --primary: #46178f;
+            --primary-dark: #321067;
+            --secondary: #eb2730;
+            --success: #26890c;
+            --info: #1368ce;
+            --warning: #ffa602;
+            --light: #f2f2f2;
+            --white: #ffffff;
+            --k-red: #e21b3c;
+            --k-red-dark: #b81631;
+            --k-blue: #1368ce;
+            --k-blue-dark: #0f54a8;
+            --k-yellow: #d89e00;
+            --k-yellow-dark: #b08100;
+            --k-green: #26890c;
+            --k-green-dark: #1e6d0a;
+            
+            --word-blue: #2b579a;
+            --math-bg: #f3f2f1;
+            --key-bg: #ffffff;
+            --key-border: #d2d2d2;
+            --key-hover: #e1dfdd;
+            --action-bg: #adb5bd;
+            --kb-bg: #d1d4d9;
+
+            --red-glow: rgba(239, 68, 68, 0.6);
+            --blue-glow: rgba(59, 130, 246, 0.6);
+        } 
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; } 
+
+        /* System UI Container (Wrapper for Menus) */
+        #system-ui {
+            background: linear-gradient(-45deg, #46178f, #1368ce, #e21b3c, #ffa602);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 1000;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .screen {
+            display: none; width: 100%; max-width: 900px; padding: 20px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; position: relative; z-index: 10;
+        }
+        .screen.active { display: flex; } 
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        } 
+
+        .card {
+            background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 550px; text-align: center;
+            backdrop-filter: blur(10px); color: #333;
+        } 
+
+        .card h1 { color: var(--primary); margin-bottom: 25px; font-size: 38px; text-shadow: 2px 2px 0px rgba(0,0,0,0.05); }
+        .card h2 { color: #333; margin-bottom: 20px; font-size: 28px; }
+        
+        .sys-btn {
+            width: 100%; padding: 16px; border: none; border-radius: 8px;
+            font-size: 20px; font-weight: 900; cursor: pointer;
+            margin-bottom: 15px; color: var(--white);
+            transition: all 0.1s; position: relative; top: 0;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+        }
+        .sys-btn:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0.2); }
+        
+        .btn-primary { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
+        .btn-teacher { background-color: var(--info); box-shadow: 0 6px 0 var(--k-blue-dark); }
+        .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 var(--k-red-dark); }
+        .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; margin-top: 10px; } 
+        .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark); }
+
+        .sys-input {
+            width: 100%; padding: 18px; margin-bottom: 20px;
+            border: 3px solid #ddd; border-radius: 8px;
+            font-size: 18px; font-weight: bold; text-align: center;
+            transition: border-color 0.3s; color: #333;
+        }
+        .sys-input:focus { outline: none; border-color: var(--primary); }
+
+        .q-builder-container {
+            width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.95);
+            padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            max-height: 80vh; overflow-y: auto; text-align: right; color: #333;
+        }
+        .q-block { background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #eee; position: relative; }
+        .q-block h3 { margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .q-block input.q-title { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ccc; font-size: 18px; text-align: right; color: #333; }
+        .opt-row { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .opt-row input[type="text"] { flex: 1; padding: 10px; margin-bottom: 0; border: 2px solid #ccc; font-size: 16px; text-align: right; color: #333; }
+        .opt-row input[type="radio"] { width: 25px; height: 25px; accent-color: var(--success); cursor: pointer; flex-shrink: 0; }
+        .remove-q-btn { background: var(--k-red); color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .math-trigger-btn { background: #46178f; color: white; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 0 #321067;}
+        .math-trigger-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #321067; }
+        
+        .avatar-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+            margin: 20px 0; max-height: 200px; overflow-y: auto;
+            padding: 10px; background: #f5f5f5; border-radius: 12px;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.05);
+        }
+        .avatar-item {
+            font-size: 38px; padding: 10px; cursor: pointer; border-radius: 50%;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center;
+            background: white; box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        .avatar-item:hover { transform: scale(1.15); z-index: 2; }
+        .avatar-item.selected { background: var(--warning); transform: scale(1.2); box-shadow: 0 0 0 4px var(--primary); z-index: 3; }
+
+        .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; }
+        th, td { padding: 18px; text-align: center; font-size: 20px; background: white; color: #333;}
+        th { background: var(--primary); color: white; font-weight: 900; }
+        tr td:first-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        tr td:last-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        tbody tr { box-shadow: 0 3px 10px rgba(0,0,0,0.08); transition: transform 0.2s; }
+        tbody tr:hover { transform: scale(1.02); }
+
+        #screen-loading-sheet {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
+            background: rgba(70, 23, 143, 0.95); display: none; flex-direction: column; 
+            align-items: center; justify-content: center; color: white; backdrop-filter: blur(5px);
+        }
+        .loader-spinner {
+            border: 8px solid rgba(255,255,255,0.3); border-top: 8px solid white;
+            border-radius: 50%; width: 80px; height: 80px; animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Math Modal */
+        #math-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .math-modal-content { width: 95%; max-width: 800px; background: var(--math-bg); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid #d2d2d2; }
+        .math-header { background-color: var(--word-blue); color: white; padding: 15px; font-weight: 600; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
+        .math-close-btn { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .math-editor-container { padding: 20px 10px; display: flex; justify-content: center; background: white;}
+        math-field { font-size: 1.8rem; width: 100%; min-height: 120px; border: 2px solid var(--word-blue); padding: 15px; border-radius: 8px; background: #fff; outline: none; }
+        .math-keyboard-wrapper { background: var(--kb-bg); border-top: 1px solid #bbb; }
+        .math-keyboard-tabs { display: flex; background: #e9ecef; border-bottom: 1px solid #ccc; overflow-x: auto; }
+        .math-tab { flex: 1; min-width: 80px; padding: 12px 5px; text-align: center; font-size: 0.95rem; cursor: pointer; color: #555; transition: 0.2s; white-space: nowrap; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .math-tab.active { background: white; font-weight: bold; color: var(--word-blue); }
+        .custom-keyboard { padding: 5px; display: none; flex-direction: column; gap: 5px; user-select: none; max-height: 320px; overflow-y: auto; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .custom-keyboard.active { display: flex; }
+        .kb-row { display: flex; justify-content: center; gap: 4px; width: 100%; }
+        .key { background: var(--key-bg); border: none; border-bottom: 2px solid #999; border-radius: 5px; height: 50px; flex: 1; min-width: 35px; max-width: 60px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #333; touch-action: manipulation; }
+        .key:active { background: var(--key-hover); transform: translateY(1px); border-bottom-width: 1px; }
+        .key.action { background: var(--action-bg); color: white; font-size: 1rem; max-width: none; }
+        .key.num { background: #f8f9fa; font-weight: bold; border-color: #bbb; }
+        .key.space { flex: 5; max-width: none; background: #f8f9fa; font-size: 1rem; color: #444; font-weight: bold; }
+        .math-icon { display: inline-flex; align-items: center; justify-content: center; font-family: 'Times New Roman', serif; font-style: italic; pointer-events: none; }
+        .frac-icon { flex-direction: column; font-size: 0.75em; line-height: 1.1; }
+        .frac-icon .line { border-top: 1px solid #333; width: 12px; margin: 1px 0; }
+        .root-icon { align-items: center; }
+        .root-icon .radicand { border-top: 1.2px solid #333; padding-top: 1px; margin-left: 1px; font-style: italic; }
+
+        /* ========================================= */
+        /* متغيرات وأنماط اللعبة الأصلية             */
+        /* ========================================= */
+        html, body {
+            background-color: #000;
+            color: white;
+            margin: 0; padding: 0;
+        }
+
+        #game-container {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            background: #020617;
+            background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            display: none; /* مخفي بالبداية حتى يتم تسجيل الدخول */
+            z-index: 10;
+        }
+        
+        canvas { display: block; width: 100%; height: 100%; }
+        
+        .glass-ui {
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-3d {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 0 var(--shadow-color, #991b1b), 0 10px 20px rgba(0,0,0,0.4);
+            transform: translateY(0); cursor: pointer;
+        }
+        .btn-3d:active, .btn-3d:hover:active { transform: translateY(6px); box-shadow: 0 0px 0 var(--shadow-color, #991b1b), 0 4px 8px rgba(0,0,0,0.4); }
+        .btn-3d:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--shadow-color, #991b1b), 0 15px 25px rgba(0,0,0,0.5); }
+        
+        #mobile-controls {
+            display: none; position: absolute; bottom: 30px; left: 0; right: 0; width: 100%;
+            justify-content: space-between; padding: 0 50px; box-sizing: border-box; z-index: 50; pointer-events: none;
+        }
+        @media (max-width: 1024px), (hover: none) and (pointer: coarse) { #mobile-controls { display: flex; } }
+        
+        .touch-btn {
+            width: 80px; height: 80px; pointer-events: auto; user-select: none;
+            background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(5px); opacity: 0.85; transition: all 0.1s;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+        }
+        .touch-btn:active, .touch-btn.pressed { opacity: 1; transform: scale(0.9) translateY(4px); box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 0 4px 8px rgba(0,0,0,0.4); background: rgba(255,255,255,0.2); }
+        .touch-btn svg { width: 50%; height: 50%; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+        .action-btns { display: flex; gap: 20px; align-items: flex-end; }
+        .movement-btns { display: flex; gap: 20px; align-items: flex-end; }
+        
+        .overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(8px); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .hud { position: absolute; top: 0; left: 0; right: 0; padding: 20px; display: flex; justify-content: space-between; z-index: 5; pointer-events: none;}
+        
+        .color-indicator { width: 24px; height: 24px; border-radius: 50%; display: inline-block; border: 3px solid rgba(255,255,255,0.9); box-shadow: 0 0 10px rgba(0,0,0,0.5), inset 0 -2px 4px rgba(0,0,0,0.4); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bg-red-ball { background: linear-gradient(135deg, #fca5a5, #ef4444 50%, #991b1b); box-shadow: 0 0 15px var(--red-glow); }
+        .bg-blue-ball { background: linear-gradient(135deg, #93c5fd, #3b82f6 50%, #1e3a8a); box-shadow: 0 0 15px var(--blue-glow); }
+        
+        #keyUI { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: grayscale(100%) opacity(0.7); transform: scale(0.9); }
+        #keyUI.active { filter: grayscale(0%) opacity(1); transform: scale(1.4); text-shadow: 0 0 20px #fde047; }
+        #healthDisplay { transition: all 0.3s ease; }
+
+        @media (max-width: 600px) {
+            .hud { padding: 10px; flex-direction: column; gap: 10px; align-items: center;}
+            .glass-ui { padding: 6px 12px !important; gap: 8px !important; width: 100%; justify-content: center;}
+            .hud span, .hud .text-3xl, .hud .text-lg { font-size: 1rem !important; }
+            .hud .h-8 { height: 16px !important; margin: 0 2px !important; }
+            .color-indicator { width: 16px !important; height: 16px !important; border-width: 2px !important; }
+            #levelDisplay { width: 24px !important; height: 24px !important; font-size: 1rem !important; }
+            #healthDisplay { font-size: 0.85rem !important; letter-spacing: -2px; }
+        }
+
+        .game-title { background: linear-gradient(to right, #ef4444, #3b82f6); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+        @keyframes rotatePhoneUI { 0% { transform: rotate(0deg); } 20% { transform: rotate(-90deg); } 50% { transform: rotate(-90deg); } 70% { transform: rotate(0deg); } 100% { transform: rotate(0deg); } }
+        .icon-phone { animation: rotatePhoneUI 4s infinite ease-in-out; display: inline-block; transform-origin: center; }
+        
+        .math-btn { background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 15px; font-size: 1.25rem; color: white; transition: all 0.2s; cursor: pointer; font-family: inherit; }
+        .math-btn:hover:not(:disabled) { background: rgba(59, 130, 246, 0.4); border-color: rgba(96, 165, 250, 0.8); transform: translateY(-2px); }
+        .math-btn:disabled { opacity: 0.8; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div id="system-ui">
+    <div id="screen-loading-sheet">
+        <div class="loader-spinner"></div>
+        <div style="font-size: 28px; font-weight: bold; margin-top: 20px;" id="loading-text">جاري جلب بيانات التحدي...</div>
+    </div>
+
+    <div class="screen active" id="screen-home">
+        <div class="card">
+            <h1>🎮 التحدي الأكبر: Red & Blue</h1>
+            <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
+            <button class="sys-btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
+            <button class="sys-btn btn-student" onclick="showSystemScreen('screen-student-login')">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
+            <button class="sys-btn btn-action" onclick="showSystemScreen('screen-standalone-leaderboard')" style="margin-top: 15px; background-color: var(--success); color: white; box-shadow: 0 6px 0 var(--k-green-dark);">🏆 البحث عن لوحة صدارة سابقة</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-teacher-setup">
+        <div class="q-builder-container">
+            <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة اللعبة</h2>
+            <div style="background: #f3f2f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed #ccc;">
+                <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استرداد غرفة سابقة</h3>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="number" id="existing-room-pin" class="sys-input" placeholder="أدخل رقم الغرفة المحفوظة (PIN)" style="margin-bottom: 0; flex: 2; min-width: 200px;">
+                    <button class="sys-btn btn-action" onclick="loadExistingRoom()" style="margin-bottom: 0; flex: 1; padding: 18px; min-width: 150px;">فتح الغرفة</button>
+                </div>
+            </div>
+            <hr style="border: 1px solid #ddd; margin-bottom: 25px;">
+            <h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ أو إنشاء أسئلة جديدة</h3>
+            <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
+            <div id="questions-list"></div>
+            <button class="sys-btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
+            <div style="margin-top: 30px; display: flex; gap: 10px;">
+                <button class="sys-btn btn-primary" onclick="saveQuestionsToSheet()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
+                <button class="sys-btn btn-back" onclick="showSystemScreen('screen-home')" style="flex: 1;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-teacher">
+        <div style="width: 100%; text-align: center;">
+            <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
+                <h2>انضموا الآن! رمز الغرفة:</h2>
+                <div class="room-pin" id="display-room-pin">000000</div>
+                <p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام...</p>
+                <div id="qr-container" style="margin: 20px 0;">
+                    <img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
+                    <p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز للمشاركة</p>
+                </div>
+                <div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
+                    <input id="game-url-input" class="sys-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
+                    <button class="sys-btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ</button>
+                </div>
+            </div>
+            <table id="leaderboard" style="display: none;">
+                <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+            <div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
+                ⏳ بانتظار دخول الأبطال وحل الأسئلة...
+            </div>
+            <button class="sys-btn btn-back" onclick="showSystemScreen('screen-home')" style="max-width: 250px;">إغلاق الغرفة</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-student-login">
+        <div class="card">
+            <h2>أدخل بياناتك للانطلاق 🚀</h2>
+            <input class="sys-input" id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
+            <input class="sys-input" id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
+            <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
+            <div class="avatar-grid" id="avatar-container"></div>
+            <button class="sys-btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
+            <button class="sys-btn btn-back" onclick="showSystemScreen('screen-home')">رجوع</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-standalone-leaderboard">
+        <div class="card" style="max-width: 800px; width: 100%;">
+            <h2>🏆 لوحة الصدارة</h2>
+            <p style="margin-bottom: 20px; color: #666;">أدخل رقم الغرفة (PIN) لعرض ترتيب الأبطال</p>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="number" id="search-leaderboard-pin" class="sys-input" placeholder="أدخل رقم الغرفة..." style="margin-bottom: 0; flex: 2;">
+                <button class="sys-btn btn-action" onclick="searchStandaloneLeaderboard()" style="margin-bottom: 0; flex: 1;">بحث</button>
+            </div>
+            <table id="standalone-leaderboard-table" style="display: none;">
+                <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+                <tbody id="standalone-leaderboard-body"></tbody>
+            </table>
+            <div id="standalone-loading-board" style="display:none; font-size: 18px; font-weight: bold; color: var(--primary);">
+                ⏳ جاري البحث عن البيانات...
+            </div>
+            <button class="sys-btn btn-back" onclick="showSystemScreen('screen-home')" style="margin-top: 25px;">العودة للرئيسية</button>
+        </div>
+    </div>
+
+    <div id="math-modal-overlay">
+        <div class="math-modal-content">
+            <div class="math-header">
+                <span>📝 محرر الرياضيات الشامل</span>
+                <button class="math-close-btn" onclick="closeMathModal()">✓ إدراج وحفظ</button>
+            </div>
+            <div class="math-editor-container">
+                <math-field id="formula" virtual-keyboard-policy="manual"></math-field>
+            </div>
+            <div class="math-keyboard-wrapper">
+                <div class="math-keyboard-tabs">
+                    <div class="math-tab active" onclick="showMathTab('math_combined', event)">الأرقام والرموز</div>
+                    <div class="math-tab" onclick="showMathTab('letters', event)">عربي</div>
+                    <div class="math-tab" onclick="showMathTab('english', event)">English</div>
+                </div>
+                <div class="custom-keyboard active" id="math_combined">
+                    <div class="kb-row">
+                        <button class="key num" onpointerdown="addMath('1', event)">1</button>
+                        <button class="key num" onpointerdown="addMath('2', event)">2</button>
+                        <button class="key num" onpointerdown="addMath('3', event)">3</button>
+                        <button class="key num" onpointerdown="addMath('4', event)">4</button>
+                        <button class="key num" onpointerdown="addMath('5', event)">5</button>
+                        <button class="key num" onpointerdown="addMath('6', event)">6</button>
+                        <button class="key num" onpointerdown="addMath('7', event)">7</button>
+                        <button class="key num" onpointerdown="addMath('8', event)">8</button>
+                        <button class="key num" onpointerdown="addMath('9', event)">9</button>
+                        <button class="key num" onpointerdown="addMath('0', event)">0</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key action" onpointerdown="addMath('+', event)">+</button>
+                        <button class="key action" onpointerdown="addMath('-', event)">-</button>
+                        <button class="key action" onpointerdown="addMath('\\times', event)">×</button>
+                        <button class="key action" onpointerdown="addMath('\\div', event)">÷</button>
+                        <button class="key action" onpointerdown="addMath('=', event)">=</button>
+                        <button class="key" onpointerdown="addMath('.', event)">.</button>
+                        <button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
+                    </div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="insertMathCode('\\frac{#@}{#?}', event)"><span class="math-icon frac-icon"><span>a</span><span class="line"></span><span>b</span></span></button>
+                        <button class="key" onpointerdown="insertMathCode('^{#?}', event)"><span class="math-icon">x<sup style="font-size:0.7em;">n</sup></span></button>
+                        <button class="key" onpointerdown="insertMathCode('\\sqrt{#?}', event)"><span class="math-icon root-icon"><span>√</span><span class="radicand">x</span></span></button>
+                        <button class="key" onpointerdown="insertMathCode('(', event)">(</button>
+                        <button class="key" onpointerdown="insertMathCode(')', event)">)</button>
+                        <button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
+                    </div>
+                </div>
+                <div class="custom-keyboard" id="letters">
+                    <div class="kb-row"><button class="key space" onpointerdown="addMathSpace(event)">مسافة</button><button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button></div>
+                </div>
+                <div class="custom-keyboard" id="english">
+                    <div class="kb-row"><button class="key space" onpointerdown="addMathSpace(event)">Space</button><button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="hud">
+        <div class="glass-ui px-4 py-2 flex items-center gap-3 pointer-events-auto">
+            <span id="healthDisplay" class="text-xl tracking-widest drop-shadow-md">❤️❤️❤️❤️❤️</span>
+            <div class="h-6 w-px bg-white/30"></div>
+            <span class="text-2xl" id="keyUI">🔑</span>
+            <div class="h-6 w-px bg-white/30"></div>
+            <span id="playerAvatarUI" class="text-2xl drop-shadow-md">😎</span>
+            <span id="playerNameUI" class="text-sm font-bold text-white mr-1"></span>
+            <span id="scoreDisplay" class="text-2xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">0</span>
+        </div>
+        <div class="glass-ui px-4 py-2 flex items-center gap-3 pointer-events-auto">
+            <span class="font-bold text-white drop-shadow-md text-base">الطور:</span>
+            <span id="playerColorUI" class="color-indicator bg-red-ball"></span>
+            <div class="h-6 w-px bg-white/30 mx-1"></div>
+            <span class="text-white font-bold text-base drop-shadow-md">المرحلة</span>
+            <span id="levelDisplay" class="text-lg font-black text-slate-900 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-[0_0_10px_rgba(255,255,255,0.5)]">1</span>
+        </div>
+    </div>
+
+    <div id="menuScreen" class="overlay active">
+        <div class="glass-ui p-10 md:p-12 text-center border border-white/40 rounded-[2rem] bg-black/40 shadow-2xl backdrop-blur-xl w-[90%] max-w-lg">
+            <h1 class="text-6xl md:text-7xl font-black mb-2 game-title tracking-wider">RED & BLUE</h1>
+            <p class="text-blue-200 font-bold mb-8 text-xl md:text-2xl tracking-widest uppercase">تحدي المنصة التفاعلية 🌟</p>
+            
+            <div class="mb-8 overflow-hidden rounded-2xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-400/50 p-4 shadow-[0_0_20px_rgba(250,204,21,0.2)] backdrop-blur-md flex items-center justify-center gap-4">
+                <span class="text-5xl icon-phone drop-shadow-lg">📱</span>
+                <div class="text-right">
+                    <p class="text-yellow-400 font-black text-lg md:text-xl leading-tight">يرجى تدوير الهاتف!</p>
+                    <p class="text-yellow-100/90 font-semibold text-xs md:text-sm mt-1">العب بالوضع الأفقي لتجربة تحكم مثالية.</p>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="btn-3d bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-10 py-4 rounded-full font-black text-2xl w-full" style="--shadow-color: #312e81;">ابدأ المغامرة</button>
+        </div>
+    </div>
+
+    <div id="gameOverScreen" class="overlay">
+        <div class="glass-ui p-10 text-center rounded-[2rem] shadow-2xl bg-black/60 border border-red-500/50 backdrop-blur-xl">
+            <h2 class="text-7xl mb-4 animate-bounce">💀</h2>
+            <h2 class="text-5xl font-black text-red-500 mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">لقد تدمرت!</h2>
+            <p class="text-red-200 font-bold mb-4 text-xl">نفذت جميع محاولاتك. سيتم حفظ نتيجتك.</p>
+            <div class="text-2xl font-black text-white mb-8 bg-black/50 py-2 rounded-xl border border-red-500/30">النقاط: <span id="finalScoreLoss" class="text-yellow-400">0</span></div>
+            <button onclick="retryLevel()" class="btn-3d bg-slate-800 text-white px-12 py-4 rounded-xl font-black text-xl w-full" style="--shadow-color: #020617;">البدء من جديد</button>
+            <button onclick="showSystemLeaderboard()" class="btn-3d bg-indigo-600 text-white px-12 py-4 rounded-xl font-black text-xl w-full mt-4" style="--shadow-color: #3730a3;">🏆 لوحة الصدارة</button>
+        </div>
+    </div>
+
+    <div id="levelClearScreen" class="overlay">
+        <div class="glass-ui p-10 text-center rounded-[2rem] shadow-2xl border border-green-400/50 bg-black/60 backdrop-blur-xl">
+            <h2 class="text-7xl mb-4">🚪✨</h2>
+            <h2 class="text-5xl font-black text-green-400 mb-8 drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]">مرحلة مكتملة!</h2>
+            <button onclick="nextLevel()" class="btn-3d bg-gradient-to-r from-green-500 to-emerald-600 text-white px-12 py-4 rounded-xl font-black text-xl w-full" style="--shadow-color: #064e3b;">التالي ➔</button>
+        </div>
+    </div>
+    
+    <div id="gameWinScreen" class="overlay">
+        <div class="glass-ui p-12 text-center rounded-[2rem] shadow-2xl border border-yellow-400/50 bg-black/60 backdrop-blur-xl">
+            <h2 class="text-7xl mb-4">👑</h2>
+            <h2 class="text-6xl font-black text-yellow-400 mb-4 drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]">أسطورة!</h2>
+            <p class="text-yellow-100 font-bold mb-6 text-xl">لقد أثبت أنك سيد الألغاز.</p>
+            <div class="text-3xl font-black text-white mb-8 bg-black/50 py-4 rounded-xl border border-yellow-400/30 shadow-[0_0_15px_rgba(250,204,21,0.2)]">النقاط النهائية:<br><span id="finalScoreWin" class="text-yellow-400 text-5xl">0</span></div>
+            <button onclick="location.reload()" class="btn-3d bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 px-12 py-4 rounded-xl font-black text-xl w-full" style="--shadow-color: #9a3412;">العب من جديد</button>
+            <button onclick="showSystemLeaderboard()" class="btn-3d bg-indigo-600 text-white px-12 py-4 rounded-xl font-black text-xl w-full mt-4" style="--shadow-color: #3730a3;">🏆 لوحة الصدارة</button>
+        </div>
+    </div>
+
+    <div id="questionScreen" class="overlay">
+        <div class="glass-ui p-8 md:p-10 text-center border border-indigo-400/50 rounded-[2rem] bg-slate-900/95 shadow-2xl backdrop-blur-xl w-[90%] max-w-2xl" dir="rtl">
+            <h2 class="text-3xl md:text-4xl font-black text-indigo-400 mb-2 drop-shadow-md">حارس الباب 🚪</h2>
+            <p class="text-indigo-200 font-bold mb-6 text-lg">أجب على السؤال لفتح الباب والحصول على مكافأة!</p>
+            
+            <div id="mathQuestionText" class="text-xl md:text-2xl text-white mb-6 bg-slate-800 p-6 rounded-xl border border-slate-600 min-h-[100px] flex items-center justify-center overflow-x-auto" dir="ltr"></div>
+            <div id="mathOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4" dir="ltr"></div>
+            <p id="questionFeedback" class="text-xl font-bold mt-6 h-8 opacity-0 transition-opacity duration-300"></p>
+        </div>
+    </div>
+
+    <div id="mobile-controls" dir="ltr">
+        <div class="movement-btns">
+            <div id="btnLeft" class="touch-btn"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="75,25 25,50 75,75" fill="white"/></svg></div>
+            <div id="btnRight" class="touch-btn"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="25,25 75,50 25,75" fill="white"/></svg></div>
+        </div>
+        <div class="action-btns">
+            <div id="btnSwitch" class="touch-btn" style="width: 65px; height: 65px; margin-bottom: 15px; border-color: rgba(255,255,255,0.5);">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M30 50 A 20 20 0 0 1 70 50" fill="none" stroke="white" stroke-width="8" stroke-linecap="round"/><path d="M70 50 A 20 20 0 0 1 30 50" fill="none" stroke="white" stroke-width="8" stroke-dasharray="10 10" stroke-linecap="round"/><polygon points="60,40 75,50 85,35" fill="white"/><polygon points="40,60 25,50 15,65" fill="white"/></svg>
+            </div>
+            <div id="btnJump" class="touch-btn"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,20 25,60 75,60" fill="white"/><rect x="40" y="60" width="20" height="20" fill="white"/></svg></div>
+        </div>
+    </div>
+</div>
+
+<iframe id="hidden_iframe_score" name="hidden_iframe_score" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
+    <input id="form-name" name="name" type="hidden"/>
+    <input id="form-school" name="school" type="hidden"/>
+    <input id="form-score" name="score" type="hidden"/>
+</form>
+
+<iframe id="hidden_iframe_questions" name="hidden_iframe_questions" onload="if(document.getElementById('saving-status')) document.getElementById('saving-status').innerText = '✅ تم الحفظ!'" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display: none;" target="hidden_iframe_questions">
+    <input id="qform-name" name="name" type="hidden"/>
+    <input id="qform-school" name="school" type="hidden"/>
+    <input id="qform-score" name="score" type="hidden" value="QUESTIONS"/>
+</form>
+
+<script>
+    // --- System UI Setup ---
+    const avatars = ["🦁","🦋","🤖","🥷","👨‍🔬","👩‍🔬","🐺","🦊","🐯","🐼","🐰","🐹","🐻","🐥","🦉","🐧","🫅","👸","🦸‍♂️","🦸‍♀️","🕵️","🧙‍♂️","🧚‍♀️","🚀","🛸","⭐","🔥","⚡"];
+    let selectedAvatar = avatars[0];
+    const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+    let gameQuestions = [];
+    let currentRoomPIN = "";
+    let qBlockCount = 0;
+    let refreshInterval;
+
+    const defaultQuestions = [
+        { q: "ما هي قيمة التكامل التالي: \\(\\int_0^1 x^2 \\, dx\\)", opts: ["\\(\\frac{1}{2}\\)", "\\(\\frac{1}{3}\\)", "\\(1\\)", "\\(\\frac{2}{3}\\)"], ans: 1 },
+        { q: "أوجد مشتقة الدالة: \\(f(x) = e^{2x}\\)", opts: ["\\(e^{2x}\\)", "\\(x e^{2x}\\)", "\\(2e^{2x}\\)", "\\(2x e^{x}\\)"], ans: 2 }
+    ];
+
+    function setupAvatars() {
+        const container = document.getElementById('avatar-container');
+        container.innerHTML = '';
+        avatars.forEach(a => {
+            const div = document.createElement('div');
+            div.className = 'avatar-item' + (a === selectedAvatar ? ' selected' : '');
+            div.innerText = a;
+            div.onclick = () => {
+                document.querySelectorAll('.avatar-item').forEach(i => i.classList.remove('selected'));
+                div.classList.add('selected'); selectedAvatar = a;
+            };
+            container.appendChild(div);
+        });
+    }
+
+    function showSystemScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        if(id) document.getElementById(id).classList.add('active');
+    }
+
+    function openTeacherSetup() {
+        document.getElementById('questions-list').innerHTML = '';
+        qBlockCount = 0;
+        addQuestionBlock();
+        showSystemScreen('screen-teacher-setup');
+    }
+
+    function addQuestionBlock() {
+        const container = document.getElementById('questions-list');
+        const blockId = `q-block-${qBlockCount}`;
+        const html = `
+            <div class="q-block" id="${blockId}">
+                <h3><span>السؤال ${qBlockCount + 1}</span> ${qBlockCount > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}</h3>
+                <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                    <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0;">
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                </div>
+                <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="0" checked><input type="text" class="q-opt-input" placeholder="الخيار الأول" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
+                <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="1"><input type="text" class="q-opt-input" placeholder="الخيار الثاني" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
+                <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="2"><input type="text" class="q-opt-input" placeholder="الخيار الثالث" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
+                <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="3"><input type="text" class="q-opt-input" placeholder="الخيار الرابع" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+        qBlockCount++;
+    }
+
+    function saveQuestionsToSheet() {
+        const blocks = document.querySelectorAll('.q-block');
+        let customQuestions = [];
+        blocks.forEach((block) => {
+            const title = block.querySelector('.q-title-input').value.trim();
+            const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
+            const correctRadio = block.querySelector('input[type="radio"]:checked');
+            if (title && !opts.some(opt => !opt) && correctRadio) {
+                customQuestions.push({ q: title, opts: opts, ans: parseInt(correctRadio.value) });
+            }
+        });
+        if (customQuestions.length === 0) return alert("يرجى تعبئة جميع الحقول!");
+
+        currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+        document.getElementById('qform-name').value = currentRoomPIN; 
+        document.getElementById('qform-school').value = JSON.stringify(customQuestions); 
+        document.getElementById('saving-status').style.display = 'block';
+        document.getElementById('questionsForm').submit();
+
+        document.getElementById('display-room-pin').innerText = currentRoomPIN;
+generateRoomLinkAndQR();
+        showSystemScreen('screen-teacher');
+        if(refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(fetchLeaderboard, 4000);
+    }
+
+    async function loadExistingRoom() {
+        const pin = document.getElementById('existing-room-pin').value.trim();
+        if (!pin) return alert("يرجى إدخال رقم الغرفة!");
+        document.getElementById('screen-loading-sheet').style.display = 'flex';
+        try {
+            const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=${new Date().getTime()}`);
+            const text = await res.text();
+            const rows = JSON.parse(text.substring(47, text.length - 2)).table.rows;
+            let copiedQuestions = "";
+            for(let i = rows.length - 1; i >= 0; i--) {
+                if(rows[i] && rows[i].c[0]?.v?.toString() === pin && rows[i].c[1]?.v?.toString().trim().startsWith('[')) {
+                    copiedQuestions = rows[i].c[1].v.toString(); break;
+                }
+            }
+            if (copiedQuestions) {
+                currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+                document.getElementById('qform-name').value = currentRoomPIN;
+                document.getElementById('qform-school').value = copiedQuestions;
+                document.getElementById('questionsForm').submit();
+                document.getElementById('display-room-pin').innerText = currentRoomPIN;
+generateRoomLinkAndQR();
+                document.getElementById('screen-loading-sheet').style.display = 'none';
+                showSystemScreen('screen-teacher');
+                if(refreshInterval) clearInterval(refreshInterval);
+                refreshInterval = setInterval(fetchLeaderboard, 4000);
+            } else {
+                document.getElementById('screen-loading-sheet').style.display = 'none';
+                alert("لم يتم العثور على أسئلة لرمز الغرفة هذا.");
+            }
+        } catch(e) { document.getElementById('screen-loading-sheet').style.display = 'none'; alert("خطأ بالاتصال"); }
+    }
+
+    async function startStudentFlow() {
+        const name = document.getElementById('input-student-name').value.trim();
+        const pin = document.getElementById('input-room-pin').value.trim();
+        if (!name || !pin) return alert("يرجى إدخال الاسم ورقم الغرفة");
+        
+        document.getElementById('form-name').value = `${selectedAvatar} ${name}`;
+        document.getElementById('form-school').value = pin;
+        currentRoomPIN = pin;
+        
+        document.getElementById('screen-loading-sheet').style.display = 'flex';
+        try {
+            const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=${new Date().getTime()}`);
+            const text = await res.text();
+            const rows = JSON.parse(text.substring(47, text.length - 2)).table.rows;
+            let foundQuestions = null;
+            for(let i = rows.length - 1; i >= 0; i--) {
+                if(rows[i] && rows[i].c[0]?.v?.toString() === pin && rows[i].c[1]?.v?.toString().trim().startsWith('[')) {
+                    foundQuestions = JSON.parse(rows[i].c[1].v.toString()); break;
+                }
+            }
+            gameQuestions = (foundQuestions && foundQuestions.length > 0) ? foundQuestions : defaultQuestions;
+        } catch (err) { gameQuestions = defaultQuestions; }
+        
+        document.getElementById('screen-loading-sheet').style.display = 'none';
+        
+        // الانتقال للعبة الأصلية (Hide System UI, Show Game UI)
+        document.getElementById('system-ui').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
+        
+        // تحديث معلومات الطالب في الـ HUD الخاص باللعبة
+        document.getElementById('playerAvatarUI').innerText = selectedAvatar;
+        document.getElementById('playerNameUI').innerText = name;
+    }
+
+    async function fetchLeaderboard() {
+        try {
+            const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=${new Date().getTime()}`);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(47, text.length - 2));
+            let players = json.table.rows.filter(r => r.c[1]?.v.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS");
+            players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+            const tbody = document.getElementById('leaderboard-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            players.forEach((p, i) => {
+                let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+                tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.c[0].v}</td><td style="color:var(--primary); font-weight:900;">${p.c[2].v}</td></tr>`;
+            });
+            document.getElementById('loading-board').style.display = players.length ? 'none' : 'block';
+            document.getElementById('leaderboard').style.display = players.length ? 'table' : 'none';
+        } catch(e) {}
+    }
+
+    function searchStandaloneLeaderboard() {
+        const pin = document.getElementById('search-leaderboard-pin').value.trim();
+        if (!pin) return;
+        currentRoomPIN = pin;
+        document.getElementById('standalone-loading-board').style.display = 'block';
+        document.getElementById('standalone-leaderboard-table').style.display = 'none';
+        fetchLeaderboardStandalone();
+    }
+    
+    async function fetchLeaderboardStandalone() {
+        try {
+            const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=${new Date().getTime()}`);
+            const text = await res.text();
+            let players = JSON.parse(text.substring(47, text.length - 2)).table.rows.filter(r => r.c[1]?.v.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS");
+            players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+            const tbody = document.getElementById('standalone-leaderboard-body');
+            tbody.innerHTML = '';
+            players.forEach((p, i) => {
+                let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+                tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.c[0].v}</td><td style="color:var(--primary); font-weight:900;">${p.c[2].v}</td></tr>`;
+            });
+            document.getElementById('standalone-loading-board').style.display = 'none';
+            document.getElementById('standalone-leaderboard-table').style.display = 'table';
+        } catch(e) {}
+    }
+
+    function viewCurrentRoomLeaderboard() {
+        document.getElementById('search-leaderboard-pin').value = currentRoomPIN;
+        showSystemScreen('screen-standalone-leaderboard');
+        searchStandaloneLeaderboard();
+    }
+
+    function showSystemLeaderboard() {
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('system-ui').style.display = 'flex';
+        viewCurrentRoomLeaderboard();
+    }
+
+    function submitScoreToLeaderboard(finalScore) {
+        if(document.getElementById('form-score')) {
+            document.getElementById('form-score').value = finalScore;
+            document.getElementById('scoreForm').submit();
+        }
+    }
+
+    // --- Math Modal Logic ---
+    const mf = document.getElementById('formula');
+    let targetInputField = null;
+    if(mf) {
+        mf.smartMode = true;
+        mf.addEventListener('keydown', (e) => { if (e.key === ' ') { e.preventDefault(); mf.insert('\\text{ }'); } });
+    }
+    function addMath(val, e) { if (e) e.preventDefault(); mf.focus(); mf.insert(val); }
+    function insertMathCode(latex, e) { if (e) e.preventDefault(); mf.focus(); mf.insert(latex); }
+    function addMathSpace(e) { if (e) e.preventDefault(); mf.focus(); mf.insert('\\text{ }'); }
+    function backspaceMath(e) { if (e) e.preventDefault(); mf.focus(); mf.executeCommand('deleteBackward'); }
+    function showMathTab(tabId, event) {
+        document.querySelectorAll('.custom-keyboard').forEach(kb => kb.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        document.querySelectorAll('.math-tab').forEach(t => t.classList.remove('active'));
+        if(event) event.currentTarget.classList.add('active');
+    }
+    function openMathModal(inputElement) {
+        targetInputField = inputElement;
+        document.getElementById('math-modal-overlay').style.display = 'flex';
+        mf.value = ''; setTimeout(() => mf.focus(), 100);
+    }
+    function closeMathModal() {
+        document.getElementById('math-modal-overlay').style.display = 'none';
+        if (targetInputField) { targetInputField.value += " \\(" + mf.value + "\\) "; targetInputField = null; }
+    }
+
+    window.onload = () => {
+    setupAvatars();
+    const urlParams = new URLSearchParams(window.location.search);
+    const pinParam = urlParams.get('pin');
+    if(pinParam){
+        showSystemScreen('screen-student-login');
+        document.getElementById('input-room-pin').value = pinParam;
+    }
+};
+
+    // ========================================== //
+    // Game Logic (Original Code 1 Modified)      //
+    // ========================================== //
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function enterFullscreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) { elem.requestFullscreen().catch(()=>{}); } 
+        else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen().catch(()=>{}); }
+    }
+
+    const camera = { x: 0, y: 0, width: 900, height: 500 };
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; camera.width = canvas.width; camera.height = canvas.height; }
+    window.addEventListener('resize', resizeCanvas); resizeCanvas(); 
+
+    const AudioSys = {
+        ctx: null,
+        init: function() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if(this.ctx.state === 'suspended') this.ctx.resume(); },
+        playTone: function(freq1, freq2, type, duration, vol=0.1) {
+            if (!this.ctx) return;
+            try {
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq1, this.ctx.currentTime);
+                if (freq2) osc.frequency.exponentialRampToValueAtTime(freq2, this.ctx.currentTime + duration);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + duration);
+            } catch(e) {}
+        },
+        jump: function() { this.playTone(300, 600, 'sine', 0.2, 0.1); },
+        coin: function() { this.playTone(800, 1200, 'square', 0.1, 0.05); setTimeout(()=>this.playTone(1200, 1600, 'square', 0.2, 0.05), 100); },
+        key: function() { this.playTone(1000, 2000, 'sine', 0.3, 0.1); setTimeout(()=>this.playTone(1500, 2500, 'sine', 0.3, 0.1), 150); },
+        hit:  function() { this.playTone(150, 50, 'sawtooth', 0.3, 0.15); },
+        die:  function() { this.playTone(200, 50, 'sawtooth', 0.6, 0.2); setTimeout(()=>this.playTone(150, 30, 'sawtooth', 0.8, 0.2), 200); },
+        win:  function() { this.playTone(400, 600, 'sine', 0.2, 0.1); setTimeout(()=>this.playTone(600, 800, 'sine', 0.4, 0.1), 200); },
+        switch: function() { this.playTone(600, 300, 'triangle', 0.15, 0.1); },
+        bump: function() { this.playTone(100, 80, 'sine', 0.1, 0.1); }
+    };
+
+    let currentQuestionObj = null;
+    let gameState = 'MENU';
+    let score = 0; let currentLevelIdx = 0; let playerHealth = 5; const maxHealth = 5;
+    let particles = []; let switchRings = []; let playerTrail = []; let floatingTexts = []; let screenShake = 0;
+
+    const Input = { left: false, right: false, jump: false, jumpPressed: false, switchPressed: false };
+    
+    window.addEventListener('keydown', e => {
+        if(e.code === 'ArrowLeft' || e.code === 'KeyA') Input.left = true;
+        if(e.code === 'ArrowRight' || e.code === 'KeyD') Input.right = true;
+        if(e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') { if(!Input.jump) Input.jumpPressed = true; Input.jump = true; }
+        if(e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyE') Input.switchPressed = true;
+    });
+    window.addEventListener('keyup', e => {
+        if(e.code === 'ArrowLeft' || e.code === 'KeyA') Input.left = false;
+        if(e.code === 'ArrowRight' || e.code === 'KeyD') Input.right = false;
+        if(e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') Input.jump = false;
+        if(e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyE') Input.switchPressed = false;
+    });
+
+    function setupTouchBtn(id, actionStr) {
+        const btn = document.getElementById(id);
+        const handleStart = (e) => { e.preventDefault(); btn.classList.add('pressed'); if(actionStr === 'switch') Input.switchPressed = true; else { Input[actionStr] = true; if(actionStr==='jump') Input.jumpPressed = true; } };
+        const handleEnd = (e) => { e.preventDefault(); btn.classList.remove('pressed'); if(actionStr !== 'switch') Input[actionStr] = false; };
+        btn.addEventListener('touchstart', handleStart, {passive: false}); btn.addEventListener('mousedown', handleStart);
+        btn.addEventListener('touchend', handleEnd, {passive: false}); btn.addEventListener('mouseup', handleEnd); btn.addEventListener('mouseleave', handleEnd);
+    }
+    setupTouchBtn('btnLeft', 'left'); setupTouchBtn('btnRight', 'right'); setupTouchBtn('btnJump', 'jump'); setupTouchBtn('btnSwitch', 'switch');
+
+    function spawnParticles(x, y, color, count, speed=3, life=0.6) {
+        for(let i=0; i<count; i++) { const angle = Math.random() * Math.PI * 2; const vel = Math.random() * speed + 1; particles.push({ x: x, y: y, vx: Math.cos(angle) * vel, vy: Math.sin(angle) * vel, color: color, life: life, maxLife: life, size: Math.random() * 6 + 4 }); }
+    }
+    function addFloatingText(x, y, text, color) { floatingTexts.push({x, y, text, color, life: 1.5, maxLife: 1.5, vy: -30}); }
+    function triggerShake(intensity) { screenShake = Math.max(screenShake, intensity); }
+
+    function updateHealthUI() {
+        let hearts = ''; for(let i = 0; i < maxHealth; i++) hearts += i < playerHealth ? '❤️' : '🖤';
+        document.getElementById('healthDisplay').innerText = hearts;
+        const el = document.getElementById('healthDisplay'); el.style.transform = 'scale(1.3)'; setTimeout(() => el.style.transform = 'scale(1)', 200);
+    }
+
+    let level = { width: 2000, height: 600, platforms: [], enemies: [], emojis: [], spikes: [], boxes: [], elevators: [], gates: [], buttons: [], key: null, door: null, clouds: [], mountains: [], hills: [] };
+
+    const player = { x: 100, y: 100, r: 22, vx: 0, vy: 0, colorType: 'red', rotation: 0, isGrounded: false, coyoteTime: 0, jumpBuffer: 0, squishX: 1, squishY: 1, dead: false, hasKey: false, getStats() { return this.colorType === 'red' ? { accel: 2200, decel: 3500, maxSpeed: 450, jumpForce: -750, gravity: 2400 } : { accel: 3200, decel: 4500, maxSpeed: 600, jumpForce: -650, gravity: 2400 }; } };
+
+    const levelsData = [
+    { width: 2800, height: 600, start: {x: 150, y: 400}, platforms: [{x: -100, y: 500, w: 800, h: 200, type: 'grass'}, {x: 900, y: 450, w: 250, h: 20, type: 'wood'}, {x: 1350, y: 400, w: 250, h: 20, type: 'wood'}, {x: 1800, y: 500, w: 1200, h: 200, type: 'grass'}], boxes: [], elevators: [], gates: [], buttons: [], enemies: [], emojis: [{x: 400, y: 420}, {x: 1025, y: 350}, {x: 1475, y: 300}, {x: 2000, y: 420}], spikes: [], key: {x: 2100, y: 430}, door: {x: 2600, y: 350, w: 80, h: 150} },
+    { width: 3500, height: 600, start: {x: 150, y: 400}, platforms: [{x: -100, y: 500, w: 800, h: 200, type: 'grass'}, {x: 850, y: 420, w: 300, h: 20, type: 'wood'}, {x: 1300, y: 500, w: 800, h: 200, type: 'grass'}, {x: 2250, y: 420, w: 300, h: 20, type: 'wood'}, {x: 2700, y: 500, w: 1000, h: 200, type: 'grass'}], boxes: [{x: 400, y: 400, w: 55, h: 55, vx: 0, vy: 0}], elevators: [], buttons: [], gates: [{x: 1000, y: 270, w: 25, h: 150, color: 'blue'}, {x: 2400, y: 270, w: 25, h: 150, color: 'red'}], enemies: [], emojis: [{x: 420, y: 320}, {x: 1000, y: 200}, {x: 1700, y: 420}, {x: 2400, y: 200}], spikes: [], key: {x: 1800, y: 430}, door: {x: 3300, y: 350, w: 80, h: 150} },
+    { width: 2400, height: 600, start: {x: 150, y: 400}, platforms: [ {x: -100, y: 500, w: 600, h: 200, type: 'grass'}, {x: 550, y: 550, w: 300, h: 200, type: 'grass'}, {x: 900, y: 250, w: 200, h: 500, type: 'grass'}, {x: 1100, y: 500, w: 1400, h: 200, type: 'grass'} ], boxes: [{x: 350, y: 400, w: 55, h: 55, vx: 0, vy: 0}], buttons: [{x: 650, y: 535, w: 50, h: 15}], elevators: [ {x: 750, y: 500, w: 130, h: 24, sx: 750, sy: 500, ex: 750, ey: 150, speed: 0.8, t: 0, dir: 1, reqBtn: 0} ], gates: [{x: 1500, y: 350, w: 25, h: 150, color: 'blue'}], enemies: [{x: 1700, y: 450, range: 100}], emojis: [{x: 675, y: 450}, {x: 1200, y: 400}, {x: 1800, y: 300}], spikes: [], key: {x: 1300, y: 450}, door: {x: 2100, y: 350, w: 80, h: 150} },
+    { width: 2200, height: 800, start: {x: 150, y: 200}, platforms: [ {x: -100, y: 350, w: 600, h: 500, type: 'grass'}, {x: 500, y: 700, w: 1800, h: 150, type: 'grass'}, {x: 1100, y: 400, w: 200, h: 20, type: 'wood'}, {x: 1700, y: 350, w: 600, h: 500, type: 'grass'} ], boxes: [{x: 300, y: 250, w: 55, h: 55, vx: 0, vy: 0}], buttons: [{x: 650, y: 685, w: 50, h: 15}], elevators: [ {x: 900, y: 700, w: 100, h: 20, sx: 900, sy: 700, ex: 900, ey: 350, speed: 0.5, t: 0, dir: 1, reqBtn: 0}, {x: 1500, y: 700, w: 100, h: 20, sx: 1500, sy: 700, ex: 1500, ey: 350, speed: 0.5, t: 0, dir: 1, reqBtn: 0} ], gates: [ {x: 1350, y: 600, w: 25, h: 100, color: 'blue'} ], enemies: [{x: 800, y: 655, range: 100}], emojis: [{x: 250, y: 150}, {x: 650, y: 600}, {x: 1150, y: 320}], spikes: [{x: 1400, y: 676, count: 4}], key: {x: 1200, y: 320}, door: {x: 2000, y: 200, w: 80, h: 150} },
+    { width: 2500, height: 600, start: {x: 100, y: 400}, platforms: [ {x: -100, y: 500, w: 400, h: 200, type: 'grass'}, {x: 450, y: 450, w: 150, h: 20, type: 'wood'}, {x: 800, y: 400, w: 150, h: 20, type: 'wood'}, {x: 1150, y: 350, w: 150, h: 20, type: 'wood'}, {x: 1500, y: 500, w: 300, h: 200, type: 'grass'}, {x: 2000, y: 500, w: 600, h: 200, type: 'grass'} ], boxes: [], buttons: [], elevators: [ {x: 1850, y: 500, w: 100, h: 20, sx: 1850, sy: 500, ex: 1850, ey: 200, speed: 0.4, t: 0, dir: 1} ], gates: [ {x: 512, y: 150, w: 25, h: 300, color: 'red'}, {x: 862, y: 100, w: 25, h: 300, color: 'blue'}, {x: 1212, y: 50, w: 25, h: 300, color: 'red'}, {x: 1650, y: 250, w: 25, h: 250, color: 'blue'} ], enemies: [{x: 1650, y: 455, range: 80}], emojis: [{x: 525, y: 400}, {x: 875, y: 350}, {x: 1225, y: 300}], spikes: [{x: 300, y: 580, count: 55}], key: {x: 1900, y: 150}, door: {x: 2300, y: 350, w: 80, h: 150} },
+    { width: 4500, height: 1000, start: {x: 150, y: 800}, platforms: [ {x: -100, y: 900, w: 500, h: 200, type: 'grass'}, {x: 650, y: 750, w: 200, h: 20, type: 'wood'}, {x: 1100, y: 650, w: 200, h: 20, type: 'wood'}, {x: 1600, y: 750, w: 200, h: 20, type: 'wood'}, {x: 2100, y: 900, w: 600, h: 200, type: 'grass'}, {x: 3000, y: 750, w: 200, h: 20, type: 'wood'}, {x: 3500, y: 900, w: 1200, h: 200, type: 'grass'} ], boxes: [ {x: 2400, y: 800, w: 55, h: 55, vx: 0, vy: 0} ], elevators: [ {x: 450, y: 900, w: 120, h: 24, sx: 450, sy: 900, ex: 450, ey: 700, speed: 0.35, t: 0, dir: 1}, {x: 880, y: 750, w: 120, h: 24, sx: 880, sy: 750, ex: 1050, ey: 650, speed: 0.3, t: 0, dir: 1}, {x: 1350, y: 650, w: 120, h: 24, sx: 1350, sy: 650, ex: 1550, ey: 750, speed: 0.3, t: 0, dir: 1}, {x: 1850, y: 750, w: 120, h: 24, sx: 1850, sy: 750, ex: 2050, ey: 900, speed: 0.35, t: 0, dir: 1}, {x: 2750, y: 900, w: 120, h: 24, sx: 2750, sy: 900, ex: 2950, ey: 750, speed: 0.3, t: 0, dir: 1}, {x: 3250, y: 750, w: 120, h: 24, sx: 3250, sy: 750, ex: 3450, ey: 600, speed: 0.3, t: 0, dir: 1} ], gates: [ {x: 750, y: 600, w: 25, h: 180, color: 'blue'}, {x: 1200, y: 500, w: 25, h: 180, color: 'red'}, {x: 3100, y: 600, w: 25, h: 180, color: 'blue'} ], buttons: [], enemies: [{x: 2500, y: 855, range: 150}, {x: 3700, y: 855, range: 150}, {x: 4000, y: 855, range: 100}], emojis: [{x: 750, y: 550}, {x: 1200, y: 450}, {x: 2400, y: 750}, {x: 3650, y: 800}], spikes: [{x: 400, y: 980, count: 120}], key: {x: 3350, y: 550}, door: {x: 4200, y: 750, w: 80, h: 150} }
+];
+
+    function loadLevel(idx) {
+        const data = levelsData[idx % levelsData.length]; // Loop levels if out of bounds
+        level.width = data.width; level.height = data.height; player.x = data.start.x; player.y = data.start.y;
+        player.vx = 0; player.vy = 0; player.dead = false; player.hasKey = false; player.squishX = 1; player.squishY = 1;
+        playerHealth = maxHealth; updateHealthUI();
+        document.getElementById('keyUI').classList.remove('active');
+        particles = []; switchRings = []; playerTrail = []; floatingTexts = []; screenShake = 0;
+
+        level.platforms = data.platforms.map(p => { let plat = {...p}; if(plat.type === 'grass') { plat.stones = []; let area = plat.w * Math.min(plat.h, 100); for(let i=0; i< area/1500; i++) plat.stones.push({x: Math.random()*plat.w, y: 25 + Math.random()*(Math.min(plat.h, 100)-35), s: 3+Math.random()*6}); } return plat; });
+        level.boxes = data.boxes ? data.boxes.map(b => ({...b})) : [];
+        level.buttons = data.buttons ? data.buttons.map(b => ({...b, pressed: false})) : [];
+        level.elevators = data.elevators ? data.elevators.map(e => ({...e, dx:0, dy:0})) : [];
+        level.gates = data.gates ? data.gates.map(g => ({...g})) : [];
+        level.enemies = data.enemies.map(e => ({ x: e.x, y: e.y, w: 45, h: 45, startX: e.x, range: e.range, dir: 1, isDead: false, squish: 1 }));
+        level.emojis = data.emojis.map(s => ({ x: s.x, y: s.y, collected: false, hover: Math.random()*10, icon: ['😀', '🌟', '💎', '🔥', '🚀'][Math.floor(Math.random() * 5)] }));
+        level.spikes = []; data.spikes?.forEach(sp => { for(let i=0; i<sp.count; i++) level.spikes.push({x: sp.x + i*24, y: sp.y, w: 24, h: 24}); });
+        level.key = data.key ? {...data.key, collected: false, hover: 0} : null; level.door = data.door ? {...data.door} : null;
+        
+        level.clouds = []; for(let i=0; i<20; i++) level.clouds.push({ x: Math.random() * level.width*1.5, y: Math.random() * (level.height*0.6), s: 0.1 + Math.random()*0.4, scale: 0.4 + Math.random()*0.8 });
+        level.mountains = []; for(let i=0; i<30; i++) level.mountains.push({ x: i * 250 - 500, w: 300 + Math.random()*300, h: 150 + Math.random()*250 });
+        level.hills = []; for(let i=0; i<25; i++) level.hills.push({ x: i * 350 - 400, h: 100 + Math.random()*150 });
+        document.getElementById('levelDisplay').innerText = idx + 1;
+        camera.x = player.x - camera.width/2; camera.y = player.y - camera.height/2;
+    }
+
+    function resolveCircleRect(circle, rect) {
+        let testX = circle.x, testY = circle.y;
+        if (circle.x < rect.x) testX = rect.x; else if (circle.x > rect.x + rect.w) testX = rect.x + rect.w;
+        if (circle.y < rect.y) testY = rect.y; else if (circle.y > rect.y + rect.h) testY = rect.y + rect.h;
+        let distX = circle.x - testX, distY = circle.y - testY; let distance = Math.sqrt((distX*distX) + (distY*distY));
+        if (distance < circle.r) { if (distance === 0) return { hit: true, nx: 0, ny: -1, overlap: circle.r }; return { hit: true, nx: distX/distance, ny: distY/distance, overlap: circle.r - distance }; }
+        return { hit: false };
+    }
+    function resolveRectRect(r1, r2) { return (r1.x < r2.x + r2.w && r1.x + r1.w > r2.x && r1.y < r2.y + r2.h && r1.h + r1.y > r2.y); }
+
+    let lastTime = performance.now();
+    function update(dt) {
+        if(dt > 0.1) dt = 0.1;
+        particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= dt; p.size *= 0.95; }); particles = particles.filter(p => p.life > 0);
+        switchRings.forEach(r => { r.r += dt * 500; r.life -= dt * 3; r.thickness = Math.max(0, r.life * 15); }); switchRings = switchRings.filter(r => r.life > 0);
+        playerTrail.forEach(t => { t.life -= dt * 4; t.size *= 0.9; }); playerTrail = playerTrail.filter(t => t.life > 0);
+        floatingTexts.forEach(ft => { ft.y += ft.vy * dt; ft.life -= dt; }); floatingTexts = floatingTexts.filter(ft => ft.life > 0);
+        if (screenShake > 0) screenShake -= dt * 40;
+        level.clouds.forEach(c => { c.x += c.s * dt * 40; if(c.x > level.width + 500) c.x = -500; });
+
+        if (gameState !== 'PLAYING') return;
+
+        if (Input.switchPressed && !player.dead) {
+            player.colorType = player.colorType === 'red' ? 'blue' : 'red';
+            let hexColor = player.colorType === 'red' ? '#ef4444' : '#3b82f6';
+            spawnParticles(player.x, player.y, hexColor, 25, 6); switchRings.push({x: player.x, y: player.y, r: player.r, life: 1, color: hexColor});
+            AudioSys.switch(); triggerShake(5); document.getElementById('playerColorUI').className = `color-indicator bg-${player.colorType}-ball`; Input.switchPressed = false;
+        }
+
+        level.buttons.forEach(b => { b.pressed = false; let rect = {x: b.x, y: b.y, w: b.w, h: b.h}; if (resolveCircleRect(player, rect).hit) b.pressed = true; level.boxes.forEach(box => { if (resolveRectRect(box, rect)) b.pressed = true; }); });
+        level.elevators.forEach((el) => {
+            let shouldMove = true; if(el.reqBtn !== undefined) { let btn = level.buttons[el.reqBtn]; shouldMove = btn && btn.pressed; }
+            if(shouldMove) { el.t += el.speed * el.dir * dt; if(el.t >= 1) { el.t = 1; el.dir = -1; } else if (el.t <= 0) { el.t = 0; el.dir = 1; } } else { el.t -= el.speed * dt; if(el.t < 0) el.t = 0; }
+            let nextX = el.sx + (el.ex - el.sx) * el.t; let nextY = el.sy + (el.ey - el.sy) * el.t; el.dx = nextX - el.x; el.dy = nextY - el.y; el.x = nextX; el.y = nextY;
+        });
+
+        if(!player.dead) {
+            const stats = player.getStats();
+            if (Math.abs(player.vx) > stats.maxSpeed * 0.5 || Math.abs(player.vy) > 300) { if (Math.random() < 0.4) playerTrail.push({x: player.x, y: player.y, size: player.r * 0.8, color: player.colorType, life: 1}); }
+            
+            level.boxes.forEach(box => {
+                box.vy += stats.gravity * dt; box.x += box.vx * dt; box.y += box.vy * dt; box.vx *= 0.82; 
+                let boxSolids = [...level.platforms, ...level.gates];
+                boxSolids.forEach(p => { if(resolveRectRect(box, p)) { let overlapY = (box.y + box.h) - p.y; if(overlapY > 0 && overlapY < 25 && box.vy > 0) { box.y = p.y - box.h; box.vy = 0; } } });
+            });
+
+            let moveDir = 0; if (Input.left) moveDir -= 1; if (Input.right) moveDir += 1;
+            let currentAccel = player.isGrounded ? stats.accel : stats.accel * 0.6; let currentDecel = player.isGrounded ? stats.decel : stats.decel * 0.3;
+            
+            if (moveDir !== 0) { if (Math.sign(moveDir) !== Math.sign(player.vx) && player.vx !== 0) player.vx += moveDir * currentDecel * dt; else player.vx += moveDir * currentAccel * dt; } 
+            else { if (player.vx > 0) { player.vx -= currentDecel * dt; if (player.vx < 0) player.vx = 0; } else if (player.vx < 0) { player.vx += currentDecel * dt; if (player.vx > 0) player.vx = 0; } }
+            player.vx = Math.max(-stats.maxSpeed, Math.min(stats.maxSpeed, player.vx)); player.x += player.vx * dt;
+            if(player.x < player.r) { player.x = player.r; player.vx = 0; } if(player.x > level.width - player.r) { player.x = level.width - player.r; player.vx = 0; }
+
+            let solids = [...level.platforms, ...level.elevators, ...level.boxes];
+            level.gates.forEach(g => { if(player.colorType !== g.color) solids.push(g); });
+
+            solids.forEach(p => { let col = resolveCircleRect(player, p); if (col.hit) { player.x += col.nx * col.overlap; if (Math.abs(col.nx) > 0.5) { player.vx = 0; if(level.boxes.includes(p)) p.vx = -col.nx * stats.maxSpeed * 0.85; } } });
+
+            if (!Input.jump && player.vy < 0) player.vy += stats.gravity * dt * 2.5; else player.vy += stats.gravity * dt;
+            if (player.isGrounded) player.coyoteTime = 0.15; else player.coyoteTime -= dt;
+            if (Input.jumpPressed) { player.jumpBuffer = 0.15; Input.jumpPressed = false; } else player.jumpBuffer -= dt;
+
+            if (player.jumpBuffer > 0 && player.coyoteTime > 0) { player.vy = stats.jumpForce; player.jumpBuffer = 0; player.coyoteTime = 0; player.squishX = 0.6; player.squishY = 1.4; spawnParticles(player.x, player.y + player.r, '#e2e8f0', 10, 3); AudioSys.jump(); player.isGrounded = false; }
+
+            player.y += player.vy * dt; player.isGrounded = false;
+            solids.forEach(p => { let col = resolveCircleRect(player, p); if (col.hit) { player.y += col.ny * col.overlap; if (col.ny < -0.5) { if (player.vy > 600) { player.squishX = 1.5; player.squishY = 0.5; player.vy = -player.vy * 0.2; spawnParticles(player.x, player.y+player.r, '#94a3b8', 8, 2.5); triggerShake(3); } else { player.vy = 0; player.isGrounded = true; if(level.elevators.includes(p)) { player.x += p.dx; player.y += p.dy; } } } else if (col.ny > 0.5) { if(player.vy < -100) AudioSys.bump(); player.vy = 0; } } });
+
+            player.rotation += (player.vx * dt) / player.r; player.squishX += (1 - player.squishX) * dt * 12; player.squishY += (1 - player.squishY) * dt * 12;
+
+            level.enemies.forEach(en => {
+                if(en.isDead) return;
+                en.x += en.dir * 120 * dt; en.squish += (1 - en.squish) * dt * 6; if (Math.abs(en.x - en.startX) > en.range) en.dir *= -1;
+                let col = resolveCircleRect(player, en);
+                if(col.hit) { if(player.vy > 0 && player.y < en.y) { en.isDead = true; player.vy = stats.jumpForce * 0.7; score += 200; updateScore(); addFloatingText(en.x, en.y, "+200", "#fff"); spawnParticles(en.x + en.w/2, en.y + en.h/2, '#475569', 30, 6); AudioSys.hit(); } else { die(); } }
+            });
+
+            level.emojis.forEach(s => {
+                s.hover += dt * 5;
+                if(!s.collected) { let dx = player.x - s.x; let dy = player.y - (s.y + Math.sin(s.hover)*6); if(Math.sqrt(dx*dx + dy*dy) < player.r + 25) { s.collected = true; score += 100; updateScore(); addFloatingText(s.x, s.y, "+100", "#fde047"); spawnParticles(s.x, s.y, '#fde047', 20, 5); AudioSys.coin(); } }
+            });
+
+            if(level.key && !level.key.collected) {
+                level.key.hover += dt * 5; let dx = player.x - level.key.x; let dy = player.y - (level.key.y + Math.sin(level.key.hover)*6);
+                if(Math.sqrt(dx*dx + dy*dy) < player.r + 30) { level.key.collected = true; player.hasKey = true; document.getElementById('keyUI').classList.add('active'); addFloatingText(level.key.x, level.key.y, "مفتاح!", "#facc15"); spawnParticles(level.key.x, level.key.y, '#eab308', 40, 8); AudioSys.key(); }
+            }
+
+            if(level.door) { let col = resolveCircleRect(player, level.door); if(col.hit) { if(player.hasKey) completeLevel(); else { player.x += col.nx * col.overlap; if(Math.abs(col.nx) > 0.5) player.vx = 0; } } }
+            level.spikes.forEach(sp => { if(resolveCircleRect(player, sp).hit) die(); });
+            if(player.y > level.height + 250) die();
+        }
+
+        let targetCamX = player.x - camera.width / 2; let targetCamY = player.y - camera.height / 2 + 50;
+        targetCamX = Math.max(0, Math.min(targetCamX, level.width - camera.width)); targetCamY = Math.max(0, Math.min(targetCamY, level.height - camera.height));
+        camera.x += (targetCamX - camera.x) * dt * 6; camera.y += (targetCamY - camera.y) * dt * 6;
+    }
+
+    function drawParallax() {
+        let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height); skyGrad.addColorStop(0, '#0369a1'); skyGrad.addColorStop(1, '#bae6fd');
+        ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        level.clouds.forEach(c => { let drawX = (c.x - camera.x * 0.15) % (canvas.width + 800) - 400; let drawY = c.y - camera.y * 0.05; ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; ctx.beginPath(); ctx.arc(drawX, drawY, 50*c.scale, 0, Math.PI*2); ctx.arc(drawX+35*c.scale, drawY-20*c.scale, 40*c.scale, 0, Math.PI*2); ctx.arc(drawX+75*c.scale, drawY, 35*c.scale, 0, Math.PI*2); ctx.fill(); });
+        ctx.fillStyle = '#0ea5e9'; level.mountains.forEach(m => { let drawX = (m.x - camera.x * 0.25) % (canvas.width + 1500) - 500; let drawY = canvas.height - m.h + camera.y * 0.1 + 100; ctx.beginPath(); ctx.moveTo(drawX, canvas.height + 200); ctx.lineTo(drawX + m.w/2, drawY); ctx.lineTo(drawX + m.w, canvas.height + 200); ctx.fill(); });
+        ctx.fillStyle = '#38bdf8'; level.hills.forEach(h => { let drawX = (h.x - camera.x * 0.4) % (canvas.width + 1200) - 400; let drawY = canvas.height - h.h + camera.y * 0.15 + 150; ctx.beginPath(); ctx.arc(drawX, drawY + h.h, h.h, Math.PI, 0); ctx.fill(); });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); drawParallax(); ctx.save();
+        let shakeX = (Math.random() - 0.5) * screenShake * 2; let shakeY = (Math.random() - 0.5) * screenShake * 2; ctx.translate(-Math.round(camera.x) + shakeX, -Math.round(camera.y) + shakeY);
+
+        if (level.door) { const d = level.door; ctx.fillStyle = '#334155'; ctx.fillRect(d.x, d.y, d.w, d.h); ctx.fillStyle = player.hasKey ? '#020617' : '#78350f'; ctx.fillRect(d.x+6, d.y+6, d.w-12, d.h-6); if(player.hasKey) { ctx.shadowBlur = 20; ctx.shadowColor = '#4ade80'; ctx.fillStyle = '#4ade80'; ctx.fillRect(d.x+10, d.y+10, d.w-20, d.h-10); ctx.shadowBlur = 0; } ctx.fillStyle = 'white'; ctx.font = '24px Cairo'; ctx.textAlign = 'center'; ctx.fillText('🚪', d.x + d.w/2, d.y - 15); }
+        level.buttons.forEach(b => { let yOffset = b.pressed ? b.h - 4 : 0; ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.roundRect(b.x - 4, b.y, b.w + 8, b.h, 4); ctx.fill(); ctx.fillStyle = b.pressed ? '#22c55e' : '#ef4444'; if(!b.pressed) { ctx.shadowBlur = 10; ctx.shadowColor = '#ef4444'; } ctx.beginPath(); ctx.roundRect(b.x, b.y + yOffset, b.w, b.h - yOffset, 3); ctx.fill(); ctx.shadowBlur = 0; });
+        level.platforms.forEach(p => { if(p.type === 'grass') { ctx.fillStyle = '#78350f'; ctx.fillRect(p.x, p.y, p.w, p.h); if(p.stones) { ctx.fillStyle = '#451a03'; p.stones.forEach(st => ctx.fillRect(p.x+st.x, p.y+st.y, st.s, st.s)); } let grassGrad = ctx.createLinearGradient(0, p.y, 0, p.y+20); grassGrad.addColorStop(0, '#4ade80'); grassGrad.addColorStop(1, '#16a34a'); ctx.fillStyle = grassGrad; ctx.fillRect(p.x, p.y, p.w, 22); } else if (p.type === 'wood') { ctx.fillStyle = '#b45309'; ctx.fillRect(p.x, p.y, p.w, p.h); ctx.strokeStyle = '#78350f'; ctx.lineWidth = 2; for(let i=4; i<p.h; i+=8) { ctx.beginPath(); ctx.moveTo(p.x, p.y+i); ctx.lineTo(p.x+p.w, p.y+i); ctx.stroke(); } } });
+        level.elevators.forEach(el => { ctx.fillStyle = '#94a3b8'; ctx.fillRect(el.x, el.y, el.w, el.h); ctx.strokeStyle = '#475569'; ctx.lineWidth = 3; ctx.strokeRect(el.x, el.y, el.w, el.h); if(el.reqBtn !== undefined) { ctx.fillStyle = level.buttons[el.reqBtn].pressed ? '#22c55e' : '#ef4444'; ctx.beginPath(); ctx.arc(el.x + el.w/2, el.y + el.h/2, 4, 0, Math.PI*2); ctx.fill(); } });
+        let pulseTime = performance.now() / 150;
+        level.gates.forEach(g => { let colorHex = g.color === 'red' ? '#ef4444' : '#3b82f6'; ctx.fillStyle = '#1e293b'; ctx.fillRect(g.x - 6, g.y, g.w + 12, 12); ctx.fillRect(g.x - 6, g.y + g.h - 12, g.w + 12, 12); ctx.shadowBlur = 15 + Math.sin(pulseTime)*5; ctx.shadowColor = colorHex; ctx.fillStyle = colorHex; ctx.globalAlpha = 0.4 + Math.sin(pulseTime)*0.2; ctx.fillRect(g.x, g.y+10, g.w, g.h-20); ctx.globalAlpha = 1.0; ctx.shadowBlur = 0; });
+        level.boxes.forEach(b => { ctx.fillStyle = '#ea580c'; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.strokeStyle = '#7c2d12'; ctx.lineWidth = 4; ctx.strokeRect(b.x+2, b.y+2, b.w-4, b.h-4); });
+        ctx.fillStyle = '#cbd5e1'; ctx.strokeStyle = '#64748b'; level.spikes.forEach(sp => { ctx.beginPath(); ctx.moveTo(sp.x, sp.y + sp.h); ctx.lineTo(sp.x + sp.w/2, sp.y+4); ctx.lineTo(sp.x + sp.w, sp.y + sp.h); ctx.fill(); ctx.stroke(); });
+        level.enemies.forEach(en => { if(en.isDead) return; ctx.save(); ctx.translate(en.x + en.w/2, en.y + en.h); ctx.scale(1, en.squish); ctx.translate(-(en.x + en.w/2), -(en.y + en.h)); ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.roundRect(en.x, en.y, en.w, en.h, 8); ctx.fill(); ctx.fillStyle = 'white'; ctx.font = '32px Arial'; ctx.textAlign = 'center'; ctx.fillText('👿', en.x + en.w/2, en.y + en.h/2 + 10); ctx.restore(); });
+        if(level.key && !level.key.collected) { ctx.save(); ctx.translate(level.key.x, level.key.y + Math.sin(performance.now()/200)*8); ctx.fillStyle = 'rgba(253, 224, 71, 0.4)'; ctx.beginPath(); ctx.arc(0, -15, 35 + Math.sin(performance.now()/100)*10, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 35; ctx.shadowColor = '#fde047'; ctx.font = '55px Arial'; ctx.textAlign = 'center'; ctx.fillText('🔑', 0, 0); ctx.restore(); }
+        level.emojis.forEach(s => { if(!s.collected) { ctx.save(); ctx.translate(s.x, s.y + Math.sin(s.hover)*8); ctx.font = '32px Arial'; ctx.textAlign = 'center'; ctx.fillText(s.icon, 0, 0); ctx.restore(); } });
+        switchRings.forEach(r => { ctx.strokeStyle = r.color; ctx.lineWidth = r.thickness; ctx.globalAlpha = r.life * 0.8; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke(); });
+        particles.forEach(p => { ctx.globalAlpha = Math.max(0, p.life / p.maxLife); ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); });
+        playerTrail.forEach(t => { ctx.globalAlpha = t.life * 0.4; ctx.fillStyle = t.color === 'red' ? '#ef4444' : '#3b82f6'; ctx.beginPath(); ctx.arc(t.x, t.y, t.size, 0, Math.PI*2); ctx.fill(); }); ctx.globalAlpha = 1.0;
+        if(!player.dead) { ctx.save(); ctx.translate(player.x, player.y); ctx.scale(player.squishX, player.squishY); ctx.rotate(player.rotation); let isRed = player.colorType === 'red'; ctx.shadowBlur = 20; ctx.shadowColor = isRed ? '#ef4444' : '#3b82f6'; let grad = ctx.createRadialGradient(-6, -8, 2, 0, 0, player.r); if(isRed) { grad.addColorStop(0, '#fca5a5'); grad.addColorStop(0.5, '#ef4444'); grad.addColorStop(1, '#7f1d1d'); } else { grad.addColorStop(0, '#93c5fd'); grad.addColorStop(0.5, '#3b82f6'); grad.addColorStop(1, '#1e3a8a'); } ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(0, 0, player.r, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0; ctx.fillStyle = 'white'; ctx.beginPath(); ctx.ellipse(-7, -6, 6, 7, 0, 0, Math.PI*2); ctx.ellipse(7, -6, 6, 7, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#020617'; ctx.beginPath(); ctx.arc(-7 + (player.vx/50), -6, 3, 0, Math.PI*2); ctx.arc(7 + (player.vx/50), -6, 3, 0, Math.PI*2); ctx.fill(); ctx.restore(); }
+        floatingTexts.forEach(ft => { ctx.globalAlpha = Math.max(0, ft.life / ft.maxLife); ctx.fillStyle = ft.color; ctx.font = '900 24px Cairo'; ctx.textAlign = 'center'; ctx.fillText(ft.text, ft.x, ft.y); }); ctx.globalAlpha = 1.0; ctx.restore();
+    }
+
+    function gameLoop(time) { let dt = (time - lastTime) / 1000; lastTime = time; update(dt); draw(); requestAnimationFrame(gameLoop); }
+    function updateScore() { const el = document.getElementById('scoreDisplay'); el.innerText = score; el.style.transform = 'scale(1.5)'; setTimeout(() => el.style.transform = 'scale(1)', 150); }
+    function setScreen(id) { document.querySelectorAll('#game-container .overlay').forEach(el => el.classList.remove('active')); if(id) document.getElementById(id).classList.add('active'); }
+    
+    function startGame() { enterFullscreen(); AudioSys.init(); score = 0; currentLevelIdx = 0; updateScore(); loadLevel(currentLevelIdx); setScreen(null); gameState = 'PLAYING'; }
+    
+    function die() { 
+        if(player.dead) return; 
+        player.dead = true; triggerShake(15); spawnParticles(player.x, player.y, player.colorType === 'red' ? '#ef4444' : '#3b82f6', 60, 10); AudioSys.die(); 
+        playerHealth--; updateHealthUI();
+        if (playerHealth > 0) {
+            addFloatingText(player.x, player.y - 30, "-1 ❤️", "#ef4444");
+            setTimeout(() => { const data = levelsData[currentLevelIdx % levelsData.length]; player.x = data.start.x; player.y = data.start.y; player.vx = 0; player.vy = 0; camera.x = player.x - camera.width/2; camera.y = player.y - camera.height/2; level.boxes = data.boxes ? data.boxes.map(b => ({...b})) : []; player.dead = false; }, 800);
+        } else {
+            setTimeout(() => { document.getElementById('finalScoreLoss').innerText = score; gameState = 'GAMEOVER'; setScreen('gameOverScreen'); submitScoreToLeaderboard(score); }, 1200); 
+        }
+    }
+    
+    function retryLevel() { enterFullscreen(); currentLevelIdx = 0; score = 0; updateScore(); loadLevel(currentLevelIdx); setScreen(null); gameState = 'PLAYING'; }
+    function completeLevel() { if(gameState === 'LEVELCLEAR' || gameState === 'QUESTION') return; gameState = 'QUESTION'; spawnParticles(player.x, player.y, '#4ade80', 50, 8); setTimeout(() => { showQuestionScreen(); }, 800); }
+
+    function showQuestionScreen() {
+        // سحب سؤال من النظام التفاعلي المخصص للمعلم
+        currentQuestionObj = gameQuestions[currentLevelIdx % gameQuestions.length];
+        if(!currentQuestionObj) currentQuestionObj = defaultQuestions[0]; // احتياطي
+        
+        document.getElementById('mathQuestionText').innerHTML = currentQuestionObj.q;
+        const optsContainer = document.getElementById('mathOptions'); optsContainer.innerHTML = '';
+        currentQuestionObj.opts.forEach((opt, idx) => {
+            const btn = document.createElement('button'); btn.className = 'math-btn'; btn.innerHTML = opt;
+            btn.onclick = () => checkAnswer(idx, btn); optsContainer.appendChild(btn);
+        });
+        const feedback = document.getElementById('questionFeedback'); feedback.style.opacity = '0'; feedback.className = 'text-xl font-bold mt-6 h-8 transition-opacity duration-300';
+        setScreen('questionScreen');
+        if(window.renderMathInElement) { renderMathInElement(document.getElementById('questionScreen'), { delimiters: [ {left: "\\(", right: "\\)", display: false}, {left: "\\[", right: "\\]", display: true} ] }); }
+    }
+
+    function checkAnswer(idx, btnClicked) {
+        const buttons = document.querySelectorAll('.math-btn'); buttons.forEach(b => b.disabled = true);
+        const feedback = document.getElementById('questionFeedback'); feedback.style.opacity = '1';
+        if(idx === currentQuestionObj.ans) {
+            btnClicked.style.background = 'rgba(34, 197, 94, 0.4)'; btnClicked.style.borderColor = '#4ade80'; feedback.innerText = 'إجابة صحيحة! +500 نقطة 🎉'; feedback.classList.add('text-green-400'); score += 500; updateScore(); AudioSys.coin();
+        } else {
+            btnClicked.style.background = 'rgba(239, 68, 68, 0.4)'; btnClicked.style.borderColor = '#f87171'; buttons[currentQuestionObj.ans].style.background = 'rgba(34, 197, 94, 0.4)'; buttons[currentQuestionObj.ans].style.borderColor = '#4ade80'; feedback.innerText = 'إجابة خاطئة! ❌'; feedback.classList.add('text-red-400'); AudioSys.bump();
+        }
+        setTimeout(() => { finishLevelPhase(); }, 2000);
+    }
+
+    function finishLevelPhase() {
+        gameState = 'LEVELCLEAR'; AudioSys.win(); 
+        if(currentLevelIdx >= levelsData.length - 1) { document.getElementById('finalScoreWin').innerText = score; setScreen('gameWinScreen'); submitScoreToLeaderboard(score); } else { setScreen('levelClearScreen'); }
+    }
+
+    function nextLevel() { enterFullscreen(); currentLevelIdx++; loadLevel(currentLevelIdx); setScreen(null); gameState = 'PLAYING'; }
+    
+    loadLevel(0); requestAnimationFrame(gameLoop);
+
+// === QR Code Features Added ===
+function generateRoomLinkAndQR() {
+    if (!currentRoomPIN) return;
+    const baseUrl = window.location.origin + window.location.pathname;
+    const roomUrl = baseUrl + "?pin=" + currentRoomPIN;
+    const input = document.getElementById('game-url-input');
+    if (input) input.value = roomUrl;
+    const qrImg = document.getElementById('room-qr-code');
+    if (qrImg) {
+        qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(roomUrl);
+        qrImg.style.display = 'block';
+    }
+}
+
+function copyGameLink() {
+    const urlInput = document.getElementById('game-url-input');
+    if (!urlInput) return;
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(urlInput.value);
+}
+// =================================
+
+</script>
+</body>
+</html>
