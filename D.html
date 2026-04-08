@@ -1,29 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة الطائر الفهمان - منصة التعلّم التفاعلية</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
-    
-    <script src="https://unpkg.com/mathlive"></script>
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        skipStartupTypeset: true,
-        tex2jax: {
-            inlineMath: [['$','$'], ['\(','\)']],
-            displayMath: [['$$','$$'], ['\[','\]']],
-            processEscapes: true,
-            ignoreClass: "math-ignore"
-        },
-        "HTML-CSS": { linebreaks: { automatic: true } },
-        SVG: { linebreaks: { automatic: true } }
-    });
-</script>
 
-    <script>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>لعبة الطائر الفهمان - منصة التعلّم التفاعلية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/mathlive"></script>
+
+
+<script>
         // دوال للتحكم في رسائل التأكيد عند الحفظ في شيت جوجل
         function handleScoreLoad() {
             const screen = document.getElementById('screen-student-result');
@@ -47,8 +33,7 @@
             }
         }
     </script>
-
-    <style>
+<style>
         /* ========================================= */
         /* متغيرات وأنماط المنصة العامة */
         /* ========================================= */
@@ -464,321 +449,301 @@
     </style>
 </head>
 <body>
-    <button class="mute-btn" id="mute-btn" onclick="toggleMute(event)">🔊</button>
-
-    <div id="screen-loading-sheet" style="display:none; position:fixed; width:100%; height:100%; background:rgba(70,23,143,0.95); z-index:1000; flex-direction:column; align-items:center; justify-content:center; color:white;">
-        <div style="border:8px solid rgba(255,255,255,0.3); border-top:8px solid white; border-radius:50%; width:80px; height:80px; animation:spin 1s linear infinite;"></div>
-        <div id="loading-text" style="font-size:28px; font-weight:bold; margin-top:20px;">جاري تجهيز التحدي...</div>
-    </div>
-    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
-
-    <div class="screen active" id="screen-home">
-        <div class="card">
-            <h1>🎮 لعبة الطائر الفهمان</h1>
-            <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
-            <button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
-            <button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
-            
-            <div style="margin-top: 25px; padding-top: 25px; border-top: 2px dashed #ccc;">
-                <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استنساخ غرفة سابقة</h3>
-                <input type="number" id="existing-room-pin" placeholder="أدخل رقم الغرفة القديم (PIN)" style="margin-bottom: 15px;">
-                <button class="btn btn-action" onclick="loadExistingRoom()">استنساخ وفتح غرفة جديدة</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="screen" id="screen-teacher-setup">
-        <div class="q-builder-container">
-            <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
-            
-            <input type="text" id="quiz-title-input" placeholder="أدخل عنوان التحدي (مثال: اختبار الرياضيات)" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #ccc; border-radius: 8px; font-size: 18px; text-align: right;" required>
-
-            <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
-            <div id="questions-list"></div>
-            <button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
-            <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <button class="btn btn-primary" onclick="saveQuestionsToRoom()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
-                <button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="screen" id="screen-teacher">
-        <div style="width: 100%; text-align: center;">
-            <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
-                <h3 id="teacher-room-title-display" style="color: var(--primary); margin-bottom: 15px;"></h3>
-                <h2>انضموا الآن! رمز الغرفة:</h2>
-                <div class="room-pin" id="display-room-pin">000000</div>
-                <p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام...</p>
-                
-                <div id="qr-container" style="margin: 20px 0;">
-                    <img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
-                    <p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
-                </div>
-                <div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
-                    <input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
-                    <button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
-                </div>
-            </div>
-
-            <table id="leaderboard" style="display: none;">
-                <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
-                <tbody id="leaderboard-body"></tbody>
-            </table>
-            <div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
+<button class="mute-btn" id="mute-btn" onclick="toggleMute(event)">🔊</button>
+<div id="screen-loading-sheet" style="display:none; position:fixed; width:100%; height:100%; background:rgba(70,23,143,0.95); z-index:1000; flex-direction:column; align-items:center; justify-content:center; color:white;">
+<div style="border:8px solid rgba(255,255,255,0.3); border-top:8px solid white; border-radius:50%; width:80px; height:80px; animation:spin 1s linear infinite;"></div>
+<div id="loading-text" style="font-size:28px; font-weight:bold; margin-top:20px;">جاري تجهيز التحدي...</div>
+</div>
+<style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+<div class="screen active" id="screen-home">
+<div class="card">
+<h1>🎮 لعبة الطائر الفهمان</h1>
+<p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
+<button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
+<button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
+<div style="margin-top: 25px; padding-top: 25px; border-top: 2px dashed #ccc;">
+<h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استنساخ غرفة سابقة</h3>
+<input id="existing-room-pin" placeholder="أدخل رقم الغرفة القديم (PIN)" style="margin-bottom: 15px;" type="number"/>
+<button class="btn btn-action" onclick="loadExistingRoom()">استنساخ وفتح غرفة جديدة</button>
+</div>
+</div>
+</div>
+<div class="screen" id="screen-teacher-setup">
+<div class="q-builder-container">
+<h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
+<input id="quiz-title-input" placeholder="أدخل عنوان التحدي (مثال: اختبار الرياضيات)" required="" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #ccc; border-radius: 8px; font-size: 18px; text-align: right;" type="text"/>
+<p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
+<div id="questions-list"></div>
+<button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
+<div style="margin-top: 30px; display: flex; gap: 10px;">
+<button class="btn btn-primary" onclick="saveQuestionsToRoom()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
+<button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">إلغاء</button>
+</div>
+</div>
+</div>
+<div class="screen" id="screen-teacher">
+<div style="width: 100%; text-align: center;">
+<div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
+<h3 id="teacher-room-title-display" style="color: var(--primary); margin-bottom: 15px;"></h3>
+<h2>انضموا الآن! رمز الغرفة:</h2>
+<div class="room-pin" id="display-room-pin">000000</div>
+<p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام...</p>
+<div id="qr-container" style="margin: 20px 0;">
+<img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
+<p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
+</div>
+<div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
+<input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text">
+<button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
+</input></div>
+</div>
+<table id="leaderboard" style="display: none;">
+<thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+<tbody id="leaderboard-body"></tbody>
+</table>
+<div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
                 ⏳ بانتظار دخول الأبطال وحل الأسئلة...
             </div>
-
-            <button class="btn btn-back" onclick="closeTeacherRoom()" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
-        </div>
-    </div>
-
-    <div class="screen" id="screen-student-login">
-        <div class="card">
-            <h2>أدخل بياناتك للانطلاق 🚀</h2>
-            <input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
-            <input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
-            <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
-            <div class="avatar-grid" id="avatar-container"></div>
-            <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
-            <button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
-        </div>
-    </div>
-
-    <div class="screen" id="screen-student-result">
-        <div class="card" style="padding: 50px 30px; max-width: 650px;">
-            <h2 id="final-avatar" style="font-size: 100px; margin-bottom: 10px;"></h2>
-            <h2 id="final-player-name" style="font-size: 35px;"></h2>
-            <p style="color: #666; font-size: 22px; font-weight: bold; margin-top: 10px;">نهاية التحدي، رصيدك هو:</p>
-            <h1 id="final-score-display-result" style="font-size: 90px; color: var(--primary); margin: 10px 0; text-shadow: 3px 3px 0px rgba(0,0,0,0.1);">0</h1>
-            <p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--info);">جاري حفظ النتيجة...</p>
-            <button class="btn btn-primary" onclick="window.location.reload()" style="font-size: 22px; margin-top:15px;">العودة للرئيسية</button>
-        </div>
-    </div>
-
-    <div id="game-container-wrapper">
-        <div id="game-container">
-            <div id="bird">
-                <div class="bird-tail"></div>
-                <div class="bird-crest"></div>
-                <div class="bird-body"></div>
-                <div class="bird-eye"><div class="bird-pupil"></div></div>
-                <div class="bird-beak"></div>
-                <div class="bird-wing"></div>
-            </div>
-            <div class="ground"></div>
-            <div class="score-container">النتيجة: <span id="display-score">0</span></div>
-            <div class="difficulty-indicator">الصعوبة: <span id="difficulty-level">سهلة</span></div>
-
-            <div class="start-screen" id="start-screen">
-                <h2>لعبة الطائر الفهمان</h2>
-                <p>انقر على الشاشة للبدء</p>
-                <div class="tap-to-start-indicator">🫳 انقر أو المس للقفز!</div>
-            </div>
-
-            <div class="instructions">اضغط على الشاشة أو المسها لتحليق الطائر!</div>
-            
-            <div id="question-modal" class="question-modal">
-                <div class="modal-content">
-                    <h3 id="question-text-flappy"></h3>
-                    <div id="options-container" class="options-container">
-                        </div>
-                    <p id="feedback-message" style="display: none;"></p>
-                    <button id="continue-btn" class="continue-btn" style="display: none;">استمر في اللعب 🚀</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="math-modal-overlay" class="math-ignore">
-        <div class="math-modal-content">
-            <div class="math-header">
-                <span>📝 محرر الرياضيات الشامل</span>
-            </div>
-            <div class="math-editor-container">
-                <math-field id="formula" virtual-keyboard-policy="manual"></math-field>
-            </div>
-            <div class="math-keyboard-wrapper">
-                <div class="math-keyboard-tabs">
-                    <div class="math-tab active" onclick="showMathTab('math_combined', event)">الأرقام والرموز</div>
-                    <div class="math-tab" onclick="showMathTab('letters', event)">عربي</div>
-                    <div class="math-tab" onclick="showMathTab('english', event)">English</div>
-                </div>
-                <div class="custom-keyboard active" id="math_combined">
-                    <div class="kb-row">
-                        <button class="key num" onpointerdown="addMath('1', event)">1</button>
-                        <button class="key num" onpointerdown="addMath('2', event)">2</button>
-                        <button class="key num" onpointerdown="addMath('3', event)">3</button>
-                        <button class="key num" onpointerdown="addMath('4', event)">4</button>
-                        <button class="key num" onpointerdown="addMath('5', event)">5</button>
-                        <button class="key num" onpointerdown="addMath('6', event)">6</button>
-                        <button class="key num" onpointerdown="addMath('7', event)">7</button>
-                        <button class="key num" onpointerdown="addMath('8', event)">8</button>
-                        <button class="key num" onpointerdown="addMath('9', event)">9</button>
-                        <button class="key num" onpointerdown="addMath('0', event)">0</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key action" onpointerdown="addMath('+', event)">+</button>
-                        <button class="key action" onpointerdown="addMath('-', event)">-</button>
-                        <button class="key action" onpointerdown="addMath('\\times', event)">×</button>
-                        <button class="key action" onpointerdown="addMath('\\div', event)">÷</button>
-                        <button class="key action" onpointerdown="addMath('=', event)">=</button>
-                        <button class="key" onpointerdown="addMath('.', event)">.</button>
-                        <button class="key" onpointerdown="insertMathCode('&lt;', event)">&lt;</button>
-                        <button class="key" onpointerdown="insertMathCode('&gt;', event)">&gt;</button>
-                        <button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="insertMathCode('\\frac{#@}{#?}', event)"><span class="math-icon frac-icon"><span>a</span><span class="line"></span><span>b</span></span></button>
-                        <button class="key" onpointerdown="insertMathCode('^{#?}', event)"><span class="math-icon">x<sup style="font-size:0.7em;">n</sup></span></button>
-                        <button class="key" onpointerdown="insertMathCode('\\sqrt{#?}', event)"><span class="math-icon root-icon"><span>√</span><span class="radicand">x</span></span></button>
-                        <button class="key" onpointerdown="insertMathCode('\\sqrt[#?]{#?}', event)"><span class="math-icon root-icon"><sup style="font-size:0.5em; font-style:normal;">n</sup><span>√</span><span class="radicand">x</span></span></button>
-                        <button class="key" onpointerdown="insertMathCode('\\le', event)">≤</button>
-                        <button class="key" onpointerdown="insertMathCode('\\ge', event)">≥</button>
-                        <button class="key" onpointerdown="insertMathCode('\\neq', event)">≠</button>
-                        <button class="key" onpointerdown="insertMathCode('\\approx', event)">≈</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="insertMathCode('^\\circ', event)">°</button>
-                        <button class="key" onpointerdown="insertMathCode('\\angle', event)">∠</button>
-                        <button class="key" onpointerdown="insertMathCode('\\pi', event)">π</button>
-                        <button class="key" onpointerdown="insertMathCode('\\infty', event)">∞</button>
-                        <button class="key" onpointerdown="insertMathCode('\\Delta', event)">Δ</button>
-                        <button class="key" onpointerdown="insertMathCode('\\pm', event)">±</button>
-                        <button class="key" onpointerdown="insertMathCode('\\{', event)">{</button>
-                        <button class="key" onpointerdown="insertMathCode('\\}', event)">}</button>
-                        <button class="key" onpointerdown="insertMathCode('(', event)">(</button>
-                        <button class="key" onpointerdown="insertMathCode(')', event)">)</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="insertMathCode('\\sin', event)">sin</button>
-                        <button class="key" onpointerdown="insertMathCode('\\cos', event)">cos</button>
-                        <button class="key" onpointerdown="insertMathCode('\\tan', event)">tan</button>
-                        <button class="key" onpointerdown="insertMathCode('\\theta', event)">θ</button>
-                        <button class="key" onpointerdown="insertMathCode('\\alpha', event)">α</button>
-                        <button class="key" onpointerdown="insertMathCode('\\int', event)">∫</button>
-                        <button class="key" onpointerdown="insertMathCode('\\sum', event)">Σ</button>
-                        <button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
-                    </div>
-                    <div class="kb-row" style="margin-top: 15px; padding: 0 10px 10px 10px;">
-                        <button class="key action" onpointerdown="closeMathModal()" style="background: var(--success); color: white; flex: 1; height: 65px; font-size: 1.6rem; font-weight: bold; border-radius: 10px; box-shadow: 0 5px 15px rgba(38, 137, 12, 0.4); border: 2px solid #fff;">✓ إدراج وحفظ الصيغة</button>
-                    </div>
-                </div>
-                <div class="custom-keyboard" id="letters">
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('ض', event)">ض</button>
-                        <button class="key" onpointerdown="addMath('ص', event)">ص</button>
-                        <button class="key" onpointerdown="addMath('ث', event)">ث</button>
-                        <button class="key" onpointerdown="addMath('ق', event)">ق</button>
-                        <button class="key" onpointerdown="addMath('ف', event)">ف</button>
-                        <button class="key" onpointerdown="addMath('غ', event)">غ</button>
-                        <button class="key" onpointerdown="addMath('ع', event)">ع</button>
-                        <button class="key" onpointerdown="addMath('ه', event)">ه</button>
-                        <button class="key" onpointerdown="addMath('خ', event)">خ</button>
-                        <button class="key" onpointerdown="addMath('ح', event)">ح</button>
-                        <button class="key" onpointerdown="addMath('ج', event)">ج</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('ش', event)">ش</button>
-                        <button class="key" onpointerdown="addMath('س', event)">س</button>
-                        <button class="key" onpointerdown="addMath('ي', event)">ي</button>
-                        <button class="key" onpointerdown="addMath('ب', event)">ب</button>
-                        <button class="key" onpointerdown="addMath('ل', event)">ل</button>
-                        <button class="key" onpointerdown="addMath('ا', event)">ا</button>
-                        <button class="key" onpointerdown="addMath('ت', event)">ت</button>
-                        <button class="key" onpointerdown="addMath('ن', event)">ن</button>
-                        <button class="key" onpointerdown="addMath('م', event)">م</button>
-                        <button class="key" onpointerdown="addMath('ك', event)">ك</button>
-                        <button class="key" onpointerdown="addMath('ط', event)">ط</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('ئ', event)">ئ</button>
-                        <button class="key" onpointerdown="addMath('ء', event)">ء</button>
-                        <button class="key" onpointerdown="addMath('ؤ', event)">ؤ</button>
-                        <button class="key" onpointerdown="addMath('ر', event)">ر</button>
-                        <button class="key" onpointerdown="addMath('ى', event)">ى</button>
-                        <button class="key" onpointerdown="addMath('ة', event)">ة</button>
-                        <button class="key" onpointerdown="addMath('و', event)">و</button>
-                        <button class="key" onpointerdown="addMath('ز', event)">ز</button>
-                        <button class="key" onpointerdown="addMath('ظ', event)">ظ</button>
-                        <button class="key" onpointerdown="addMath('د', event)">د</button>
-                        <button class="key" onpointerdown="addMath('ذ', event)">ذ</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('أ', event)">أ</button>
-                        <button class="key" onpointerdown="addMath('إ', event)">إ</button>
-                        <button class="key" onpointerdown="addMath('آ', event)">آ</button>
-                        <button class="key" onpointerdown="addMath('؟', event)">؟</button>
-                        <button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
-                        <button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
-                    </div>
-                    <div class="kb-row" style="margin-top: 15px; padding: 0 10px 10px 10px;">
-                        <button class="key action" onpointerdown="closeMathModal()" style="background: var(--success); color: white; flex: 1; height: 65px; font-size: 1.6rem; font-weight: bold; border-radius: 10px; box-shadow: 0 5px 15px rgba(38, 137, 12, 0.4); border: 2px solid #fff;">✓ إدراج وحفظ الصيغة</button>
-                    </div>
-                </div>
-                <div class="custom-keyboard" id="english">
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('q', event)">q</button>
-                        <button class="key" onpointerdown="addMath('w', event)">w</button>
-                        <button class="key" onpointerdown="addMath('e', event)">e</button>
-                        <button class="key" onpointerdown="addMath('r', event)">r</button>
-                        <button class="key" onpointerdown="addMath('t', event)">t</button>
-                        <button class="key" onpointerdown="addMath('y', event)">y</button>
-                        <button class="key" onpointerdown="addMath('u', event)">u</button>
-                        <button class="key" onpointerdown="addMath('i', event)">i</button>
-                        <button class="key" onpointerdown="addMath('o', event)">o</button>
-                        <button class="key" onpointerdown="addMath('p', event)">p</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('a', event)">a</button>
-                        <button class="key" onpointerdown="addMath('s', event)">s</button>
-                        <button class="key" onpointerdown="addMath('d', event)">d</button>
-                        <button class="key" onpointerdown="addMath('f', event)">f</button>
-                        <button class="key" onpointerdown="addMath('g', event)">g</button>
-                        <button class="key" onpointerdown="addMath('h', event)">h</button>
-                        <button class="key" onpointerdown="addMath('j', event)">j</button>
-                        <button class="key" onpointerdown="addMath('k', event)">k</button>
-                        <button class="key" onpointerdown="addMath('l', event)">l</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('z', event)">z</button>
-                        <button class="key" onpointerdown="addMath('x', event)">x</button>
-                        <button class="key" onpointerdown="addMath('c', event)">c</button>
-                        <button class="key" onpointerdown="addMath('v', event)">v</button>
-                        <button class="key" onpointerdown="addMath('b', event)">b</button>
-                        <button class="key" onpointerdown="addMath('n', event)">n</button>
-                        <button class="key" onpointerdown="addMath('m', event)">m</button>
-                        <button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
-                    </div>
-                    <div class="kb-row" style="margin-top: 15px; padding: 0 10px 10px 10px;">
-                        <button class="key action" onpointerdown="closeMathModal()" style="background: var(--success); color: white; flex: 1; height: 65px; font-size: 1.6rem; font-weight: bold; border-radius: 10px; box-shadow: 0 5px 15px rgba(38, 137, 12, 0.4); border: 2px solid #fff;">✓ إدراج وحفظ الصيغة</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> </div>
-
-    <audio id="bgmMusic" src="https://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/menu.ogg" loop preload="auto"></audio>
-    <audio id="jumpSound" src="https://commondatastorage.googleapis.com/codeskulptor-assets/jump.ogg" preload="auto"></audio>
-    <audio id="scoreSound" src="https://commondatastorage.googleapis.com/codeskulptor-assets/week7-bounce.m4a" preload="auto"></audio>
-    <audio id="gameOverSound" src="https://actions.google.com/sounds/v1/cartoon/slide_whistle.ogg" preload="auto"></audio>
-    <audio id="correctAnswerSound" src="https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg" preload="auto"></audio>
-    <audio id="wrongAnswerSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
-
-    <iframe id="hidden_iframe_score" name="hidden_iframe_score" onload="handleScoreLoad()" style="display:none;"></iframe>
-    <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
-        <input id="form-name" name="name" type="hidden"/>
-        <input id="form-school" name="school" type="hidden"/>
-        <input id="form-score" name="score" type="hidden"/>
-    </form>
-    <iframe id="hidden_iframe_questions" name="hidden_iframe_questions" onload="handleQuestionsLoad()" style="display:none;"></iframe>
-    <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display: none;" target="hidden_iframe_questions">
-        <input id="qform-name" name="name" type="hidden"/>
-        <input id="qform-school" name="school" type="hidden"/>
-        <input id="qform-score" name="score" type="hidden" value="QUESTIONS"/>
-    </form>
-
-    <script>
+<button class="btn btn-back" onclick="closeTeacherRoom()" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
+</div>
+</div>
+<div class="screen" id="screen-student-login">
+<div class="card">
+<h2>أدخل بياناتك للانطلاق 🚀</h2>
+<input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number">
+<input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
+<p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
+<div class="avatar-grid" id="avatar-container"></div>
+<button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
+<button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
+</input></div>
+</div>
+<div class="screen" id="screen-student-result">
+<div class="card" style="padding: 50px 30px; max-width: 650px;">
+<h2 id="final-avatar" style="font-size: 100px; margin-bottom: 10px;"></h2>
+<h2 id="final-player-name" style="font-size: 35px;"></h2>
+<p style="color: #666; font-size: 22px; font-weight: bold; margin-top: 10px;">نهاية التحدي، رصيدك هو:</p>
+<h1 id="final-score-display-result" style="font-size: 90px; color: var(--primary); margin: 10px 0; text-shadow: 3px 3px 0px rgba(0,0,0,0.1);">0</h1>
+<p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--info);">جاري حفظ النتيجة...</p>
+<button class="btn btn-primary" onclick="window.location.reload()" style="font-size: 22px; margin-top:15px;">العودة للرئيسية</button>
+</div>
+</div>
+<div id="game-container-wrapper">
+<div id="game-container">
+<div id="bird">
+<div class="bird-tail"></div>
+<div class="bird-crest"></div>
+<div class="bird-body"></div>
+<div class="bird-eye"><div class="bird-pupil"></div></div>
+<div class="bird-beak"></div>
+<div class="bird-wing"></div>
+</div>
+<div class="ground"></div>
+<div class="score-container">النتيجة: <span id="display-score">0</span></div>
+<div class="difficulty-indicator">الصعوبة: <span id="difficulty-level">سهلة</span></div>
+<div class="start-screen" id="start-screen">
+<h2>لعبة الطائر الفهمان</h2>
+<p>انقر على الشاشة للبدء</p>
+<div class="tap-to-start-indicator">🫳 انقر أو المس للقفز!</div>
+</div>
+<div class="instructions">اضغط على الشاشة أو المسها لتحليق الطائر!</div>
+<div class="question-modal" id="question-modal">
+<div class="modal-content">
+<h3 id="question-text-flappy"></h3>
+<div class="options-container" id="options-container">
+</div>
+<p id="feedback-message" style="display: none;"></p>
+<button class="continue-btn" id="continue-btn" style="display: none;">استمر في اللعب 🚀</button>
+</div>
+</div>
+</div>
+</div>
+<div id="math-modal-overlay">
+<div class="math-modal-content">
+<div class="math-header">
+<span>📝 محرر الرياضيات الشامل</span>
+</div>
+<div class="math-editor-container">
+<math-field id="formula" virtual-keyboard-policy="manual"></math-field>
+</div>
+<div class="math-keyboard-wrapper">
+<div class="math-keyboard-tabs">
+<div class="math-tab active" onclick="showMathTab('math_combined', event)">الأرقام والرموز</div>
+<div class="math-tab" onclick="showMathTab('letters', event)">عربي</div>
+<div class="math-tab" onclick="showMathTab('english', event)">English</div>
+</div>
+<div class="custom-keyboard active" id="math_combined">
+<div class="kb-row">
+<button class="key num" onpointerdown="addMath('1', event)">1</button>
+<button class="key num" onpointerdown="addMath('2', event)">2</button>
+<button class="key num" onpointerdown="addMath('3', event)">3</button>
+<button class="key num" onpointerdown="addMath('4', event)">4</button>
+<button class="key num" onpointerdown="addMath('5', event)">5</button>
+<button class="key num" onpointerdown="addMath('6', event)">6</button>
+<button class="key num" onpointerdown="addMath('7', event)">7</button>
+<button class="key num" onpointerdown="addMath('8', event)">8</button>
+<button class="key num" onpointerdown="addMath('9', event)">9</button>
+<button class="key num" onpointerdown="addMath('0', event)">0</button>
+</div>
+<div class="kb-row">
+<button class="key action" onpointerdown="addMath('+', event)">+</button>
+<button class="key action" onpointerdown="addMath('-', event)">-</button>
+<button class="key action" onpointerdown="addMath('\\times', event)">×</button>
+<button class="key action" onpointerdown="addMath('\\div', event)">÷</button>
+<button class="key action" onpointerdown="addMath('=', event)">=</button>
+<button class="key" onpointerdown="addMath('.', event)">.</button>
+<button class="key" onpointerdown="insertMathCode('&lt;', event)">&lt;</button>
+<button class="key" onpointerdown="insertMathCode('&gt;', event)">&gt;</button>
+<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="insertMathCode('\\frac{#@}{#?}', event)"><span class="math-icon frac-icon"><span>a</span><span class="line"></span><span>b</span></span></button>
+<button class="key" onpointerdown="insertMathCode('^{#?}', event)"><span class="math-icon">x<sup style="font-size:0.7em;">n</sup></span></button>
+<button class="key" onpointerdown="insertMathCode('\\sqrt{#?}', event)"><span class="math-icon root-icon"><span>√</span><span class="radicand">x</span></span></button>
+<button class="key" onpointerdown="insertMathCode('\\sqrt[#?]{#?}', event)"><span class="math-icon root-icon"><sup style="font-size:0.5em; font-style:normal;">n</sup><span>√</span><span class="radicand">x</span></span></button>
+<button class="key" onpointerdown="insertMathCode('\\le', event)">≤</button>
+<button class="key" onpointerdown="insertMathCode('\\ge', event)">≥</button>
+<button class="key" onpointerdown="insertMathCode('\\neq', event)">≠</button>
+<button class="key" onpointerdown="insertMathCode('\\approx', event)">≈</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="insertMathCode('^\\circ', event)">°</button>
+<button class="key" onpointerdown="insertMathCode('\\angle', event)">∠</button>
+<button class="key" onpointerdown="insertMathCode('\\pi', event)">π</button>
+<button class="key" onpointerdown="insertMathCode('\\infty', event)">∞</button>
+<button class="key" onpointerdown="insertMathCode('\\Delta', event)">Δ</button>
+<button class="key" onpointerdown="insertMathCode('\\pm', event)">±</button>
+<button class="key" onpointerdown="insertMathCode('\\{', event)">{</button>
+<button class="key" onpointerdown="insertMathCode('\\}', event)">}</button>
+<button class="key" onpointerdown="insertMathCode('(', event)">(</button>
+<button class="key" onpointerdown="insertMathCode(')', event)">)</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="insertMathCode('\\sin', event)">sin</button>
+<button class="key" onpointerdown="insertMathCode('\\cos', event)">cos</button>
+<button class="key" onpointerdown="insertMathCode('\\tan', event)">tan</button>
+<button class="key" onpointerdown="insertMathCode('\\theta', event)">θ</button>
+<button class="key" onpointerdown="insertMathCode('\\alpha', event)">α</button>
+<button class="key" onpointerdown="insertMathCode('\\int', event)">∫</button>
+<button class="key" onpointerdown="insertMathCode('\\sum', event)">Σ</button>
+<button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
+</div>
+<div class="kb-row" style="margin-top: 15px; padding: 0 10px 10px 10px;">
+<button class="key action" onpointerdown="closeMathModal()" style="background: var(--success); color: white; flex: 1; height: 65px; font-size: 1.6rem; font-weight: bold; border-radius: 10px; box-shadow: 0 5px 15px rgba(38, 137, 12, 0.4); border: 2px solid #fff;">✓ إدراج وحفظ الصيغة</button>
+</div>
+</div>
+<div class="custom-keyboard" id="letters">
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('ض', event)">ض</button>
+<button class="key" onpointerdown="addMath('ص', event)">ص</button>
+<button class="key" onpointerdown="addMath('ث', event)">ث</button>
+<button class="key" onpointerdown="addMath('ق', event)">ق</button>
+<button class="key" onpointerdown="addMath('ف', event)">ف</button>
+<button class="key" onpointerdown="addMath('غ', event)">غ</button>
+<button class="key" onpointerdown="addMath('ع', event)">ع</button>
+<button class="key" onpointerdown="addMath('ه', event)">ه</button>
+<button class="key" onpointerdown="addMath('خ', event)">خ</button>
+<button class="key" onpointerdown="addMath('ح', event)">ح</button>
+<button class="key" onpointerdown="addMath('ج', event)">ج</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('ش', event)">ش</button>
+<button class="key" onpointerdown="addMath('س', event)">س</button>
+<button class="key" onpointerdown="addMath('ي', event)">ي</button>
+<button class="key" onpointerdown="addMath('ب', event)">ب</button>
+<button class="key" onpointerdown="addMath('ل', event)">ل</button>
+<button class="key" onpointerdown="addMath('ا', event)">ا</button>
+<button class="key" onpointerdown="addMath('ت', event)">ت</button>
+<button class="key" onpointerdown="addMath('ن', event)">ن</button>
+<button class="key" onpointerdown="addMath('م', event)">م</button>
+<button class="key" onpointerdown="addMath('ك', event)">ك</button>
+<button class="key" onpointerdown="addMath('ط', event)">ط</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('ئ', event)">ئ</button>
+<button class="key" onpointerdown="addMath('ء', event)">ء</button>
+<button class="key" onpointerdown="addMath('ؤ', event)">ؤ</button>
+<button class="key" onpointerdown="addMath('ر', event)">ر</button>
+<button class="key" onpointerdown="addMath('ى', event)">ى</button>
+<button class="key" onpointerdown="addMath('ة', event)">ة</button>
+<button class="key" onpointerdown="addMath('و', event)">و</button>
+<button class="key" onpointerdown="addMath('ز', event)">ز</button>
+<button class="key" onpointerdown="addMath('ظ', event)">ظ</button>
+<button class="key" onpointerdown="addMath('د', event)">د</button>
+<button class="key" onpointerdown="addMath('ذ', event)">ذ</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('أ', event)">أ</button>
+<button class="key" onpointerdown="addMath('إ', event)">إ</button>
+<button class="key" onpointerdown="addMath('آ', event)">آ</button>
+<button class="key" onpointerdown="addMath('؟', event)">؟</button>
+<button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
+<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
+</div>
+<div class="kb-row" style="margin-top: 15px; padding: 0 10px 10px 10px;">
+<button class="key action" onpointerdown="closeMathModal()" style="background: var(--success); color: white; flex: 1; height: 65px; font-size: 1.6rem; font-weight: bold; border-radius: 10px; box-shadow: 0 5px 15px rgba(38, 137, 12, 0.4); border: 2px solid #fff;">✓ إدراج وحفظ الصيغة</button>
+</div>
+</div>
+<div class="custom-keyboard" id="english">
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('q', event)">q</button>
+<button class="key" onpointerdown="addMath('w', event)">w</button>
+<button class="key" onpointerdown="addMath('e', event)">e</button>
+<button class="key" onpointerdown="addMath('r', event)">r</button>
+<button class="key" onpointerdown="addMath('t', event)">t</button>
+<button class="key" onpointerdown="addMath('y', event)">y</button>
+<button class="key" onpointerdown="addMath('u', event)">u</button>
+<button class="key" onpointerdown="addMath('i', event)">i</button>
+<button class="key" onpointerdown="addMath('o', event)">o</button>
+<button class="key" onpointerdown="addMath('p', event)">p</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('a', event)">a</button>
+<button class="key" onpointerdown="addMath('s', event)">s</button>
+<button class="key" onpointerdown="addMath('d', event)">d</button>
+<button class="key" onpointerdown="addMath('f', event)">f</button>
+<button class="key" onpointerdown="addMath('g', event)">g</button>
+<button class="key" onpointerdown="addMath('h', event)">h</button>
+<button class="key" onpointerdown="addMath('j', event)">j</button>
+<button class="key" onpointerdown="addMath('k', event)">k</button>
+<button class="key" onpointerdown="addMath('l', event)">l</button>
+</div>
+<div class="kb-row">
+<button class="key" onpointerdown="addMath('z', event)">z</button>
+<button class="key" onpointerdown="addMath('x', event)">x</button>
+<button class="key" onpointerdown="addMath('c', event)">c</button>
+<button class="key" onpointerdown="addMath('v', event)">v</button>
+<button class="key" onpointerdown="addMath('b', event)">b</button>
+<button class="key" onpointerdown="addMath('n', event)">n</button>
+<button class="key" onpointerdown="addMath('m', event)">m</button>
+<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
+</div>
+<div class="kb-row" style="margin-top: 15px; padding: 0 10px 10px 10px;">
+<button class="key action" onpointerdown="closeMathModal()" style="background: var(--success); color: white; flex: 1; height: 65px; font-size: 1.6rem; font-weight: bold; border-radius: 10px; box-shadow: 0 5px 15px rgba(38, 137, 12, 0.4); border: 2px solid #fff;">✓ إدراج وحفظ الصيغة</button>
+</div>
+</div>
+</div>
+</div>
+</div> 
+<audio id="bgmMusic" loop="" preload="auto" src="https://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/menu.ogg"></audio>
+<audio id="jumpSound" preload="auto" src="https://commondatastorage.googleapis.com/codeskulptor-assets/jump.ogg"></audio>
+<audio id="scoreSound" preload="auto" src="https://commondatastorage.googleapis.com/codeskulptor-assets/week7-bounce.m4a"></audio>
+<audio id="gameOverSound" preload="auto" src="https://actions.google.com/sounds/v1/cartoon/slide_whistle.ogg"></audio>
+<audio id="correctAnswerSound" preload="auto" src="https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg"></audio>
+<audio id="wrongAnswerSound" preload="auto" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+<iframe id="hidden_iframe_score" name="hidden_iframe_score" onload="handleScoreLoad()" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
+<input id="form-name" name="name" type="hidden"/>
+<input id="form-school" name="school" type="hidden"/>
+<input id="form-score" name="score" type="hidden"/>
+</form>
+<iframe id="hidden_iframe_questions" name="hidden_iframe_questions" onload="handleQuestionsLoad()" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display: none;" target="hidden_iframe_questions">
+<input id="qform-name" name="name" type="hidden"/>
+<input id="qform-school" name="school" type="hidden"/>
+<input id="qform-score" name="score" type="hidden" value="QUESTIONS"/>
+</form>
+<script>
         const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
         let refreshInterval;
 
@@ -1432,7 +1397,7 @@
             continueBtn.style.display = 'none';
             questionModal.style.display = 'flex';
 
-            if (typeof MathJax !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub, questionModal]);
+            if (typeof MathLive !== 'undefined') { MathLive.renderMathInElement(questionModal); }
         }
 
         function checkAnswer(selectedIndex) {
