@@ -10,12 +10,18 @@
     <script src="https://unpkg.com/mathlive"></script>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-            tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']], processEscapes: true },
-            "HTML-CSS": { linebreaks: { automatic: true } },
-            SVG: { linebreaks: { automatic: true } }
-        });
-    </script>
+    MathJax.Hub.Config({
+        skipStartupTypeset: true,
+        tex2jax: {
+            inlineMath: [['$','$'], ['\(','\)']],
+            displayMath: [['$$','$$'], ['\[','\]']],
+            processEscapes: true,
+            ignoreClass: "math-ignore"
+        },
+        "HTML-CSS": { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+    });
+</script>
 
     <script>
         // دوال للتحكم في رسائل التأكيد عند الحفظ في شيت جوجل
@@ -584,7 +590,7 @@
         </div>
     </div>
 
-    <div id="math-modal-overlay">
+    <div id="math-modal-overlay" class="math-ignore">
         <div class="math-modal-content">
             <div class="math-header">
                 <span>📝 محرر الرياضيات الشامل</span>
