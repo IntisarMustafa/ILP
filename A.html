@@ -1098,24 +1098,27 @@
             if (currentQIndex >= gameQuestions.length) { endGame(); return; }
             playBGM('game');
             const q = gameQuestions[currentQIndex];
-            
-            // عرض النص كنص عادي حتى لا تختفي المسافات بين الكلمات
+
+            // 1. عرض نص السؤال
             document.getElementById('question-text').textContent = q.q;
 
+            // 2. إسناد النص للخيارات وإظهار الأزرار أولاً
+            for(let i=0; i<4; i++) {
+                let btn = document.getElementById(`btn-ans-${i}`);
+                document.getElementById(`ans-text-${i}`).textContent = q.opts[i];
+
+                btn.style.opacity = '1';
+                btn.style.visibility = 'visible';
+                btn.disabled = false;
+                btn.style.animation = 'none'; btn.offsetHeight; btn.style.animation = null;
+            }
+
+            // 3. الآن نقوم بتشغيل مكتبة MathLive لتحويل الرموز في السؤال والخيارات معاً
             if (window.MathLive) {
                 MathLive.renderMathInElement(document.getElementById('question-text'));
                 for(let i=0; i<4; i++) {
                     MathLive.renderMathInElement(document.getElementById(`ans-text-${i}`));
                 }
-            }
-            
-            for(let i=0; i<4; i++) {
-                let btn = document.getElementById(`btn-ans-${i}`);
-                document.getElementById(`ans-text-${i}`).textContent = q.opts[i];
-                btn.style.opacity = '1';
-                btn.style.visibility = 'visible';
-                btn.disabled = false;
-                btn.style.animation = 'none'; btn.offsetHeight; btn.style.animation = null;
             }
 
             timeLeft = TOTAL_TIME; updateTimerBar();
