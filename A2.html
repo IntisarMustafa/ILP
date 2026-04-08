@@ -1087,28 +1087,56 @@
         }
 
         function loadNextQuestion() {
-            if (currentQIndex >= gameQuestions.length) { endGame(); return; }
+            if (currentQIndex >= gameQuestions.length) { 
+                endGame(); 
+                return; 
+            }
+
             playBGM('game');
             const q = gameQuestions[currentQIndex];
-            
+
+            // 1) ضع السؤال أولاً
             document.getElementById('question-text').textContent = q.q;
 
-            if (window.MathLive) {
-                MathLive.renderMathInElement(document.getElementById('question-text'));
-                for(let i=0; i<4; i++) { MathLive.renderMathInElement(document.getElementById(`ans-text-${i}`)); }
-            }
-            
-            for(let i=0; i<4; i++) {
+            // 2) ضع الخيارات أولاً داخل الأزرار
+            for (let i = 0; i < 4; i++) {
                 let btn = document.getElementById(`btn-ans-${i}`);
-                document.getElementById(`ans-text-${i}`).textContent = q.opts[i];
-                btn.style.opacity = '1'; btn.style.visibility = 'visible'; btn.disabled = false;
-                btn.style.animation = 'none'; btn.offsetHeight; btn.style.animation = null;
+                let ansEl = document.getElementById(`ans-text-${i}`);
+
+                ansEl.textContent = q.opts[i];
+                btn.style.opacity = '1';
+                btn.style.visibility = 'visible';
+                btn.disabled = false;
+
+                btn.style.animation = 'none';
+                btn.offsetHeight;
+                btn.style.animation = null;
             }
 
-            timeLeft = TOTAL_TIME; updateTimerBar();
+            // 3) بعد ظهور النصوص شغّل MathLive
+            if (window.MathLive) {
+                MathLive.renderMathInElement(document.getElementById('question-text'));
+
+                for (let i = 0; i < 4; i++) {
+                    MathLive.renderMathInElement(
+                        document.getElementById(`ans-text-${i}`)
+                    );
+                }
+            }
+
+            // 4) تشغيل المؤقت
+            timeLeft = TOTAL_TIME;
+            updateTimerBar();
+
+            clearInterval(timerInterval);
             timerInterval = setInterval(() => {
-                timeLeft -= 0.1; updateTimerBar();
-                if (timeLeft <= 0) { clearInterval(timerInterval); submitAnswer(-1); }
+                timeLeft -= 0.1;
+                updateTimerBar();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitAnswer(-1);
+                }
             }, 100);
         }
 
