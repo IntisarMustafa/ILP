@@ -142,7 +142,8 @@ function copyGameLink() {
             --blue-glow: rgba(59, 130, 246, 0.6);
         } 
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; } 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        canvas, .touch-btn, #mobile-controls { touch-action: none; user-select: none; -webkit-user-select: none; } 
 
         /* System UI Container (Wrapper for Menus) */
         #system-ui {
@@ -1019,7 +1020,7 @@ generateRoomLinkAndQR();
 
     let lastTime = performance.now();
     function update(dt) {
-        if(dt > 0.1) dt = 0.1;
+        if(dt > 0.03) dt = 0.03;
         particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= dt; p.size *= 0.95; }); particles = particles.filter(p => p.life > 0);
         switchRings.forEach(r => { r.r += dt * 500; r.life -= dt * 3; r.thickness = Math.max(0, r.life * 15); }); switchRings = switchRings.filter(r => r.life > 0);
         playerTrail.forEach(t => { t.life -= dt * 4; t.size *= 0.9; }); playerTrail = playerTrail.filter(t => t.life > 0);
@@ -1067,6 +1068,7 @@ generateRoomLinkAndQR();
             solids.forEach(p => { let col = resolveCircleRect(player, p); if (col.hit) { player.x += col.nx * col.overlap; if (Math.abs(col.nx) > 0.5) { player.vx = 0; if(level.boxes.includes(p)) p.vx = -col.nx * stats.maxSpeed * 0.85; } } });
 
             if (!Input.jump && player.vy < 0) player.vy += stats.gravity * dt * 2.5; else player.vy += stats.gravity * dt;
+            if (player.vy > 800) player.vy = 800;
             if (player.isGrounded) player.coyoteTime = 0.15; else player.coyoteTime -= dt;
             if (Input.jumpPressed) { player.jumpBuffer = 0.15; Input.jumpPressed = false; } else player.jumpBuffer -= dt;
 
