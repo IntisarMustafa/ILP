@@ -493,6 +493,9 @@
 </div>
 <div class="timer-container"><div class="timer-bar" id="timer-bar"></div></div>
 <button class="powerup-btn" id="powerup-5050" onclick="use5050()">💡 مساعدة 50/50 (استخدام واحد)</button>
+
+<div id="question-counter" style="text-align: center; font-size: 18px; font-weight: bold; color: var(--white); background-color: var(--primary); padding: 5px 20px; border-radius: 20px; width: fit-content; margin: 0 auto 15px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: background-color 0.3s;"></div>
+
 <div class="question-box display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div>
 <div class="answers-grid">
 <button class="ans-btn bg-red" id="btn-ans-0" onclick="submitAnswer(0)"><span class="ans-icon">▲</span> <span class="display-text" id="ans-text-0" style="direction: rtl;"></span></button>
@@ -1174,6 +1177,26 @@
             if (currentQIndex >= gameQuestions.length) { endGame(); return; }
             playBGM('game');
             const q = gameQuestions[currentQIndex];
+
+            // --- بداية التعديل: كود ترقيم الأسئلة ---
+            const totalQ = gameQuestions.length;
+            const currentNumber = currentQIndex + 1;
+            let counterText = `السؤال ${currentNumber} من ${totalQ}`;
+
+            const counterEl = document.getElementById('question-counter');
+            if (counterEl) {
+                if (currentNumber === totalQ) {
+                    counterText += " 🏁 (السؤال الأخير)";
+                    counterEl.style.backgroundColor = "var(--k-red)";
+                } else if (currentNumber === totalQ - 1) {
+                    counterText += " ⏳ (السؤال ما قبل الأخير)";
+                    counterEl.style.backgroundColor = "var(--warning)";
+                } else {
+                    counterEl.style.backgroundColor = "var(--primary)";
+                }
+                counterEl.innerText = counterText;
+            }
+            // --- نهاية التعديل ---
 
             // 1. عرض نص السؤال
             document.getElementById('question-text').textContent = q.q;
