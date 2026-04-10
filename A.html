@@ -417,6 +417,23 @@
     </div>
 </div>
 
+
+<div style="background: #e9ecef; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed #adb5bd;">
+    <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 20px;">⚡ استيراد سريع (للمحترفين)</h3>
+    <p style="color: #555; margin-bottom: 15px; font-size: 14px; text-align: right;">ألصق مصفوفة الأسئلة بصيغة JSON هنا لإنشاء الغرفة دفعة واحدة.</p>
+
+    <textarea id="json-import-area" rows="5" style="width: 100%; padding: 15px; border-radius: 8px; border: 2px solid #ccc; font-family: monospace; font-size: 16px; direction: ltr; text-align: left; resize: vertical;" placeholder='[
+  {
+    "q": "اكتب السؤال هنا؟",
+    "opts": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+    "ans": 0
+  }
+]'></textarea>
+
+    <button class="btn btn-action" onclick="importQuestionsFromJSON()" style="margin-top: 15px; background-color: var(--info); color: white; box-shadow: 0 6px 0 var(--k-blue-dark);">🚀 إنشاء الغرفة من الكود</button>
+    <p id="json-error-msg" style="color: var(--k-red); font-weight: bold; margin-top: 15px; display: none; text-align: center;"></p>
+</div>
+
 <hr style="border: 1px solid #ddd; margin-bottom: 25px;">
 <h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ أو إنشاء أسئلة جديدة</h3>
 
@@ -961,6 +978,65 @@
             
             // إعادة النص لحالته الأصلية لاستخدامه لاحقاً من قبل الطالب
             loadingText.innerText = "جاري جلب أسئلة التحدي من المعلم...";
+        }
+
+
+        // دالة استيراد الأسئلة من مربع النص (JSON) وإنشاء الغرفة
+        function importQuestionsFromJSON() {
+            const jsonText = document.getElementById('json-import-area').value.trim();
+            const errorMsg = document.getElementById('json-error-msg');
+            errorMsg.style.display = 'none';
+
+            if (!jsonText) {
+                errorMsg.innerText = "يرجى لصق كود الأسئلة أولاً في المربع!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            try {
+                const parsedQuestions = JSON.parse(jsonText);
+
+                if (!Array.isArray(parsedQuestions) || parsedQuestions.length === 0) {
+                    throw new Error("يجب أن يكون الكود عبارة عن مصفوفة أسئلة [...] ولا يمكن أن يكون فارغاً.");
+                }
+
+                const sample = parsedQuestions[0];
+                if (typeof sample.q !== 'string' || !Array.isArray(sample.opts) || sample.opts.length !== 4 || typeof sample.ans !== 'number') {
+                    throw new Error("الهيكلية خاطئة! يجب أن يحتوي كل سؤال على: q, opts (4), ans (0-3).");
+                }
+
+                playBGM('lobby');
+                currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+                const cleanJsonString = JSON.stringify(parsedQuestions);
+
+                document.getElementById('qform-name').value = currentRoomPIN;
+                document.getElementById('qform-school').value = cleanJsonString;
+
+                document.getElementById('saving-status').style.display = 'block';
+                document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة ورفع الأسئلة من الكود...";
+                document.getElementById('questionsForm').submit();
+
+                document.getElementById('display-room-pin').innerText = currentRoomPIN;
+                const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+                document.getElementById('game-url-input').value = gameUrl;
+
+                const qrImg = document.getElementById('room-qr-code');
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+                qrImg.style.display = 'block';
+
+                showScreen('screen-teacher');
+
+                document.getElementById('json-import-area').value = '';
+
+                if (refreshInterval) clearInterval(refreshInterval);
+                refreshInterval = setInterval(fetchLeaderboard, 4000);
+            } catch (err) {
+                errorMsg.innerText = "❌ خطأ في الكود: " + err.message;
+                errorMsg.style.display = 'block';
+
+                document.body.classList.add('shake-screen');
+                setTimeout(() => document.body.classList.remove('shake-screen'), 600);
+            }
         }
 
         function saveQuestionsToSheet() {
