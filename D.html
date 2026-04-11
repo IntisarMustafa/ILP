@@ -1207,8 +1207,7 @@
             questionModal.style.display = 'none';
 
             createClouds();
-            clearInterval(pipeIntervalId);
-            pipeIntervalId = setInterval(createPipe, difficultySettings[currentDifficultyIndex].pipeInterval);
+            createPipe();
             
             gameLoop();
         }
@@ -1217,7 +1216,7 @@
             gamePaused = true;
             bgmMusic.pause();
             cancelAnimationFrame(animationFrameId);
-            clearInterval(pipeIntervalId);
+            
             displayQuestion();
         }
 
@@ -1235,8 +1234,7 @@
             bird.style.transform = 'rotate(0deg)';
             birdWing.style.animation = 'wingFlap 0.15s linear infinite'; 
 
-            clearInterval(pipeIntervalId);
-            pipeIntervalId = setInterval(createPipe, difficultySettings[currentDifficultyIndex].pipeInterval);
+            createPipe();
             animationFrameId = requestAnimationFrame(gameLoop); 
         }
 
@@ -1252,8 +1250,7 @@
             jumpPower = difficultySettings[currentDifficultyIndex].jumpPower;
             difficultyLevel.textContent = difficultySettings[currentDifficultyIndex].level;
 
-            clearInterval(pipeIntervalId);
-            if (gameRunning && !gamePaused) pipeIntervalId = setInterval(createPipe, difficultySettings[currentDifficultyIndex].pipeInterval);
+            
         }
 
         function createClouds() {
@@ -1297,7 +1294,7 @@
 
             for (let i = pipes.length - 1; i >= 0; i--) {
                 const pipe = pipes[i];
-                let pipePosition = parseInt(pipe.top.style.right);
+                let pipePosition = parseFloat(pipe.top.style.right || `-${pipeWidth}`);
                 pipePosition += pipeSpeed;
                 pipe.top.style.right = pipePosition + 'px'; pipe.bottom.style.right = pipePosition + 'px';
 
@@ -1373,6 +1370,21 @@
 
             movePipes();
 
+            // ------- توليد الأعمدة حسب المسافة -------
+            if (pipes.length === 0) {
+                createPipe();
+            } else {
+                const lastPipe = pipes[pipes.length - 1];
+                const lastPipeRight = parseFloat(lastPipe.top.style.right);
+
+                const distanceBetweenPipes = 320;
+
+                if (lastPipeRight > distanceBetweenPipes) {
+                    createPipe();
+                }
+            }
+            // ----------------------------------------
+
             for (let i = pipes.length - 1; i >= 0; i--) {
                 if (checkCollision(pipes[i].top, pipes[i].bottom)) { pauseGameForQuestion(); return; }
             }
@@ -1386,7 +1398,7 @@
         // تم التعديل هنا ليتم الانتقال الفوري لصفحة النتائج وتسجيل الدرجات عند الخسارة
         function endFlappyGame() {
             gameRunning = false; gamePaused = false; questionActive = false;
-            clearInterval(pipeIntervalId); cancelAnimationFrame(animationFrameId);
+             cancelAnimationFrame(animationFrameId);
 
             bgmMusic.pause();
 
