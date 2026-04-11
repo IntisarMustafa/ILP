@@ -1023,7 +1023,7 @@ generateRoomLinkAndQR();
 
     let lastTime = performance.now();
     function update(dt) {
-        if(dt > 0.03) dt = 0.03;
+        if(dt > 0.05) dt = 0.05;
         particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= dt; p.size *= 0.95; }); particles = particles.filter(p => p.life > 0);
         switchRings.forEach(r => { r.r += dt * 500; r.life -= dt * 3; r.thickness = Math.max(0, r.life * 15); }); switchRings = switchRings.filter(r => r.life > 0);
         playerTrail.forEach(t => { t.life -= dt * 4; t.size *= 0.9; }); playerTrail = playerTrail.filter(t => t.life > 0);
