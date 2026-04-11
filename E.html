@@ -1378,7 +1378,7 @@
             
             function updatePath(movementDistance) {
                 gameState.pathPoints.forEach(point => point.x -= movementDistance);
-                if (gameState.pathPoints[0].x < -GAME_WIDTH) {
+                while (gameState.pathPoints.length > 0 && gameState.pathPoints[0].x < -GAME_WIDTH) {
                     gameState.pathPoints.shift();
                     const lastPoint = gameState.pathPoints[gameState.pathPoints.length - 1];
                     const newX = lastPoint.x + (GAME_WIDTH / 10);
@@ -1660,7 +1660,8 @@
                     lastTimestamp = timestamp; requestAnimationFrame(gameLoop); return;
                 }
                 
-                const deltaTime = timestamp - lastTimestamp;
+                let deltaTime = timestamp - lastTimestamp;
+                if (deltaTime > 32) deltaTime = 32;
                 lastTimestamp = timestamp;
                 
                 update(deltaTime);
