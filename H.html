@@ -331,7 +331,10 @@ function copyGameLink() {
         @media (max-width: 1024px), (hover: none) and (pointer: coarse) { #mobile-controls { display: flex; } }
         
         .touch-btn {
-            width: 80px; height: 80px; pointer-events: auto; user-select: none;
+            /* تم التعديل لتصبح متجاوبة مع الشاشات الكبيرة */
+            width: clamp(80px, 12vw, 120px); 
+            height: clamp(80px, 12vw, 120px);
+            pointer-events: auto; user-select: none;
             background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);
             backdrop-filter: blur(5px); opacity: 0.85; transition: all 0.1s;
             box-shadow: 0 8px 15px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
@@ -1067,7 +1070,8 @@ generateRoomLinkAndQR();
 
             solids.forEach(p => { let col = resolveCircleRect(player, p); if (col.hit) { player.x += col.nx * col.overlap; if (Math.abs(col.nx) > 0.5) { player.vx = 0; if(level.boxes.includes(p)) p.vx = -col.nx * stats.maxSpeed * 0.85; } } });
 
-            if (!Input.jump && player.vy < 0) player.vy += stats.gravity * dt * 2.5; else player.vy += stats.gravity * dt;
+            /* تقليل قسوة الجاذبية عند القفز القصير لتسهيل اللعب على التابلت */
+            if (!Input.jump && player.vy < 0) player.vy += stats.gravity * dt * 1.6; else player.vy += stats.gravity * dt;
             if (player.vy > 800) player.vy = 800;
             if (player.isGrounded) player.coyoteTime = 0.15; else player.coyoteTime -= dt;
             if (Input.jumpPressed) { player.jumpBuffer = 0.15; Input.jumpPressed = false; } else player.jumpBuffer -= dt;
