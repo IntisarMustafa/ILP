@@ -1220,6 +1220,66 @@ function copyGameLink() {
 }
 // =================================
 
+
+// ===== Touch Fix (Pointer Events System) =====
+function bindTouchButton(btn, onPress, onRelease) {
+    if (!btn) return;
+
+    btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        btn.classList.add('pressed');
+        onPress && onPress();
+    });
+
+    btn.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        btn.classList.remove('pressed');
+        onRelease && onRelease();
+    });
+
+    btn.addEventListener('pointercancel', () => {
+        btn.classList.remove('pressed');
+        onRelease && onRelease();
+    });
+
+    btn.addEventListener('pointerleave', () => {
+        btn.classList.remove('pressed');
+        onRelease && onRelease();
+    });
+}
+
+// حالات التحكم
+let moveLeft = false;
+let moveRight = false;
+let jumping = false;
+
+// ربط الأزرار بعد تحميل الصفحة
+window.addEventListener('load', () => {
+    const btnLeft  = document.getElementById('btnLeft');
+    const btnRight = document.getElementById('btnRight');
+    const btnJump  = document.getElementById('btnJump');
+    const btnSwitch = document.getElementById('btnSwitch');
+
+    bindTouchButton(btnLeft,
+        () => moveLeft = true,
+        () => moveLeft = false
+    );
+
+    bindTouchButton(btnRight,
+        () => moveRight = true,
+        () => moveRight = false
+    );
+
+    bindTouchButton(btnJump,
+        () => jumping = true,
+        () => jumping = false
+    );
+
+    bindTouchButton(btnSwitch,
+        () => { if (typeof switchColor === 'function') switchColor(); }
+    );
+});
+
 </script>
 </body>
 </html>
