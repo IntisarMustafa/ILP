@@ -408,6 +408,7 @@
 <div class="screen" id="screen-teacher-setup">
 <div class="q-builder-container">
 <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
+<input type="text" id="quiz-title-input" placeholder="📌 عنوان المسابقة..." style="width:100%;padding:15px;margin-bottom:20px;text-align:center;font-weight:bold;border:2px solid #ccc;border-radius:10px;">
 
 <div style="background: #f3f2f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed #ccc;">
     <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استرداد غرفة سابقة</h3>
@@ -426,7 +427,8 @@
   {
     "q": "اكتب السؤال هنا؟",
     "opts": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
-    "ans": 0
+    "ans": 0,
+    "time": 30
   }
 ]'></textarea>
 
@@ -491,6 +493,7 @@
 <div class="streak-badge" id="streak-badge">🔥 <span id="streak-count">2</span> متتالي!</div>
 <div class="score-badge">النقاط: <span id="score-display">0</span></div>
 </div>
+<div id="quiz-title-display" style="text-align:center;font-size:26px;font-weight:900;color:white;margin-bottom:10px;"></div>
 <div class="timer-container"><div class="timer-bar" id="timer-bar"></div></div>
 <button class="powerup-btn" id="powerup-5050" onclick="use5050()">💡 مساعدة 50/50 (استخدام واحد)</button>
 
@@ -849,8 +852,9 @@
         ];
 
         let gameQuestions = [], currentRoomPIN = "", refreshInterval;
+let quizTitle = "🎮 التحدي الأكبر";
         let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 15;
-        const TOTAL_TIME = 15;
+        let TOTAL_TIME = 15;
         let currentStreak = 0, powerUpUsed = false, userAnswersHistory = [];
 
         let qBlockCount = 0;
@@ -873,8 +877,9 @@
                         ${qBlockCount > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
                     </h3>
                     <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0;">
+                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0; flex:1;">
                         <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                        <input type="number" class="q-time-input" value="15" min="5" max="300" placeholder="الوقت (ث)" style="width:90px; text-align:center;">
                     </div>
                     
                     <div class="opt-row">
@@ -1049,6 +1054,7 @@
 
             blocks.forEach((block, index) => {
                 const title = block.querySelector('.q-title-input').value.trim();
+const timeVal = block.querySelector('.q-time-input')?.value;
                 const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
                 const correctRadio = block.querySelector('input[type="radio"]:checked');
                 
@@ -1056,6 +1062,7 @@
                 
                 if (correctRadio) {
                     customQuestions.push({
+    time: parseInt(timeVal) || 15,
                         q: title,
                         opts: opts,
                         ans: parseInt(correctRadio.value)
@@ -1177,6 +1184,9 @@
             if (currentQIndex >= gameQuestions.length) { endGame(); return; }
             playBGM('game');
             const q = gameQuestions[currentQIndex];
+TOTAL_TIME = q.time || 15;
+timeLeft = TOTAL_TIME;
+document.getElementById('quiz-title-display').innerText = quizTitle;
 
             // --- بداية التعديل: كود ترقيم الأسئلة ---
             const totalQ = gameQuestions.length;
@@ -1263,6 +1273,9 @@
         function submitAnswer(idx) {
             clearInterval(timerInterval); stopBGM();
             const q = gameQuestions[currentQIndex];
+TOTAL_TIME = q.time || 15;
+timeLeft = TOTAL_TIME;
+document.getElementById('quiz-title-display').innerText = quizTitle;
             const correct = (idx === q.ans);
             
             let basePoints = correct ? Math.round((timeLeft/TOTAL_TIME)*1000) : 0;
