@@ -1283,7 +1283,7 @@ window.addEventListener('load', () => {
 </script>
 
 <script>
-// === FIX: Prevent Space scrolling / button focus conflict ===
+// REMOVED OLD FIX
 let jumping = false;
 let moveLeft = false;
 let moveRight = false;
@@ -1304,6 +1304,26 @@ window.addEventListener('keyup', (e) => {
 });
 
 // إزالة التركيز من الأزرار بعد الضغط
+document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => btn.blur());
+});
+</script>
+
+
+<script>
+// === FINAL FIX: Space key behavior without breaking inputs or touch ===
+window.addEventListener('keydown', function(e) {
+    // Prevent space ONLY when not typing in input/textarea
+    if (
+        (e.code === 'Space' || e.key === ' ') &&
+        e.target.tagName !== 'INPUT' &&
+        e.target.tagName !== 'TEXTAREA'
+    ) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+// Remove focus from buttons after click (prevents re-trigger)
 document.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => btn.blur());
 });
