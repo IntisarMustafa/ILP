@@ -1281,5 +1281,33 @@ window.addEventListener('load', () => {
 });
 
 </script>
+
+<script>
+// === FIX: Prevent Space scrolling / button focus conflict ===
+let jumping = false;
+let moveLeft = false;
+let moveRight = false;
+
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.key === ' ') {
+        e.preventDefault();
+        jumping = true;
+    }
+    if (e.code === 'ArrowRight' || e.key.toLowerCase() === 'd') moveRight = true;
+    if (e.code === 'ArrowLeft' || e.key.toLowerCase() === 'a') moveLeft = true;
+}, { passive: false });
+
+window.addEventListener('keyup', (e) => {
+    if (e.code === 'Space' || e.key === ' ') jumping = false;
+    if (e.code === 'ArrowRight' || e.key.toLowerCase() === 'd') moveRight = false;
+    if (e.code === 'ArrowLeft' || e.key.toLowerCase() === 'a') moveLeft = false;
+});
+
+// إزالة التركيز من الأزرار بعد الضغط
+document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => btn.blur());
+});
+</script>
+
 </body>
 </html>
