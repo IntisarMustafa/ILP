@@ -719,8 +719,12 @@
                     document.getElementById('feedback').className='feedback incorrect';
                     playTone(80,'sawtooth',0.2,0.2); // صوت الإجابة الخاطئة
                 }
-                document.getElementById('continue-btn').disabled=false;
-                Array.from(answersDiv.children).forEach(b=>b.disabled=true);
+                document.getElementById('continue-btn').disabled = false;
+                Array.from(answersDiv.children).forEach(b => b.disabled = true);
+
+                window.autoCloseTimeout = setTimeout(() => {
+                    document.getElementById('continue-btn').click();
+                }, 2000);
             };
             answersDiv.appendChild(btn);
         });
@@ -728,14 +732,20 @@
         document.getElementById('continue-btn').disabled=true;
         modal.style.display='flex';
         isPaused=true;
-        MathJax.typesetPromise([document.getElementById('question-text'),answersDiv]);
+        if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([
+        document.getElementById('question-text'),
+        answersDiv
+    ]).catch(err => console.log(err));
+}
     }
 
-    document.getElementById('continue-btn').onclick=()=>{
-        document.getElementById('question-modal').style.display='none';
-        isPaused=false;
-        checkGameEnd();
-    };
+    document.getElementById('continue-btn').onclick = () => {
+    if (window.autoCloseTimeout) clearTimeout(window.autoCloseTimeout);
+    document.getElementById('question-modal').style.display = 'none';
+    isPaused = false;
+    checkGameEnd();
+};
     
     // --------------------------------------------------------------
     // 4. منطق لعبة كاندي كرش (Candy Crush Logic)
