@@ -420,6 +420,11 @@
 <h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ أو إنشاء أسئلة جديدة</h3>
 
 <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
+<div class="input-group" style="margin-bottom:20px;">
+<label style="font-weight:bold; color:var(--primary);">عنوان الاختبار:</label>
+<input type="text" id="customTitle" placeholder="مثلاً: مراجعة الوحدة الأولى"
+style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margin-top:8px;">
+</div>
 <div id="questions-list"></div>
 <button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
 <div style="margin-top: 30px; display: flex; gap: 10px;">
@@ -474,8 +479,9 @@
 <span id="player-name-display"></span>
 </div>
 <div class="streak-badge" id="streak-badge">🔥 <span id="streak-count">2</span> متتالي!</div>
-<div class="score-badge">النقاط: <span id="score-display">0</span></div>
-</div>
+	<div class="score-badge">النقاط: <span id="score-display">0</span></div>
+	</div>
+	<div id="question-counter" style="text-align: center; font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">السؤال 1 من 1</div>
 <div class="timer-container"><div class="timer-bar" id="timer-bar"></div></div>
 <button class="powerup-btn" id="powerup-5050" onclick="use5050()">💡 مساعدة 50/50 (استخدام واحد)</button>
 <div class="question-box display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div>
@@ -843,11 +849,12 @@
 
         let gameQuestions = [], currentRoomPIN = "", refreshInterval;
         let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 15;
-        const TOTAL_TIME = 15;
+        let currentQuestionTime = 15;
         let currentStreak = 0, powerUpUsed = false, userAnswersHistory = [];
 
         let qBlockCount = 0;
         let teacherQCount = 0; // متغير جديد لحساب عدد ضغطات المعلم (الأوامر)
+        let totalRoomQuestions = 0; // إجمالي عدد الأسئلة في الغرفة
         let studentWaitInterval = null; // متغير لضبط عملية الانتظار لدى الطالب
 
         function openTeacherSetup() {
@@ -858,44 +865,35 @@
         }
 
         function addQuestionBlock() {
-            const container = document.getElementById('questions-list');
-            const blockId = `q-block-${qBlockCount}`;
-            const html = `
-                <div class="q-block" id="${blockId}">
-                    <h3>
-                        <span>السؤال ${qBlockCount + 1}</span>
-                        ${qBlockCount > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
-                    </h3>
-                    <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0;">
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                    
-                    <div class="opt-row">
-                        <input type="radio" name="correct-${qBlockCount}" value="0" checked title="حدد الإجابة الصحيحة">
-                        <input type="text" class="q-opt-input" placeholder="الخيار الأول (▲)" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                    <div class="opt-row">
-                        <input type="radio" name="correct-${qBlockCount}" value="1" title="حدد الإجابة الصحيحة">
-                        <input type="text" class="q-opt-input" placeholder="الخيار الثاني (◆)" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                    <div class="opt-row">
-                        <input type="radio" name="correct-${qBlockCount}" value="2" title="حدد الإجابة الصحيحة">
-                        <input type="text" class="q-opt-input" placeholder="الخيار الثالث (●)" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                    <div class="opt-row">
-                        <input type="radio" name="correct-${qBlockCount}" value="3" title="حدد الإجابة الصحيحة">
-                        <input type="text" class="q-opt-input" placeholder="الخيار الرابع (■)" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
-            qBlockCount++;
-        }
+    const container = document.getElementById('questions-list');
+    const count = container.children.length + 1;
+    const blockId = `q-block-${Date.now()}`;
+
+    const html = `
+    <div class="q-block" id="${blockId}">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; color:var(--primary);">
+                السؤال <span class="q-num">${count}</span>
+            </h3>
+            <button class="remove-q-btn" onclick="removeQuestion('${blockId}')">حذف</button>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom: 15px;">
+            <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="flex:1;">
+            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            <input type="number" class="q-time-input" value="15" min="5" max="300" style="width:70px; text-align:center;">
+        </div>
+
+        ${[0,1,2,3].map(i => `
+        <div class="opt-row">
+            <input type="radio" name="correct-${blockId}" value="${i}" ${i===0?'checked':''}>
+            <input type="text" class="q-opt-input" placeholder="خيار ${i+1}" required>
+            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+        </div>
+        `).join('')}
+    </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+}
 
         async function loadExistingRoom() {
             const pin = document.getElementById('existing-room-pin').value.trim();
@@ -917,7 +915,10 @@
                 for(let i = rows.length - 1; i >= 0; i--) {
                     if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
                         if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
-                            roomFound = true; copiedQuestions = rows[i].c[1].v.toString(); break;
+                            roomFound = true; 
+                            copiedQuestions = rows[i].c[1].v.toString(); 
+                            totalRoomQuestions = JSON.parse(copiedQuestions).length;
+                            break;
                         }
                     }
                 }
@@ -954,7 +955,16 @@
             loadingText.innerText = "جاري جلب أسئلة التحدي من المعلم...";
         }
 
-        function saveQuestionsToSheet() {
+        function updateQuestionNumbers() {
+    const nums = document.querySelectorAll('.q-num');
+    nums.forEach((el, i) => el.innerText = i + 1);
+}
+function removeQuestion(id){
+    document.getElementById(id).remove();
+    updateQuestionNumbers();
+}
+
+function saveQuestionsToSheet() {
             const blocks = document.querySelectorAll('.q-block');
             let customQuestions = [];
             let isValid = true;
@@ -964,10 +974,19 @@
                 const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
                 const correctRadio = block.querySelector('input[type="radio"]:checked');
                 if (!title || opts.some(opt => !opt)) isValid = false;
-                if (correctRadio) { customQuestions.push({ q: title, opts: opts, ans: parseInt(correctRadio.value) }); }
+                const qTime = parseInt(block.querySelector('.q-time-input').value) || 15;
+                if (correctRadio) { 
+                    customQuestions.push({ 
+                        q: title, 
+                        opts: opts, 
+                        ans: parseInt(correctRadio.value),
+                        time: qTime 
+                    }); 
+                }
             });
 
             if (!isValid || customQuestions.length === 0) { alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!"); return; }
+            totalRoomQuestions = customQuestions.length;
 
             playBGM('lobby');
             currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
@@ -1007,8 +1026,15 @@
             btn.disabled = true;
             
             setTimeout(() => {
-                btn.innerText = "⏩ إرسال السؤال التالي للطلاب";
-                btn.disabled = false;
+                if (teacherQCount >= totalRoomQuestions) {
+                    btn.innerText = "🏆 انتهت المسابقة! (الفائزون موضحون بلوحة الصدارة)";
+                    btn.style.backgroundColor = "var(--success)";
+                    btn.style.color = "white";
+                    btn.disabled = true;
+                } else {
+                    btn.innerText = "⏩ إرسال السؤال التالي للطلاب";
+                    btn.disabled = false;
+                }
             }, 3000);
         }
 
@@ -1095,8 +1121,18 @@
             playBGM('game');
             const q = gameQuestions[currentQIndex];
 
-            // 1) ضع السؤال أولاً
-            document.getElementById('question-text').textContent = q.q;
+	            // 1) ضع السؤال أولاً
+	            document.getElementById('question-text').textContent = q.q;
+	            
+	            // تحديث الترقيم
+	            const counterEl = document.getElementById('question-counter');
+	            if (counterEl) {
+	                if (currentQIndex === gameQuestions.length - 1) {
+	                    counterEl.innerHTML = `<span style="color: var(--secondary);">السؤال الأخير</span> (${currentQIndex + 1} من ${gameQuestions.length})`;
+	                } else {
+	                    counterEl.innerText = `السؤال ${currentQIndex + 1} من ${gameQuestions.length}`;
+	                }
+	            }
 
             // 2) ضع الخيارات أولاً داخل الأزرار
             for (let i = 0; i < 4; i++) {
@@ -1125,7 +1161,8 @@
             }
 
             // 4) تشغيل المؤقت
-            timeLeft = TOTAL_TIME;
+            currentQuestionTime = q.time || 15; 
+            timeLeft = currentQuestionTime;
             updateTimerBar();
 
             clearInterval(timerInterval);
@@ -1142,7 +1179,7 @@
 
         function updateTimerBar() {
             const bar = document.getElementById('timer-bar');
-            const pct = (timeLeft / TOTAL_TIME) * 100;
+            const pct = (timeLeft / currentQuestionTime) * 100;
             bar.style.width = Math.max(0, pct) + '%';
             if(timeLeft <= 3) bar.classList.add('danger'); else bar.classList.remove('danger');
         }
@@ -1168,7 +1205,7 @@
             const q = gameQuestions[currentQIndex];
             const correct = (idx === q.ans);
             
-            let basePoints = correct ? Math.round((timeLeft/TOTAL_TIME)*1000) : 0;
+            let basePoints = correct ? Math.round((timeLeft/currentQuestionTime)*1000) : 0;
             let multiplier = 1 + (currentStreak * 0.1);
             let finalPoints = Math.round(basePoints * multiplier);
 
@@ -1241,8 +1278,16 @@
                 table.style.display = 'table';
             };
 
-            // التحقق المستمر كل 3 ثواني
-            if (studentWaitInterval) clearInterval(studentWaitInterval);
+	            // إذا كان السؤال الأخير، غير الرسالة
+	            const waitMsg = document.getElementById('wait-teacher-msg');
+	            if (currentQIndex === gameQuestions.length - 1) {
+	                waitMsg.innerHTML = "🏆 انتهى التحدي! بانتظار المعلم لإظهار النتيجة النهائية...";
+	            } else {
+	                waitMsg.innerHTML = "⏳ بانتظار المعلم للانتقال للسؤال التالي...";
+	            }
+	            
+	            // التحقق المستمر كل 3 ثواني
+	            if (studentWaitInterval) clearInterval(studentWaitInterval);
             studentWaitInterval = setInterval(async () => {
                 try {
                     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=` + new Date().getTime();
