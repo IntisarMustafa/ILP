@@ -420,11 +420,6 @@
 <h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ أو إنشاء أسئلة جديدة</h3>
 
 <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
-<div class="input-group" style="margin-bottom:20px;">
-<label style="font-weight:bold; color:var(--primary);">عنوان الاختبار:</label>
-<input type="text" id="customTitle" placeholder="مثلاً: مراجعة الوحدة الأولى"
-style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margin-top:8px;">
-</div>
 <div id="questions-list"></div>
 <button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
 <div style="margin-top: 30px; display: flex; gap: 10px;">
@@ -863,35 +858,44 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
         }
 
         function addQuestionBlock() {
-    const container = document.getElementById('questions-list');
-    const count = container.children.length + 1;
-    const blockId = `q-block-${Date.now()}`;
-
-    const html = `
-    <div class="q-block" id="${blockId}">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h3 style="margin:0; color:var(--primary);">
-                السؤال <span class="q-num">${count}</span>
-            </h3>
-            <button class="remove-q-btn" onclick="removeQuestion('${blockId}')">حذف</button>
-        </div>
-
-        <div style="display:flex; gap:10px; margin-bottom: 15px;">
-            <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="flex:1;">
-            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-            <input type="number" class="q-time-input" value="15" min="5" max="300" style="width:70px; text-align:center;">
-        </div>
-
-        ${[0,1,2,3].map(i => `
-        <div class="opt-row">
-            <input type="radio" name="correct-${blockId}" value="${i}" ${i===0?'checked':''}>
-            <input type="text" class="q-opt-input" placeholder="خيار ${i+1}" required>
-            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-        </div>
-        `).join('')}
-    </div>`;
-    container.insertAdjacentHTML('beforeend', html);
-}
+            const container = document.getElementById('questions-list');
+            const blockId = `q-block-${qBlockCount}`;
+            const html = `
+                <div class="q-block" id="${blockId}">
+                    <h3>
+                        <span>السؤال ${qBlockCount + 1}</span>
+                        ${qBlockCount > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
+                    </h3>
+                    <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0;">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                    
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${qBlockCount}" value="0" checked title="حدد الإجابة الصحيحة">
+                        <input type="text" class="q-opt-input" placeholder="الخيار الأول (▲)" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${qBlockCount}" value="1" title="حدد الإجابة الصحيحة">
+                        <input type="text" class="q-opt-input" placeholder="الخيار الثاني (◆)" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${qBlockCount}" value="2" title="حدد الإجابة الصحيحة">
+                        <input type="text" class="q-opt-input" placeholder="الخيار الثالث (●)" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${qBlockCount}" value="3" title="حدد الإجابة الصحيحة">
+                        <input type="text" class="q-opt-input" placeholder="الخيار الرابع (■)" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            qBlockCount++;
+        }
 
         async function loadExistingRoom() {
             const pin = document.getElementById('existing-room-pin').value.trim();
@@ -950,16 +954,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
             loadingText.innerText = "جاري جلب أسئلة التحدي من المعلم...";
         }
 
-        function updateQuestionNumbers() {
-    const nums = document.querySelectorAll('.q-num');
-    nums.forEach((el, i) => el.innerText = i + 1);
-}
-function removeQuestion(id){
-    document.getElementById(id).remove();
-    updateQuestionNumbers();
-}
-
-function saveQuestionsToSheet() {
+        function saveQuestionsToSheet() {
             const blocks = document.querySelectorAll('.q-block');
             let customQuestions = [];
             let isValid = true;
