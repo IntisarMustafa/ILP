@@ -457,6 +457,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
             </div>
             
 <button class="btn btn-action" id="btn-next-question" onclick="sendNextQuestionCommand()" style="margin-top: 15px; display: none; background-color: var(--warning); color: black;">⏩ إرسال السؤال التالي للطلاب</button>
+<button class="btn btn-action" id="btn-show-winners" onclick="triggerFinalCelebration()" style="margin-top: 15px; display: none; background-color: var(--success); color: white; box-shadow: 0 6px 0 var(--k-green-dark);">🏆 إظهار الفائزين وإنهاء التحدي</button>
 
 <button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
 </div>
@@ -854,7 +855,20 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 
         let qBlockCount = 0;
         let teacherQCount = 0; // متغير جديد لحساب عدد ضغطات المعلم (الأوامر)
+        let totalQuestionsCount = 0; // المتغير الجديد لحفظ العدد الإجمالي للأسئلة
         let studentWaitInterval = null; // متغير لضبط عملية الانتظار لدى الطالب
+
+        function setupTeacherButtons() {
+            const nextBtn = document.getElementById('btn-next-question');
+            const winBtn = document.getElementById('btn-show-winners');
+            if (totalQuestionsCount <= 1) {
+                nextBtn.style.display = 'none';
+                if (winBtn) winBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'inline-block';
+                if (winBtn) winBtn.style.display = 'none';
+            }
+        }
 
         function openTeacherSetup() {
             document.getElementById('questions-list').innerHTML = '';
@@ -914,31 +928,36 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
                 for(let i = rows.length - 1; i >= 0; i--) {
                     if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
                         if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
-                            roomFound = true; copiedQuestions = rows[i].c[1].v.toString(); break;
+                            roomFound = true; 
+                            copiedQuestions = rows[i].c[1].v.toString(); 
+                            totalRoomQuestions = JSON.parse(copiedQuestions).length;
+                            break;
                         }
                     }
                 }
 
-                if (roomFound) {
-                    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
-                    document.getElementById('qform-name').value = currentRoomPIN; 
-                    document.getElementById('qform-school').value = copiedQuestions; 
-                    document.getElementById('saving-status').style.display = 'block';
-                    document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
-                    document.getElementById('questionsForm').submit(); 
-
-                    document.getElementById('display-room-pin').innerText = currentRoomPIN;
-                    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
-                    document.getElementById('game-url-input').value = gameUrl;
-                    
-                    const qrImg = document.getElementById('room-qr-code');
-                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
-                    qrImg.style.display = 'block';
-                    document.getElementById('btn-next-question').style.display = 'inline-block'; // إظهار زر التحكم
-                    
-                    loadingScreen.style.display = 'none';
-                    playBGM('lobby'); showScreen('screen-teacher');
-                    teacherQCount = 0;
+                    if (roomFound) {
+                        currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+                        document.getElementById('qform-name').value = currentRoomPIN; 
+                        document.getElementById('qform-school').value = copiedQuestions; 
+                        document.getElementById('saving-status').style.display = 'block';
+                        document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
+                        document.getElementById('questionsForm').submit(); 
+    
+                        document.getElementById('display-room-pin').innerText = currentRoomPIN;
+                        const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+                        document.getElementById('game-url-input').value = gameUrl;
+                        
+                        const qrImg = document.getElementById('room-qr-code');
+                        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+                        qrImg.style.display = 'block';
+                        
+                        totalQuestionsCount = JSON.parse(copiedQuestions).length;
+                        teacherQCount = 0;
+                        setupTeacherButtons();
+                        
+                        loadingScreen.style.display = 'none';
+                        playBGM('lobby'); showScreen('screen-teacher');
                     
                     if (refreshInterval) clearInterval(refreshInterval);
                     refreshInterval = setInterval(fetchLeaderboard, 4000);
@@ -982,7 +1001,7 @@ function saveQuestionsToSheet() {
             });
 
             if (!isValid || customQuestions.length === 0) { alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!"); return; }
-
+    
             playBGM('lobby');
             currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
             
@@ -991,7 +1010,7 @@ function saveQuestionsToSheet() {
             document.getElementById('saving-status').style.display = 'block';
             document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
             document.getElementById('questionsForm').submit();
-
+    
             document.getElementById('display-room-pin').innerText = currentRoomPIN;
             const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
             document.getElementById('game-url-input').value = gameUrl;
@@ -999,8 +1018,10 @@ function saveQuestionsToSheet() {
             const qrImg = document.getElementById('room-qr-code');
             qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
             qrImg.style.display = 'block';
-            document.getElementById('btn-next-question').style.display = 'inline-block'; // إظهار زر التحكم
+            
+            totalQuestionsCount = customQuestions.length;
             teacherQCount = 0;
+            setupTeacherButtons();
 
             showScreen('screen-teacher');
             refreshInterval = setInterval(fetchLeaderboard, 4000);
@@ -1017,13 +1038,53 @@ function saveQuestionsToSheet() {
             document.getElementById('scoreForm').submit();
             
             const btn = document.getElementById('btn-next-question');
-            btn.innerText = "⏳ تم الإرسال... انتظر قليلاً";
-            btn.disabled = true;
+            const winBtn = document.getElementById('btn-show-winners');
             
-            setTimeout(() => {
-                btn.innerText = "⏩ إرسال السؤال التالي للطلاب";
-                btn.disabled = false;
-            }, 3000);
+            if (teacherQCount < totalQuestionsCount) {
+                btn.innerText = "⏳ تم الإرسال... انتظر قليلاً";
+                btn.disabled = true;
+                setTimeout(() => {
+                    if (teacherQCount < totalQuestionsCount) {
+                        btn.innerText = "⏩ إرسال السؤال التالي للطلاب";
+                        btn.disabled = false;
+                    } else {
+                        btn.style.display = 'none';
+                        if (winBtn) {
+                            winBtn.style.display = 'inline-block';
+                            winBtn.innerText = "🏆 إظهار الفائزين وإنهاء التحدي";
+                            winBtn.disabled = false;
+                        }
+                    }
+                }, 3000);
+            } else {
+                btn.style.display = 'none';
+                if (winBtn) {
+                    winBtn.style.display = 'inline-block';
+                    winBtn.innerText = "🏆 إظهار الفائزين وإنهاء التحدي";
+                    winBtn.disabled = false;
+                }
+            }
+        }
+
+        function triggerFinalCelebration() {
+            teacherQCount++; 
+            document.getElementById('form-name').value = "TEACHER_CMD";
+            document.getElementById('form-school').value = currentRoomPIN;
+            document.getElementById('form-score').value = "NEXT_" + teacherQCount;
+            document.getElementById('scoreForm').submit();
+            
+            document.getElementById('btn-show-winners').style.display = 'none';
+
+            const statusEl = document.getElementById('saving-status');
+            if (statusEl) {
+                statusEl.innerText = "🏆 تم إنهاء التحدي! هؤلاء هم الأبطال!";
+                statusEl.style.color = "var(--success)";
+            }
+
+            fireConfetti();
+            playTone(400, 'sine', 0.1);
+            setTimeout(() => playTone(600, 'sine', 0.1), 150); 
+            setTimeout(() => playTone(800, 'sine', 0.4), 300);
         }
 
         window.onload = () => {
