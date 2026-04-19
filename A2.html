@@ -479,8 +479,9 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 <span id="player-name-display"></span>
 </div>
 <div class="streak-badge" id="streak-badge">🔥 <span id="streak-count">2</span> متتالي!</div>
-<div class="score-badge">النقاط: <span id="score-display">0</span></div>
-</div>
+	<div class="score-badge">النقاط: <span id="score-display">0</span></div>
+	</div>
+	<div id="question-counter" style="text-align: center; font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">السؤال 1 من 1</div>
 <div class="timer-container"><div class="timer-bar" id="timer-bar"></div></div>
 <button class="powerup-btn" id="powerup-5050" onclick="use5050()">💡 مساعدة 50/50 (استخدام واحد)</button>
 <div class="question-box display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div>
@@ -848,7 +849,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 
         let gameQuestions = [], currentRoomPIN = "", refreshInterval;
         let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 15;
-        const TOTAL_TIME = 15;
+        let currentQuestionTime = 15;
         let currentStreak = 0, powerUpUsed = false, userAnswersHistory = [];
 
         let qBlockCount = 0;
@@ -969,7 +970,15 @@ function saveQuestionsToSheet() {
                 const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
                 const correctRadio = block.querySelector('input[type="radio"]:checked');
                 if (!title || opts.some(opt => !opt)) isValid = false;
-                if (correctRadio) { customQuestions.push({ q: title, opts: opts, ans: parseInt(correctRadio.value) }); }
+                const qTime = parseInt(block.querySelector('.q-time-input').value) || 15;
+                if (correctRadio) { 
+                    customQuestions.push({ 
+                        q: title, 
+                        opts: opts, 
+                        ans: parseInt(correctRadio.value),
+                        time: qTime 
+                    }); 
+                }
             });
 
             if (!isValid || customQuestions.length === 0) { alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!"); return; }
@@ -1100,8 +1109,18 @@ function saveQuestionsToSheet() {
             playBGM('game');
             const q = gameQuestions[currentQIndex];
 
-            // 1) ضع السؤال أولاً
-            document.getElementById('question-text').textContent = q.q;
+	            // 1) ضع السؤال أولاً
+	            document.getElementById('question-text').textContent = q.q;
+	            
+	            // تحديث الترقيم
+	            const counterEl = document.getElementById('question-counter');
+	            if (counterEl) {
+	                if (currentQIndex === gameQuestions.length - 1) {
+	                    counterEl.innerHTML = `<span style="color: var(--secondary);">السؤال الأخير</span> (${currentQIndex + 1} من ${gameQuestions.length})`;
+	                } else {
+	                    counterEl.innerText = `السؤال ${currentQIndex + 1} من ${gameQuestions.length}`;
+	                }
+	            }
 
             // 2) ضع الخيارات أولاً داخل الأزرار
             for (let i = 0; i < 4; i++) {
@@ -1130,7 +1149,8 @@ function saveQuestionsToSheet() {
             }
 
             // 4) تشغيل المؤقت
-            timeLeft = TOTAL_TIME;
+            currentQuestionTime = q.time || 15; 
+            timeLeft = currentQuestionTime;
             updateTimerBar();
 
             clearInterval(timerInterval);
@@ -1147,7 +1167,7 @@ function saveQuestionsToSheet() {
 
         function updateTimerBar() {
             const bar = document.getElementById('timer-bar');
-            const pct = (timeLeft / TOTAL_TIME) * 100;
+            const pct = (timeLeft / currentQuestionTime) * 100;
             bar.style.width = Math.max(0, pct) + '%';
             if(timeLeft <= 3) bar.classList.add('danger'); else bar.classList.remove('danger');
         }
@@ -1173,7 +1193,7 @@ function saveQuestionsToSheet() {
             const q = gameQuestions[currentQIndex];
             const correct = (idx === q.ans);
             
-            let basePoints = correct ? Math.round((timeLeft/TOTAL_TIME)*1000) : 0;
+            let basePoints = correct ? Math.round((timeLeft/currentQuestionTime)*1000) : 0;
             let multiplier = 1 + (currentStreak * 0.1);
             let finalPoints = Math.round(basePoints * multiplier);
 
@@ -1246,8 +1266,16 @@ function saveQuestionsToSheet() {
                 table.style.display = 'table';
             };
 
-            // التحقق المستمر كل 3 ثواني
-            if (studentWaitInterval) clearInterval(studentWaitInterval);
+	            // إذا كان السؤال الأخير، غير الرسالة
+	            const waitMsg = document.getElementById('wait-teacher-msg');
+	            if (currentQIndex === gameQuestions.length - 1) {
+	                waitMsg.innerHTML = "🏆 انتهى التحدي! بانتظار المعلم لإظهار النتيجة النهائية...";
+	            } else {
+	                waitMsg.innerHTML = "⏳ بانتظار المعلم للانتقال للسؤال التالي...";
+	            }
+	            
+	            // التحقق المستمر كل 3 ثواني
+	            if (studentWaitInterval) clearInterval(studentWaitInterval);
             studentWaitInterval = setInterval(async () => {
                 try {
                     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=` + new Date().getTime();
