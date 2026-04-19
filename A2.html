@@ -854,6 +854,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 
         let qBlockCount = 0;
         let teacherQCount = 0; // متغير جديد لحساب عدد ضغطات المعلم (الأوامر)
+        let totalRoomQuestions = 0; // إجمالي عدد الأسئلة في الغرفة
         let studentWaitInterval = null; // متغير لضبط عملية الانتظار لدى الطالب
 
         function openTeacherSetup() {
@@ -914,7 +915,10 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
                 for(let i = rows.length - 1; i >= 0; i--) {
                     if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
                         if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
-                            roomFound = true; copiedQuestions = rows[i].c[1].v.toString(); break;
+                            roomFound = true; 
+                            copiedQuestions = rows[i].c[1].v.toString(); 
+                            totalRoomQuestions = JSON.parse(copiedQuestions).length;
+                            break;
                         }
                     }
                 }
@@ -982,6 +986,7 @@ function saveQuestionsToSheet() {
             });
 
             if (!isValid || customQuestions.length === 0) { alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!"); return; }
+            totalRoomQuestions = customQuestions.length;
 
             playBGM('lobby');
             currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
@@ -1021,8 +1026,15 @@ function saveQuestionsToSheet() {
             btn.disabled = true;
             
             setTimeout(() => {
-                btn.innerText = "⏩ إرسال السؤال التالي للطلاب";
-                btn.disabled = false;
+                if (teacherQCount >= totalRoomQuestions) {
+                    btn.innerText = "🏆 انتهت المسابقة! (الفائزون موضحون بلوحة الصدارة)";
+                    btn.style.backgroundColor = "var(--success)";
+                    btn.style.color = "white";
+                    btn.disabled = true;
+                } else {
+                    btn.innerText = "⏩ إرسال السؤال التالي للطلاب";
+                    btn.disabled = false;
+                }
             }, 3000);
         }
 
