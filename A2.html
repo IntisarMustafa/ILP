@@ -457,7 +457,6 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
             </div>
             
 <button class="btn btn-action" id="btn-next-question" onclick="sendNextQuestionCommand()" style="margin-top: 15px; display: none; background-color: var(--warning); color: black;">⏩ إرسال السؤال التالي للطلاب</button>
-<button class="btn btn-action" id="btn-show-winners" onclick="triggerFinalCelebration()" style="margin-top: 15px; display: none; background-color: var(--success); color: white; box-shadow: 0 6px 0 var(--k-green-dark);">🏆 إظهار الفائزين وإنهاء التحدي</button>
 
 <button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
 </div>
@@ -480,9 +479,8 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 <span id="player-name-display"></span>
 </div>
 <div class="streak-badge" id="streak-badge">🔥 <span id="streak-count">2</span> متتالي!</div>
-	<div class="score-badge">النقاط: <span id="score-display">0</span></div>
-	</div>
-	<div id="question-counter" style="text-align: center; font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">السؤال 1 من 1</div>
+<div class="score-badge">النقاط: <span id="score-display">0</span></div>
+</div>
 <div class="timer-container"><div class="timer-bar" id="timer-bar"></div></div>
 <button class="powerup-btn" id="powerup-5050" onclick="use5050()">💡 مساعدة 50/50 (استخدام واحد)</button>
 <div class="question-box display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div>
@@ -850,25 +848,12 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 
         let gameQuestions = [], currentRoomPIN = "", refreshInterval;
         let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 15;
-        let currentQuestionTime = 15;
+        const TOTAL_TIME = 15;
         let currentStreak = 0, powerUpUsed = false, userAnswersHistory = [];
 
         let qBlockCount = 0;
         let teacherQCount = 0; // متغير جديد لحساب عدد ضغطات المعلم (الأوامر)
-        let totalQuestionsCount = 0; // المتغير الجديد لحفظ العدد الإجمالي للأسئلة
         let studentWaitInterval = null; // متغير لضبط عملية الانتظار لدى الطالب
-
-        function setupTeacherButtons() {
-            const nextBtn = document.getElementById('btn-next-question');
-            const winBtn = document.getElementById('btn-show-winners');
-            if (totalQuestionsCount <= 1) {
-                nextBtn.style.display = 'none';
-                if (winBtn) winBtn.style.display = 'inline-block';
-            } else {
-                nextBtn.style.display = 'inline-block';
-                if (winBtn) winBtn.style.display = 'none';
-            }
-        }
 
         function openTeacherSetup() {
             document.getElementById('questions-list').innerHTML = '';
@@ -928,36 +913,31 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
                 for(let i = rows.length - 1; i >= 0; i--) {
                     if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
                         if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
-                            roomFound = true; 
-                            copiedQuestions = rows[i].c[1].v.toString(); 
-                            totalRoomQuestions = JSON.parse(copiedQuestions).length;
-                            break;
+                            roomFound = true; copiedQuestions = rows[i].c[1].v.toString(); break;
                         }
                     }
                 }
 
-                    if (roomFound) {
-                        currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
-                        document.getElementById('qform-name').value = currentRoomPIN; 
-                        document.getElementById('qform-school').value = copiedQuestions; 
-                        document.getElementById('saving-status').style.display = 'block';
-                        document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
-                        document.getElementById('questionsForm').submit(); 
-    
-                        document.getElementById('display-room-pin').innerText = currentRoomPIN;
-                        const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
-                        document.getElementById('game-url-input').value = gameUrl;
-                        
-                        const qrImg = document.getElementById('room-qr-code');
-                        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
-                        qrImg.style.display = 'block';
-                        
-                        totalQuestionsCount = JSON.parse(copiedQuestions).length;
-                        teacherQCount = 0;
-                        setupTeacherButtons();
-                        
-                        loadingScreen.style.display = 'none';
-                        playBGM('lobby'); showScreen('screen-teacher');
+                if (roomFound) {
+                    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+                    document.getElementById('qform-name').value = currentRoomPIN; 
+                    document.getElementById('qform-school').value = copiedQuestions; 
+                    document.getElementById('saving-status').style.display = 'block';
+                    document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
+                    document.getElementById('questionsForm').submit(); 
+
+                    document.getElementById('display-room-pin').innerText = currentRoomPIN;
+                    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+                    document.getElementById('game-url-input').value = gameUrl;
+                    
+                    const qrImg = document.getElementById('room-qr-code');
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+                    qrImg.style.display = 'block';
+                    document.getElementById('btn-next-question').style.display = 'inline-block'; // إظهار زر التحكم
+                    
+                    loadingScreen.style.display = 'none';
+                    playBGM('lobby'); showScreen('screen-teacher');
+                    teacherQCount = 0;
                     
                     if (refreshInterval) clearInterval(refreshInterval);
                     refreshInterval = setInterval(fetchLeaderboard, 4000);
@@ -989,19 +969,11 @@ function saveQuestionsToSheet() {
                 const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
                 const correctRadio = block.querySelector('input[type="radio"]:checked');
                 if (!title || opts.some(opt => !opt)) isValid = false;
-                const qTime = parseInt(block.querySelector('.q-time-input').value) || 15;
-                if (correctRadio) { 
-                    customQuestions.push({ 
-                        q: title, 
-                        opts: opts, 
-                        ans: parseInt(correctRadio.value),
-                        time: qTime 
-                    }); 
-                }
+                if (correctRadio) { customQuestions.push({ q: title, opts: opts, ans: parseInt(correctRadio.value) }); }
             });
 
             if (!isValid || customQuestions.length === 0) { alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!"); return; }
-    
+
             playBGM('lobby');
             currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
             
@@ -1010,7 +982,7 @@ function saveQuestionsToSheet() {
             document.getElementById('saving-status').style.display = 'block';
             document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
             document.getElementById('questionsForm').submit();
-    
+
             document.getElementById('display-room-pin').innerText = currentRoomPIN;
             const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
             document.getElementById('game-url-input').value = gameUrl;
@@ -1018,10 +990,8 @@ function saveQuestionsToSheet() {
             const qrImg = document.getElementById('room-qr-code');
             qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
             qrImg.style.display = 'block';
-            
-            totalQuestionsCount = customQuestions.length;
+            document.getElementById('btn-next-question').style.display = 'inline-block'; // إظهار زر التحكم
             teacherQCount = 0;
-            setupTeacherButtons();
 
             showScreen('screen-teacher');
             refreshInterval = setInterval(fetchLeaderboard, 4000);
@@ -1038,53 +1008,13 @@ function saveQuestionsToSheet() {
             document.getElementById('scoreForm').submit();
             
             const btn = document.getElementById('btn-next-question');
-            const winBtn = document.getElementById('btn-show-winners');
+            btn.innerText = "⏳ تم الإرسال... انتظر قليلاً";
+            btn.disabled = true;
             
-            if (teacherQCount < totalQuestionsCount) {
-                btn.innerText = "⏳ تم الإرسال... انتظر قليلاً";
-                btn.disabled = true;
-                setTimeout(() => {
-                    if (teacherQCount < totalQuestionsCount) {
-                        btn.innerText = "⏩ إرسال السؤال التالي للطلاب";
-                        btn.disabled = false;
-                    } else {
-                        btn.style.display = 'none';
-                        if (winBtn) {
-                            winBtn.style.display = 'inline-block';
-                            winBtn.innerText = "🏆 إظهار الفائزين وإنهاء التحدي";
-                            winBtn.disabled = false;
-                        }
-                    }
-                }, 3000);
-            } else {
-                btn.style.display = 'none';
-                if (winBtn) {
-                    winBtn.style.display = 'inline-block';
-                    winBtn.innerText = "🏆 إظهار الفائزين وإنهاء التحدي";
-                    winBtn.disabled = false;
-                }
-            }
-        }
-
-        function triggerFinalCelebration() {
-            teacherQCount++; 
-            document.getElementById('form-name').value = "TEACHER_CMD";
-            document.getElementById('form-school').value = currentRoomPIN;
-            document.getElementById('form-score').value = "NEXT_" + teacherQCount;
-            document.getElementById('scoreForm').submit();
-            
-            document.getElementById('btn-show-winners').style.display = 'none';
-
-            const statusEl = document.getElementById('saving-status');
-            if (statusEl) {
-                statusEl.innerText = "🏆 تم إنهاء التحدي! هؤلاء هم الأبطال!";
-                statusEl.style.color = "var(--success)";
-            }
-
-            fireConfetti();
-            playTone(400, 'sine', 0.1);
-            setTimeout(() => playTone(600, 'sine', 0.1), 150); 
-            setTimeout(() => playTone(800, 'sine', 0.4), 300);
+            setTimeout(() => {
+                btn.innerText = "⏩ إرسال السؤال التالي للطلاب";
+                btn.disabled = false;
+            }, 3000);
         }
 
         window.onload = () => {
@@ -1170,18 +1100,8 @@ function saveQuestionsToSheet() {
             playBGM('game');
             const q = gameQuestions[currentQIndex];
 
-	            // 1) ضع السؤال أولاً
-	            document.getElementById('question-text').textContent = q.q;
-	            
-	            // تحديث الترقيم
-	            const counterEl = document.getElementById('question-counter');
-	            if (counterEl) {
-	                if (currentQIndex === gameQuestions.length - 1) {
-	                    counterEl.innerHTML = `<span style="color: var(--secondary);">السؤال الأخير</span> (${currentQIndex + 1} من ${gameQuestions.length})`;
-	                } else {
-	                    counterEl.innerText = `السؤال ${currentQIndex + 1} من ${gameQuestions.length}`;
-	                }
-	            }
+            // 1) ضع السؤال أولاً
+            document.getElementById('question-text').textContent = q.q;
 
             // 2) ضع الخيارات أولاً داخل الأزرار
             for (let i = 0; i < 4; i++) {
@@ -1210,8 +1130,7 @@ function saveQuestionsToSheet() {
             }
 
             // 4) تشغيل المؤقت
-            currentQuestionTime = q.time || 15; 
-            timeLeft = currentQuestionTime;
+            timeLeft = TOTAL_TIME;
             updateTimerBar();
 
             clearInterval(timerInterval);
@@ -1228,7 +1147,7 @@ function saveQuestionsToSheet() {
 
         function updateTimerBar() {
             const bar = document.getElementById('timer-bar');
-            const pct = (timeLeft / currentQuestionTime) * 100;
+            const pct = (timeLeft / TOTAL_TIME) * 100;
             bar.style.width = Math.max(0, pct) + '%';
             if(timeLeft <= 3) bar.classList.add('danger'); else bar.classList.remove('danger');
         }
@@ -1254,7 +1173,7 @@ function saveQuestionsToSheet() {
             const q = gameQuestions[currentQIndex];
             const correct = (idx === q.ans);
             
-            let basePoints = correct ? Math.round((timeLeft/currentQuestionTime)*1000) : 0;
+            let basePoints = correct ? Math.round((timeLeft/TOTAL_TIME)*1000) : 0;
             let multiplier = 1 + (currentStreak * 0.1);
             let finalPoints = Math.round(basePoints * multiplier);
 
@@ -1327,16 +1246,8 @@ function saveQuestionsToSheet() {
                 table.style.display = 'table';
             };
 
-	            // إذا كان السؤال الأخير، غير الرسالة
-	            const waitMsg = document.getElementById('wait-teacher-msg');
-	            if (currentQIndex === gameQuestions.length - 1) {
-	                waitMsg.innerHTML = "🏆 انتهى التحدي! بانتظار المعلم لإظهار النتيجة النهائية...";
-	            } else {
-	                waitMsg.innerHTML = "⏳ بانتظار المعلم للانتقال للسؤال التالي...";
-	            }
-	            
-	            // التحقق المستمر كل 3 ثواني
-	            if (studentWaitInterval) clearInterval(studentWaitInterval);
+            // التحقق المستمر كل 3 ثواني
+            if (studentWaitInterval) clearInterval(studentWaitInterval);
             studentWaitInterval = setInterval(async () => {
                 try {
                     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=` + new Date().getTime();
