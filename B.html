@@ -6,7 +6,50 @@
     <title>الطيور الذكية - نظام أسئلة تفاعلي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://unpkg.com/mathlive"></script>
+    <script src="https://unpkg.com/mathlive">
+function toggleInstructions() {
+    const box = document.querySelector('#screen-game .instructions');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleMute() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('mute-btn').innerText = soundEnabled ? '🔊' : '🔇';
+}
+
+function endGame() {
+    gameRunning = false;
+    showScreen('screen-student-result');
+}
+
+function enterFullscreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+        el.requestFullscreen().catch(err => console.log('Fullscreen request failed:', err));
+    } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+    } else if (el.mozRequestFullScreen) {
+        el.mozRequestFullScreen();
+    } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
+    }
+    // إخفاء شريط التصفح على الهواتف
+    window.scrollTo(0, 1);
+}
+
+window.addEventListener('load', () => {
+    setTimeout(enterFullscreen, 300);
+});
+
+// محاولة دخول ملء الشاشة عند أي تفاعل من المستخدم
+document.addEventListener('click', () => {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        enterFullscreen();
+    }
+}, { once: true });
+
+</script>
+
     <style>
         :root {
             --word-blue: #2b579a;
@@ -28,12 +71,30 @@
         html, body {
             width: 100%;
             overflow-x: hidden;
+            overflow-y: auto;
             background: linear-gradient(to bottom, #1a2a6c, #b21f1f, #fdbb2d);
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        html:fullscreen, html:-webkit-full-screen, html:-moz-full-screen, html:-ms-fullscreen {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body:fullscreen, body:-webkit-full-screen, body:-moz-full-screen, body:-ms-fullscreen {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #screen-game {
+            overflow: hidden !important;
         }
 
         input, math-field {
@@ -273,22 +334,107 @@
             .key { height: 45px; font-size: 1rem; }
         }
 
+		/* --- FULL SCREEN MODE --- */
         #screen-game {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 100;
             padding: 0 !important;
-            max-width: 100% !important;
+            background: #000;
         }
+
         #screen-game .game-container {
-            margin: 0 !important;
-            padding: 10px !important;
-            border-radius: 0 !important;
+            overflow: hidden;
+            width: 100vw !important;
             height: 100vh !important;
-            justify-content: space-between !important;
+            margin: 0 !important;
+            padding: 0 !important;
             border: none !important;
+            border-radius: 0 !important;
+            display: block;
         }
+
+        #screen-game .header,
+        #screen-game .score-board {
+            display: none !important;
+        }
+
         #screen-game .game-canvas-container {
-            height: auto !important;
-            flex-grow: 1 !important;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none !important;
+            border-radius: 0 !important;
         }
+
+        /* --- شريط الأزرار المنسق داخل الكانفا --- */
+        #screen-game .controls {
+            position: absolute;
+            top: 12px;
+            right: 15px; /* وضع الأزرار في أعلى اليمين */
+            left: auto;
+            bottom: auto;
+            z-index: 200;
+            display: flex;
+            flex-direction: row;
+            gap: 8px; /* تقليل المسافة بين الأزرار */
+            width: auto;
+        }
+
+        #screen-game .controls .btn {
+            width: 36px !important;  /* تصغير العرض */
+            height: 36px !important; /* تصغير الطول */
+            min-width: unset !important;
+            border-radius: 8px !important; /* حواف ناعمة تتناسق مع لوحة المعلومات */
+            padding: 0 !important;
+            margin: 0 !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px !important;
+            background: rgba(255, 255, 255, 0.15) !important; /* تأثير زجاجي شفاف */
+            color: #fff !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        #screen-game .controls .btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.3) !important;
+            border-color: #FFD700 !important; /* إطار ذهبي عند التمرير */
+            color: #FFD700 !important;
+        }
+
+        #screen-game .controls .btn-danger {
+            background: rgba(226, 27, 60, 0.6) !important; /* لون أحمر هادئ لزر الخروج */
+        }
+        
+        #screen-game .controls .btn-danger:hover {
+            background: rgba(226, 27, 60, 0.9) !important;
+            border-color: #fff !important;
+            color: #fff !important;
+        }
+
+        #screen-game .instructions {
+            position: absolute;
+            top: 55px;
+            right: 15px;
+            left: auto;
+            z-index: 200;
+            width: clamp(200px, 30vw, 250px);
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #FFD700;
+            border-radius: 8px;
+            padding: 15px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
 
         /* تنسيق شاشة التحميل المنبثقة */
         #screen-loading-sheet {
@@ -315,6 +461,26 @@
             text-align: center;
         }
     </style>
+
+<style>
+.sound-btn, .help-btn, .exit-btn {
+  background: #d1d5db !important;
+  color: #333 !important;
+  padding: 6px 10px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+  transition: all 0.2s ease;
+}
+.sound-btn:hover, .help-btn:hover, .exit-btn:hover {
+  background: #9ca3af !important;
+}
+.sound-btn:active, .help-btn:active, .exit-btn:active {
+  transform: scale(0.95);
+}
+</style>
+
 </head>
 <body>
     <div id="screen-loading-sheet">
@@ -414,10 +580,11 @@
                 </div>
             </div>
             <div class="controls">
-                <button id="sound-toggle">تشغيل الصوت</button>
-                <button id="endBtn" style="background: linear-gradient(to bottom, #e21b3c, #b81631); box-shadow: 0 4px 12px rgba(226, 27, 60, 0.4);">إنهاء وإرسال</button>
-            </div>
-            <div class="instructions"><h3>كيف تلعب:</h3><p>اسحب الطائر للخلف ← حرر لإطلاقه ← دمر الأهداف لتنهي المرحلة</p><p>عند نفاد الطيور يظهر سؤال، الإجابة الصحيحة تمنحك 3 طيور إضافية.</p></div>
+    <button class="btn" onclick="toggleInstructions()" title="التعليمات">❓</button>
+    <button class="btn" onclick="toggleMute()" id="mute-btn" title="الصوت">🔊</button>
+    <button class="btn btn-danger" onclick="endGame()" title="إنهاء اللعبة">❌</button>
+</div>
+            <div class="instructions" style="display:none;"><h3>كيف تلعب:</h3><p>اسحب الطائر للخلف ← حرر لإطلاقه ← دمر الأهداف لتنهي المرحلة</p><p>عند نفاد الطيور يظهر سؤال، الإجابة الصحيحة تمنحك 3 طيور إضافية.</p></div>
         </div>
     </div>
 
@@ -670,7 +837,50 @@ async function searchStandaloneLeaderboard() {
     }
 }
 
+
+function toggleInstructions() {
+    const box = document.querySelector('#screen-game .instructions');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleMute() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('mute-btn').innerText = soundEnabled ? '🔊' : '🔇';
+}
+
+function endGame() {
+    gameRunning = false;
+    showScreen('screen-student-result');
+}
+
+function enterFullscreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+        el.requestFullscreen().catch(err => console.log('Fullscreen request failed:', err));
+    } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+    } else if (el.mozRequestFullScreen) {
+        el.mozRequestFullScreen();
+    } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
+    }
+    // إخفاء شريط التصفح على الهواتف
+    window.scrollTo(0, 1);
+}
+
+window.addEventListener('load', () => {
+    setTimeout(enterFullscreen, 300);
+});
+
+// محاولة دخول ملء الشاشة عند أي تفاعل من المستخدم
+document.addEventListener('click', () => {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        enterFullscreen();
+    }
+}, { once: true });
+
 </script>
+
 
     <iframe id="hidden_iframe_questions" name="hidden_iframe_questions" style="display:none;"></iframe>
     <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" target="hidden_iframe_questions">
@@ -1172,11 +1382,52 @@ async function searchStandaloneLeaderboard() {
             showScreen('screen-student-result'); 
         }
         
-        function gameLoop(){ 
+        
+function drawUI() {
+            ctx.save();
+
+            // رسم خلفية اللوحة العلوية بتأثير زجاجي متناسق مع الأزرار
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 1;
+
+            // تحديد عرض اللوحة بحيث لا تتداخل مع الأزرار في الشاشات الصغيرة
+            const boxWidth = Math.min(400, canvas.width * 0.55);
+            const boxX = canvas.width / 2 - boxWidth / 2;
+
+            ctx.beginPath();
+            if (ctx.roundRect) {
+                ctx.roundRect(boxX, 12, boxWidth, 36, 8);
+            } else {
+                ctx.rect(boxX, 12, boxWidth, 36);
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold ' + Math.max(12, Math.min(16, canvas.width * 0.035)) + 'px Cairo';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.direction = 'rtl';
+
+            const yPos = 31;
+            ctx.fillText('المرحلة: ' + currentLevel, boxX + boxWidth * 0.8, yPos);
+            
+            ctx.fillStyle = '#FFD700';
+            ctx.fillText('الطيور: ' + birdsLeft, boxX + boxWidth * 0.5, yPos);
+            
+            ctx.fillStyle = '#fff';
+            ctx.fillText('النقاط: ' + score, boxX + boxWidth * 0.2, yPos);
+
+            ctx.restore();
+        }
+
+function gameLoop(){ 
             if(!gameRunning) { requestAnimationFrame(gameLoop); return; } 
             drawBackgroundDetails(); drawSlingshot(); 
             gameObjects.forEach(o=>o.draw()); releasedBirds.forEach(b=>{b.update(); b.draw();}); 
-            detectCollisions(); requestAnimationFrame(gameLoop); 
+            detectCollisions();
+    drawUI(); requestAnimationFrame(gameLoop); 
         }
 
         function initGame(){ 
@@ -1281,7 +1532,50 @@ async function searchStandaloneLeaderboard() {
         }
 
         function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); if(id) document.getElementById(id).classList.add('active'); }
-    </script>
+    
+function toggleInstructions() {
+    const box = document.querySelector('#screen-game .instructions');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleMute() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('mute-btn').innerText = soundEnabled ? '🔊' : '🔇';
+}
+
+function endGame() {
+    gameRunning = false;
+    showScreen('screen-student-result');
+}
+
+function enterFullscreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+        el.requestFullscreen().catch(err => console.log('Fullscreen request failed:', err));
+    } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+    } else if (el.mozRequestFullScreen) {
+        el.mozRequestFullScreen();
+    } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
+    }
+    // إخفاء شريط التصفح على الهواتف
+    window.scrollTo(0, 1);
+}
+
+window.addEventListener('load', () => {
+    setTimeout(enterFullscreen, 300);
+});
+
+// محاولة دخول ملء الشاشة عند أي تفاعل من المستخدم
+document.addEventListener('click', () => {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        enterFullscreen();
+    }
+}, { once: true });
+
+</script>
+
 
 <!-- شاشة لوحة الصدارة المستقلة -->
 <div class="screen" id="screen-standalone-leaderboard">
