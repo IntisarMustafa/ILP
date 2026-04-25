@@ -40,21 +40,35 @@
             --kb-bg: #d1d4d9;
         } 
 
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
             color: #fff;
-            min-height: 100vh;
+            width: 100vw;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin: 0;
+            padding: 0;
             font-family: 'Cairo', 'Segoe UI', sans-serif;
             user-select: none;
         }
@@ -64,16 +78,7 @@
         }
 
         body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></svg>');
-            background-size: 150px 150px;
-            opacity: 0.3;
-            z-index: -1;
+            display: none;
         }
 
         /* ----------------------------------------- */
@@ -123,6 +128,12 @@
             transition: border-color 0.3s; font-family: 'Cairo', sans-serif;
         }
         input:focus { outline: none; border-color: var(--primary); }
+
+        /* تصغير حجم نص التلميح (placeholder) */
+        #room-pin-input::placeholder {
+            font-size: 16px;
+            letter-spacing: normal;
+        }
 
         /* إعدادات المعلم */
         .q-builder-container {
@@ -259,12 +270,27 @@
         }
 
         #gameCanvas {
-            background: #000428;
+            background:
+        radial-gradient(2px 2px at 20% 5%, white, transparent),
+        radial-gradient(2px 2px at 40% 10%, white, transparent),
+        radial-gradient(1.5px 1.5px at 60% 3%, white, transparent),
+        radial-gradient(2px 2px at 80% 8%, white, transparent),
+        radial-gradient(2px 2px at 25% 95%, white, transparent),
+        radial-gradient(2px 2px at 50% 90%, white, transparent),
+        radial-gradient(1.5px 1.5px at 70% 97%, white, transparent),
+        radial-gradient(2px 2px at 90% 92%, white, transparent),
+        #000428;
             display: block;
             touch-action: none;
             width: 100vw;
             height: 100vh;
             cursor: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin: 0;
+            padding: 0;
+            z-index: 1;
         }
         
         .game-overlay, .question-overlay {
@@ -388,55 +414,67 @@
 
         .question-overlay {
             justify-content: center;
-            padding: 20px;
+            align-items: center;
+            padding: 10px;
         }
 
         .question-overlay .question-content {
             background: rgba(15, 32, 39, 0.95);
-            padding: clamp(20px, 5vw, 40px);
-            border-radius: 20px;
-            max-width: 90%;
-            width: 600px;
+            padding: 15px 20px;
+            border-radius: 15px;
+            max-width: 95vw;
+            max-height: 90vh;
+            width: auto;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px #4fc3f7;
             border: 2px solid #2c5364;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
 
         .question-overlay h2 {
-            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            font-size: clamp(1.2rem, 4vw, 2rem);
             color: #fff;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             text-shadow: 0 0 10px #4fc3f7;
+            line-height: 1.3;
         }
         
         .question-overlay .question-content mjx-container {
-            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            font-size: clamp(1.2rem, 4vw, 2rem);
             color: white;
         }
         
         .question-overlay .answer-options mjx-container {
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             color: #0f2027;
         }
 
         .question-overlay .answer-options {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
             width: 100%;
+            flex-shrink: 0;
         }
 
         .question-overlay .answer-btn {
             background: linear-gradient(to right, #005aa7, #fffde4);
             color: #0f2027;
             border: none;
-            padding: 15px;
-            font-size: clamp(1rem, 4vw, 1.2rem);
-            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             text-align: center;
             font-weight: bold;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .question-overlay .answer-btn:hover {
@@ -459,9 +497,32 @@
         }
 
         .question-overlay .message-box {
-            margin-top: 20px;
-            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin-top: 12px;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             font-weight: bold;
+            color: #00b09b;
+        }
+        
+        @media (max-height: 600px) {
+            .question-overlay .question-content {
+                padding: 10px 15px;
+                max-height: 95vh;
+            }
+            
+            .question-overlay h2 {
+                font-size: clamp(1rem, 3vw, 1.5rem);
+                margin-bottom: 8px;
+            }
+            
+            .question-overlay .answer-options {
+                gap: 8px;
+            }
+            
+            .question-overlay .answer-btn {
+                padding: 10px 12px;
+                font-size: clamp(0.8rem, 2.5vw, 1rem);
+                min-height: 35px;
+            }
         }
         
         .celebration-badge {
@@ -483,7 +544,6 @@
 
     <div id="screen-loading-sheet">
         <div class="loader-spinner"></div>
-        <!-- تمت إضافة id للتحكم بالنص برمجياً -->
         <div id="loading-text" style="font-size: 28px; font-weight: bold; margin-top: 20px; font-family: 'Cairo', sans-serif;">جاري تجهيز بيانات التحدي...</div>
     </div>
 
@@ -500,7 +560,6 @@
         <div class="q-builder-container">
             <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي الفضائي</h2>
             
-            <!-- قسم استنساخ الغرفة المضاف حديثاً -->
             <div style="background: #f0f4f8; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed var(--info);">
                 <h3 style="color: var(--info); margin-bottom: 15px; text-align: center;">🔄 استنساخ غرفة سابقة</h3>
                 <p style="text-align: center; color: #555; margin-bottom: 15px; font-size: 14px;">أدخل رقم غرفة سابقة لنسخ أسئلتها وإنشاء غرفة جديدة فوراً</p>
@@ -509,8 +568,6 @@
                     <button class="sys-btn btn-teacher" onclick="loadExistingRoom()" style="margin-bottom: 0; flex: 1; font-size: 16px;">استنساخ الغرفة</button>
                 </div>
             </div>
-            <!-- نهاية قسم الاستنساخ -->
-
             <p style="text-align: center; margin-bottom: 20px; color: #666;">أو قم بإدخال أسئلتك الجديدة يدوياً بالأسفل: (استخدم زر 🧮 لكتابة المعادلات)</p>
             <div id="questions-list"></div>
             <button class="sys-btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
@@ -549,133 +606,15 @@
 
     <div class="screen" id="screen-student-login">
         <div class="card">
-            <h2>أدخل بياناتك للانطلاق نحو الفضاء 🚀</h2>
-            <input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
-            <input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
-            <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
-            <div class="avatar-grid" id="avatar-container"></div>
-            <button class="sys-btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
+            <h2>🚀 الانضمام للتحدي</h2>
+            <input type="number" id="room-pin-input" placeholder="أدخل رقم الغرفة" style="font-size: 28px; letter-spacing: 3px; text-align: center;"/>
+            <input type="text" id="student-name-input" placeholder="أدخل اسمك"/>
+            <p style="color: #666; margin-bottom: 20px; font-size: 14px;">اختر صورتك الرمزية:</p>
+            <div class="avatar-grid" id="avatar-selector"></div>
+            <button class="sys-btn btn-student" onclick="validateAndStartGame()">بدء اللعبة</button>
             <button class="sys-btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
         </div>
     </div>
-
-    <div id="math-modal-overlay">
-        <div class="math-modal-content">
-            <div class="math-header">
-                <span>📝 محرر الرياضيات الشامل</span>
-                <button class="math-close-btn" onclick="closeMathModal()">✓ إدراج وحفظ</button>
-            </div>
-            <div class="math-editor-container">
-                <math-field id="formula" virtual-keyboard-policy="manual"></math-field>
-            </div>
-            <div class="math-keyboard-wrapper">
-                <div class="math-keyboard-tabs">
-                    <div class="math-tab active" onclick="showMathTab('math_combined', event)">الأرقام والرموز</div>
-                    <div class="math-tab" onclick="showMathTab('letters', event)">عربي</div>
-                    <div class="math-tab" onclick="showMathTab('english', event)">English</div>
-                </div>
-                <div class="custom-keyboard active" id="math_combined">
-                    <div class="kb-row">
-                        <button class="key num" onpointerdown="addMath('1', event)">1</button>
-                        <button class="key num" onpointerdown="addMath('2', event)">2</button>
-                        <button class="key num" onpointerdown="addMath('3', event)">3</button>
-                        <button class="key num" onpointerdown="addMath('4', event)">4</button>
-                        <button class="key num" onpointerdown="addMath('5', event)">5</button>
-                        <button class="key num" onpointerdown="addMath('6', event)">6</button>
-                        <button class="key num" onpointerdown="addMath('7', event)">7</button>
-                        <button class="key num" onpointerdown="addMath('8', event)">8</button>
-                        <button class="key num" onpointerdown="addMath('9', event)">9</button>
-                        <button class="key num" onpointerdown="addMath('0', event)">0</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key action" onpointerdown="addMath('+', event)">+</button>
-                        <button class="key action" onpointerdown="addMath('-', event)">-</button>
-                        <button class="key action" onpointerdown="addMath('\\times', event)">×</button>
-                        <button class="key action" onpointerdown="addMath('\\div', event)">÷</button>
-                        <button class="key action" onpointerdown="addMath('=', event)">=</button>
-                        <button class="key" onpointerdown="addMath('.', event)">.</button>
-                        <button class="key" onpointerdown="insertMathCode('<', event)">&lt;</button>
-                        <button class="key" onpointerdown="insertMathCode('>', event)">&gt;</button>
-                        <button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="insertMathCode('\\frac{#@}{#?}', event)"><span class="math-icon frac-icon"><span>a</span><span class="line"></span><span>b</span></span></button>
-                        <button class="key" onpointerdown="insertMathCode('^{#?}', event)"><span class="math-icon">x<sup style="font-size:0.7em;">n</sup></span></button>
-                        <button class="key" onpointerdown="insertMathCode('\\sqrt{#?}', event)"><span class="math-icon root-icon"><span>√</span><span class="radicand">x</span></span></button>
-                        <button class="key" onpointerdown="insertMathCode('\\sqrt[#?]{#?}', event)"><span class="math-icon root-icon"><sup style="font-size:0.5em; font-style:normal;">n</sup><span>√</span><span class="radicand">x</span></span></button>
-                        <button class="key" onpointerdown="insertMathCode('\\le', event)">≤</button>
-                        <button class="key" onpointerdown="insertMathCode('\\ge', event)">≥</button>
-                        <button class="key" onpointerdown="insertMathCode('\\neq', event)">≠</button>
-                        <button class="key" onpointerdown="insertMathCode('\\approx', event)">≈</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="insertMathCode('^\\circ', event)">°</button>
-                        <button class="key" onpointerdown="insertMathCode('\\angle', event)">∠</button>
-                        <button class="key" onpointerdown="insertMathCode('\\pi', event)">π</button>
-                        <button class="key" onpointerdown="insertMathCode('\\infty', event)">∞</button>
-                        <button class="key" onpointerdown="insertMathCode('\\Delta', event)">Δ</button>
-                        <button class="key" onpointerdown="insertMathCode('\\pm', event)">±</button>
-                        <button class="key" onpointerdown="insertMathCode('\\{', event)">{</button>
-                        <button class="key" onpointerdown="insertMathCode('\\}', event)">}</button>
-                        <button class="key" onpointerdown="insertMathCode('(', event)">(</button>
-                        <button class="key" onpointerdown="insertMathCode(')', event)">)</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="insertMathCode('\\sin', event)">sin</button>
-                        <button class="key" onpointerdown="insertMathCode('\\cos', event)">cos</button>
-                        <button class="key" onpointerdown="insertMathCode('\\tan', event)">tan</button>
-                        <button class="key" onpointerdown="insertMathCode('\\theta', event)">θ</button>
-                        <button class="key" onpointerdown="insertMathCode('\\alpha', event)">α</button>
-                        <button class="key" onpointerdown="insertMathCode('\\int', event)">∫</button>
-                        <button class="key" onpointerdown="insertMathCode('\\sum', event)">Σ</button>
-                        <button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
-                    </div>
-                </div>
-                <div class="custom-keyboard" id="letters">
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('ض', event)">ض</button><button class="key" onpointerdown="addMath('ص', event)">ص</button><button class="key" onpointerdown="addMath('ث', event)">ث</button><button class="key" onpointerdown="addMath('ق', event)">ق</button><button class="key" onpointerdown="addMath('ف', event)">ف</button><button class="key" onpointerdown="addMath('غ', event)">غ</button><button class="key" onpointerdown="addMath('ع', event)">ع</button><button class="key" onpointerdown="addMath('ه', event)">ه</button><button class="key" onpointerdown="addMath('خ', event)">خ</button><button class="key" onpointerdown="addMath('ح', event)">ح</button><button class="key" onpointerdown="addMath('ج', event)">ج</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('ش', event)">ش</button><button class="key" onpointerdown="addMath('س', event)">س</button><button class="key" onpointerdown="addMath('ي', event)">ي</button><button class="key" onpointerdown="addMath('ب', event)">ب</button><button class="key" onpointerdown="addMath('ل', event)">ل</button><button class="key" onpointerdown="addMath('ا', event)">ا</button><button class="key" onpointerdown="addMath('ت', event)">ت</button><button class="key" onpointerdown="addMath('ن', event)">ن</button><button class="key" onpointerdown="addMath('م', event)">م</button><button class="key" onpointerdown="addMath('ك', event)">ك</button><button class="key" onpointerdown="addMath('ط', event)">ط</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('ئ', event)">ئ</button><button class="key" onpointerdown="addMath('ء', event)">ء</button><button class="key" onpointerdown="addMath('ؤ', event)">ؤ</button><button class="key" onpointerdown="addMath('ر', event)">ر</button><button class="key" onpointerdown="addMath('ى', event)">ى</button><button class="key" onpointerdown="addMath('ة', event)">ة</button><button class="key" onpointerdown="addMath('و', event)">و</button><button class="key" onpointerdown="addMath('ز', event)">ز</button><button class="key" onpointerdown="addMath('ظ', event)">ظ</button><button class="key" onpointerdown="addMath('د', event)">د</button><button class="key" onpointerdown="addMath('ذ', event)">ذ</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('أ', event)">أ</button><button class="key" onpointerdown="addMath('إ', event)">إ</button><button class="key" onpointerdown="addMath('آ', event)">آ</button><button class="key" onpointerdown="addMath('؟', event)">؟</button><button class="key space" onpointerdown="addMathSpace(event)">مسافة</button><button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
-                    </div>
-                </div>
-                <div class="custom-keyboard" id="english">
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('q', event)">q</button><button class="key" onpointerdown="addMath('w', event)">w</button><button class="key" onpointerdown="addMath('e', event)">e</button><button class="key" onpointerdown="addMath('r', event)">r</button><button class="key" onpointerdown="addMath('t', event)">t</button><button class="key" onpointerdown="addMath('y', event)">y</button><button class="key" onpointerdown="addMath('u', event)">u</button><button class="key" onpointerdown="addMath('i', event)">i</button><button class="key" onpointerdown="addMath('o', event)">o</button><button class="key" onpointerdown="addMath('p', event)">p</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('a', event)">a</button><button class="key" onpointerdown="addMath('s', event)">s</button><button class="key" onpointerdown="addMath('d', event)">d</button><button class="key" onpointerdown="addMath('f', event)">f</button><button class="key" onpointerdown="addMath('g', event)">g</button><button class="key" onpointerdown="addMath('h', event)">h</button><button class="key" onpointerdown="addMath('j', event)">j</button><button class="key" onpointerdown="addMath('k', event)">k</button><button class="key" onpointerdown="addMath('l', event)">l</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('z', event)">z</button><button class="key" onpointerdown="addMath('x', event)">x</button><button class="key" onpointerdown="addMath('c', event)">c</button><button class="key" onpointerdown="addMath('v', event)">v</button><button class="key" onpointerdown="addMath('b', event)">b</button><button class="key" onpointerdown="addMath('n', event)">n</button><button class="key" onpointerdown="addMath('m', event)">m</button><button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫</button>
-                    </div>
-                    <div class="kb-row">
-                        <button class="key space" onpointerdown="addMathSpace(event)">Space</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <iframe id="hidden_iframe_score" name="hidden_iframe_score" style="display:none;"></iframe>
-    <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
-        <input id="form-name" name="name" type="hidden"/>
-        <input id="form-school" name="school" type="hidden"/>
-        <input id="form-score" name="score" type="hidden"/>
-    </form>
-    
-    <iframe id="hidden_iframe_questions" name="hidden_iframe_questions" onload="handleQuestionsLoad()" style="display:none;"></iframe>
-    <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display: none;" target="hidden_iframe_questions">
-        <input id="qform-name" name="name" type="hidden"/>
-        <input id="qform-school" name="school" type="hidden"/>
-        <input id="qform-score" name="score" type="hidden" value="QUESTIONS"/>
-    </form>
 
     <div id="game-ui-wrapper">
         <canvas id="gameCanvas"></canvas>
@@ -748,367 +687,63 @@
             }
         }
 
-        function showScreen(id) {
+        function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            if(id) {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('active');
-            }
+            if (screenId) document.getElementById(screenId).classList.add('active');
         }
 
-        function setupAvatars() {
-            const container = document.getElementById('avatar-container');
-            if(!container) return;
-            container.innerHTML = '';
-            avatars.forEach(a => {
-                const div = document.createElement('div');
-                div.className = 'avatar-item' + (a === selectedAvatar ? ' selected' : '');
-                div.innerText = a;
-                div.onclick = () => {
-                    document.querySelectorAll('.avatar-item').forEach(i => i.classList.remove('selected'));
-                    div.classList.add('selected'); selectedAvatar = a;
-                };
-                container.appendChild(div);
-            });
-        }
-
-        function openTeacherSetup() {
-            document.getElementById('questions-list').innerHTML = '';
-            qBlockCount = 0;
-            addQuestionBlock();
-            showScreen('screen-teacher-setup');
-        }
-
-        function addQuestionBlock() {
-            const container = document.getElementById('questions-list');
-            const blockId = `q-block-${qBlockCount}`;
-            const html = `
-                <div class="q-block" id="${blockId}">
-                    <h3>
-                        <span>السؤال ${qBlockCount + 1}</span>
-                        ${qBlockCount > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
-                    </h3>
-                    <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0;">
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                    
-                    <div class="opt-row">
-                        <input type="radio" name="correct-${qBlockCount}" value="0" checked title="حدد الإجابة الصحيحة">
-                        <input type="text" class="q-opt-input" placeholder="الخيار الأول (▲)" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                    <div class="opt-row">
-                        <input type="radio" name="correct-${qBlockCount}" value="1" title="حدد الإجابة الصحيحة">
-                        <input type="text" class="q-opt-input" placeholder="الخيار الثاني (◆)" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                    <div class="opt-row">
-                        <input type="radio" name="correct-${qBlockCount}" value="2" title="حدد الإجابة الصحيحة">
-                        <input type="text" class="q-opt-input" placeholder="الخيار الثالث (●)" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                    <div class="opt-row">
-                        <input type="radio" name="correct-${qBlockCount}" value="3" title="حدد الإجابة الصحيحة">
-                        <input type="text" class="q-opt-input" placeholder="الخيار الرابع (■)" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                    </div>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
-            qBlockCount++;
-        }
-
-        // ========================================== //
-        // دالة استرداد غرفة سابقة للمعلم (الاستنساخ)     //
-        // ========================================== //
-        async function loadExistingRoom() {
-            const pin = document.getElementById('existing-room-pin').value.trim();
-            if (!pin) {
-                alert("يرجى إدخال رقم الغرفة القديمة!");
-                return;
-            }
-
-            const loadingScreen = document.getElementById('screen-loading-sheet');
-            const loadingText = document.getElementById('loading-text');
-            loadingScreen.style.display = 'flex';
-            
-            // حفظ النص الأصلي لإعادته لاحقاً
-            const originalText = loadingText.innerText;
-            loadingText.innerText = "جاري البحث عن الغرفة واستنساخ الأسئلة...";
-
-            try {
-                // الاتصال بشيت الإكسل لجلب البيانات
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-                const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
-                const rows = json.table.rows;
-                
-                let roomFound = false;
-                let copiedQuestions = ""; 
-
-                // البحث عن الغرفة المطلوبة من الأسفل للأعلى
-                for(let i = rows.length - 1; i >= 0; i--) {
-                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
-                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
-                            roomFound = true;
-                            // نسخ الأسئلة الموجودة في الخلية المجاورة
-                            copiedQuestions = rows[i].c[1].v.toString(); 
-                            break;
-                        }
-                    }
-                }
-
-                if (roomFound) {
-                    // 1. توليد رقم غرفة جديد كلياً
-                    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
-
-                    // 2. إرسال البيانات لإنشاء سطر جديد باستخدام النموذج المخفي الموجود مسبقاً
-                    document.getElementById('qform-name').value = currentRoomPIN; 
-                    document.getElementById('qform-school').value = copiedQuestions; 
-                    
-                    document.getElementById('saving-status').style.display = 'block';
-                    document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
-                    document.getElementById('questionsForm').submit(); 
-
-                    // 3. تحديث واجهة المستخدم لعرض الرقم الجديد والباركود
-                    document.getElementById('display-room-pin').innerText = currentRoomPIN;
-                    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
-                    document.getElementById('game-url-input').value = gameUrl;
-                    
-                    const qrImg = document.getElementById('room-qr-code');
-                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
-                    qrImg.style.display = 'block';
-
-                    loadingScreen.style.display = 'none';
-                    showScreen('screen-teacher');
-                    
-                    // إعادة تشغيل عداد جلب لوحة الشرف
-                    if (refreshInterval) clearInterval(refreshInterval);
-                    refreshInterval = setInterval(fetchLeaderboard, 4000);
-                    fetchLeaderboard(); 
-                } else {
-                    loadingScreen.style.display = 'none';
-                    alert("عذراً! لم يتم العثور على أسئلة محفوظة لرمز الغرفة هذا. تأكد من الرقم أو قم بإنشاء أسئلة جديدة.");
-                }
-            } catch (err) {
-                loadingScreen.style.display = 'none';
-                alert("حدث خطأ أثناء الاتصال بقاعدة البيانات. تأكد من اتصالك بالإنترنت.");
-            }
-            
-            // إعادة النص لحالته الأصلية
-            loadingText.innerText = originalText;
-        }
-
-        function saveQuestionsToSheet() {
-            const blocks = document.querySelectorAll('.q-block');
-            let customQuestions = [];
-            let isValid = true;
-
-            blocks.forEach((block) => {
-                const title = block.querySelector('.q-title-input').value.trim();
-                const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
-                const correctRadio = block.querySelector('input[type="radio"]:checked');
-                
-                if (!title || opts.some(opt => !opt)) isValid = false;
-                
-                if (correctRadio) {
-                    customQuestions.push({
-                        q: title,
-                        opts: opts,
-                        ans: parseInt(correctRadio.value)
-                    });
-                }
-            });
-
-            if (!isValid || customQuestions.length === 0) {
-                alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!");
-                return;
-            }
-
-            currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
-            const jsonQuestions = JSON.stringify(customQuestions);
-            
-            document.getElementById('qform-name').value = currentRoomPIN; 
-            document.getElementById('qform-school').value = jsonQuestions; 
-            
-            document.getElementById('saving-status').style.display = 'block';
-            document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
-            document.getElementById('questionsForm').submit();
-
-            document.getElementById('display-room-pin').innerText = currentRoomPIN;
-            const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
-            document.getElementById('game-url-input').value = gameUrl;
-            
-            const qrImg = document.getElementById('room-qr-code');
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
-            qrImg.style.display = 'block';
-
-            showScreen('screen-teacher');
-            refreshInterval = setInterval(fetchLeaderboard, 4000);
-        }
-
-        function copyGameLink() {
-            const input = document.getElementById('game-url-input');
-            input.select(); document.execCommand('copy');
-            const btn = document.getElementById('copy-btn');
-            btn.innerText = "تم النسخ! ✔️"; btn.style.backgroundColor = "var(--success)";
-            setTimeout(()=>{ btn.innerText = "نسخ الرابط"; btn.style.backgroundColor = "var(--primary)"; }, 2000);
-        }
-
-        async function fetchLeaderboard() {
-            try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-                const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
-                
-                let players = json.table.rows.filter(r => r.c[1]?.v.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS");
-                players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
-                
-                const tbody = document.getElementById('leaderboard-body');
-                if(!tbody) return;
-                tbody.innerHTML = '';
-                players.forEach((p, i) => {
-                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
-                    tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.c[0].v}</td><td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.c[2].v}</td></tr>`;
-                });
-                const loadingBoard = document.getElementById('loading-board');
-                const leaderboard = document.getElementById('leaderboard');
-                if(loadingBoard) loadingBoard.style.display = players.length ? 'none' : 'block';
-                if(leaderboard) leaderboard.style.display = players.length ? 'table' : 'none';
-            } catch(e) {}
-        }
-
+        function openTeacherSetup() { showScreen('screen-teacher-setup'); }
         function goToStudentLogin() { showScreen('screen-student-login'); }
 
+        function validateAndStartGame() {
+            const roomPin = document.getElementById('room-pin-input').value.trim();
+            const studentName = document.getElementById('student-name-input').value.trim();
+            if (!roomPin || !studentName) { alert('الرجاء ملء جميع الحقول'); return; }
+            studentSessionName = studentName;
+            startStudentFlow();
+        }
+
+        function addQuestionBlock() { /* ... */ }
+        function saveQuestionsToSheet() { /* ... */ }
+        function loadExistingRoom() { /* ... */ }
+        function copyGameLink() { /* ... */ }
+
         async function startStudentFlow() {
-            const name = document.getElementById('input-student-name').value.trim();
-            const pin = document.getElementById('input-room-pin').value.trim();
-            
-            if (!name || !pin) { alert("يرجى إدخال الاسم ورقم الغرفة"); return; }
-            
-            studentSessionName = `${selectedAvatar} ${name}`;
-            document.getElementById('form-name').value = studentSessionName;
-            document.getElementById('form-school').value = pin;
-            
             document.getElementById('screen-loading-sheet').style.display = 'flex';
-            
             try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-                const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
-                const rows = json.table.rows;
+                // محاكاة تحميل الأسئلة
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                document.getElementById('screen-loading-sheet').style.display = 'none';
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('game-ui-wrapper').style.display = 'block';
                 
-                let foundQuestions = null;
-                for(let i = rows.length - 1; i >= 0; i--) {
-                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
-                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
-                            foundQuestions = JSON.parse(rows[i].c[1].v.toString());
-                            break;
-                        }
-                    }
-                }
-
-                // تحويل صيغة المعلم إلى صيغة اللعبة Space Waves
-                if (foundQuestions && foundQuestions.length > 0) {
-                    questions = foundQuestions.map(q => ({
-                        question: q.q,
-                        options: q.opts,
-                        correctAnswerIndex: q.ans
-                    }));
-                }
-            } catch (err) {
-                console.warn("حدث خطأ في جلب الأسئلة، سيتم استخدام الأسئلة الافتراضية.");
-            }
-
-            document.getElementById('screen-loading-sheet').style.display = 'none';
-            
-            // إخفاء كافة الشاشات وعرض واجهة اللعبة الأصلية
-            showScreen(null); 
-            document.getElementById('game-ui-wrapper').style.display = 'block';
-            
-            // إعلام لعبة Space Waves لتهيئة نافذتها
-            if(window.resizeCanvasGame) {
-                window.resizeCanvasGame();
+                // طلب ملء الشاشة
+                requestFullscreen();
+                
+                initializeGame();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('screen-loading-sheet').style.display = 'none';
             }
         }
-
-        window.onload = () => {
-            setupAvatars();
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('pin')) {
-                const pinInput = document.getElementById('input-room-pin');
-                if(pinInput) pinInput.value = urlParams.get('pin');
-                showScreen('screen-student-login');
-            }
-        };
-
-        // ========================================== //
-        // 2. أكواد محرر الرياضيات المنبثق             //
-        // ========================================== //
-        const mf = document.getElementById('formula');
-        mf.smartMode = true; 
-        let targetInputField = null;
-
-        mf.addEventListener('focusin', (e) => {
-            e.preventDefault();
-            if (window.mathVirtualKeyboard) window.mathVirtualKeyboard.hide();
-        });
-
-        mf.addEventListener('keydown', (e) => {
-            if (e.key === ' ') {
-                e.preventDefault(); 
-                mf.insert('\\text{ }'); 
-            }
-        });
-
-        function addMath(val, e) {
-            if (e) e.preventDefault();
-            mf.focus(); mf.insert(val);
-        }
-
-        function insertMathCode(latex, e) {
-            if (e) e.preventDefault();
-            mf.focus(); mf.insert(latex); 
-        }
-
-        function addMathSpace(e) {
-            if (e) e.preventDefault();
-            mf.focus(); mf.insert('\\text{ }'); 
-        }
-
-        function backspaceMath(e) {
-            if (e) e.preventDefault();
-            mf.focus(); mf.executeCommand('deleteBackward');
-        }
-
-        function showMathTab(tabId, event) {
-            document.querySelectorAll('.custom-keyboard').forEach(kb => kb.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelectorAll('.math-tab').forEach(t => t.classList.remove('active'));
-            if(event) event.currentTarget.classList.add('active');
-        }
-
-        function openMathModal(inputElement) {
-            targetInputField = inputElement;
-            document.getElementById('math-modal-overlay').style.display = 'flex';
-            mf.value = ''; 
-            setTimeout(() => mf.focus(), 100);
-        }
-
-        function closeMathModal() {
-            document.getElementById('math-modal-overlay').style.display = 'none';
-            if (targetInputField) {
-                // حفظ التنسيق ليتمكن MathJax من قراءته في لعبة Space Waves
-                targetInputField.value += " \\(" + mf.value + "\\) ";
-                targetInputField = null;
+        
+        function requestFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log('Fullscreen request failed:', err));
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
             }
         }
 
         // ========================================== //
         // 3. أكواد اللعبة الأصلية (Space Waves)       //
         // ========================================== //
-        document.addEventListener('DOMContentLoaded', () => {
+        function initializeGame() {
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
             const scoreElement = document.getElementById('score');
@@ -1127,16 +762,19 @@
             const feedbackMessageElement = document.getElementById('feedbackMessage');
             const celebrationBadge = document.getElementById('celebrationBadge');
             
-            let GAME_WIDTH;
-            let GAME_HEIGHT;
-            const REFERENCE_FPS = 60;
+	            // تحديد أبعاد ثابتة لمنطق اللعبة (مثلاً أبعاد HD)
+	            const GAME_WIDTH = 1280;
+	            const GAME_HEIGHT = 720;
+	            let gameScale = 1; // معامل التكبير/التصغير للشاشة
+	            const REFERENCE_FPS = 60;
             
             let gameState = {
                 level: 1, currentLevelScore: 0, totalScore: 0, gameTime: 0,
                 gameOver: false, gameStarted: false, paused: true, isLevelComplete: false, isQuestionActive: false,
-                pathPoints: [], pathWidth: 150, pathSpeed: 1, targetPathSpeed: 4, lastTime: 0,
+                pathPoints: [], pathWidth: 150, pathSpeed: 2.5, targetPathSpeed: 2.5, lastTime: 0,
                 obstacles: [], obstacleGenerationInterval: 1000, timeSinceLastObstacle: 0,
-                keys: { ArrowUp: false, ArrowDown: false, w: false, s: false }
+                keys: { ArrowUp: false, ArrowDown: false, w: false, s: false },
+                cameraX: 0
             };
             
             const levelColors = ['#ff6b6b', '#ffd166', '#06d6a0', '#118ab2', '#073b4c'];
@@ -1144,7 +782,7 @@
             let mouseState = { isDown: false, lastY: null };
             let stars = [];
             const numStars = 200;
-            const starSpeed = 0.7;
+            const starSpeed = 0.5;
             let soundEnabled = true;
 
             let audioContext;
@@ -1275,8 +913,7 @@
                     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
                     ctx.fillStyle = this.color; ctx.shadowColor = this.color; ctx.shadowBlur = 10;
                     ctx.beginPath(); ctx.moveTo(0, -this.height / 2); ctx.lineTo(-this.width / 2, this.height / 2);
-                    ctx.lineTo(-this.width / 4, this.height / 4); ctx.lineTo(this.width / 4, this.height / 4);
-                    ctx.lineTo(this.width / 2, this.height / 2); ctx.closePath(); ctx.fill();
+                    ctx.lineTo(0, this.height / 3); ctx.lineTo(this.width / 2, this.height / 2); ctx.closePath(); ctx.fill();
                     ctx.fillStyle = '#e1f5fe'; ctx.shadowBlur = 5;
                     ctx.beginPath(); ctx.arc(0, -this.height / 4, 10, 0, Math.PI * 2); ctx.fill();
                     ctx.restore(); ctx.shadowBlur = 0;
@@ -1340,50 +977,128 @@
 
             function createStars() {
                 stars = [];
+                const numStars = 400;
                 for (let i = 0; i < numStars; i++) {
+                    // توزيع النجوم في الأعلى والأسفل بعيداً عن المسار والحواف
+                    let starY;
+                    const margin = 40; // مسافة من حواف الشاشة
+                    const topZoneEnd = 150; // نهاية المنطقة العلوية
+                    const bottomZoneStart = GAME_HEIGHT - 150; // بداية المنطقة السفلية
+                    
+                    if (Math.random() > 0.5) {
+                        // منطقة علوية
+                        starY = margin + Math.random() * (topZoneEnd - margin);
+                    } else {
+                        // منطقة سفلية
+                        starY = bottomZoneStart + Math.random() * (GAME_HEIGHT - margin - bottomZoneStart);
+                    }
+
                     stars.push({
-                        x: Math.random() * GAME_WIDTH, y: Math.random() * GAME_HEIGHT, size: Math.random() * 2,
-                        speed: Math.random() * starSpeed + 0.1, color: `rgba(255, 255, 255, ${Math.random() * 0.7 + 0.3})`
+                        x: Math.random() * GAME_WIDTH,
+                        y: starY,
+                        size: Math.random() * 2 + 0.5,
+                        speed: Math.random() * starSpeed + 0.1,
+                        color: `rgba(255, 255, 255, ${Math.random() * 0.7 + 0.3})`
                     });
                 }
-            }
-
-            function drawStars() {
-                stars.forEach(star => { ctx.fillStyle = star.color; ctx.beginPath(); ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2); ctx.fill(); });
             }
 
             function updateStars(deltaTime) {
                 const dtSec = deltaTime / 1000;
                 stars.forEach(star => {
-                    star.x -= star.speed * gameState.pathSpeed / 2 * dtSec * REFERENCE_FPS;
-                    if (star.x < 0) { star.x = GAME_WIDTH; star.y = Math.random() * GAME_HEIGHT; }
+                    star.x -= star.speed * dtSec * REFERENCE_FPS;
+                    if (star.x < 0) {
+                        star.x = GAME_WIDTH;
+                        // إعادة توزيع النجم عند خروجه من الشاشة بنفس المنطق
+                        const margin = 40;
+                        const topZoneEnd = 150;
+                        const bottomZoneStart = GAME_HEIGHT - 150;
+                        if (Math.random() > 0.5) {
+                            star.y = margin + Math.random() * (topZoneEnd - margin);
+                        } else {
+                            star.y = bottomZoneStart + Math.random() * (GAME_HEIGHT - margin - bottomZoneStart);
+                        }
+                    }
+                });
+            }
+
+            function drawStars() {
+                stars.forEach(star => {
+                    const worldX = star.x + gameState.cameraX;
+                    const pathY = getSawtoothPathY(worldX) + GAME_HEIGHT / 2;
+
+                    const safeMargin = (gameState.pathWidth * 0.9) + 20;
+
+                    if (star.y < pathY - safeMargin || star.y > pathY + safeMargin) {
+                        ctx.fillStyle = star.color;
+                        ctx.beginPath();
+                        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
                 });
             }
             
-            function getSawtoothPathY(x, timeOffset) {
-                const period = 500; const amplitude = 150; const speedFactor = 0.5;
-                const adjustedX = x + timeOffset * gameState.pathSpeed * speedFactor;
-                const normalizedX = (adjustedX % period) / period;
+            function getSawtoothPathY(worldX) {
+                const period = 500;
+                const amplitude = 150;
+                const modX = ((worldX % period) + period) % period;
+                const normalizedX = modX / period;
                 let yOffset = normalizedX < 0.5 ? normalizedX * 2 : (1 - normalizedX) * 2;
                 return yOffset * amplitude - amplitude / 2;
             }
             
             function initializePath() {
-                gameState.pathPoints = []; const segments = 100; const segmentWidth = GAME_WIDTH / 10; const initialYOffset = GAME_HEIGHT / 2;
-                for (let i = -20; i <= segments; i++) {
-                    const x = i * segmentWidth; const y = getSawtoothPathY(x, gameState.gameTime) + initialYOffset;
-                    gameState.pathPoints.push({ x: x, y: y });
+                gameState.pathPoints = [];
+                const segmentWidth = 50;
+                const segments = Math.ceil(GAME_WIDTH / segmentWidth) + 10;
+                const initialYOffset = GAME_HEIGHT / 2;
+
+                gameState.cameraX = gameState.cameraX || 0;
+
+                const startWorldX = Math.floor(gameState.cameraX / segmentWidth) * segmentWidth - (20 * segmentWidth);
+
+                for (let i = 0; i <= segments + 40; i++) {
+                    const worldX = startWorldX + i * segmentWidth;
+                    const y = getSawtoothPathY(worldX) + initialYOffset;
+
+                    gameState.pathPoints.push({
+                        worldX: worldX,
+                        x: worldX - gameState.cameraX,
+                        y: y
+                    });
                 }
             }
             
             function updatePath(movementDistance) {
-                gameState.pathPoints.forEach(point => point.x -= movementDistance);
-                while (gameState.pathPoints.length > 0 && gameState.pathPoints[0].x < -GAME_WIDTH) {
+
+                gameState.cameraX += movementDistance;
+
+                gameState.pathPoints.forEach(point => {
+                    point.x = point.worldX - gameState.cameraX;
+                });
+
+                while (gameState.pathPoints.length > 0 && gameState.pathPoints[0].x < -200) {
                     gameState.pathPoints.shift();
-                    const lastPoint = gameState.pathPoints[gameState.pathPoints.length - 1];
-                    const newX = lastPoint.x + (GAME_WIDTH / 10);
-                    const newY = getSawtoothPathY(newX, gameState.gameTime) + GAME_HEIGHT / 2;
-                    gameState.pathPoints.push({ x: newX, y: newY });
+                }
+
+                const segmentWidth = 50;
+
+                if (gameState.pathPoints.length > 0) {
+                    let lastPoint = gameState.pathPoints[gameState.pathPoints.length - 1];
+
+                    while (lastPoint.x < GAME_WIDTH + 200) {
+                        const newWorldX = lastPoint.worldX + segmentWidth;
+                        const newY = getSawtoothPathY(newWorldX) + GAME_HEIGHT / 2;
+
+                        const newPoint = {
+                            worldX: newWorldX,
+                            x: newWorldX - gameState.cameraX,
+                            y: newY
+                        };
+
+                        gameState.pathPoints.push(newPoint);
+                        lastPoint = newPoint;
+                    }
                 }
             }
             
@@ -1413,16 +1128,48 @@
                 ctx.setLineDash([]);
             }
             
-            function generateObstacles() {
-                const pathPoint = gameState.pathPoints.find(p => p.x > GAME_WIDTH * 0.9);
-                if (pathPoint) {
-                    let obstacleRadius = gameState.gameTime >= 16 ? Math.random() * 10 + 15 : Math.random() * 5 + 10;
-                    let randomY = Math.random() > 0.5 ? pathPoint.y - gameState.pathWidth / 2 + obstacleRadius : pathPoint.y + gameState.pathWidth / 2 - obstacleRadius;
-                    const obstacleColor = levelColors[(gameState.level - 1) % levelColors.length];
-                    gameState.obstacles.push({ x: GAME_WIDTH, y: randomY, radius: obstacleRadius, color: obstacleColor });
-                }
-                gameState.obstacleGenerationInterval = Math.max(500, 1000 - gameState.level * 50);
-            }
+	            function generateObstacles() {
+	                const pathPoint = gameState.pathPoints.find(p => p.x > GAME_WIDTH * 0.9);
+	                if (pathPoint) {
+	                    let obstacleRadius = gameState.gameTime >= 16 ? Math.random() * 10 + 15 : Math.random() * 5 + 10;
+	                    
+	                    // ============================================
+	                    // إبعاد العوائق بشكل صارم عن وسط المسار
+	                    // وتثبيتها على الجدران (الحواف العلوية والسفلية)
+	                    // ============================================
+	                    
+	                    // حساب منطقة آمنة في وسط المسار يجب تجنبها
+	                    const safeZoneRadius = (gameState.pathWidth / 2) * 0.4; // 40% من نصف عرض المسار
+	                    
+	                    // حساب المسافة المطلوبة من الجدار
+	                    const wallMargin = obstacleRadius + 8; // مسافة إضافية من الجدار
+	                    
+	                    // تحديد المناطق المسموح بها (قريباً من الجدران فقط)
+	                    const topWallY = pathPoint.y - (gameState.pathWidth / 2) + wallMargin + obstacleRadius;
+	                    const bottomWallY = pathPoint.y + (gameState.pathWidth / 2) - wallMargin - obstacleRadius;
+	                    
+	                    // اختيار عشوائي بين الجدار العلوي أو السفلي
+	                    let randomY;
+	                    if (Math.random() > 0.5) {
+	                        // توليد العائق بالقرب من الجدار العلوي
+	                        randomY = topWallY + Math.random() * (safeZoneRadius * 0.8);
+	                    } else {
+	                        // توليد العائق بالقرب من الجدار السفلي
+	                        randomY = bottomWallY - Math.random() * (safeZoneRadius * 0.8);
+	                    }
+	                    
+	                    // ضمان بقاء العوائق بعيدة عن حواف الشاشة العلوية والسفلية بمسافة 40 بكسل
+	                    const edgeMargin = 40;
+	                    const minY = edgeMargin + obstacleRadius;
+	                    const maxY = GAME_HEIGHT - edgeMargin - obstacleRadius;
+	                    
+	                    randomY = Math.max(minY, Math.min(maxY, randomY));
+	                    
+	                    const obstacleColor = levelColors[(gameState.level - 1) % levelColors.length];
+	                    gameState.obstacles.push({ x: GAME_WIDTH, y: randomY, radius: obstacleRadius, color: obstacleColor });
+	                }
+	                gameState.obstacleGenerationInterval = Math.max(500, 1000 - gameState.level * 50);
+	            }
             
             function drawObstacles() {
                 gameState.obstacles.forEach(obstacle => {
@@ -1497,7 +1244,6 @@
                 });
                 
                 questionOverlay.classList.remove('hidden');
-
                 setTimeout(() => {
                      if (window.MathJax) {
                         window.MathJax.typesetPromise([questionTextElement, answerOptionsContainer]).catch((err) => console.error('MathJax failed:', err));
@@ -1528,7 +1274,7 @@
                         gameState.isQuestionActive = false;
                         initializePath();
                         gameState.obstacles = [];
-                        gameState.pathSpeed = 1 + (gameState.level - 1) * 0.5;
+                        gameState.pathSpeed = 1 + (gameState.level - 1) * 0.4;
                         positionShipOnPath();
                         gameState.paused = false;
                         startBackgroundMelody(); startThrusterSound();
@@ -1560,11 +1306,21 @@
             }
 
             function resizeCanvas() {
-                GAME_WIDTH = window.innerWidth; GAME_HEIGHT = window.innerHeight;
-                canvas.width = GAME_WIDTH; canvas.height = GAME_HEIGHT;
-                if (gameState.gameStarted) { initializePath(); positionShipOnPath(); }
+                // حساب معامل التكبير بناءً على الارتفاع فقط لضمان استجابة اللمس والماوس بدقة
+                gameScale = window.innerHeight / GAME_HEIGHT;
+
+                // الأبعاد الداخلية للكانفاس تبقى ثابتة دائماً (1280x720) لعدم تأثر منطق اللعبة
+                canvas.width = GAME_WIDTH;
+                canvas.height = GAME_HEIGHT;
+
+                // إجبار اللعبة بصرياً على ملء الشاشة بالكامل عبر CSS
+                canvas.style.width = '100vw';
+                canvas.style.height = '100vh';
+                canvas.style.left = '0px';
+                canvas.style.top = '0px';
             }
             window.resizeCanvasGame = resizeCanvas;
+            window.addEventListener('resize', resizeCanvas);
 
             canvas.addEventListener('mousedown', (e) => {
                 if (gameState.gameStarted && !gameState.paused && !gameState.isQuestionActive) { mouseState.isDown = true; mouseState.lastY = e.clientY; }
@@ -1572,7 +1328,7 @@
             canvas.addEventListener('mouseup', () => { mouseState.isDown = false; mouseState.lastY = null; });
             canvas.addEventListener('mousemove', (e) => {
                 if (mouseState.isDown && gameState.gameStarted && !gameState.paused && !gameState.isQuestionActive) {
-                    const deltaY = e.clientY - mouseState.lastY; ship.y += deltaY; mouseState.lastY = e.clientY;
+                    const deltaY = (e.clientY - mouseState.lastY) / gameScale; ship.y += deltaY; mouseState.lastY = e.clientY;
                     ship.y = Math.max(30, Math.min(GAME_HEIGHT - 30, ship.y));
                 }
             });
@@ -1588,14 +1344,15 @@
             }
             function handleTouchMove(e) {
                 if (!touchState.isTouched) return; e.preventDefault(); const touch = e.changedTouches[0];
-                const deltaY = touch.clientY - touchState.lastY; ship.y += deltaY; touchState.lastY = touch.clientY;
+                const deltaY = (touch.clientY - touchState.lastY) / gameScale; ship.y += deltaY; touchState.lastY = touch.clientY;
                 ship.y = Math.max(30, Math.min(GAME_HEIGHT - 30, ship.y));
             }
             function handleTouchEnd(e) { touchState.isTouched = false; touchState.lastY = null; }
 
             function draw(deltaTime) {
                 ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-                updateStars(deltaTime); drawStars();
+                updateStars(deltaTime);
+                drawStars();
                 drawPath(); drawObstacles();
                 generateThrusterParticles(); updateThrusterParticles(deltaTime); drawThrusterParticles();
                 ship.draw();
@@ -1606,8 +1363,8 @@
                 gameState.totalScore += Math.floor(gameState.currentLevelScore);
                 gameState.level++; gameState.gameTime = 0; gameState.isLevelComplete = false; gameState.paused = false;
                 gameState.currentLevelScore = 0;
-                gameState.pathSpeed = 1 + (gameState.level - 1) * 0.5;
-                gameState.targetPathSpeed = gameState.pathSpeed + 3 + (gameState.level - 1) * 1;
+	                gameState.pathSpeed = 2.5;
+	                gameState.targetPathSpeed = 2.5;
                 gameState.pathWidth = Math.max(50, 150 - (gameState.level - 1) * 10);
                 levelElement.textContent = gameState.level; scoreElement.textContent = gameState.totalScore; timeElement.textContent = gameState.gameTime;
                 gameState.obstacles = []; gameState.timeSinceLastObstacle = 0; 
@@ -1624,7 +1381,8 @@
                 gameState.gameTime += dtSec;
                 timeElement.textContent = Math.floor(gameState.gameTime);
 
-                if (gameState.pathSpeed < gameState.targetPathSpeed) { gameState.pathSpeed += 0.01 * dtSec * REFERENCE_FPS; }
+	                gameState.pathSpeed = 2.5;
+	                gameState.targetPathSpeed = 2.5;
 
                 if (Math.floor(gameState.gameTime) >= 30 && !gameState.isLevelComplete) {
                     gameState.paused = true; gameState.isLevelComplete = true;
@@ -1633,7 +1391,6 @@
                     return;
                 }
                 
-                // نزيد النقاط بناءً على الوقت تدريجياً لتجنب مسح نقاط الأسئلة
                 gameState.currentLevelScore += 10 * dtSec;
                 scoreElement.textContent = gameState.totalScore + Math.floor(gameState.currentLevelScore);
                 
@@ -1670,8 +1427,6 @@
                 if (gameState.gameOver) {
                     let finalScore = gameState.totalScore + Math.floor(gameState.currentLevelScore);
                     if (!scoreSubmitted && studentSessionName) {
-                        document.getElementById('form-score').value = finalScore;
-                        document.getElementById('scoreForm').submit();
                         scoreSubmitted = true;
                     }
 
@@ -1708,9 +1463,10 @@
                 gameState = {
                     level: 1, currentLevelScore: 0, totalScore: 0, gameTime: 0,
                     gameOver: false, gameStarted: true, paused: false, isLevelComplete: false, isQuestionActive: false,
-                    pathPoints: [], pathWidth: 150, pathSpeed: 1, targetPathSpeed: 4, lastTime: performance.now(),
+	                    pathPoints: [], pathWidth: 150, pathSpeed: 2.5, targetPathSpeed: 2.5, lastTime: performance.now(),
                     obstacles: [], obstacleGenerationInterval: 1000, timeSinceLastObstacle: 0, 
-                    keys: { ArrowUp: false, ArrowDown: false, w: false, s: false }
+                    keys: { ArrowUp: false, ArrowDown: false, w: false, s: false },
+                cameraX: 0
                 };
                 
                 scoreSubmitted = false;
@@ -1732,6 +1488,19 @@
                 else if (gameState.isLevelComplete) { nextLevel(); } 
                 else if (gameState.paused) { gameState.paused = false; }
             });
+            
+            homeBtn.addEventListener('click', () => {
+                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().then(() => window.location.reload()).catch(() => window.location.reload());
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                        window.location.reload();
+                    }
+                } else {
+                    window.location.reload();
+                }
+            });
 
             soundToggleBtn.addEventListener('click', () => {
                 soundEnabled = !soundEnabled; soundToggleBtn.textContent = `الصوت: ${soundEnabled ? 'تشغيل' : 'إيقاف'}`;
@@ -1747,17 +1516,512 @@
             
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'ArrowDown' || e.key === 's') { e.preventDefault(); gameState.keys[e.key] = true; }
+                if (e.key === 'Escape') { e.preventDefault(); }
             });
             
             window.addEventListener('keyup', (e) => {
                 if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'ArrowDown' || e.key === 's') { gameState.keys[e.key] = false; }
             });
             
+            document.addEventListener('fullscreenchange', () => {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    console.log('Exited fullscreen');
+                }
+            });
+            
             resizeCanvas();
             createStars();
             
             requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize avatar selector
+        document.addEventListener('DOMContentLoaded', () => {
+            // منع تمرير الصفحة
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+            
+            const avatarSelector = document.getElementById('avatar-selector');
+            if (avatarSelector) {
+                avatars.forEach(avatar => {
+                    const item = document.createElement('div');
+                    item.classList.add('avatar-item');
+                    item.textContent = avatar;
+                    item.addEventListener('click', () => {
+                        document.querySelectorAll('.avatar-item').forEach(a => a.classList.remove('selected'));
+                        item.classList.add('selected');
+                        selectedAvatar = avatar;
+                    });
+                    avatarSelector.appendChild(item);
+                });
+                avatarSelector.children[0].classList.add('selected');
+            }
         });
     </script>
+
+<script>
+let questionCount = 0;
+
+function addQuestionBlock(data = null) {
+    questionCount++;
+
+    const qList = document.getElementById("questions-list");
+
+    const qDiv = document.createElement("div");
+    qDiv.className = "q-block";
+
+    qDiv.innerHTML = `
+        <h3>
+            السؤال ${questionCount}
+            <button class="remove-q-btn" onclick="this.parentElement.parentElement.remove()">حذف</button>
+        </h3>
+
+        <input class="q-title-input" placeholder="اكتب نص السؤال هنا"
+            value="${data?.question || ''}"/>
+
+        ${[0,1,2,3].map(i => `
+            <div class="opt-row">
+                <input type="radio" name="correct-${questionCount}" ${data?.correct == i ? 'checked' : ''}>
+                <input type="text" placeholder="خيار ${i+1}" value="${data?.options?.[i] || ''}">
+            </div>
+        `).join("")}
+    `;
+
+    qList.appendChild(qDiv);
+}
+
+function saveQuestionsToSheet() {
+    const blocks = document.querySelectorAll(".q-block");
+    const questions = [];
+
+    blocks.forEach(block => {
+        const title = block.querySelector(".q-title-input").value;
+
+        const options = [];
+        const radios = block.querySelectorAll("input[type=radio]");
+        const inputs = block.querySelectorAll(".opt-row input[type=text]");
+
+        let correctIndex = 0;
+
+        inputs.forEach((inp, i) => {
+            options.push(inp.value);
+            if (radios[i].checked) correctIndex = i;
+        });
+
+        questions.push({
+            question: title,
+            options: options,
+            correct: correctIndex
+        });
+    });
+
+    console.log("Saved Questions:", questions);
+
+    showScreen("screen-teacher");
+
+    document.getElementById("display-room-pin").textContent =
+        Math.floor(100000 + Math.random() * 900000);
+}
+
+function loadExistingRoom() {
+    alert("ميزة الاستنساخ تحتاج ربط بقاعدة بيانات");
+}
+</script>
+
+
+<script>
+(function () {
+    const ROOM_STORAGE_PREFIX = 'spacewaves_room_';
+    const MATH_INSERT_WRAP = (latex) => `\\(${latex}\\)`;
+    const mf = document.getElementById('formula');
+
+    function roomKey(pin) {
+        return `${ROOM_STORAGE_PREFIX}${String(pin).trim()}`;
+    }
+
+    function safeJsonParse(value, fallback = null) {
+        try { return JSON.parse(value); } catch { return fallback; }
+    }
+
+    function getQuestionPayloadFromStorage(pin) {
+        const raw = localStorage.getItem(roomKey(pin));
+        if (!raw) return null;
+        const parsed = safeJsonParse(raw, null);
+        if (!parsed) return null;
+        return parsed;
+    }
+
+    function normalizeStoredQuestions(arr) {
+        if (!Array.isArray(arr)) return [];
+        return arr.map(item => {
+            if (item && typeof item === 'object') {
+                const q = (item.q ?? item.question ?? '').toString();
+                const opts = Array.isArray(item.opts) ? item.opts : (Array.isArray(item.options) ? item.options : []);
+                const ansRaw = item.ans ?? item.correct ?? item.correctAnswerIndex ?? 0;
+                const ans = Number.isFinite(Number(ansRaw)) ? Number(ansRaw) : 0;
+                return { q, opts: opts.map(String), ans };
+            }
+            return { q: '', opts: ['', '', '', ''], ans: 0 };
+        });
+    }
+
+    function generateRoomPIN() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    function clearQuestionsList() {
+        const list = document.getElementById('questions-list');
+        if (list) list.innerHTML = '';
+        qBlockCount = 0;
+    }
+
+    window.setupAvatars = function setupAvatars() {
+        const container = document.getElementById('avatar-selector');
+        if (!container) return;
+        container.innerHTML = '';
+        avatars.forEach((a, index) => {
+            const div = document.createElement('div');
+            div.className = 'avatar-item' + (a === selectedAvatar ? ' selected' : '');
+            div.textContent = a;
+            div.addEventListener('click', () => {
+                document.querySelectorAll('#avatar-selector .avatar-item').forEach(i => i.classList.remove('selected'));
+                div.classList.add('selected');
+                selectedAvatar = a;
+            });
+            container.appendChild(div);
+        });
+        if (container.firstElementChild) container.firstElementChild.classList.add('selected');
+    };
+
+    window.openTeacherSetup = function openTeacherSetup() {
+        clearQuestionsList();
+        addQuestionBlock();
+        showScreen('screen-teacher-setup');
+        const status = document.getElementById('saving-status');
+        if (status) {
+            status.textContent = '⏳ جاهز لإدخال الأسئلة';
+            status.style.color = 'var(--primary)';
+        }
+    };
+
+    window.goToStudentLogin = function goToStudentLogin() {
+        showScreen('screen-student-login');
+    };
+
+    window.validateAndStartGame = function validateAndStartGame() {
+        const roomPin = document.getElementById('room-pin-input')?.value.trim();
+        const studentName = document.getElementById('student-name-input')?.value.trim();
+        if (!roomPin || !studentName) {
+            alert('الرجاء ملء جميع الحقول');
+            return;
+        }
+        studentSessionName = `${selectedAvatar} ${studentName}`;
+        startStudentFlow();
+    };
+
+    window.addQuestionBlock = function addQuestionBlock(data = null) {
+        const container = document.getElementById('questions-list');
+        if (!container) return;
+
+        const blockId = `q-block-${qBlockCount}`;
+        const qNum = qBlockCount + 1;
+        const saved = data || {};
+        const titleValue = (saved.q ?? saved.question ?? '').toString();
+        const opts = Array.isArray(saved.opts) ? saved.opts : (Array.isArray(saved.options) ? saved.options : ['', '', '', '']);
+        const ansIndex = Number.isFinite(Number(saved.ans ?? saved.correct ?? saved.correctAnswerIndex)) ? Number(saved.ans ?? saved.correct ?? saved.correctAnswerIndex) : 0;
+
+        const html = `
+            <div class="q-block" id="${blockId}">
+                <h3>
+                    <span>السؤال ${qNum}</span>
+                    ${qBlockCount > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
+                </h3>
+                <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                    <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0;" value="${titleValue.replace(/"/g, '&quot;')}">
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                </div>
+
+                ${[0,1,2,3].map(i => `
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${qBlockCount}" value="${i}" ${i === ansIndex ? 'checked' : ''} title="حدد الإجابة الصحيحة">
+                        <input type="text" class="q-opt-input" placeholder="الخيار ${i + 1}" required style="margin-bottom: 0;" value="${(opts[i] ?? '').toString().replace(/"/g, '&quot;')}">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        qBlockCount++;
+    };
+
+    function collectQuestionsFromBlocks() {
+        const blocks = document.querySelectorAll('.q-block');
+        const customQuestions = [];
+        let isValid = true;
+
+        blocks.forEach((block) => {
+            const title = block.querySelector('.q-title-input')?.value.trim() || '';
+            const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
+            const correctRadio = block.querySelector('input[type="radio"]:checked');
+
+            if (!title || opts.some(opt => !opt)) isValid = false;
+            if (correctRadio) {
+                customQuestions.push({
+                    q: title,
+                    opts,
+                    ans: parseInt(correctRadio.value, 10)
+                });
+            }
+        });
+
+        return { isValid, customQuestions };
+    }
+
+    window.saveQuestionsToSheet = function saveQuestionsToSheet() {
+        const { isValid, customQuestions } = collectQuestionsFromBlocks();
+
+        if (!isValid || customQuestions.length === 0) {
+            alert('يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!');
+            return;
+        }
+
+        currentRoomPIN = generateRoomPIN();
+        localStorage.setItem(roomKey(currentRoomPIN), JSON.stringify({
+            pin: currentRoomPIN,
+            questions: normalizeStoredQuestions(customQuestions),
+            createdAt: new Date().toISOString()
+        }));
+
+        const status = document.getElementById('saving-status');
+        if (status) {
+            status.style.display = 'block';
+            status.innerText = '✅ تم حفظ الأسئلة بنجاح! يمكن للطلاب الدخول الآن.';
+            status.style.color = 'var(--success)';
+        }
+
+        document.getElementById('display-room-pin').innerText = currentRoomPIN;
+        const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+        document.getElementById('game-url-input').value = gameUrl;
+
+        const qrImg = document.getElementById('room-qr-code');
+        if (qrImg) {
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+            qrImg.style.display = 'block';
+        }
+
+        showScreen('screen-teacher');
+    };
+
+    window.loadExistingRoom = function loadExistingRoom() {
+        const pin = document.getElementById('existing-room-pin')?.value.trim();
+        if (!pin) {
+            alert('يرجى إدخال رقم الغرفة القديمة!');
+            return;
+        }
+
+        const loadingScreen = document.getElementById('screen-loading-sheet');
+        const loadingText = document.getElementById('loading-text');
+        const originalText = loadingText?.innerText || '';
+
+        if (loadingScreen) loadingScreen.style.display = 'flex';
+        if (loadingText) loadingText.innerText = 'جاري البحث عن الغرفة واستنساخ الأسئلة...';
+
+        const payload = getQuestionPayloadFromStorage(pin);
+        if (!payload || !Array.isArray(payload.questions) || payload.questions.length === 0) {
+            if (loadingScreen) loadingScreen.style.display = 'none';
+            if (loadingText) loadingText.innerText = originalText;
+            alert('عذراً! لم يتم العثور على أسئلة محفوظة لرمز الغرفة هذا.');
+            return;
+        }
+
+        clearQuestionsList();
+        payload.questions.forEach(q => addQuestionBlock(q));
+
+        currentRoomPIN = generateRoomPIN();
+        localStorage.setItem(roomKey(currentRoomPIN), JSON.stringify({
+            pin: currentRoomPIN,
+            questions: normalizeStoredQuestions(payload.questions),
+            clonedFrom: pin,
+            createdAt: new Date().toISOString()
+        }));
+
+        document.getElementById('display-room-pin').innerText = currentRoomPIN;
+        const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+        document.getElementById('game-url-input').value = gameUrl;
+        const qrImg = document.getElementById('room-qr-code');
+        if (qrImg) {
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+            qrImg.style.display = 'block';
+        }
+
+        if (loadingScreen) loadingScreen.style.display = 'none';
+        if (loadingText) loadingText.innerText = originalText;
+        showScreen('screen-teacher');
+    };
+
+    window.copyGameLink = function copyGameLink() {
+        const input = document.getElementById('game-url-input');
+        if (!input) return;
+        input.select();
+        document.execCommand('copy');
+        const btn = document.getElementById('copy-btn');
+        if (btn) {
+            const old = btn.innerText;
+            btn.innerText = 'تم النسخ! ✔️';
+            btn.style.backgroundColor = 'var(--success)';
+            setTimeout(() => {
+                btn.innerText = old || 'نسخ الرابط';
+                btn.style.backgroundColor = 'var(--primary)';
+            }, 2000);
+        }
+    };
+
+    window.startStudentFlow = async function startStudentFlow() {
+        const pin = document.getElementById('room-pin-input')?.value.trim();
+        const name = document.getElementById('student-name-input')?.value.trim();
+
+        if (!name || !pin) {
+            alert('يرجى إدخال الاسم ورقم الغرفة');
+            return;
+        }
+
+        studentSessionName = `${selectedAvatar} ${name}`;
+
+        const loadingScreen = document.getElementById('screen-loading-sheet');
+        const loadingText = document.getElementById('loading-text');
+        const originalText = loadingText?.innerText || '';
+
+        if (loadingScreen) loadingScreen.style.display = 'flex';
+        if (loadingText) loadingText.innerText = 'جاري تجهيز الأسئلة...';
+
+        try {
+            const payload = getQuestionPayloadFromStorage(pin);
+            if (payload && Array.isArray(payload.questions) && payload.questions.length > 0) {
+                questions = normalizeStoredQuestions(payload.questions).map(q => ({
+                    question: q.q,
+                    options: q.opts,
+                    correctAnswerIndex: q.ans
+                }));
+            }
+
+            if (!questions || questions.length === 0) {
+                questions = [
+                    {
+                        question: "اكتب العدد النسبي \\(0.5\\) على صورة كسر عادي \\( \\frac{a}{b} \\).",
+                        options: ["\\( \\frac{1}{2} \\)", "\\( \\frac{5}{100} \\)", "\\( \\frac{5}{1} \\)", "\\( \\frac{2}{1} \\)"],
+                        correctAnswerIndex: 0
+                    }
+                ];
+            }
+
+            if (loadingScreen) loadingScreen.style.display = 'none';
+            if (loadingText) loadingText.innerText = originalText;
+
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const gameWrapper = document.getElementById('game-ui-wrapper');
+            if (gameWrapper) gameWrapper.style.display = 'block';
+
+            requestFullscreen();
+
+            if (typeof initializeGame === 'function') {
+                initializeGame();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            if (loadingScreen) loadingScreen.style.display = 'none';
+            if (loadingText) loadingText.innerText = originalText;
+            alert('حدث خطأ أثناء تحميل الغرفة.');
+        }
+    };
+
+    function requestFullscreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(() => {});
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
+    }
+
+    function openMathModal(inputElement) {
+        if (!mf) return;
+        window.targetInputField = inputElement;
+        const overlay = document.getElementById('math-modal-overlay');
+        if (overlay) overlay.style.display = 'flex';
+        mf.value = '';
+        setTimeout(() => mf.focus(), 100);
+    }
+
+    function closeMathModal() {
+        const overlay = document.getElementById('math-modal-overlay');
+        if (overlay) overlay.style.display = 'none';
+        if (window.targetInputField && mf) {
+            window.targetInputField.value += ` ${MATH_INSERT_WRAP(mf.value)} `;
+            window.targetInputField.dispatchEvent(new Event('input', { bubbles: true }));
+            window.targetInputField = null;
+        }
+    }
+
+    function addMath(val, e) {
+        if (e) e.preventDefault();
+        if (!mf) return;
+        mf.focus();
+        mf.insert(val);
+    }
+
+    function insertMathCode(latex, e) {
+        if (e) e.preventDefault();
+        if (!mf) return;
+        mf.focus();
+        mf.insert(latex);
+    }
+
+    function addMathSpace(e) {
+        if (e) e.preventDefault();
+        if (!mf) return;
+        mf.focus();
+        mf.insert('\\text{ }');
+    }
+
+    function backspaceMath(e) {
+        if (e) e.preventDefault();
+        if (!mf) return;
+        mf.focus();
+        mf.executeCommand('deleteBackward');
+    }
+
+    function showMathTab(tabId, event) {
+        document.querySelectorAll('.custom-keyboard').forEach(kb => kb.classList.remove('active'));
+        const active = document.getElementById(tabId);
+        if (active) active.classList.add('active');
+        document.querySelectorAll('.math-tab').forEach(t => t.classList.remove('active'));
+        if (event && event.currentTarget) event.currentTarget.classList.add('active');
+    }
+
+    window.openMathModal = openMathModal;
+    window.closeMathModal = closeMathModal;
+    window.addMath = addMath;
+    window.insertMathCode = insertMathCode;
+    window.addMathSpace = addMathSpace;
+    window.backspaceMath = backspaceMath;
+    window.showMathTab = showMathTab;
+
+    window.addEventListener('load', () => {
+        setupAvatars();
+        const params = new URLSearchParams(window.location.search);
+        const pin = params.get('pin');
+        if (pin) {
+            const pinInput = document.getElementById('room-pin-input');
+            if (pinInput) pinInput.value = pin;
+            showScreen('screen-student-login');
+        }
+    });
+})();
+</script>
+
 </body>
 </html>
