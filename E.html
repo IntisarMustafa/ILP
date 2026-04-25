@@ -1110,7 +1110,11 @@
                 const pathPoint = gameState.pathPoints.find(p => p.x > GAME_WIDTH * 0.9);
                 if (pathPoint) {
                     let obstacleRadius = gameState.gameTime >= 16 ? Math.random() * 10 + 15 : Math.random() * 5 + 10;
-                    let randomY = Math.random() > 0.5 ? pathPoint.y - gameState.pathWidth / 2 + obstacleRadius : pathPoint.y + gameState.pathWidth / 2 - obstacleRadius;
+                    // مسافة إضافية لإبعاد العائق عن منتصف المسار
+                    let safeMargin = 15;
+                    let randomY = Math.random() > 0.5 ?
+                        pathPoint.y - (gameState.pathWidth / 2) - obstacleRadius - safeMargin :
+                        pathPoint.y + (gameState.pathWidth / 2) + obstacleRadius + safeMargin;
                     const obstacleColor = levelColors[(gameState.level - 1) % levelColors.length];
                     gameState.obstacles.push({ x: GAME_WIDTH, y: randomY, radius: obstacleRadius, color: obstacleColor });
                 }
