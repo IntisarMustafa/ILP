@@ -771,7 +771,7 @@
             let gameState = {
                 level: 1, currentLevelScore: 0, totalScore: 0, gameTime: 0,
                 gameOver: false, gameStarted: false, paused: true, isLevelComplete: false, isQuestionActive: false,
-                pathPoints: [], pathWidth: 150, pathSpeed: 2.5, targetPathSpeed: 2.5, lastTime: 0,
+                pathPoints: [], pathWidth: 150, pathSpeed: 1, targetPathSpeed: 3.5, lastTime: 0,
                 obstacles: [], obstacleGenerationInterval: 1000, timeSinceLastObstacle: 0,
                 keys: { ArrowUp: false, ArrowDown: false, w: false, s: false },
                 cameraX: 0
@@ -979,23 +979,9 @@
                 stars = [];
                 const numStars = 400;
                 for (let i = 0; i < numStars; i++) {
-                    // توزيع النجوم في الأعلى والأسفل بعيداً عن المسار والحواف
-                    let starY;
-                    const margin = 40; // مسافة من حواف الشاشة
-                    const topZoneEnd = 150; // نهاية المنطقة العلوية
-                    const bottomZoneStart = GAME_HEIGHT - 150; // بداية المنطقة السفلية
-                    
-                    if (Math.random() > 0.5) {
-                        // منطقة علوية
-                        starY = margin + Math.random() * (topZoneEnd - margin);
-                    } else {
-                        // منطقة سفلية
-                        starY = bottomZoneStart + Math.random() * (GAME_HEIGHT - margin - bottomZoneStart);
-                    }
-
                     stars.push({
                         x: Math.random() * GAME_WIDTH,
-                        y: starY,
+                        y: Math.random() * GAME_HEIGHT,
                         size: Math.random() * 2 + 0.5,
                         speed: Math.random() * starSpeed + 0.1,
                         color: `rgba(255, 255, 255, ${Math.random() * 0.7 + 0.3})`
@@ -1009,15 +995,7 @@
                     star.x -= star.speed * dtSec * REFERENCE_FPS;
                     if (star.x < 0) {
                         star.x = GAME_WIDTH;
-                        // إعادة توزيع النجم عند خروجه من الشاشة بنفس المنطق
-                        const margin = 40;
-                        const topZoneEnd = 150;
-                        const bottomZoneStart = GAME_HEIGHT - 150;
-                        if (Math.random() > 0.5) {
-                            star.y = margin + Math.random() * (topZoneEnd - margin);
-                        } else {
-                            star.y = bottomZoneStart + Math.random() * (GAME_HEIGHT - margin - bottomZoneStart);
-                        }
+                        star.y = Math.random() * GAME_HEIGHT;
                     }
                 });
             }
@@ -1128,48 +1106,16 @@
                 ctx.setLineDash([]);
             }
             
-	            function generateObstacles() {
-	                const pathPoint = gameState.pathPoints.find(p => p.x > GAME_WIDTH * 0.9);
-	                if (pathPoint) {
-	                    let obstacleRadius = gameState.gameTime >= 16 ? Math.random() * 10 + 15 : Math.random() * 5 + 10;
-	                    
-	                    // ============================================
-	                    // إبعاد العوائق بشكل صارم عن وسط المسار
-	                    // وتثبيتها على الجدران (الحواف العلوية والسفلية)
-	                    // ============================================
-	                    
-	                    // حساب منطقة آمنة في وسط المسار يجب تجنبها
-	                    const safeZoneRadius = (gameState.pathWidth / 2) * 0.4; // 40% من نصف عرض المسار
-	                    
-	                    // حساب المسافة المطلوبة من الجدار
-	                    const wallMargin = obstacleRadius + 8; // مسافة إضافية من الجدار
-	                    
-	                    // تحديد المناطق المسموح بها (قريباً من الجدران فقط)
-	                    const topWallY = pathPoint.y - (gameState.pathWidth / 2) + wallMargin + obstacleRadius;
-	                    const bottomWallY = pathPoint.y + (gameState.pathWidth / 2) - wallMargin - obstacleRadius;
-	                    
-	                    // اختيار عشوائي بين الجدار العلوي أو السفلي
-	                    let randomY;
-	                    if (Math.random() > 0.5) {
-	                        // توليد العائق بالقرب من الجدار العلوي
-	                        randomY = topWallY + Math.random() * (safeZoneRadius * 0.8);
-	                    } else {
-	                        // توليد العائق بالقرب من الجدار السفلي
-	                        randomY = bottomWallY - Math.random() * (safeZoneRadius * 0.8);
-	                    }
-	                    
-	                    // ضمان بقاء العوائق بعيدة عن حواف الشاشة العلوية والسفلية بمسافة 40 بكسل
-	                    const edgeMargin = 40;
-	                    const minY = edgeMargin + obstacleRadius;
-	                    const maxY = GAME_HEIGHT - edgeMargin - obstacleRadius;
-	                    
-	                    randomY = Math.max(minY, Math.min(maxY, randomY));
-	                    
-	                    const obstacleColor = levelColors[(gameState.level - 1) % levelColors.length];
-	                    gameState.obstacles.push({ x: GAME_WIDTH, y: randomY, radius: obstacleRadius, color: obstacleColor });
-	                }
-	                gameState.obstacleGenerationInterval = Math.max(500, 1000 - gameState.level * 50);
-	            }
+            function generateObstacles() {
+                const pathPoint = gameState.pathPoints.find(p => p.x > GAME_WIDTH * 0.9);
+                if (pathPoint) {
+                    let obstacleRadius = gameState.gameTime >= 16 ? Math.random() * 10 + 15 : Math.random() * 5 + 10;
+                    let randomY = Math.random() > 0.5 ? pathPoint.y - gameState.pathWidth / 2 + obstacleRadius : pathPoint.y + gameState.pathWidth / 2 - obstacleRadius;
+                    const obstacleColor = levelColors[(gameState.level - 1) % levelColors.length];
+                    gameState.obstacles.push({ x: GAME_WIDTH, y: randomY, radius: obstacleRadius, color: obstacleColor });
+                }
+                gameState.obstacleGenerationInterval = Math.max(500, 1000 - gameState.level * 50);
+            }
             
             function drawObstacles() {
                 gameState.obstacles.forEach(obstacle => {
@@ -1363,8 +1309,8 @@
                 gameState.totalScore += Math.floor(gameState.currentLevelScore);
                 gameState.level++; gameState.gameTime = 0; gameState.isLevelComplete = false; gameState.paused = false;
                 gameState.currentLevelScore = 0;
-	                gameState.pathSpeed = 2.5;
-	                gameState.targetPathSpeed = 2.5;
+                gameState.pathSpeed = 1 + (gameState.level - 1) * 0.4;
+                gameState.targetPathSpeed = gameState.pathSpeed + 2.5 + (gameState.level - 1) * 0.8;
                 gameState.pathWidth = Math.max(50, 150 - (gameState.level - 1) * 10);
                 levelElement.textContent = gameState.level; scoreElement.textContent = gameState.totalScore; timeElement.textContent = gameState.gameTime;
                 gameState.obstacles = []; gameState.timeSinceLastObstacle = 0; 
@@ -1381,8 +1327,7 @@
                 gameState.gameTime += dtSec;
                 timeElement.textContent = Math.floor(gameState.gameTime);
 
-	                gameState.pathSpeed = 2.5;
-	                gameState.targetPathSpeed = 2.5;
+                if (gameState.pathSpeed < gameState.targetPathSpeed) { gameState.pathSpeed += 0.008 * dtSec * REFERENCE_FPS; }
 
                 if (Math.floor(gameState.gameTime) >= 30 && !gameState.isLevelComplete) {
                     gameState.paused = true; gameState.isLevelComplete = true;
@@ -1463,7 +1408,7 @@
                 gameState = {
                     level: 1, currentLevelScore: 0, totalScore: 0, gameTime: 0,
                     gameOver: false, gameStarted: true, paused: false, isLevelComplete: false, isQuestionActive: false,
-	                    pathPoints: [], pathWidth: 150, pathSpeed: 2.5, targetPathSpeed: 2.5, lastTime: performance.now(),
+                    pathPoints: [], pathWidth: 150, pathSpeed: 1, targetPathSpeed: 3.5, lastTime: performance.now(),
                     obstacles: [], obstacleGenerationInterval: 1000, timeSinceLastObstacle: 0, 
                     keys: { ArrowUp: false, ArrowDown: false, w: false, s: false },
                 cameraX: 0
