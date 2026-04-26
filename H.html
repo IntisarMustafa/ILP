@@ -325,15 +325,15 @@ function copyGameLink() {
         .btn-3d:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--shadow-color, #991b1b), 0 15px 25px rgba(0,0,0,0.5); }
         
         #mobile-controls {
-            display: none; position: absolute; bottom: 30px; left: 0; right: 0; width: 100%;
+            display: flex; position: absolute; bottom: 30px; left: 0; right: 0; width: 100%;
             justify-content: space-between; padding: 0 50px; box-sizing: border-box; z-index: 50; pointer-events: none;
         }
         @media (max-width: 1024px), (hover: none) and (pointer: coarse) { #mobile-controls { display: flex; } }
         
         .touch-btn {
             /* تم التعديل لتصبح متجاوبة مع الشاشات الكبيرة */
-            width: clamp(80px, 12vw, 120px); 
-            height: clamp(80px, 12vw, 120px);
+            width: clamp(110px, 16vw, 160px); 
+            height: clamp(110px, 16vw, 160px);
             pointer-events: auto; user-select: none;
             background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);
             backdrop-filter: blur(5px); opacity: 0.85; transition: all 0.1s;
