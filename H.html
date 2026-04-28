@@ -1335,6 +1335,34 @@ window.addEventListener('keydown', function(e) {
 document.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => btn.blur());
 });
+
+// === نقل زر القفز للألواح التفاعلية الكبيرة ===
+window.addEventListener('load', () => {
+    const rearrangeControlsForWhiteboard = () => {
+        const jumpBtn = document.getElementById('btnJump');
+        const movementContainer = document.querySelector('.movement-btns');
+        const actionContainer = document.querySelector('.action-btns');
+
+        if (!jumpBtn || !movementContainer || !actionContainer) return;
+
+        if (window.innerWidth >= 1024) {
+            if (jumpBtn.parentElement !== movementContainer) {
+                movementContainer.appendChild(jumpBtn);
+                jumpBtn.style.marginLeft = "40px";
+            }
+        } else {
+            if (jumpBtn.parentElement !== actionContainer) {
+                actionContainer.appendChild(jumpBtn);
+                jumpBtn.style.marginLeft = "0";
+            }
+        }
+    };
+
+    rearrangeControlsForWhiteboard();
+    window.addEventListener('resize', rearrangeControlsForWhiteboard);
+});
+// ==============================================
+
 </script>
 
 </body>
