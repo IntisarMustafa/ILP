@@ -392,7 +392,41 @@
         
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    </style>
+    
+/* ========================================= */
+/* تعديل خاص للوح التفاعلي */
+/* ========================================= */
+@media (min-width: 768px) {
+
+    .mobile-hud {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 40px !important;
+        bottom: 40px !important;
+    }
+
+    .d-pad,
+    .action-pad {
+        position: static !important;
+        display: flex !important;
+        gap: 20px !important;
+        justify-content: center !important;
+    }
+
+    .mobile-btn {
+        width: 90px !important;
+        height: 90px !important;
+        font-size: 36px !important;
+    }
+
+    .jump-btn {
+        width: 90px !important;
+        height: 90px !important;
+    }
+}
+
+</style>
 </head>
 <body>
 
