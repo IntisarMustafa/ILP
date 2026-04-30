@@ -301,7 +301,7 @@
         </div>
     </div>
 
-    <iframe id="hidden_iframe_score" name="hidden_iframe_score" style="display:none;"></iframe>
+<iframe id="hidden_iframe_score" name="hidden_iframe_score" style="display:none;"></iframe>
 <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
     <input id="form-name" name="name" type="hidden"/>
     <input id="form-school" name="school" type="hidden"/>
@@ -316,7 +316,8 @@
 </form>
 
     <script>
-const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+        const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+
         // =========================================================================
         // 1. نظام المنصة التعليمية (إدارة الأسئلة والغرف)
         // =========================================================================
@@ -360,10 +361,10 @@ const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
             list.appendChild(div);
         }
 
-        async function saveAndGeneratePIN() {
+function saveAndGeneratePIN() {
     const blocks = document.querySelectorAll('.q-block');
     if (blocks.length === 0) { alert("أضف سؤالاً واحداً على الأقل!"); return; }
-
+    
     const questions = [];
     blocks.forEach(b => {
         const qText = b.querySelector('.q-text').value;
@@ -377,8 +378,9 @@ const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
     if (questions.length === 0) { alert("يرجى تعبئة كافة الحقول!"); return; }
 
     const pin = Math.floor(100000 + Math.random() * 900000).toString();
-
+    
     try {
+        // إرسال البيانات لجوجل شيت
         document.getElementById('qform-name').value = pin; 
         document.getElementById('qform-school').value = JSON.stringify(questions); 
         document.getElementById('questionsForm').submit();
@@ -389,37 +391,27 @@ const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
         alert("حدث خطأ في الحفظ!"); 
     }
 }
-            });
 
-            if (questions.length === 0) { alert("يرجى تعبئة كافة الحقول!"); return; }
-
-            const pin = Math.floor(1000 + Math.random() * 9000).toString();
-            try {
-                localStorage.setItem('room_' + pin, JSON.stringify(questions));
-                document.getElementById('display-pin').textContent = pin;
-                showScreen('screen-pin-display');
-            } catch (e) { alert("حدث خطأ في الحفظ!"); }
-        }
-
-        async function studentLogin() {
+async function studentLogin() {
     const name = document.getElementById('student-name').value;
     const pin = document.getElementById('room-pin-input').value;
     if (!name || !pin) { alert("يرجى إدخال الاسم ورقم الغرفة!"); return; }
-
+    
     studentNameForSheet = name;
     currentRoomPIN = pin;
-
+    
+    // ربط المتغيرات بالنموذج الصحيح لإرسال النتيجة لاحقاً
     document.getElementById('form-name').value = name;
     document.getElementById('form-school').value = pin;
 
     document.getElementById('screen-loading-sheet').style.display = 'flex';
-
+    
     try {
         const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-        const textRes = await res.text();
-        const json = JSON.parse(textRes.substring(47, textRes.length - 2));
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
         let foundQuestions = null;
-
+        
         for(let i = json.table.rows.length - 1; i >= 0; i--) {
             let row = json.table.rows[i];
             if(row && row.c[0] && row.c[0].v.toString() === pin && row.c[1] && row.c[1].v.toString().trim().startsWith('[')) {
@@ -432,7 +424,7 @@ const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
                 break;
             }
         }
-
+        
         if (foundQuestions && foundQuestions.length > 0) { 
             gameQuestions = foundQuestions; 
         } else { 
@@ -447,19 +439,7 @@ const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
     document.getElementById('screen-loading-sheet').style.display = 'none';
     document.getElementById('platform-ui').style.display = 'none';
     document.getElementById('game-container').style.display = 'block';
-} else {
-                    // إذا لم تكن في localStorage، نستخدم الأسئلة الافتراضية
-                }
-            } catch (err) {
-                document.getElementById('screen-loading-sheet').style.display = 'none';
-                alert("تعذر العثور على أسئلة لهذه الغرفة! تأكد من الرقم.");
-                return;
-            }
-
-            document.getElementById('screen-loading-sheet').style.display = 'none';
-            document.getElementById('platform-ui').style.display = 'none';
-            document.getElementById('game-container').style.display = 'block';
-        }
+}
 
         const mf = document.getElementById('formula');
         let targetInputField = null;
