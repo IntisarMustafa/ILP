@@ -86,7 +86,7 @@
         .character.active { border-color: #4cc9f0; box-shadow: 0 0 25px rgba(76, 201, 240, 0.9); transform: scale(1.05); }
         .character i { font-size: 3rem; color: #f1faee; margin-bottom: 5px; }
         .btn { background: linear-gradient(45deg, #4361ee, #3a0ca3); color: white; border: none; padding: 16px 40px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; margin: 15px; box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6); }
-        .music-toggle-btn { position: absolute; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 10px 15px; font-size: 1.2rem; border-radius: 50%; cursor: pointer; z-index: 101; }
+        .music-toggle-btn { position: absolute; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 10px 15px; font-size: 1.2rem; border-radius: 50%; cursor: pointer; z-index: 101; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
         .controls-info { display: flex; flex-wrap: wrap; justify-content: center; margin: 25px 0; gap: 12px; }
         .control-item { background: rgba(76, 201, 240, 0.2); padding: 12px 20px; border-radius: 18px; font-size: 1.1rem; border: 1px solid rgba(76, 201, 240, 0.4); }
         .stats { display: flex; gap: 25px; margin-top: 25px; background: rgba(0, 0, 0, 0.4); padding: 15px 35px; border-radius: 20px; font-size: 1.2rem; justify-content: center; }
@@ -152,6 +152,9 @@
         
         .mobile-controls { position: absolute; bottom: 20px; width: 100%; display: none; justify-content: space-around;}
         .mobile-btn { width: 70px; height: 70px; border-radius: 50%; background: rgba(76, 201, 240, 0.3); display: flex; justify-content: center; align-items: center; font-size: 2rem; color: white; border: 2px solid rgba(255, 255, 255, 0.2); user-select: none; touch-action: manipulation; }
+        
+        /* أزرار نهاية اللعبة */
+        .end-screen .btn { margin: 10px; }
         
         @media (max-width: 768px) { .mobile-controls { display: flex;} }
     </style>
@@ -222,6 +225,62 @@
 
     </div>
 
+    <div class="game-container" id="game-container">
+        <button class="music-toggle-btn" id="music-toggle-btn" title="تشغيل/إيقاف الموسيقى">
+            <i class="fas fa-volume-up"></i>
+        </button>
+        
+        <div class="start-screen" id="start-screen">
+            <div class="logo">🎮</div>
+            <div class="subtitle">منصات طائرة</div>
+            <p style="font-size: 1.4rem; margin-bottom: 30px; color: #f1faee;">اختر شخصيتك وابدأ المغامرة!</p>
+            <div class="characters">
+                <div class="character active" data-character="1"><i class="fas fa-cube"></i></div>
+                <div class="character" data-character="2"><i class="fas fa-ship"></i></div>
+                <div class="character" data-character="3"><i class="fas fa-robot"></i></div>
+            </div>
+            <button class="btn" id="start-btn">ابدأ اللعب</button>
+            <div class="controls-info">
+                <div class="control-item">⬆️ مفتاح المسافة للقفز</div>
+                <div class="control-item">⬇️ سهم لأسفل للانزلاق</div>
+            </div>
+        </div>
+
+        <div class="end-screen" id="end-screen">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🏁</div>
+            <h1 style="font-size: 2.5rem; margin-bottom: 20px;">انتهت اللعبة!</h1>
+            <div class="stats">
+                <div class="stat">
+                    <div style="color: #f1faee;">النقاط</div>
+                    <div class="stat-value" id="final-score">0</div>
+                </div>
+                <div class="stat">
+                    <div style="color: #f1faee;">أفضل نقاط</div>
+                    <div class="stat-value" id="final-high-score">0</div>
+                </div>
+            </div>
+            <button class="btn" id="restart-btn" style="margin-top: 30px;">العب مرة أخرى</button>
+        </div>
+
+        <div class="question-modal" id="question-modal">
+            <h2 id="question-text">السؤال هنا</h2>
+            <div class="options-container" id="options-container"></div>
+            <div class="feedback-message" id="feedback-message"></div>
+            <button class="btn" id="submit-answer-btn">إرسال الإجابة</button>
+        </div>
+
+        <div id="game-area">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="game-info">
+                <div class="info-item">المستوى: <span class="info-value" id="level">1</span></div>
+                <div class="info-item">النقاط: <span class="info-value" id="score">0</span></div>
+                <div class="info-item">المنصات: <span class="info-value" id="platforms-passed">0</span></div>
+            </div>
+        </div>
+    </div>
+
     <iframe id="hidden_iframe_score" name="hidden_iframe_score" style="display:none;"></iframe>
     <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
         <input id="form-name" name="name" type="hidden"/>
@@ -265,247 +324,185 @@
                     </div>
                     <div class="kb-row">
                         <button class="key" onpointerdown="addMath('+', event)">+</button>
-                        <button class="key" onpointerdown="addMath('-', event)">-</button>
-                        <button class="key" onpointerdown="insertMathCode('\\frac{#@}{#?}', event)">a/b</button>
-                        <button class="key" onpointerdown="insertMathCode('^{#?}', event)">x²</button>
-                        <button class="key" onpointerdown="insertMathCode('\\sqrt{#?}', event)">√</button>
+                        <button class="key" onpointerdown="addMath('-', event)">−</button>
+                        <button class="key" onpointerdown="addMath('\\times', event)">×</button>
+                        <button class="key" onpointerdown="addMath('\\div', event)">÷</button>
+                        <button class="key" onpointerdown="addMath('=', event)">=</button>
                     </div>
                     <div class="kb-row">
-                        <button class="key" onpointerdown="addMath('=', event)">=</button>
-                        <button class="key" onpointerdown="addMath('.', event)">.</button>
-                        <button class="key" style="flex:2" onpointerdown="backspaceMath(event)">⌫ حذف</button>
+                        <button class="key" onpointerdown="addMath('\\frac{}{}',' event)">分数</button>
+                        <button class="key" onpointerdown="addMath('^{}', event)">x^n</button>
+                        <button class="key" onpointerdown="addMath('\\sqrt{}', event)">√</button>
+                        <button class="key" onpointerdown="addMath('(', event)">(</button>
+                        <button class="key" onpointerdown="addMath(')', event)">)</button>
                     </div>
                 </div>
                 <div class="custom-keyboard" id="letters">
-                    <div class="kb-row"><button class="key" onpointerdown="addMath('س', event)">س</button><button class="key" onpointerdown="addMath('ص', event)">ص</button><button class="key" onpointerdown="addMath('x', event)">x</button><button class="key" onpointerdown="addMath('y', event)">y</button></div>
-                    <div class="kb-row"><button class="key" style="flex:2" onpointerdown="backspaceMath(event)">⌫ حذف</button></div>
+                    <div class="kb-row">
+                        <button class="key" onpointerdown="addMath('a', event)">a</button>
+                        <button class="key" onpointerdown="addMath('b', event)">b</button>
+                        <button class="key" onpointerdown="addMath('c', event)">c</button>
+                        <button class="key" onpointerdown="addMath('x', event)">x</button>
+                        <button class="key" onpointerdown="addMath('y', event)">y</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="game-container" id="game-container">
-        <div id="start-screen" class="start-screen">
-            <h1 class="logo">منصات طائرة</h1>
-            <p class="subtitle">تم جلب الأسئلة! اختر شخصيتك وابدأ.</p>
-            <div class="characters">
-                <div class="character active" data-character="1"><i class="fas fa-cube"></i><span>مكعب</span></div>
-                <div class="character" data-character="2"><i class="fas fa-ship"></i><span>سفينة</span></div>
-                <div class="character" data-character="3"><i class="fas fa-robot"></i><span>روبوت</span></div>
-            </div>
-            <button id="start-btn" class="btn"><i class="fas fa-play"></i> بدء اللعبة</button>
-            <div class="controls-info">
-                <div class="control-item"><i class="fas fa-arrow-up"></i> قفز / مسافة / نقرة</div>
-                <div class="control-item"><i class="fas fa-arrow-down"></i> انزلاق</div>
-            </div>
-            <div class="stats">
-                <div class="stat"><span>أعلى نتيجة</span><span id="high-score" class="stat-value">0</span></div>
-                <div class="stat"><span>المستوى</span><span id="level" class="stat-value">1</span></div>
-            </div>
-        </div>
-        
-        <div class="progress-container" id="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
-        <div class="game-info" id="game-info">
-            <div class="info-item">النتيجة:<span id="score" class="info-value">0</span></div>
-            <div class="info-item">المنصات:<span id="platforms-passed" class="info-value">0</span></div>
-        </div>
-        
-        <div id="level-up" class="level-up">مستوى جديد!</div>
-        <div id="game-message" style="display: none;"></div>
-        <div id="game-area"></div>
-        
-        <div id="end-screen" class="end-screen">
-            <h1 class="logo">انتهت اللعبة</h1>
-            <p class="subtitle" style="color:var(--success);">تم إرسال نتيجتك للمعلم بنجاح!</p>
-            <div class="stats">
-                <div class="stat"><span>نتيجتك</span><span id="final-score" class="stat-value">0</span></div>
-                <div class="stat"><span>أعلى نتيجة</span><span id="final-high-score" class="stat-value">0</span></div>
-            </div>
-            <button id="restart-btn" class="btn"><i class="fas fa-redo"></i> العب مرة أخرى</button>
-        </div>
-        
-        <button id="music-toggle-btn" class="music-toggle-btn"><i class="fas fa-volume-up"></i></button>
-        
-        <div class="mobile-controls">
-            <div class="mobile-btn" id="jump-btn" onpointerdown="window.jumpAction(event)"><i class="fas fa-arrow-up"></i></div>
-            <div class="mobile-btn" id="slide-btn" onpointerdown="window.slideAction(event)"><i class="fas fa-arrow-down"></i></div>
-        </div>
-
-        <div id="question-modal" class="question-modal">
-            <h2 id="question-text"></h2>
-            <div id="options-container" class="options-container"></div>
-            <button id="submit-answer-btn" class="btn"><i class="fas fa-check"></i> تحقق من الإجابة</button>
-            <p id="feedback-message" class="feedback-message"></p>
         </div>
     </div>
 
     <script>
-        // --- إعدادات واجهة المنصة (المعلم والطالب) وجلب الأسئلة ---
-        const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
-        let gameQuestions = []; // مصفوفة الأسئلة الحية التي سيتم تمريرها للعبة
-        let currentRoomPIN = "";
-        let studentNameForSheet = "";
-        let qBlockCount = 0;
+        // =========================================================================
+        // متغيرات عامة
+        // =========================================================================
+        let gameQuestions = [];
+        let studentNameForSheet = '';
+        let currentRoomPIN = '';
+        let mf = null;
+        let targetInputField = null;
+        let soundEnabled = true;
 
-        // دالة التنقل بين الشاشات
-        function showScreen(id) {
+        // =========================================================================
+        // وظائف المنصة
+        // =========================================================================
+        function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            if(id) document.getElementById(id).classList.add('active');
+            document.getElementById(screenId).classList.add('active');
         }
 
-        function openTeacherSetup() {
-            document.getElementById('questions-list').innerHTML = '';
-            qBlockCount = 0;
-            addQuestionBlock();
-            showScreen('screen-teacher-setup');
-        }
-
+        function openTeacherSetup() { showScreen('screen-teacher-setup'); }
         function goToStudentLogin() { showScreen('screen-student-login'); }
 
-        // إضافة قالب سؤال جديد للمعلم
-        function addQuestionBlock() {
-            const container = document.getElementById('questions-list');
-            const blockId = `q-block-${qBlockCount}`;
-            const html = `
-                <div class="q-block" id="${blockId}">
-                    <h3><span>السؤال ${qBlockCount + 1}</span> ${qBlockCount > 0 ? `<button onclick="document.getElementById('${blockId}').remove()" style="background:red; color:white; border:none; padding:5px; border-radius:5px; cursor:pointer;">حذف</button>` : ''}</h3>
-                    <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                        <input type="text" class="q-title-input ui-input" placeholder="اكتب السؤال هنا..." style="margin-bottom:0;">
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-                    </div>
-                    ${[0,1,2,3].map(i => `
-                    <div class="opt-row">
-                        <input type="radio" name="correct-${qBlockCount}" value="${i}" ${i===0?'checked':''}>
-                        <input type="text" class="q-opt-input ui-input" placeholder="الخيار ${i+1}" style="margin-bottom:0;">
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-                    </div>`).join('')}
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
-            qBlockCount++;
+        function startStudentFlow() {
+            const roomPin = document.getElementById('input-room-pin').value;
+            const studentName = document.getElementById('input-student-name').value;
+            if (!roomPin || !studentName) { alert('يرجى ملء جميع الحقول'); return; }
+            currentRoomPIN = roomPin; studentNameForSheet = studentName;
+            
+            // جلب الأسئلة من Google Sheets باستخدام الـ PIN
+            fetchQuestionsFromSheet(roomPin);
         }
 
-        // حفظ الأسئلة إلى جوجل شيت وإنشاء غرفة
+        function fetchQuestionsFromSheet(pin) {
+            document.getElementById('screen-loading-sheet').style.display = 'flex';
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec';
+            
+            fetch(`${scriptUrl}?pin=${pin}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('screen-loading-sheet').style.display = 'none';
+                    if (data && data.questions && data.questions.length > 0) {
+                        gameQuestions = data.questions;
+                        document.getElementById('platform-ui').style.display = 'none';
+                        document.getElementById('game-container').style.display = 'block';
+                        document.getElementById('start-screen').style.display = 'flex';
+                    } else {
+                        alert('لم يتم العثور على أسئلة لهذه الغرفة. تأكد من الرمز الصحيح.');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('screen-loading-sheet').style.display = 'none';
+                    console.error('Error fetching questions:', error);
+                    alert('حدث خطأ أثناء جلب الأسئلة. يرجى المحاولة مرة أخرى.');
+                });
+        }
+
+        function addQuestionBlock() {
+            const qList = document.getElementById('questions-list');
+            const qIndex = qList.children.length;
+            const qBlock = document.createElement('div'); qBlock.classList.add('q-block');
+            qBlock.innerHTML = `
+                <h3 style="color: var(--primary); margin-top: 0;">السؤال ${qIndex + 1}</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" class="ui-input" placeholder="نص السؤال" data-field="question" style="flex: 1; margin-bottom: 0;">
+                    <button class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                </div>
+                <div id="options-${qIndex}"></div>
+                <button class="platform-btn btn-primary-ui" onclick="addOptionToQuestion(${qIndex})" style="background-color: #27ae60; box-shadow: 0 6px 0 #1e8449;">+ إضافة خيار</button>
+                <div style="margin-top: 15px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="radio" name="correct-${qIndex}" value="0" checked>
+                        <span>الخيار الأول هو الإجابة الصحيحة</span>
+                    </label>
+                </div>
+            `;
+            qList.appendChild(qBlock);
+            addOptionToQuestion(qIndex);
+        }
+
+        function addOptionToQuestion(qIndex) {
+            const optionsDiv = document.getElementById(`options-${qIndex}`);
+            const optIndex = optionsDiv.children.length;
+            const optRow = document.createElement('div'); optRow.classList.add('opt-row');
+            optRow.innerHTML = `
+                <input type="text" class="ui-input" placeholder="نص الخيار" style="flex: 1; margin-bottom: 0;">
+                <button class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap;">
+                    <input type="radio" name="correct-${qIndex}" value="${optIndex}">
+                </label>
+            `;
+            optionsDiv.appendChild(optRow);
+        }
+
         function saveQuestionsToSheet() {
-            const blocks = document.querySelectorAll('.q-block');
-            let customQuestions = [];
-            blocks.forEach((block) => {
-                const title = block.querySelector('.q-title-input').value.trim();
-                const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
-                const correctRadio = block.querySelector('input[type="radio"]:checked');
-                if (title && opts.every(opt => opt !== "") && correctRadio) {
-                    // تحويلها للنسق الذي تدعمه اللعبة الأصلية (question, options, correctOptionIndex)
-                    customQuestions.push({
-                        question: title,
-                        options: opts,
-                        correctOptionIndex: parseInt(correctRadio.value)
-                    });
+            const qBlocks = document.querySelectorAll('.q-block');
+            const questionsToSave = [];
+            qBlocks.forEach((block, qIndex) => {
+                const questionInput = block.querySelector('input[data-field="question"]');
+                const questionText = questionInput ? questionInput.value : '';
+                const optionInputs = block.querySelectorAll('.opt-row input[type="text"]');
+                const options = Array.from(optionInputs).map(inp => inp.value);
+                const correctRadio = block.querySelector(`input[name="correct-${qIndex}"]:checked`);
+                const correctIndex = correctRadio ? parseInt(correctRadio.value) : 0;
+                if (questionText && options.length > 0) {
+                    questionsToSave.push({ question: questionText, options: options, correctOptionIndex: correctIndex });
                 }
             });
-
-            if (customQuestions.length === 0) { alert("يرجى تعبئة سؤال واحد على الأقل بكافة خياراته."); return; }
-
-            currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
-            document.getElementById('qform-name').value = currentRoomPIN; 
-            document.getElementById('qform-school').value = JSON.stringify(customQuestions); 
+            if (questionsToSave.length === 0) { alert('يرجى إضافة أسئلة على الأقل'); return; }
             
-            document.getElementById('saving-status').innerText = "⏳ جاري الحفظ...";
+            const roomPIN = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('display-room-pin').textContent = roomPIN;
+            
+            // إرسال الأسئلة إلى Google Sheets
+            document.getElementById('qform-name').value = roomPIN;
+            document.getElementById('qform-school').value = JSON.stringify(questionsToSave);
             document.getElementById('questionsForm').submit();
-
-            document.getElementById('display-room-pin').innerText = currentRoomPIN;
-            setTimeout(() => { document.getElementById('saving-status').innerText = "✅ تم حفظ الأسئلة بنجاح!"; }, 2000);
+            
             showScreen('screen-teacher');
         }
 
-        // استرداد أسئلة غرفة سابقة
-        async function loadExistingRoom() {
-            const pin = document.getElementById('existing-room-pin').value.trim();
-            if (!pin) { alert("أدخل رقم الغرفة!"); return; }
-            document.getElementById('screen-loading-sheet').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "جاري البحث عن الغرفة...";
-            try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-                const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
-                let roomFound = false;
-                for(let i = json.table.rows.length - 1; i >= 0; i--) {
-                    let row = json.table.rows[i];
-                    if(row && row.c[0] && row.c[0].v.toString() === pin && row.c[1] && row.c[1].v.toString().trim().startsWith('[')) {
-                        roomFound = true; break;
-                    }
-                }
-                document.getElementById('screen-loading-sheet').style.display = 'none';
-                if (roomFound) {
-                    document.getElementById('display-room-pin').innerText = pin;
-                    document.getElementById('saving-status').innerText = "✅ تم استرداد الغرفة بنجاح!";
-                    showScreen('screen-teacher');
-                } else { alert("لم يتم العثور على الغرفة!"); }
-            } catch (err) { document.getElementById('screen-loading-sheet').style.display = 'none'; alert("حدث خطأ بالاتصال."); }
+        function loadExistingRoom() {
+            const pin = document.getElementById('existing-room-pin').value;
+            if (!pin) { alert('يرجى إدخال رمز الغرفة'); return; }
+            document.getElementById('display-room-pin').textContent = pin;
+            showScreen('screen-teacher');
         }
 
-        // دخول الطالب وبدء اللعبة
-        async function startStudentFlow() {
-            const name = document.getElementById('input-student-name').value.trim();
-            const pin = document.getElementById('input-room-pin').value.trim();
-            if (!name || !pin) { alert("يرجى إدخال الاسم ورقم الغرفة"); return; }
-            
-            studentNameForSheet = name;
-            document.getElementById('form-name').value = name;
-            document.getElementById('form-school').value = pin;
-            
-            document.getElementById('screen-loading-sheet').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "جاري جلب الأسئلة من المعلم...";
-            
-            try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-                const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
-                let foundQuestions = null;
-                for(let i = json.table.rows.length - 1; i >= 0; i--) {
-                    let row = json.table.rows[i];
-                    if(row && row.c[0] && row.c[0].v.toString() === pin && row.c[1] && row.c[1].v.toString().trim().startsWith('[')) {
-                        let parsed = JSON.parse(row.c[1].v.toString());
-                        // تحويل النسق القديم (q, opts, ans) للنسق الجديد إذا لزم الأمر
-                        foundQuestions = parsed.map(item => ({
-                            question: item.q || item.question,
-                            options: item.opts || item.options,
-                            correctOptionIndex: item.ans !== undefined ? item.ans : item.correctOptionIndex
-                        }));
-                        break;
-                    }
-                }
-                if (foundQuestions && foundQuestions.length > 0) { gameQuestions = foundQuestions; } 
-                else { throw new Error("No questions"); }
-            } catch (err) {
-                document.getElementById('screen-loading-sheet').style.display = 'none';
-                alert("تعذر العثور على أسئلة لهذه الغرفة! تأكد من الرقم.");
-                return;
-            }
+        // =========================================================================
+        // وظائف محرر الرياضيات
+        // =========================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            mf = document.getElementById('formula');
+        });
 
-            document.getElementById('screen-loading-sheet').style.display = 'none';
-            // إخفاء منصة الإدخال وإظهار حاوية اللعبة
-            document.getElementById('platform-ui').style.display = 'none';
-            document.getElementById('game-container').style.display = 'block';
+        function addMath(symbol, event) {
+            if (event) event.preventDefault();
+            if (mf) mf.executeCommand(['insert', symbol]);
         }
 
-        // --- محرر الرياضيات (MathLive) ---
-        const mf = document.getElementById('formula');
-        let targetInputField = null;
-        if(mf) mf.smartMode = true; 
-        function addMath(val, e) { if(e) e.preventDefault(); mf.focus(); mf.insert(val); }
-        function insertMathCode(latex, e) { if(e) e.preventDefault(); mf.focus(); mf.insert(latex); }
-        function backspaceMath(e) { if(e) e.preventDefault(); mf.focus(); mf.executeCommand('deleteBackward'); }
         function showMathTab(tabId, event) {
-            document.querySelectorAll('.custom-keyboard').forEach(kb => kb.classList.remove('active'));
+            if (event) event.currentTarget.classList.add('active');
+            document.querySelectorAll('.custom-keyboard').forEach(k => k.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             document.querySelectorAll('.math-tab').forEach(t => t.classList.remove('active'));
             if(event) event.currentTarget.classList.add('active');
         }
+
         function openMathModal(inputElement) {
             targetInputField = inputElement;
             document.getElementById('math-modal-overlay').style.display = 'flex';
             mf.value = ''; setTimeout(() => mf.focus(), 100);
         }
+
         function closeMathModal() {
             document.getElementById('math-modal-overlay').style.display = 'none';
             if (targetInputField && mf.value) {
@@ -514,9 +511,8 @@
             }
         }
 
-
         // =========================================================================
-        // أكواد اللعبة الأصلية (تم تعديل مصدر الأسئلة ونهاية اللعبة فقط)
+        // أكواد اللعبة الأصلية
         // =========================================================================
         
         let isPlaying = false; let nextNoteTime = 0.0; let scheduleInterval = null; const tempo = 240;
@@ -536,7 +532,6 @@
             } catch (e) {}
         }
 
-        // --- أدوات الموسيقى التوليدية ---
         const cMajorScale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
         const chordProgression = [[cMajorScale[0], cMajorScale[2], cMajorScale[4]], [cMajorScale[4], cMajorScale[6], cMajorScale[1] * 2], [cMajorScale[5], cMajorScale[0] * 2, cMajorScale[2] * 2], [cMajorScale[3], cMajorScale[5], cMajorScale[0] * 2]];
         const melodyPattern = [{ noteIndex: 0, duration: 0.25 }, { noteIndex: 1, duration: 0.25 }, { noteIndex: 2, duration: 0.5 }, { noteIndex: -1, duration: 0.5 }, { noteIndex: 3, duration: 0.5 }, { noteIndex: 2, duration: 0.5 }, { noteIndex: 1, duration: 1 }];
@@ -548,6 +543,7 @@
             gain.gain.setValueAtTime(0.6, startTime); gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.05);
             osc.connect(gain); gain.connect(audioContext.destination); osc.start(startTime); osc.stop(startTime + 0.1);
         }
+
         function playNoteWithADSR(frequency, type, startTime, noteDuration, volume) {
             if (!soundEnabled || !frequency) return;
             const osc = audioContext.createOscillator(); const gain = audioContext.createGain();
@@ -589,7 +585,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            let lastTime = 0; let deltaTime = 1;
+            let lastTime = 0;
             const gameArea = document.getElementById('game-area');
             const startScreen = document.getElementById('start-screen');
             const endScreen = document.getElementById('end-screen');
@@ -603,7 +599,6 @@
             let progressBar = document.getElementById('progress-bar');
             const characterElements = document.querySelectorAll('.character');
             const musicToggleButton = document.getElementById('music-toggle-btn');
-            let gameMessageElement = document.getElementById('game-message');
             let platformsPassedElement = document.getElementById('platforms-passed');
             
             const questionModal = document.getElementById('question-modal');
@@ -614,12 +609,12 @@
             
             let gameRunning = false; let gamePaused = false; let score = 0; let level = 1; let platformsPassed = 0;
             let highScore = localStorage.getItem('gdHighScore') || 0;
-            let player; let obstacles = []; let flyingPlatforms = []; let coins = [];
+            let player; let obstacles = [];
             let obstacleSpeed = 4.0; let currentSpeedMultiplier = 1.0; let obstacleInterval; let obstacleIntervalTime = 3500;
             let backgroundElements = []; let playerMode = 'cube'; let gravityDirection = 1;
-            let isJumping = false; let canJump = true; let currentPlatform = null; let playerY = 0; let playerVelocity = 0;
-            const gravity = 1.1; const jumpForce = 22; const groundLevel = 63; const playerHeight = 45;
-            let rotationAngle = 0; let rotationSpeed = -2.5; let isRolling = true; let soundEnabled = true;
+            let isJumping = false; let canJump = true; let playerY = 0; let playerVelocity = 0;
+            const gravity = 1.1; const jumpForce = 22; const groundLevel = 63;
+            let rotationAngle = 0; let rotationSpeed = -2.5; let isRolling = true;
             let currentCorrectOptionIndex = -1; let currentSelectedOptionIndex = -1; let collidedObstacleRef = null;
             let selectedCharacter = 1;
 
@@ -708,21 +703,30 @@
                 const ceiling = document.createElement('div'); ceiling.classList.add('ceiling'); gameArea.appendChild(ceiling);
                 levelElement.textContent = level; scoreElement.textContent = score; platformsPassedElement.textContent = platformsPassed;
                 clearInterval(obstacleInterval); obstacleInterval = setInterval(() => { if (!gamePaused) { createObstacle(); } }, obstacleIntervalTime / currentSpeedMultiplier);
+                lastTime = performance.now();
                 requestAnimationFrame(updateGame); startMusic();
             }
 
             function updateGame(timestamp) {
-                if (!gameRunning || gamePaused) {
-                    requestAnimationFrame(updateGame);
-                    return;
-                }
+                if (!gameRunning) return;
+                if (gamePaused) { requestAnimationFrame(updateGame); return; }
 
                 let deltaTime = Math.min(32, timestamp - lastTime); 
                 lastTime = timestamp;
                 deltaTime = Math.max(deltaTime / 16.67, 0.5);
                 
-                playerVelocity -= (gravity * gravityDirection * deltaTime); playerY += (playerVelocity * deltaTime);
-                if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; }
+                // تحسين الجاذبية لمنع الطيران
+                playerVelocity -= (gravity * gravityDirection * deltaTime); 
+                playerY += (playerVelocity * deltaTime);
+                
+                // التحقق من الحدود (الأرض والسقف)
+                if (gravityDirection === 1) {
+                    if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; }
+                } else {
+                    const maxTop = gameArea.offsetHeight - groundLevel - 60 - player.offsetHeight;
+                    if (playerY > maxTop) { playerY = maxTop; playerVelocity = 0; isJumping = false; canJump = true; }
+                }
+                
                 player.style.bottom = `${groundLevel + playerY}px`;
                 
                 if (playerMode !== 'ship' && isRolling) { rotationAngle += (rotationSpeed * gravityDirection * deltaTime); player.style.transform = `rotate(${rotationAngle}deg)`; } 
@@ -732,7 +736,8 @@
                 const newLevel = Math.floor(score / 1000) + 1; if (newLevel > level) { level = newLevel; levelElement.textContent = level; obstacleSpeed += 0.2; currentSpeedMultiplier += 0.1; }
                 progressBar.style.width = `${Math.min(100, (score % 1000) / 1000 * 100)}%`;
                 
-                obstacles.forEach((obs, index) => {
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    const obs = obstacles[i];
                     const obstacle = obs.element; const currentRight = parseFloat(obstacle.style.right || 0);
                     obstacle.style.right = `${currentRight + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
                     if (obs.isMoving) {
@@ -741,17 +746,16 @@
                         obstacle.style.bottom = `${obs.initialY + offsetY}px`;
                     }
                     if (!obs.passed && currentRight > gameArea.offsetWidth - 220) { obs.passed = true; }
-                    if (currentRight > gameArea.offsetWidth + 120) { obstacle.remove(); obstacles.splice(index, 1); }
-                    if (detectCollision(player, obstacle, obs)) { return; }
-                });
+                    if (currentRight > gameArea.offsetWidth + 120) { obstacle.remove(); obstacles.splice(i, 1); continue; }
+                    
+                    if (detectCollision(player, obstacle, obs)) { break; }
+                }
                 requestAnimationFrame(updateGame);
             }
 
-            // --- جلب وعرض أسئلة المعلم من مصفوفة gameQuestions ---
             function showQuestion() {
                 gamePaused = true;
-                
-                // جلب سؤال عشوائي من أسئلة المعلم
+                if (gameQuestions.length === 0) { endGame(); return; }
                 const q = gameQuestions[Math.floor(Math.random() * gameQuestions.length)];
                 questionTextElement.innerHTML = q.question;
                 feedbackMessageElement.textContent = '';
@@ -773,19 +777,16 @@
                 questionModal.style.display = 'flex';
                 playSound(150, 'square', 0.2, 0.4);
                 
-                // تقديم المعادلات الرياضية باستخدام MathLive داخل السؤال والخيارات
                 if (window.MathLive) {
                     MathLive.renderMathInElement(questionTextElement);
-                    optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
-                        MathLive.renderMathInElement(btn);
-                    });
+                    optionsContainer.querySelectorAll('.option-btn').forEach(btn => { MathLive.renderMathInElement(btn); });
                 }
                 if (typeof MathJax !== 'undefined') { MathJax.typesetPromise([questionTextElement, optionsContainer]); }
             }
 
             function checkAnswer() {
                 const allOptions = optionsContainer.querySelectorAll('.option-btn');
-                if (currentSelectedOptionIndex === -1) return; // لم يتم اختيار إجابة
+                if (currentSelectedOptionIndex === -1) return;
                 
                 const correctAnswerButton = allOptions[currentCorrectOptionIndex];
                 let isCorrect = (currentSelectedOptionIndex === currentCorrectOptionIndex);
@@ -809,8 +810,9 @@
                         }
                         player.style.left = '50px'; player.style.bottom = `${groundLevel}px`;
                         playerY = 0; playerVelocity = 0; gravityDirection = 1;
+                        lastTime = performance.now();
                         requestAnimationFrame(updateGame);
-                    }, 1000);
+                    }, 1500);
                 } else {
                     if (selectedButton) { selectedButton.classList.add('incorrect-answer'); }
                     correctAnswerButton.classList.add('correct-answer');
@@ -826,17 +828,13 @@
                 const obstacleRect = obstacle.getBoundingClientRect();
 
                 const p = {
-                    left: playerRect.left + 5,
-                    right: playerRect.right - 5,
-                    top: playerRect.top + 5,
-                    bottom: playerRect.bottom - 5
+                    left: playerRect.left + 5, right: playerRect.right - 5,
+                    top: playerRect.top + 5, bottom: playerRect.bottom - 5
                 };
 
                 const o = {
-                    left: obstacleRect.left + 2,
-                    right: obstacleRect.right - 2,
-                    top: obstacleRect.top + 2,
-                    bottom: obstacleRect.bottom - 2
+                    left: obstacleRect.left + 2, right: obstacleRect.right - 2,
+                    top: obstacleRect.top + 2, bottom: obstacleRect.bottom - 2
                 };
 
                 const isOverlapping = p.left < o.right && p.right > o.left && p.top < o.bottom && p.bottom > o.top;
@@ -852,43 +850,24 @@
                     }
                 } 
                 else if (obstacle.classList.contains('gravity-portal')) {
-                    if (!obsData.used) {
-                        gravityDirection *= -1;
-                        obsData.used = true;
-                        playSound(900, 'triangle', 0.15, 0.4);
-                        const icon = obstacle.querySelector('i');
-                        if (icon) icon.classList.toggle('inverted', gravityDirection === -1);
-                    }
+                    if (!obsData.used) { gravityDirection *= -1; obsData.used = true; playSound(900, 'triangle', 0.15, 0.4); const icon = obstacle.querySelector('i'); if (icon) icon.classList.toggle('inverted', gravityDirection === -1); }
                     return false;
                 }
                 else if (obstacle.classList.contains('speed-portal')) {
-                    if (!obsData.used) {
-                        currentSpeedMultiplier = Math.min(2.5, currentSpeedMultiplier + 0.3);
-                        obsData.used = true;
-                        playSound(1200, 'square', 0.1, 0.4);
-                    }
+                    if (!obsData.used) { currentSpeedMultiplier = Math.min(2.5, currentSpeedMultiplier + 0.3); obsData.used = true; playSound(1200, 'square', 0.1, 0.4); }
                     return false;
                 }
 
-                if (!gamePaused) {
-                    collidedObstacleRef = obsData; 
-                    showQuestion();
-                }
+                if (!gamePaused) { collidedObstacleRef = obsData; showQuestion(); }
                 return true;
             }
 
-            // --- إرسال النتيجة إلى المعلم عند انتهاء اللعبة ---
             function endGame() {
                 gameRunning = false; clearInterval(obstacleInterval);
-                if (score > highScore) { highScore = score; localStorage.setItem('gdHighScore', highScore); highScoreElement.textContent = highScore; }
+                if (score > highScore) { highScore = score; localStorage.setItem('gdHighScore', highScore); }
                 endScreen.style.display = 'flex'; finalScoreElement.textContent = score; finalHighScoreElement.textContent = highScore;
                 stopMusic();
-
-                // إرسال النتيجة إلى شيت المعلم
-                if (studentNameForSheet && currentRoomPIN) {
-                    document.getElementById('form-score').value = score;
-                    document.getElementById('scoreForm').submit();
-                }
+                if (studentNameForSheet && currentRoomPIN) { document.getElementById('form-score').value = score; document.getElementById('scoreForm').submit(); }
             }
 
             function jump() { if (!gameRunning || gamePaused || !canJump) return; isJumping = true; canJump = false; playerVelocity = jumpForce * gravityDirection; playSound(440, 'sine', 0.1, 0.2); if (playerMode !== 'ship') { rotationSpeed = -4 * gravityDirection; } }
@@ -907,11 +886,7 @@
                 if (e.key === 'ArrowDown') { e.preventDefault(); slide(); }
             });
             musicToggleButton.addEventListener('click', toggleSound);
-
-            document.addEventListener('touchstart', (e) => {
-                if (questionModal.style.display === 'flex' || e.target.closest('.btn') || e.target.closest('.mobile-controls')) { return; }
-                if (gameRunning && !gamePaused) { jump(); }
-            });
+            document.addEventListener('touchstart', (e) => { if (questionModal.style.display === 'flex' || e.target.closest('.btn') || e.target.closest('.mobile-controls')) { return; } if (gameRunning && !gamePaused) { jump(); } });
         });
     </script>
 </body>
