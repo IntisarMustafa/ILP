@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصات طائرة - نظام التحدي التعليمي</title>
+    <title>منصات طائرة - نظام التحدي التعليمي الاحترافي</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,9 +21,9 @@
             --word-blue: #2b579a; --math-bg: #f3f2f1; --key-bg: #ffffff;
             --key-border: #d2d2d2; --key-hover: #e1dfdd; --action-bg: #adb5bd; --kb-bg: #d1d4d9;
         } 
-        body { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', sans-serif; overflow: hidden; background: #0f1429; }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: 'Cairo', 'Segoe UI', sans-serif; overflow: hidden; background: #0f1429; color: #fff;}
         
-        /* شاشات المنصة (قبل بدء اللعبة) */
         .platform-ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: linear-gradient(-45deg, #46178f, #1368ce, #e21b3c, #ffa602); background-size: 400% 400%; animation: gradientBG 15s ease infinite; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
@@ -34,6 +34,7 @@
         .card { background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 550px; text-align: center; backdrop-filter: blur(10px); } 
         .card h1 { color: var(--primary); margin-bottom: 25px; font-size: 38px; }
         .card h2 { color: #333; margin-bottom: 20px; font-size: 28px; }
+        .card p { color: #555; }
         
         .platform-btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 15px; color: var(--white); box-shadow: 0 6px 0 rgba(0,0,0,0.2); transition: 0.1s; }
         .platform-btn:active { transform: translateY(6px); box-shadow: 0 0px 0 rgba(0,0,0,0.2); }
@@ -42,11 +43,11 @@
         .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; }
         .btn-primary-ui { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
         
-        input[type="text"].ui-input, input[type="number"].ui-input { width: 100%; padding: 18px; margin-bottom: 20px; border: 3px solid #ddd; border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; }
+        input[type="text"].ui-input, input[type="number"].ui-input { width: 100%; padding: 18px; margin-bottom: 20px; border: 3px solid #ddd; border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; color: #333;}
         input.ui-input:focus { outline: none; border-color: var(--primary); }
 
         .q-builder-container { width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px; max-height: 80vh; overflow-y: auto; text-align: right; }
-        .q-block { background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #eee; }
+        .q-block { background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #eee; color: #333;}
         .opt-row { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
         .math-trigger-btn { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 10px 15px; cursor: pointer; font-size: 20px; }
         .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); text-align: center;}
@@ -61,101 +62,81 @@
         .math-header { background-color: var(--word-blue); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .math-close-btn { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .math-editor-container { padding: 20px; background: white; display: flex; justify-content: center;}
-        math-field { font-size: 1.8rem; width: 100%; min-height: 120px; border: 2px solid var(--word-blue); padding: 15px; border-radius: 8px; outline: none; }
+        math-field { font-size: 1.8rem; width: 100%; min-height: 120px; border: 2px solid var(--word-blue); padding: 15px; border-radius: 8px; outline: none; color: #000; }
         .math-keyboard-tabs { display: flex; background: #e9ecef; }
-        .math-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; }
+        .math-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: #333; }
         .math-tab.active { background: white; font-weight: bold; color: var(--word-blue); }
         .custom-keyboard { padding: 5px; display: none; flex-direction: column; gap: 5px; }
         .custom-keyboard.active { display: flex; }
         .kb-row { display: flex; justify-content: center; gap: 4px; }
-        .key { background: var(--key-bg); border: none; border-bottom: 2px solid #999; border-radius: 5px; height: 50px; flex: 1; font-size: 1.2rem; cursor: pointer; }
+        .key { background: var(--key-bg); border: none; border-bottom: 2px solid #999; border-radius: 5px; height: 50px; flex: 1; font-size: 1.2rem; cursor: pointer; color:#333; }
         .key:active { background: var(--key-hover); border-bottom-width: 1px; transform: translateY(1px); }
 
         /* ========================================= */
-        /* 2. أنماط اللعبة الأصلية                   */
+        /* 2. أنماط اللعبة الاحترافية                */
         /* ========================================= */
-        .game-container { display: none; /* مخفية حتى يسجل الطالب دخوله */ width: 100%; max-width: 900px; height: 90vh; max-height: 700px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 60px rgba(0, 0, 0, 0.9); border-radius: 20px; overflow: hidden; border: 2px solid rgba(76, 201, 240, 0.3); z-index: 10; background: radial-gradient(circle at top left, #1a2a6c, #1d3557, #0f1429); color: #fff; }
+        .game-container { display: none; width: 100%; max-width: 900px; height: 90vh; max-height: 700px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 60px rgba(0, 0, 0, 0.9); border-radius: 20px; overflow: hidden; border: 2px solid rgba(76, 201, 240, 0.3); z-index: 10; background: radial-gradient(circle at top left, #1a2a6c, #1d3557, #0f1429); color: #fff; }
         .start-screen, .end-screen, .question-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(12, 26, 58, 0.98), rgba(15, 20, 41, 0.98)); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; text-align: center; }
         .end-screen { background: linear-gradient(135deg, rgba(58, 12, 26, 0.95), rgba(41, 15, 20, 0.95)); display: none; }
         .question-modal { background: linear-gradient(135deg, rgba(29, 53, 87, 0.95), rgba(45, 123, 157, 0.95)); z-index: 120; display: none; padding: 15px; }
         .logo { font-size: 4.5rem; font-weight: 900; margin-bottom: 20px; background: linear-gradient(45deg, #4cc9f0, #4361ee, #7209b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(76, 201, 240, 0.6); animation: pulseGlow 2s infinite alternate; }
         @keyframes pulseGlow { 0% { text-shadow: 0 0 20px rgba(76, 201, 240, 0.4); } 100% { text-shadow: 0 0 40px rgba(76, 201, 240, 0.8); } }
-        .subtitle { font-size: 1.8rem; margin-bottom: 30px; color: #f1faee; }
-        .characters { display: flex; gap: 25px; margin: 20px 0; justify-content: center; }
-        .character { width: 80px; height: 80px; border-radius: 15px; background: linear-gradient(135deg, #1d3557, #457b9d); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 4px solid transparent; }
-        .character.active { border-color: #4cc9f0; box-shadow: 0 0 25px rgba(76, 201, 240, 0.9); transform: scale(1.05); }
+        .subtitle { font-size: 1.8rem; margin-bottom: 30px; color: #f1faee; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); }
+        .characters { display: flex; gap: 25px; margin: 20px 0; justify-content: center; flex-wrap: wrap;}
+        .character { width: 80px; height: 80px; border-radius: 15px; background: linear-gradient(135deg, #1d3557, #457b9d); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 4px solid transparent; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden;}
+        .character::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.1); transform: translateX(-100%) skewX(-30deg); transition: transform 0.5s ease; }
+        .character:hover::before { transform: translateX(100%) skewX(-30deg); }
+        .character.active { border-color: #4cc9f0; box-shadow: 0 0 25px rgba(76, 201, 240, 0.9); transform: translateY(-8px) scale(1.05); }
         .character i { font-size: 3rem; color: #f1faee; margin-bottom: 5px; }
-        .btn { background: linear-gradient(45deg, #4361ee, #3a0ca3); color: white; border: none; padding: 16px 40px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; margin: 15px; box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6); }
-        .music-toggle-btn { position: absolute; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 10px 15px; font-size: 1.2rem; border-radius: 50%; cursor: pointer; z-index: 101; }
+        .character span { font-size: 0.9rem; color: #f1faee; font-weight: 600; }
+        .character:nth-child(2) i { color: #ff9e00; }
+        .character:nth-child(3) i { color: #ff0054; }
+        
+        .btn { background: linear-gradient(45deg, #4361ee, #3a0ca3); color: white; border: none; padding: 16px 40px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; margin: 15px; box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6); display: flex; align-items: center; gap: 10px; transition: all 0.3s ease;}
+        .btn:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(67, 97, 238, 0.8); }
+        .music-toggle-btn { position: absolute; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 10px 15px; font-size: 1.2rem; border-radius: 50%; cursor: pointer; z-index: 101; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5); transition: background 0.3s ease, transform 0.2s ease;}
+        .music-toggle-btn:hover { background: rgba(0, 0, 0, 0.7); transform: scale(1.05); }
         .controls-info { display: flex; flex-wrap: wrap; justify-content: center; margin: 25px 0; gap: 12px; }
         .control-item { background: rgba(76, 201, 240, 0.2); padding: 12px 20px; border-radius: 18px; font-size: 1.1rem; border: 1px solid rgba(76, 201, 240, 0.4); }
-        .stats { display: flex; gap: 25px; margin-top: 25px; background: rgba(0, 0, 0, 0.4); padding: 15px 35px; border-radius: 20px; font-size: 1.2rem; justify-content: center; }
+        .stats { display: flex; gap: 25px; margin-top: 25px; background: rgba(0, 0, 0, 0.4); padding: 15px 35px; border-radius: 20px; font-size: 1.2rem; justify-content: center; flex-wrap: wrap; border: 1px solid rgba(255, 255, 255, 0.1); }
         .stat { display: flex; flex-direction: column; align-items: center; }
-        .stat-value { font-size: 2rem; font-weight: 700; color: #4cc9f0; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: #4cc9f0; text-shadow: 0 0 15px rgba(76, 201, 240, 0.7);}
+        
         #game-area { width: 100%; height: 100%; background: linear-gradient(to bottom, #1d3557, #0f1429); position: relative; overflow: hidden; }
         .background-element { position: absolute; background: rgba(76, 201, 240, 0.1); border-radius: 8px; }
         .background-element:nth-child(odd) { background: rgba(255, 255, 255, 0.05); border-radius: 50%; }
         .dash-line { position: absolute; height: 3px; width: 100%; background: repeating-linear-gradient(90deg, #4cc9f0, #4cc9f0 15px, transparent 15px, transparent 30px); bottom: 63px; z-index: 5; }
         .ground, .ceiling { position: absolute; width: 100%; height: 60px; background: linear-gradient(to top, #1d3557, #0f1429); z-index: 10; }
-        .ground { bottom: 0; border-top: 4px solid #4cc9f0; }
-        .ceiling { top: 0; border-bottom: 4px solid #4cc9f0; }
+        .ground { bottom: 0; border-top: 4px solid #4cc9f0; box-shadow: 0 -8px 20px rgba(76, 201, 240, 0.6); }
+        .ceiling { top: 0; border-bottom: 4px solid #4cc9f0; box-shadow: 0 8px 20px rgba(76, 201, 240, 0.6); }
         
         .player { position: absolute; width: 45px; height: 45px; background: linear-gradient(135deg, #4361ee, #3a0ca3); border-radius: 8px; bottom: 63px; left: 50px; z-index: 20; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 25px rgba(67, 97, 238, 0.9); border: 2px solid #4cc9f0; transition: none; }
         .player-icon { font-size: 1.6rem; color: #f1faee; }
-        .player.ship-mode { background: linear-gradient(135deg, #ff9e00, #ff6a00); border-radius: 4px; transform: rotate(0deg) !important; }
+        .player.ship-mode { background: linear-gradient(135deg, #ff9e00, #ff6a00); border-radius: 4px; transform: rotate(0deg) !important; box-shadow: 0 0 25px rgba(255, 158, 0, 0.9);}
         
-        .obstacle { position: absolute; width: 40px; background: linear-gradient(to bottom, #e94560, #b71540); border-radius: 8px; box-shadow: 0 0 20px rgba(233, 69, 96, 0.9); z-index: 15; }
+        /* عوائق النسخة الاحترافية */
+        .obstacle { position: absolute; width: 40px; background: linear-gradient(to bottom, #e94560, #b71540); border-radius: 8px; box-shadow: 0 0 20px rgba(233, 69, 96, 0.9); z-index: 15; border: 1px solid rgba(255, 255, 255, 0.2);}
         .ceiling-obstacle { background: linear-gradient(to top, #e94560, #b71540); }
-        .triangle-obstacle { background: linear-gradient(to bottom, #e94560, #b71540); clip-path: polygon(0% 100%, 50% 0%, 100% 100%); border-radius: 0; width: 50px; height: 50px; }
-        .triangle-obstacle.inverted { clip-path: polygon(0% 0%, 50% 100%, 100% 0%); }
-        .air-pad { background: linear-gradient(45deg, #2ecc71, #27ae60); width: 60px; height: 20px; border-radius: 5px; display: flex; justify-content: center; align-items: center; overflow: hidden; font-size: 1.2rem; }
-        .gravity-portal { width: 70px; height: 120px; background: linear-gradient(90deg, #8e44ad, #9b59b6); border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 3rem; color: white; }
-        .speed-portal { width: 50px; height: 80px; background: linear-gradient(90deg, #f39c12, #e67e22); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; color: white; }
-        .moving-obstacle { background: linear-gradient(to bottom, #c0392b, #a02d22); width: 40px; height: 80px; border-radius: 8px; z-index: 15; }
-        .spike-obstacle { background: linear-gradient(to bottom, #e74c3c, #c0392b); clip-path: polygon(0% 100%, 50% 0%, 100% 100%); width: 30px; height: 30px; border-radius: 0; z-index: 15; }
-        .inverted-spike-obstacle { background: linear-gradient(to top, #e74c3c, #c0392b); clip-path: polygon(0% 0%, 50% 100%, 100% 0%); width: 30px; height: 30px; border-radius: 0; z-index: 15; position: absolute; }
-        .coin { position: absolute; width: 30px; height: 30px; background: linear-gradient(45deg, #f1c40f, #f39c12); border-radius: 50%; z-index: 18; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; color: white; }
+        .triangle-obstacle { background: linear-gradient(to bottom, #e94560, #b71540); clip-path: polygon(0% 100%, 50% 0%, 100% 100%); border-radius: 0; width: 50px; height: 50px; transform-origin: bottom center;}
+        .triangle-obstacle.inverted { clip-path: polygon(0% 0%, 50% 100%, 100% 0%); transform-origin: top center;}
+        .air-pad { background: linear-gradient(45deg, #2ecc71, #27ae60); width: 60px; height: 20px; border-radius: 5px; box-shadow: 0 0 25px rgba(46, 204, 113, 0.9); display: flex; justify-content: center; align-items: center; overflow: hidden; font-size: 1.2rem; border: 1px solid rgba(255, 255, 255, 0.3);}
+        .air-pad::before { content: '\f062'; font-family: "Font Awesome 5 Free"; font-weight: 900; color: white; animation: bounceUpDown 1s infinite; }
+        .gravity-portal { width: 70px; height: 120px; background: linear-gradient(90deg, #8e44ad, #9b59b6); border-radius: 10px; box-shadow: 0 0 30px rgba(142, 68, 173, 0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 3rem; color: white; animation: portalGlow 1.5s infinite alternate; overflow: hidden; position: relative;}
+        .gravity-portal.inverted i { transform: rotate(180deg); }
+        .speed-portal { width: 50px; height: 80px; background: linear-gradient(90deg, #f39c12, #e67e22); border-radius: 8px; box-shadow: 0 0 25px rgba(243, 156, 18, 0.9); display: flex; justify-content: center; align-items: center; font-size: 2.5rem; color: white; animation: portalGlow 1.2s infinite alternate; }
+        .moving-obstacle { background: linear-gradient(to bottom, #c0392b, #a02d22); width: 40px; height: 80px; border-radius: 8px; z-index: 15; box-shadow: 0 0 20px rgba(192, 57, 43, 0.9);}
+        .spike-obstacle { background: linear-gradient(to bottom, #e74c3c, #c0392b); clip-path: polygon(0% 100%, 50% 0%, 100% 100%); width: 30px; height: 30px; border-radius: 0; box-shadow: 0 0 15px rgba(231, 76, 60, 0.9); z-index: 15; }
+        .inverted-spike-obstacle { background: linear-gradient(to top, #e74c3c, #c0392b); clip-path: polygon(0% 0%, 50% 100%, 100% 0%); width: 30px; height: 30px; border-radius: 0; box-shadow: 0 0 15px rgba(231, 76, 60, 0.9); z-index: 15; position: absolute; }
+        .coin { position: absolute; width: 30px; height: 30px; background: linear-gradient(45deg, #f1c40f, #f39c12); border-radius: 50%; box-shadow: 0 0 15px rgba(241, 196, 15, 0.8); z-index: 18; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; color: white; animation: coinSpin 1s infinite linear; }
         
-        /* عوائق جديدة بأسلوب جيومتري داش */
-        .rotating-obstacle { background: linear-gradient(135deg, #ff1744, #d32f2f); width: 60px; height: 60px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 2rem; color: white; animation: rotateObstacle 2s linear infinite; box-shadow: 0 0 20px rgba(255, 23, 68, 0.8); }
-        @keyframes rotateObstacle { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes bounceUpDown { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes portalGlow { 0% { box-shadow: 0 0 20px rgba(142, 68, 173, 0.7); } 100% { box-shadow: 0 0 40px rgba(142, 68, 173, 1); } }
+        @keyframes coinSpin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
         
-        .horizontal-moving-obstacle { background: linear-gradient(90deg, #00bcd4, #0097a7); width: 50px; height: 50px; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 188, 212, 0.8); animation: moveHorizontal 3s ease-in-out infinite; }
-        @keyframes moveHorizontal { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(80px); } }
-        
-        .chained-obstacles { background: linear-gradient(45deg, #ff6f00, #e65100); width: 40px; height: 40px; border-radius: 6px; box-shadow: 0 0 15px rgba(255, 111, 0, 0.8); }
-        
-        .moving-platform-obstacle { background: linear-gradient(135deg, #7c3aed, #6d28d9); width: 70px; height: 35px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; color: white; animation: platformBounce 2s ease-in-out infinite; box-shadow: 0 0 20px rgba(124, 58, 237, 0.8); }
-        @keyframes platformBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-60px); } }
-        
-        .star-obstacle { width: 50px; height: 50px; background: linear-gradient(135deg, #ffd700, #ffb300); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); animation: rotateStar 3s linear infinite; box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
-        @keyframes rotateStar { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .zigzag-obstacle { background: linear-gradient(to bottom, #e91e63, #c2185b); width: 35px; height: 50px; border-radius: 4px; clip-path: polygon(0% 0%, 100% 20%, 0% 40%, 100% 60%, 0% 80%, 100% 100%); box-shadow: 0 0 15px rgba(233, 30, 99, 0.8); }
-        
-        .pulse-obstacle { background: linear-gradient(135deg, #00e676, #00c853); width: 45px; height: 45px; border-radius: 50%; animation: pulsing 1.5s ease-in-out infinite; box-shadow: 0 0 20px rgba(0, 230, 118, 0.8); }
-        @keyframes pulsing { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 230, 118, 0.8); } 50% { transform: scale(1.3); box-shadow: 0 0 40px rgba(0, 230, 118, 1); } }
-        
-        .double-spike-obstacle { width: 40px; height: 60px; position: relative; }
-        .double-spike-obstacle::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid #e74c3c; }
-        .double-spike-obstacle::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 30px solid #e74c3c; }
-        
-        .wave-obstacle { background: linear-gradient(90deg, #ff5722, #ff7043); width: 50px; height: 50px; border-radius: 50% 0 50% 0; animation: waveMotion 2s ease-in-out infinite; box-shadow: 0 0 15px rgba(255, 87, 34, 0.8); }
-        @keyframes waveMotion { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-40px) rotate(45deg); } }
-        
-        .laser-obstacle { background: linear-gradient(90deg, #00ff00, #00cc00); width: 8px; height: 80px; box-shadow: 0 0 30px rgba(0, 255, 0, 1), inset 0 0 10px rgba(0, 255, 0, 0.8); animation: laserFlicker 0.1s infinite; }
-        @keyframes laserFlicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        
-        .diamond-obstacle { width: 50px; height: 50px; background: linear-gradient(135deg, #9c27b0, #7b1fa2); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); animation: diamondRotate 4s linear infinite; box-shadow: 0 0 20px rgba(156, 39, 176, 0.8); }
-        @keyframes diamondRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .spiral-obstacle { background: linear-gradient(135deg, #ff6b9d, #c44569); width: 50px; height: 50px; border-radius: 50%; animation: spiralMove 3s ease-in-out infinite; box-shadow: 0 0 20px rgba(255, 107, 157, 0.8); }
-        @keyframes spiralMove { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-50px) rotate(180deg); } 100% { transform: translateY(0) rotate(360deg); } }
-        
-        .progress-container { position: absolute; top: 20px; left: 20px; right: 20px; background: rgba(0, 0, 0, 0.4); height: 12px; border-radius: 10px; z-index: 50; }
-        .progress-bar { height: 100%; background: linear-gradient(to right, #4cc9f0, #3a0ca3); border-radius: 10px; width: 0%; transition: width 0.5s ease; }
+        .progress-container { position: absolute; top: 20px; left: 20px; right: 20px; background: rgba(0, 0, 0, 0.4); height: 12px; border-radius: 10px; z-index: 50; border: 1px solid rgba(255, 255, 255, 0.1);}
+        .progress-bar { height: 100%; background: linear-gradient(to right, #4cc9f0, #3a0ca3); border-radius: 10px; width: 0%; transition: width 0.5s ease; box-shadow: 0 0 15px rgba(76, 201, 240, 0.9);}
         .game-info { position: absolute; top: 40px; right: 20px; display: flex; gap: 20px; z-index: 50; flex-wrap: wrap; justify-content: center; }
-        .info-item { background: rgba(0, 0, 0, 0.4); padding: 8px 15px; border-radius: 20px; font-size: 1.1rem; }
+        .info-item { background: rgba(0, 0, 0, 0.4); padding: 8px 15px; border-radius: 20px; font-size: 1.1rem; border: 1px solid rgba(255, 255, 255, 0.1);}
         .info-value { font-weight: 700; color: #4cc9f0; }
         
         .particle { position: absolute; border-radius: 50%; pointer-events: none; animation: fadeOutParticle 0.8s forwards; opacity: 0.9; }
@@ -166,36 +147,44 @@
         .pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; font-size: 3.5rem; }
         .rolling { animation: roll 1s infinite linear; }
         @keyframes roll { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
-        .level-up { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4.5rem; font-weight: bold; color: #4cc9f0; z-index: 70; display: none; }
-        #game-message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: white; background: rgba(0, 0, 0, 0.7); padding: 20px 40px; border-radius: 15px; z-index: 110; display: none; }
+        .level-up { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4.5rem; font-weight: bold; color: #4cc9f0; text-shadow: 0 0 25px rgba(76, 201, 240, 0.9); animation: levelUp 1.2s forwards; z-index: 70; display: none; }
+        @keyframes levelUp { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } }
+        #game-message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: white; background: rgba(0, 0, 0, 0.7); padding: 20px 40px; border-radius: 15px; z-index: 110; display: none; text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);}
+        @keyframes fadeInOutMessage { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } }
         
-        .flying-platform { position: absolute; background: linear-gradient(135deg, #4361ee, #3a0ca3); border-radius: 8px; z-index: 15; border: 2px solid rgba(76, 201, 240, 0.5); display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        .flying-platform.purple { background: linear-gradient(135deg, #7209b7, #560bad); }
-        .flying-platform.green { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        .platform-effect { position: absolute; width: 80%; height: 5px; background: rgba(76, 201, 240, 0.5); border-radius: 50%; filter: blur(5px); bottom: 0; }
+        .flying-platform { position: absolute; background: linear-gradient(135deg, #4361ee, #3a0ca3); border-radius: 8px; z-index: 15; border: 2px solid rgba(76, 201, 240, 0.5); display: flex; justify-content: center; align-items: center; overflow: hidden; box-shadow: 0 0 25px rgba(67, 97, 238, 0.8);}
+        .flying-platform::before { content: ''; position: absolute; top: -5px; left: 0; width: 100%; height: 10px; background: rgba(76, 201, 240, 0.5); border-radius: 8px 8px 0 0; }
+        .flying-platform.purple { background: linear-gradient(135deg, #7209b7, #560bad); box-shadow: 0 0 25px rgba(114, 9, 183, 0.8);}
+        .flying-platform.green { background: linear-gradient(135deg, #2ecc71, #27ae60); box-shadow: 0 0 25px rgba(46, 204, 113, 0.8);}
+        .flying-platform.glow { animation: flyingGlow 1.5s infinite alternate; }
+        @keyframes flyingGlow { 0% { box-shadow: 0 0 15px rgba(67, 97, 238, 0.8); } 100% { box-shadow: 0 0 30px rgba(67, 97, 238, 1); } }
+        .platform-effect { position: absolute; width: 80%; height: 5px; background: rgba(76, 201, 240, 0.5); border-radius: 50%; filter: blur(5px); bottom: 0; animation: platformEffect 0.8s infinite alternate;}
+        @keyframes platformEffect { 0% { opacity: 0.3; transform: scale(0.9); } 100% { opacity: 0.7; transform: scale(1.1); } }
+        .flying-platform.disappearing { transition: opacity 0.3s ease-out, transform 0.3s ease-out; }
+        .flying-platform.disappearing.fading { opacity: 0; transform: scale(0.5); }
         
         /* تنسيقات نافذة الأسئلة الخاصة باللعبة */
-        .question-modal h2 { font-size: clamp(1.2rem, 4.5vw, 2.2rem); margin-bottom: 15px; color: #f1faee; direction: rtl; width: 95%; max-width: 650px; }
+        .question-modal h2 { font-size: clamp(1.2rem, 4.5vw, 2.2rem); margin-bottom: 15px; color: #f1faee; direction: rtl; width: 95%; max-width: 650px; text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);}
         .question-modal .feedback-message { font-size: clamp(1.1rem, 4vw, 1.4rem); margin-top: 15px; font-weight: bold; }
-        .feedback-message.correct { color: #2ecc71; }
-        .feedback-message.incorrect { color: #e74c3c; }
+        .feedback-message.correct { color: #2ecc71; text-shadow: 0 0 10px rgba(46, 204, 113, 0.8);}
+        .feedback-message.incorrect { color: #e74c3c; text-shadow: 0 0 10px rgba(231, 76, 60, 0.8);}
         .options-container { display: flex; flex-direction: column; gap: 12px; width: 90%; max-width: 500px; margin-bottom: 20px; }
-        .option-btn { background: rgba(76, 201, 240, 0.2); color: white; border: 2px solid #4cc9f0; padding: 12px 20px; font-size: clamp(1.0rem, 3.5vw, 1.2rem); border-radius: 10px; cursor: pointer; text-align: right; direction: rtl; }
-        .option-btn:hover { background: rgba(76, 201, 240, 0.4); }
-        .option-btn.selected { background: linear-gradient(45deg, #4361ee, #3a0ca3); border-color: #7209b7; }
-        .option-btn.correct-answer { background: #2ecc71 !important; border-color: #27ae60 !important; }
-        .option-btn.incorrect-answer { background: #e74c3c !important; border-color: #c0392b !important; }
+        .option-btn { background: rgba(76, 201, 240, 0.2); color: white; border: 2px solid #4cc9f0; padding: 12px 20px; font-size: clamp(1.0rem, 3.5vw, 1.2rem); border-radius: 10px; cursor: pointer; text-align: right; direction: rtl; transition: all 0.3s ease;}
+        .option-btn:hover { background: rgba(76, 201, 240, 0.4); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(76, 201, 240, 0.5);}
+        .option-btn.selected { background: linear-gradient(45deg, #4361ee, #3a0ca3); border-color: #7209b7; box-shadow: 0 0 20px rgba(67, 97, 238, 0.8);}
+        .option-btn.correct-answer { background: #2ecc71 !important; border-color: #27ae60 !important; box-shadow: 0 0 20px rgba(46, 204, 113, 0.8) !important; animation: glowCorrect 1s infinite alternate; }
+        @keyframes glowCorrect { from { box-shadow: 0 0 10px rgba(46, 204, 113, 0.8); } to { box-shadow: 0 0 25px rgba(46, 204, 113, 1.2); } }
+        .option-btn.incorrect-answer { background: #e74c3c !important; border-color: #c0392b !important; box-shadow: 0 0 20px rgba(231, 76, 60, 0.8) !important; }
         
         .mobile-controls { position: absolute; bottom: 20px; width: 100%; display: none; justify-content: space-around;}
         .mobile-btn { width: 70px; height: 70px; border-radius: 50%; background: rgba(76, 201, 240, 0.3); display: flex; justify-content: center; align-items: center; font-size: 2rem; color: white; border: 2px solid rgba(255, 255, 255, 0.2); user-select: none; touch-action: manipulation; }
         
-        @media (max-width: 768px) { .mobile-controls { display: flex;} }
+        @media (max-width: 768px) { .mobile-controls { display: flex;} .game-container { max-height: 90vh; border-radius: 10px; } }
     </style>
 </head>
 <body>
 
     <div class="platform-ui" id="platform-ui">
-        
         <div id="screen-loading-sheet">
             <div class="loader-spinner"></div>
             <div style="font-size: 28px; font-weight: bold; margin-top: 20px;" id="loading-text">جاري الاتصال بالقاعدة...</div>
@@ -204,7 +193,7 @@
         <div class="screen active" id="screen-home">
             <div class="card">
                 <h1>🎮 منصات طائرة - التعليمية</h1>
-                <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
+                <p style="margin-bottom: 25px; font-size: 18px;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
                 <button class="platform-btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إعداد غرفة (للمعلم)</button>
                 <button class="platform-btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 دخول للعب (للطالب)</button>
             </div>
@@ -255,7 +244,6 @@
                 <button class="platform-btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
             </div>
         </div>
-
     </div>
 
     <iframe id="hidden_iframe_score" name="hidden_iframe_score" style="display:none;"></iframe>
@@ -333,6 +321,8 @@
             <div class="controls-info">
                 <div class="control-item"><i class="fas fa-arrow-up"></i> قفز / مسافة / نقرة</div>
                 <div class="control-item"><i class="fas fa-arrow-down"></i> انزلاق</div>
+                <div class="control-item"><i class="fas fa-pause"></i> إيقاف مؤقت (P)</div>
+                <div class="control-item"><i class="fas fa-star"></i> منصات طائرة وعملات</div>
             </div>
             <div class="stats">
                 <div class="stat"><span>أعلى نتيجة</span><span id="high-score" class="stat-value">0</span></div>
@@ -342,8 +332,9 @@
         
         <div class="progress-container" id="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
         <div class="game-info" id="game-info">
-            <div class="info-item">النتيجة:<span id="score" class="info-value">0</span></div>
-            <div class="info-item">المنصات:<span id="platforms-passed" class="info-value">0</span></div>
+            <div class="info-item">النتيجة: <span id="score" class="info-value">0</span></div>
+            <div class="info-item">المنصات: <span id="platforms-passed" class="info-value">0</span></div>
+            <div class="info-item">النقود: <span id="coins-collected" class="info-value">0</span></div>
         </div>
         
         <div id="level-up" class="level-up">مستوى جديد!</div>
@@ -356,6 +347,7 @@
             <div class="stats">
                 <div class="stat"><span>نتيجتك</span><span id="final-score" class="stat-value">0</span></div>
                 <div class="stat"><span>أعلى نتيجة</span><span id="final-high-score" class="stat-value">0</span></div>
+                <div class="stat"><span>النقود</span><span id="final-coins" class="stat-value">0</span></div>
             </div>
             <button id="restart-btn" class="btn"><i class="fas fa-redo"></i> العب مرة أخرى</button>
         </div>
@@ -376,14 +368,15 @@
     </div>
 
     <script>
-        // --- إعدادات واجهة المنصة (المعلم والطالب) وجلب الأسئلة ---
+        // =========================================================================
+        // 1. إعدادات واجهة المنصة (المعلم والطالب) وجلب الأسئلة
+        // =========================================================================
         const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
-        let gameQuestions = []; // مصفوفة الأسئلة الحية التي سيتم تمريرها للعبة
+        let gameQuestions = []; 
         let currentRoomPIN = "";
         let studentNameForSheet = "";
         let qBlockCount = 0;
 
-        // دالة التنقل بين الشاشات
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             if(id) document.getElementById(id).classList.add('active');
@@ -398,7 +391,6 @@
 
         function goToStudentLogin() { showScreen('screen-student-login'); }
 
-        // إضافة قالب سؤال جديد للمعلم
         function addQuestionBlock() {
             const container = document.getElementById('questions-list');
             const blockId = `q-block-${qBlockCount}`;
@@ -421,7 +413,6 @@
             qBlockCount++;
         }
 
-        // حفظ الأسئلة إلى جوجل شيت وإنشاء غرفة
         function saveQuestionsToSheet() {
             const blocks = document.querySelectorAll('.q-block');
             let customQuestions = [];
@@ -430,7 +421,6 @@
                 const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
                 const correctRadio = block.querySelector('input[type="radio"]:checked');
                 if (title && opts.every(opt => opt !== "") && correctRadio) {
-                    // تحويلها للنسق الذي تدعمه اللعبة الأصلية (question, options, correctOptionIndex)
                     customQuestions.push({
                         question: title,
                         options: opts,
@@ -453,7 +443,6 @@
             showScreen('screen-teacher');
         }
 
-        // استرداد أسئلة غرفة سابقة
         async function loadExistingRoom() {
             const pin = document.getElementById('existing-room-pin').value.trim();
             if (!pin) { alert("أدخل رقم الغرفة!"); return; }
@@ -479,7 +468,6 @@
             } catch (err) { document.getElementById('screen-loading-sheet').style.display = 'none'; alert("حدث خطأ بالاتصال."); }
         }
 
-        // دخول الطالب وبدء اللعبة
         async function startStudentFlow() {
             const name = document.getElementById('input-student-name').value.trim();
             const pin = document.getElementById('input-room-pin').value.trim();
@@ -501,7 +489,6 @@
                     let row = json.table.rows[i];
                     if(row && row.c[0] && row.c[0].v.toString() === pin && row.c[1] && row.c[1].v.toString().trim().startsWith('[')) {
                         let parsed = JSON.parse(row.c[1].v.toString());
-                        // تحويل النسق القديم (q, opts, ans) للنسق الجديد إذا لزم الأمر
                         foundQuestions = parsed.map(item => ({
                             question: item.q || item.question,
                             options: item.opts || item.options,
@@ -519,12 +506,10 @@
             }
 
             document.getElementById('screen-loading-sheet').style.display = 'none';
-            // إخفاء منصة الإدخال وإظهار حاوية اللعبة
             document.getElementById('platform-ui').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
         }
 
-        // --- محرر الرياضيات (MathLive) ---
         const mf = document.getElementById('formula');
         let targetInputField = null;
         if(mf) mf.smartMode = true; 
@@ -552,18 +537,37 @@
 
 
         // =========================================================================
-        // أكواد اللعبة الأصلية (تم تعديل مصدر الأسئلة ونهاية اللعبة فقط)
+        // 2. محرك اللعبة الاحترافي (من u1l2p4)
         // =========================================================================
         
+        // --- نظام الموسيقى التوليدي ---
         let isPlaying = false; let nextNoteTime = 0.0; let scheduleInterval = null; const tempo = 240;
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        // (تم اختصار دوال الصوت للحفاظ على الحجم، مع إبقائها تعمل كما هي في كودك الأصلي)
+        const cMajorScale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+        const cMajorChord = [cMajorScale[0], cMajorScale[2], cMajorScale[4]];
+        const gMajorChord = [cMajorScale[4], cMajorScale[6], cMajorScale[1] * 2];
+        const aMinorChord = [cMajorScale[5], cMajorScale[0] * 2, cMajorScale[2] * 2];
+        const fMajorChord = [cMajorScale[3], cMajorScale[5], cMajorScale[0] * 2];
+        const chordProgression = [cMajorChord, gMajorChord, aMinorChord, fMajorChord];
+        const melodyPattern = [ { noteIndex: 0, duration: 0.25 }, { noteIndex: 1, duration: 0.25 }, { noteIndex: 2, duration: 0.5 }, { noteIndex: -1, duration: 0.5 }, { noteIndex: 3, duration: 0.5 }, { noteIndex: 2, duration: 0.5 }, { noteIndex: 1, duration: 1 } ];
+
+        function playKickDrum(startTime) { const osc = audioContext.createOscillator(); const gain = audioContext.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(120, startTime); osc.frequency.exponentialRampToValueAtTime(0.01, startTime + 0.05); gain.gain.setValueAtTime(0.6, startTime); gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.05); osc.connect(gain); gain.connect(audioContext.destination); osc.start(startTime); osc.stop(startTime + 0.1); }
+        function playSnare(startTime) { const snareGain = audioContext.createGain(); snareGain.connect(audioContext.destination); snareGain.gain.setValueAtTime(0.5, startTime); snareGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.1); const bodyOsc = audioContext.createOscillator(); bodyOsc.type = 'sine'; bodyOsc.frequency.setValueAtTime(200, startTime); bodyOsc.connect(snareGain); bodyOsc.start(startTime); bodyOsc.stop(startTime + 0.1); const noise = audioContext.createBufferSource(); const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate); const output = noiseBuffer.getChannelData(0); for (let i = 0; i < output.length; i++) { output[i] = Math.random() * 2 - 1; } noise.buffer = noiseBuffer; const noiseGain = audioContext.createGain(); noiseGain.gain.setValueAtTime(1, startTime); noiseGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1); noise.connect(noiseGain); noiseGain.connect(snareGain); noise.start(startTime); }
+        function playHiHat(startTime) { const noise = audioContext.createBufferSource(); const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate); const output = noiseBuffer.getChannelData(0); for (let i = 0; i < output.length; i++) { output[i] = Math.random() * 2 - 1; } noise.buffer = noiseBuffer; const noiseGain = audioContext.createGain(); noiseGain.gain.setValueAtTime(0.2, startTime); noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.05); noise.connect(noiseGain); noiseGain.connect(audioContext.destination); noise.start(startTime); noise.stop(startTime + 0.1); }
+        function playNoteWithADSR(freq, type, startTime, dur, vol) { if (!freq || vol === 0) return; const osc = audioContext.createOscillator(); const gain = audioContext.createGain(); osc.type = type; osc.frequency.value = freq; osc.connect(gain); gain.connect(audioContext.destination); gain.gain.setValueAtTime(0, startTime); gain.gain.linearRampToValueAtTime(vol, startTime + 0.01); gain.gain.linearRampToValueAtTime(vol * 0.5, startTime + 0.11); osc.start(startTime); osc.stop(startTime + dur + 0.2); gain.gain.setValueAtTime(vol * 0.5, startTime + dur); gain.gain.linearRampToValueAtTime(0, startTime + dur + 0.2); }
+        function playBassNote(freq, startTime, dur, vol) { if (!freq || vol === 0) return; const osc = audioContext.createOscillator(); const gain = audioContext.createGain(); osc.type = 'sine'; osc.frequency.value = freq; osc.connect(gain); gain.connect(audioContext.destination); gain.gain.setValueAtTime(0, startTime); gain.gain.linearRampToValueAtTime(vol, startTime + 0.01); gain.gain.linearRampToValueAtTime(0, startTime + dur + 0.3); osc.start(startTime); osc.stop(startTime + dur + 0.3); }
+
+        let beatCounter = 0; let chordIndex = 0; let melodyPatternIndex = 0;
+        function scheduler() { const spb = 60.0 / tempo; while (nextNoteTime < audioContext.currentTime + 0.1) { const chord = chordProgression[chordIndex]; const root = chord[0]; if (beatCounter % 4 === 0) playKickDrum(nextNoteTime); if (beatCounter % 4 === 1 || beatCounter % 4 === 3) playSnare(nextNoteTime); if (beatCounter % 2 === 0) playHiHat(nextNoteTime); if (beatCounter % 4 === 0) playBassNote(root / 2, nextNoteTime, spb * 1.5, 0.4); const note = melodyPattern[melodyPatternIndex]; if (note.noteIndex !== -1) playNoteWithADSR(chord[note.noteIndex] * 2, 'sine', nextNoteTime, spb * note.duration, 0.35); melodyPatternIndex = (melodyPatternIndex + 1) % melodyPattern.length; nextNoteTime += spb; beatCounter = (beatCounter + 1) % 16; if (beatCounter % 4 === 0) chordIndex = (chordIndex + 1) % chordProgression.length; } }
+        function startMusic() { if (isPlaying) return; isPlaying = true; if (audioContext.state === 'suspended') audioContext.resume(); nextNoteTime = audioContext.currentTime; beatCounter = 0; chordIndex = 0; melodyPatternIndex = 0; scheduleInterval = setInterval(scheduler, 25); }
+        function stopMusic() { if (!isPlaying) return; isPlaying = false; clearInterval(scheduleInterval); scheduleInterval = null; }
+
         function playSound(frequency, type = 'sine', duration = 0.1, volume = 0.3) {
+            if (!soundEnabled) return;
             try { const osc = audioContext.createOscillator(); const gain = audioContext.createGain(); osc.connect(gain); gain.connect(audioContext.destination); osc.type = type; osc.frequency.value = frequency; gain.gain.value = volume; osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration); osc.stop(audioContext.currentTime + duration); } catch (e) {}
         }
-        function startMusic() { isPlaying = true; if (audioContext.state === 'suspended') audioContext.resume(); }
-        function stopMusic() { isPlaying = false; }
 
+        // --- تهيئة اللعبة ---
         document.addEventListener('DOMContentLoaded', () => {
             let lastTime = 0; let deltaTime = 1;
             const gameArea = document.getElementById('game-area');
@@ -581,6 +585,8 @@
             const musicToggleButton = document.getElementById('music-toggle-btn');
             let gameMessageElement = document.getElementById('game-message');
             let platformsPassedElement = document.getElementById('platforms-passed');
+            let coinsCollectedElement = document.getElementById('coins-collected');
+            let finalCoinsElement = document.getElementById('final-coins');
             
             const questionModal = document.getElementById('question-modal');
             const questionTextElement = document.getElementById('question-text');
@@ -588,7 +594,7 @@
             const submitAnswerBtn = document.getElementById('submit-answer-btn');
             const feedbackMessageElement = document.getElementById('feedback-message');
             
-            let gameRunning = false; let gamePaused = false; let score = 0; let level = 1; let platformsPassed = 0;
+            let gameRunning = false; let gamePaused = false; let score = 0; let level = 1; let platformsPassed = 0; let coinsCollected = 0;
             let highScore = localStorage.getItem('gdHighScore') || 0;
             let player; let obstacles = []; let flyingPlatforms = []; let coins = [];
             let obstacleSpeed = 4.0; let currentSpeedMultiplier = 1.0; let obstacleInterval; let obstacleIntervalTime = 3500;
@@ -613,6 +619,7 @@
             function createPlayer() {
                 if (player) player.remove(); player = document.createElement('div'); player.classList.add('player');
                 const icon = document.createElement('i'); icon.classList.add('player-icon');
+                player.classList.remove('rolling', 'ship-mode');
                 if (selectedCharacter === 1) { icon.classList.add('fas', 'fa-cube'); player.classList.add('rolling'); playerMode = 'cube'; } 
                 else if (selectedCharacter === 2) { icon.classList.add('fas', 'fa-ship'); playerMode = 'ship'; player.classList.add('ship-mode'); } 
                 else { icon.classList.add('fas', 'fa-robot'); playerMode = 'cube'; player.classList.add('rolling'); }
@@ -620,75 +627,87 @@
                 player.style.bottom = `${groundLevel}px`; playerY = 0; playerVelocity = 0; gravityDirection = 1;
             }
 
+            function showGameMessage(msg, duration = 1500) {
+                gameMessageElement.textContent = msg; gameMessageElement.style.display = 'block';
+                gameMessageElement.style.animation = `fadeInOutMessage ${duration / 1000}s forwards`;
+                setTimeout(() => { gameMessageElement.style.display = 'none'; }, duration);
+            }
+
+            function createCoin() {
+                const coin = document.createElement('div'); coin.classList.add('coin'); coin.innerHTML = '<i class="fas fa-coins"></i>';
+                const coinY = Math.random() * (gameArea.offsetHeight - 200) + 100;
+                coin.style.bottom = `${coinY}px`; coin.style.right = '-50px'; gameArea.appendChild(coin);
+                coins.push({ element: coin, y: coinY, collected: false });
+            }
+
+            function createFlyingPlatform() {
+                const platformWidth = Math.random() * 120 + 80; const platformHeight = 20;
+                const platformY = Math.random() * 80 + (groundLevel + 20);
+                const platform = document.createElement('div'); platform.classList.add('flying-platform', 'glow');
+                platform.appendChild(document.createElement('div')).classList.add('platform-effect');
+                platform.classList.add(['blue', 'purple', 'green'][Math.floor(Math.random() * 3)]);
+                let isDisappearing = (level >= 4 && Math.random() < 0.4);
+                if (isDisappearing) platform.classList.add('disappearing');
+                platform.style.width = `${platformWidth}px`; platform.style.height = `${platformHeight}px`;
+                platform.style.bottom = `${platformY}px`; platform.style.right = `-70px`;
+                gameArea.appendChild(platform);
+                flyingPlatforms.push({ element: platform, width: platformWidth, height: platformHeight, y: platformY, passed: false, activated: false, isDisappearing: isDisappearing, fading: false });
+                
+                const numSpikes = Math.ceil(platformWidth / 30);
+                for (let i = 0; i < numSpikes; i++) {
+                    const spike = document.createElement('div'); spike.classList.add('inverted-spike-obstacle');
+                    spike.style.width = `30px`; spike.style.height = `30px`; spike.style.bottom = `${platformY - 30}px`;
+                    spike.style.right = `${-70 + (i * 30)}px`; gameArea.appendChild(spike);
+                    obstacles.push({ element: spike, passed: false, used: false, isMoving: false, initialY: 0, moveRange: 0, moveSpeed: 0, moveOffset: 0 });
+                }
+            }
+
             function createObstacle() {
                 if (!gameRunning || gamePaused) return;
+                if (Math.random() < 0.4) { createFlyingPlatform(); return; }
+                if (Math.random() < 0.25) { createCoin(); }
+                
                 const obstacle = document.createElement('div'); obstacle.classList.add('obstacle');
                 let type = Math.random();
-                
-                if (type < 0.08) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('rotating-obstacle');
-                    obstacle.style.bottom = (groundLevel + 10) + 'px';
-                } else if (type < 0.16) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('horizontal-moving-obstacle');
-                    obstacle.style.bottom = (groundLevel + 15) + 'px';
-                } else if (type < 0.24) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('star-obstacle');
-                    obstacle.style.bottom = (groundLevel + 10) + 'px';
-                } else if (type < 0.32) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('zigzag-obstacle');
-                    obstacle.style.bottom = groundLevel + 'px';
-                } else if (type < 0.40) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('pulse-obstacle');
-                    obstacle.style.bottom = (groundLevel + 10) + 'px';
-                } else if (type < 0.48) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('wave-obstacle');
-                    obstacle.style.bottom = (groundLevel + 10) + 'px';
-                } else if (type < 0.56) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('diamond-obstacle');
-                    obstacle.style.bottom = (groundLevel + 10) + 'px';
-                } else if (type < 0.64) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('spiral-obstacle');
-                    obstacle.style.bottom = (groundLevel + 10) + 'px';
-                } else if (type < 0.72) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('double-spike-obstacle');
-                    obstacle.style.bottom = groundLevel + 'px';
-                } else if (type < 0.80) {
-                    obstacle.classList.remove('obstacle');
-                    obstacle.classList.add('laser-obstacle');
-                    obstacle.style.bottom = (groundLevel - 10) + 'px';
-                } else if (type < 0.90) {
-                    obstacle.classList.add('triangle-obstacle'); 
-                    obstacle.style.bottom = groundLevel + 'px';
-                } else {
-                    const height = Math.random() * 70 + 60; 
-                    obstacle.style.height = height + 'px'; 
-                    obstacle.style.bottom = groundLevel + 'px';
+                if (level === 1) {
+                    if (type < 0.6) { obstacle.style.height = `${Math.random() * 70 + 60}px`; obstacle.style.bottom = `${groundLevel}px`; }
+                    else if (type < 0.9) { obstacle.classList.add('triangle-obstacle'); obstacle.style.bottom = `${groundLevel}px`; }
+                    else { obstacle.classList.add('air-pad'); obstacle.style.bottom = `${groundLevel}px`; }
+                } else if (level >= 2) {
+                    if (type < 0.3) { obstacle.style.height = `${Math.random() * 70 + 60}px`; obstacle.style.bottom = `${groundLevel}px`; }
+                    else if (type < 0.5) { obstacle.classList.add('triangle-obstacle'); if (Math.random() < 0.5) { obstacle.classList.add('inverted'); obstacle.style.top = '60px'; } else { obstacle.style.bottom = `${groundLevel}px`; } }
+                    else if (type < 0.65) { obstacle.classList.add('air-pad'); obstacle.style.bottom = `${groundLevel}px`; }
+                    else if (type < 0.8) { obstacle.classList.add('gravity-portal'); obstacle.style.bottom = `${groundLevel}px`; obstacle.innerHTML = '<i class="fas fa-arrows-alt-v"></i>'; if (gravityDirection === -1) obstacle.querySelector('i').classList.add('inverted'); }
+                    else { obstacle.classList.add('moving-obstacle'); obstacle.style.bottom = `${groundLevel}px`; obstacle.dataset.initialY = Math.random() * (gameArea.offsetHeight - 200) + groundLevel + 20; obstacle.dataset.moveRange = Math.random() * 50 + 30; obstacle.dataset.moveSpeed = Math.random() * 0.03 + 0.01; obstacle.dataset.moveOffset = Math.random() * Math.PI * 2; }
                 }
-                
                 obstacle.style.right = '-70px'; gameArea.appendChild(obstacle);
-                obstacles.push({ element: obstacle, passed: false, used: false, isMoving: false, initialY: 0, moveRange: 0, moveSpeed: 0, moveOffset: 0 });
+                obstacles.push({ element: obstacle, passed: false, used: false, isMoving: obstacle.classList.contains('moving-obstacle'), initialY: parseFloat(obstacle.dataset.initialY || 0), moveRange: parseFloat(obstacle.dataset.moveRange || 0), moveSpeed: parseFloat(obstacle.dataset.moveSpeed || 0), moveOffset: parseFloat(obstacle.dataset.moveOffset || 0) });
+            }
+
+            function createParticles(x, y, color, count = 10) {
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('div'); particle.classList.add('particle'); particle.style.backgroundColor = color;
+                    particle.style.left = `${x}px`; particle.style.top = `${y}px`;
+                    const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 4 + 2;
+                    particle.style.width = particle.style.height = `${Math.random() * 8 + 4}px`;
+                    particle.style.setProperty('--vx', `${Math.cos(angle) * speed}px`); particle.style.setProperty('--vy', `${Math.sin(angle) * speed}px`);
+                    gameArea.appendChild(particle); setTimeout(() => particle.remove(), 800);
+                }
             }
 
             function startGame() {
-                gameRunning = true; gamePaused = false; score = 0; level = 1; platformsPassed = 0;
+                gameRunning = true; gamePaused = false; score = 0; level = 1; platformsPassed = 0; coinsCollected = 0;
                 obstacles.forEach(o => o.element.remove()); obstacles = [];
-                obstacleSpeed = 4.0; currentSpeedMultiplier = 1.0;
+                flyingPlatforms.forEach(p => p.element.remove()); flyingPlatforms = [];
+                coins.forEach(c => c.element.remove()); coins = [];
+                obstacleSpeed = 4.0; currentSpeedMultiplier = 1.0; lastTime = 0;
                 startScreen.style.display = 'none'; endScreen.style.display = 'none'; questionModal.style.display = 'none';
                 gameArea.innerHTML = '';
                 const dashLine = document.createElement('div'); dashLine.classList.add('dash-line'); gameArea.appendChild(dashLine);
                 createBackgroundElements(); createPlayer();
                 const ground = document.createElement('div'); ground.classList.add('ground'); gameArea.appendChild(ground);
                 const ceiling = document.createElement('div'); ceiling.classList.add('ceiling'); gameArea.appendChild(ceiling);
-                levelElement.textContent = level; scoreElement.textContent = score; platformsPassedElement.textContent = platformsPassed;
+                levelElement.textContent = level; scoreElement.textContent = score; platformsPassedElement.textContent = platformsPassed; coinsCollectedElement.textContent = coinsCollected;
                 clearInterval(obstacleInterval); obstacleInterval = setInterval(() => { if (!gamePaused) { createObstacle(); } }, obstacleIntervalTime / currentSpeedMultiplier);
                 requestAnimationFrame(updateGame); startMusic();
             }
@@ -697,146 +716,160 @@
                 if (!gameRunning || gamePaused) return;
                 if (!lastTime) lastTime = currentTime; deltaTime = Math.min((currentTime - lastTime) / 16.67, 2); lastTime = currentTime;
                 
-                playerVelocity -= (gravity * gravityDirection * deltaTime); playerY += (playerVelocity * deltaTime);
-                if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; }
-                player.style.bottom = `${groundLevel + playerY}px`;
+                flyingPlatforms.forEach((p, i) => {
+                    const pr = parseFloat(p.element.style.right || 0); p.element.style.right = `${pr + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
+                    if (pr > gameArea.offsetWidth + 120) { p.element.remove(); flyingPlatforms.splice(i, 1); }
+                });
                 
+                coins.forEach((c, i) => {
+                    const cr = parseFloat(c.element.style.right || 0); c.element.style.right = `${cr + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
+                    if (cr > gameArea.offsetWidth + 50) { c.element.remove(); coins.splice(i, 1); }
+                });
+
+                let onPlatform = false;
+                flyingPlatforms.forEach(p => {
+                    const prect = p.element.getBoundingClientRect(); const plrect = player.getBoundingClientRect(); const garect = gameArea.getBoundingClientRect();
+                    const ptop = prect.top - garect.top;
+                    if (plrect.bottom - garect.top >= ptop - 10 && plrect.bottom - garect.top <= ptop + 10 && plrect.right - garect.left > prect.left - garect.left && plrect.left - garect.left < prect.right - garect.left && playerVelocity <= 0) {
+                        onPlatform = true; playerY = gameArea.offsetHeight - ptop - groundLevel; playerVelocity = 0; isJumping = false; canJump = true; currentPlatform = p;
+                        if (!p.activated) {
+                            p.activated = true; platformsPassed++; platformsPassedElement.textContent = platformsPassed; score += 50;
+                            playSound(500, 'sine', 0.1, 0.3); createParticles(player.offsetLeft + player.offsetWidth/2, player.offsetTop, '#4cc9f0', 15);
+                            if (p.isDisappearing && !p.fading) { p.fading = true; p.element.style.opacity = 0; setTimeout(() => { if(p.element.parentNode) p.element.remove(); }, 300); }
+                        }
+                    }
+                });
+
+                if (!onPlatform) { playerVelocity -= (gravity * gravityDirection * deltaTime); playerY += (playerVelocity * deltaTime); currentPlatform = null; }
+                const maxY = gameArea.offsetHeight - groundLevel - playerHeight;
+                if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; if (gravityDirection === -1) { gravityDirection = 1; showGameMessage('جاذبية عادية!'); } }
+                else if (playerY > maxY) { playerY = maxY; playerVelocity = 0; isJumping = false; canJump = true; if (gravityDirection === 1) { gravityDirection = -1; showGameMessage('جاذبية معكوسة!'); } }
+                
+                player.style.bottom = `${groundLevel + playerY}px`;
                 if (playerMode !== 'ship' && isRolling) { rotationAngle += (rotationSpeed * gravityDirection * deltaTime); player.style.transform = `rotate(${rotationAngle}deg)`; } 
                 else { player.style.transform = `rotate(0deg)`; }
                 
                 score += 1; scoreElement.textContent = score;
-                const newLevel = Math.floor(score / 1000) + 1; if (newLevel > level) { level = newLevel; levelElement.textContent = level; obstacleSpeed += 0.2; currentSpeedMultiplier += 0.1; }
+                const newLevel = Math.floor(score / 1000) + 1; if (newLevel > level) { level = newLevel; levelElement.textContent = level; obstacleSpeed += 0.2; currentSpeedMultiplier += 0.1; document.getElementById('level-up').style.display='block'; setTimeout(()=>document.getElementById('level-up').style.display='none', 1200); }
                 progressBar.style.width = `${Math.min(100, (score % 1000) / 1000 * 100)}%`;
                 
+                backgroundElements.forEach(el => {
+                    const currentLeft = parseFloat(el.style.left || 0); const parallaxSpeed = parseFloat(el.dataset.parallaxSpeed);
+                    el.style.left = `${currentLeft - (obstacleSpeed * parallaxSpeed * currentSpeedMultiplier * deltaTime)}px`;
+                    if (currentLeft < -el.offsetWidth) el.style.left = `${gameArea.offsetWidth + Math.random() * gameArea.offsetWidth}px`;
+                });
+
                 obstacles.forEach((obs, index) => {
                     const obstacle = obs.element; const currentRight = parseFloat(obstacle.style.right || 0);
                     obstacle.style.right = `${currentRight + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
-                    if (!obs.passed && currentRight > gameArea.offsetWidth - 220) { obs.passed = true; }
+                    if (obs.isMoving) { obstacle.style.bottom = `${obs.initialY + Math.sin(Date.now() * obs.moveSpeed + obs.moveOffset) * obs.moveRange}px`; }
                     if (currentRight > gameArea.offsetWidth + 120) { obstacle.remove(); obstacles.splice(index, 1); }
-                    if (detectCollision(player, obstacle, obs)) { return; }
+                    if (detectCollision(player, obstacle, obs)) return;
+                });
+
+                coins.forEach((c, i) => {
+                    const prect = player.getBoundingClientRect(); const crect = c.element.getBoundingClientRect(); const garect = gameArea.getBoundingClientRect();
+                    const pbox = { x: prect.left - garect.left + 5, y: prect.top - garect.top + 5, w: prect.width - 10, h: prect.height - 10 };
+                    const cbox = { x: crect.left - garect.left, y: crect.top - garect.top, w: crect.width, h: crect.height };
+                    if (!c.collected && pbox.x < cbox.x + cbox.w && pbox.x + pbox.w > cbox.x && pbox.y < cbox.y + cbox.h && pbox.y + pbox.h > cbox.y) {
+                        c.collected = true; coinsCollected++; coinsCollectedElement.textContent = coinsCollected; score += 100; playSound(880, 'triangle', 0.05, 0.5); c.element.remove(); coins.splice(i, 1);
+                    }
                 });
                 requestAnimationFrame(updateGame);
             }
 
-            // --- جلب وعرض أسئلة المعلم من مصفوفة gameQuestions ---
             function showQuestion() {
                 gamePaused = true;
-                
-                // جلب سؤال عشوائي من أسئلة المعلم
                 const q = gameQuestions[Math.floor(Math.random() * gameQuestions.length)];
                 questionTextElement.innerHTML = q.question;
-                feedbackMessageElement.textContent = '';
-                feedbackMessageElement.classList.remove('correct', 'incorrect');
+                feedbackMessageElement.textContent = ''; feedbackMessageElement.classList.remove('correct', 'incorrect');
                 optionsContainer.innerHTML = ''; currentSelectedOptionIndex = -1;
                 optionsContainer.style.display = 'flex'; submitAnswerBtn.style.display = 'block';
                 
                 q.options.forEach((optionText, index) => {
                     const optionBtn = document.createElement('button'); optionBtn.classList.add('option-btn');
                     optionBtn.innerHTML = optionText; optionBtn.dataset.index = index;
-                    optionBtn.addEventListener('click', () => {
-                        optionsContainer.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('selected'); });
-                        optionBtn.classList.add('selected'); currentSelectedOptionIndex = index;
-                    });
+                    optionBtn.addEventListener('click', () => { optionsContainer.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('selected'); }); optionBtn.classList.add('selected'); currentSelectedOptionIndex = index; });
                     optionsContainer.appendChild(optionBtn);
                 });
                 
-                currentCorrectOptionIndex = q.correctOptionIndex;
-                questionModal.style.display = 'flex';
-                playSound(150, 'square', 0.2, 0.4);
-                
-                // تقديم المعادلات الرياضية باستخدام MathLive داخل السؤال والخيارات
-                if (window.MathLive) {
-                    MathLive.renderMathInElement(questionTextElement);
-                    optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
-                        MathLive.renderMathInElement(btn);
-                    });
-                }
+                currentCorrectOptionIndex = q.correctOptionIndex; questionModal.style.display = 'flex'; playSound(150, 'square', 0.2, 0.4);
+                if (window.MathLive) { MathLive.renderMathInElement(questionTextElement); optionsContainer.querySelectorAll('.option-btn').forEach(btn => { MathLive.renderMathInElement(btn); }); }
                 if (typeof MathJax !== 'undefined') { MathJax.typesetPromise([questionTextElement, optionsContainer]); }
             }
 
             function checkAnswer() {
                 const allOptions = optionsContainer.querySelectorAll('.option-btn');
-                if (currentSelectedOptionIndex === -1) return; // لم يتم اختيار إجابة
+                if (currentSelectedOptionIndex === -1) return;
                 
                 const correctAnswerButton = allOptions[currentCorrectOptionIndex];
                 let isCorrect = (currentSelectedOptionIndex === currentCorrectOptionIndex);
-                
                 allOptions.forEach(btn => { btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'); });
                 const selectedButton = allOptions[currentSelectedOptionIndex];
                 if (selectedButton) { selectedButton.classList.add('selected'); }
             
                 if (isCorrect) {
-                    feedbackMessageElement.textContent = 'صحيح! استمر في اللعب.';
-                    feedbackMessageElement.classList.add('correct');
-                    playSound(600, 'sine', 0.1, 0.5);
-                    correctAnswerButton.classList.add('correct-answer');
+                    feedbackMessageElement.textContent = 'صحيح! استمر في اللعب.'; feedbackMessageElement.classList.add('correct');
+                    playSound(600, 'sine', 0.1, 0.5); correctAnswerButton.classList.add('correct-answer');
             
                     setTimeout(() => {
                         questionModal.style.display = 'none'; gamePaused = false;
-                        if (collidedObstacleRef) {
-                            if (collidedObstacleRef.element && collidedObstacleRef.element.parentNode) { collidedObstacleRef.element.remove(); }
-                            const index = obstacles.indexOf(collidedObstacleRef); if (index > -1) { obstacles.splice(index, 1); }
-                            collidedObstacleRef = null;
-                        }
+                        if (collidedObstacleRef) { if (collidedObstacleRef.element && collidedObstacleRef.element.parentNode) { collidedObstacleRef.element.remove(); } const index = obstacles.indexOf(collidedObstacleRef); if (index > -1) { obstacles.splice(index, 1); } collidedObstacleRef = null; }
+                        
+                        // تنظيف المنطقة المحيطة باللاعب لتجنب الموت المباشر بعد الإجابة
+                        obstacles = obstacles.filter(obs => { const r = parseFloat(obs.element.style.right || 0); const l = gameArea.offsetWidth - r - obs.element.offsetWidth; if (l < 50 + player.offsetWidth + 100 && l + obs.element.offsetWidth > 50 - 100) { obs.element.remove(); return false; } return true; });
+                        
                         player.style.left = '50px'; player.style.bottom = `${groundLevel}px`;
-                        playerY = 0; playerVelocity = 0; gravityDirection = 1;
+                        playerY = 0; playerVelocity = 0; gravityDirection = 1; rotationAngle = 0;
                         requestAnimationFrame(updateGame);
                     }, 1000);
                 } else {
                     if (selectedButton) { selectedButton.classList.add('incorrect-answer'); }
                     correctAnswerButton.classList.add('correct-answer');
-                    feedbackMessageElement.textContent = `خطأ! الإجابة الصحيحة هي: ${correctAnswerButton.textContent}`;
-                    feedbackMessageElement.classList.add('incorrect');
-                    playSound(80, 'sawtooth', 0.3, 0.5);
-                    setTimeout(() => { questionModal.style.display = 'none'; endGame(); }, 2000);
+                    feedbackMessageElement.textContent = `خطأ! الإجابة الصحيحة هي: ${correctAnswerButton.textContent}`; feedbackMessageElement.classList.add('incorrect');
+                    playSound(80, 'sawtooth', 0.3, 0.5); setTimeout(() => { questionModal.style.display = 'none'; endGame(); }, 2000);
                 }
             }
 
             function detectCollision(player, obstacle, obsData) {
-                const playerRect = player.getBoundingClientRect(); const obstacleRect = obstacle.getBoundingClientRect();
-                const gameAreaRect = gameArea.getBoundingClientRect();
-                const playerHitbox = { x: playerRect.left - gameAreaRect.left + player.offsetWidth * 0.15, y: playerRect.top - gameAreaRect.top + player.offsetHeight * 0.15, width: player.offsetWidth * 0.7, height: player.offsetHeight * 0.7 };
-                const obstacleHitbox = { x: obstacleRect.left - gameAreaRect.left, y: obstacleRect.top - gameAreaRect.top, width: obstacle.offsetWidth, height: obstacle.offsetHeight };
-                const isOverlapping = (playerHitbox.x < obstacleHitbox.x + obstacleHitbox.width && playerHitbox.x + playerHitbox.width > obstacleHitbox.x && playerHitbox.y < obstacleHitbox.y + obstacleHitbox.height && playerHitbox.y + playerHitbox.height > obstacleHitbox.y);
-                if (!isOverlapping) { return false; }
+                const prect = player.getBoundingClientRect(); const orect = obstacle.getBoundingClientRect(); const garect = gameArea.getBoundingClientRect();
+                let oy = orect.top - garect.top; if (obsData.isMoving) oy = garect.height - parseFloat(obstacle.style.bottom) - obstacle.offsetHeight;
+                const pbox = { x: prect.left - garect.left + prect.width * 0.15, y: prect.top - garect.top + prect.height * 0.15, w: prect.width * 0.7, h: prect.height * 0.7 };
+                const obox = { x: orect.left - garect.left, y: oy, w: obstacle.offsetWidth, h: obstacle.offsetHeight };
+                if (!(pbox.x < obox.x + obox.w && pbox.x + pbox.w > obox.x && pbox.y < obox.y + obox.h && pbox.y + pbox.h > obox.y)) return false;
                 
-                playSound(80, 'sawtooth', 0.2, 0.3);
+                if (obstacle.classList.contains('gravity-portal')) { if (!obsData.used) { gravityDirection *= -1; obsData.used = true; playSound(900, 'triangle', 0.15, 0.4); showGameMessage(gravityDirection===1?'جاذبية عادية!':'جاذبية معكوسة!'); obstacle.style.opacity = 0; setTimeout(()=>obstacle.remove(), 500); } return false; }
+                if (obstacle.classList.contains('speed-portal')) { if (!obsData.used) { currentSpeedMultiplier = Math.min(3, currentSpeedMultiplier + 0.3); obsData.used = true; playSound(1200, 'square', 0.1, 0.4); showGameMessage(`السرعة x${currentSpeedMultiplier.toFixed(1)}`); obstacle.style.opacity = 0; setTimeout(()=>obstacle.remove(), 500); } return false; }
+                if (obstacle.classList.contains('air-pad')) { if (playerVelocity < 0 && prect.bottom >= orect.top - 10 && prect.bottom <= orect.top + 10) { playerY = (garect.height - orect.top - player.offsetHeight) - groundLevel; playerVelocity = 0; isJumping = false; canJump = true; playSound(550, 'sine', 0.05, 0.2); return false; } }
+                
+                playSound(80, 'sawtooth', 0.2, 0.3); createParticles(player.offsetLeft, player.offsetTop, '#e94560', 30);
                 collidedObstacleRef = obsData; showQuestion(); return true;
             }
 
-            // --- إرسال النتيجة إلى المعلم عند انتهاء اللعبة ---
             function endGame() {
-                gameRunning = false; clearInterval(obstacleInterval);
+                gameRunning = false; clearInterval(obstacleInterval); stopMusic();
                 if (score > highScore) { highScore = score; localStorage.setItem('gdHighScore', highScore); highScoreElement.textContent = highScore; }
-                endScreen.style.display = 'flex'; finalScoreElement.textContent = score; finalHighScoreElement.textContent = highScore;
-                stopMusic();
-
-                // إرسال النتيجة إلى شيت المعلم
-                if (studentNameForSheet && currentRoomPIN) {
-                    document.getElementById('form-score').value = score;
-                    document.getElementById('scoreForm').submit();
-                }
+                endScreen.style.display = 'flex'; finalScoreElement.textContent = score; finalHighScoreElement.textContent = highScore; finalCoinsElement.textContent = coinsCollected;
+                if (studentNameForSheet && currentRoomPIN) { document.getElementById('form-score').value = score; document.getElementById('scoreForm').submit(); }
             }
 
-            function jump() { if (!gameRunning || gamePaused || !canJump) return; isJumping = true; canJump = false; playerVelocity = jumpForce * gravityDirection; playSound(440, 'sine', 0.1, 0.2); if (playerMode !== 'ship') { rotationSpeed = -4 * gravityDirection; } }
+            function jump() { if (!gameRunning || gamePaused || !canJump) return; isJumping = true; canJump = false; playerVelocity = jumpForce * gravityDirection; playSound(440, 'sine', 0.1, 0.2); if (playerMode !== 'ship') { rotationSpeed = -4 * gravityDirection; } createParticles(player.offsetLeft + player.offsetWidth/2, player.offsetTop + (gravityDirection===1?player.offsetHeight:0), '#4cc9f0'); }
             function slide() { if (!gameRunning || gamePaused) return; player.style.transform = 'rotate(0deg)'; }
-            
+            function togglePause() { if (!gameRunning) return; gamePaused = !gamePaused; if (!gamePaused) { lastTime = 0; requestAnimationFrame(updateGame); } }
+            function toggleSound() { soundEnabled = !soundEnabled; musicToggleButton.innerHTML = soundEnabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-off"></i>'; if(soundEnabled && gameRunning && !gamePaused) startMusic(); else stopMusic(); }
+
             window.jumpAction = function(e) { e.preventDefault(); jump(); };
             window.slideAction = function(e) { e.preventDefault(); slide(); };
 
             characterElements.forEach(character => { character.addEventListener('click', () => { characterElements.forEach(c => c.classList.remove('active')); character.classList.add('active'); selectedCharacter = parseInt(character.dataset.character); if (gameRunning) { createPlayer(); } }); });
-            startBtn.addEventListener('click', startGame);
-            restartBtn.addEventListener('click', startGame);
-            submitAnswerBtn.addEventListener('click', checkAnswer);
+            startBtn.addEventListener('click', startGame); restartBtn.addEventListener('click', startGame); musicToggleButton.addEventListener('click', toggleSound); submitAnswerBtn.addEventListener('click', checkAnswer);
             document.addEventListener('keydown', (e) => {
-                if (questionModal.style.display === 'flex') { if (e.key === 'Enter') { checkAnswer(); } return; }
+                if (questionModal.style.display === 'flex') { if (e.key === 'Enter') checkAnswer(); return; }
                 if (e.code === 'Space' || e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); jump(); }
                 if (e.key === 'ArrowDown') { e.preventDefault(); slide(); }
+                if (e.key === 'p' || e.key === 'P') togglePause();
             });
-            document.addEventListener('touchstart', (e) => {
-                if (questionModal.style.display === 'flex' || e.target.closest('.btn') || e.target.closest('.mobile-controls')) { return; }
-                if (gameRunning && !gamePaused) { jump(); }
-            });
+            document.addEventListener('touchstart', (e) => { if (questionModal.style.display === 'flex' || e.target.closest('.btn') || e.target.closest('.mobile-controls') || e.target.closest('#music-toggle-btn')) return; if (gameRunning && !gamePaused) jump(); });
         });
     </script>
 </body>
