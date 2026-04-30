@@ -677,7 +677,8 @@
                     obstacle.classList.add('triangle-obstacle'); 
                     obstacle.style.bottom = `${groundLevel}px`;
                 } else {
-                    const height = Math.random() * 70 + 60; 
+                    obstacle.classList.add('square-obstacle');
+                    const height = Math.random() * 50 + 50; 
                     obstacle.style.height = `${height}px`; 
                     obstacle.style.bottom = `${groundLevel}px`;
                 }
@@ -710,9 +711,15 @@
                 requestAnimationFrame(updateGame); startMusic();
             }
 
-            function updateGame(currentTime) {
-                if (!gameRunning || gamePaused) return;
-                if (!lastTime) lastTime = currentTime; deltaTime = Math.min((currentTime - lastTime) / 16.67, 2); lastTime = currentTime;
+            function updateGame(timestamp) {
+                if (!gameRunning || gamePaused) {
+                    requestAnimationFrame(updateGame);
+                    return;
+                }
+
+                let deltaTime = Math.min(32, timestamp - lastTime); 
+                lastTime = timestamp;
+                deltaTime = Math.max(deltaTime / 16.67, 0.5);
                 
                 playerVelocity -= (gravity * gravityDirection * deltaTime); playerY += (playerVelocity * deltaTime);
                 if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; }
@@ -817,29 +824,31 @@
             function detectCollision(player, obstacle, obsData) {
                 const playerRect = player.getBoundingClientRect(); 
                 const obstacleRect = obstacle.getBoundingClientRect();
-                const gameAreaRect = gameArea.getBoundingClientRect();
 
-                let obstacleY_from_top = obstacleRect.top - gameAreaRect.top;
-                if (obsData.isMoving) {
-                    const currentBottom = parseFloat(obstacle.style.bottom);
-                    obstacleY_from_top = gameAreaRect.height - currentBottom - obstacle.offsetHeight;
-                }
+                const p = {
+                    left: playerRect.left + 5,
+                    right: playerRect.right - 5,
+                    top: playerRect.top + 5,
+                    bottom: playerRect.bottom - 5
+                };
 
-                const playerHitbox = { x: playerRect.left - gameAreaRect.left + player.offsetWidth * 0.15, y: playerRect.top - gameAreaRect.top + player.offsetHeight * 0.15, width: player.offsetWidth * 0.7, height: player.offsetHeight * 0.7 };
-                const obstacleHitbox = { x: obstacleRect.left - gameAreaRect.left, y: obstacleY_from_top, width: obstacle.offsetWidth, height: obstacle.offsetHeight };
+                const o = {
+                    left: obstacleRect.left + 2,
+                    right: obstacleRect.right - 2,
+                    top: obstacleRect.top + 2,
+                    bottom: obstacleRect.bottom - 2
+                };
 
-                const isOverlapping = (playerHitbox.x < obstacleHitbox.x + obstacleHitbox.width && playerHitbox.x + playerHitbox.width > obstacleHitbox.x && playerHitbox.y < obstacleHitbox.y + obstacleHitbox.height && playerHitbox.y + playerHitbox.height > obstacleHitbox.y);
+                const isOverlapping = p.left < o.right && p.right > o.left && p.top < o.bottom && p.bottom > o.top;
 
                 if (!isOverlapping) return false;
 
                 if (obstacle.classList.contains('air-pad')) {
-                    const landingTolerance = 15;
-                    const isLanding = playerVelocity < 0 && playerRect.bottom >= obstacleRect.top - landingTolerance && playerRect.bottom <= obstacleRect.top + landingTolerance && playerRect.left < obstacleRect.right && playerRect.right > obstacleRect.left;
-                    if (isLanding) {
-                        playerY = (gameAreaRect.height - obstacleRect.top - player.offsetHeight) - groundLevel;
+                    if (playerVelocity < 0 && p.bottom <= o.top + 20) {
+                        playerY = (gameArea.offsetHeight - (obstacleRect.top - gameArea.getBoundingClientRect().top) - player.offsetHeight) - groundLevel;
                         playerVelocity = 0; isJumping = false; canJump = true;
                         playSound(550, 'sine', 0.05, 0.2);
-                        return false;
+                        return false; 
                     }
                 } 
                 else if (obstacle.classList.contains('gravity-portal')) {
@@ -854,16 +863,17 @@
                 }
                 else if (obstacle.classList.contains('speed-portal')) {
                     if (!obsData.used) {
-                        currentSpeedMultiplier = Math.min(3, currentSpeedMultiplier + 0.3);
+                        currentSpeedMultiplier = Math.min(2.5, currentSpeedMultiplier + 0.3);
                         obsData.used = true;
                         playSound(1200, 'square', 0.1, 0.4);
                     }
                     return false;
                 }
 
-                playSound(80, 'sawtooth', 0.2, 0.3);
-                collidedObstacleRef = obsData; 
-                showQuestion();
+                if (!gamePaused) {
+                    collidedObstacleRef = obsData; 
+                    showQuestion();
+                }
                 return true;
             }
 
