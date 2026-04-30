@@ -1,9 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>قوالب الألعاب التعليمية | منصة احترافية</title>
+    <title>منصة الألعاب التعليمية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -153,7 +154,8 @@
         .game-card:nth-child(5) { animation-delay: 0.5s; }
         .game-card:nth-child(6) { animation-delay: 0.6s; }
         .game-card:nth-child(7) { animation-delay: 0.7s; } 
-        .game-card:nth-child(8) { animation-delay: 0.8s; } /* إضافة توقيت للبطاقة الثامنة */
+        .game-card:nth-child(8) { animation-delay: 0.8s; }
+        .game-card:nth-child(9) { animation-delay: 0.9s; } /* توقيت للبطاقة التاسعة الجديدة */
 
         .game-card:hover {
             transform: translateY(-12px) scale(1.02);
@@ -390,7 +392,6 @@
                 </div>
             </a>
 
-            <!-- بداية القالب الجديد المُضاف: الكرة الحمراء والكرة الزرقاء -->
             <a href="H.html" class="game-card" style="
                 --theme-color: #6366f1; 
                 --theme-color-hover: #4f46e5;
@@ -413,20 +414,12 @@
                                     <stop offset="100%" stop-color="#1e3a8a"/>
                                 </radialGradient>
                             </defs>
-                            <!-- ظلال الكرات -->
                             <ellipse cx="32" cy="78" rx="16" ry="5" fill="#94a3b8" opacity="0.6"/>
                             <ellipse cx="68" cy="62" rx="14" ry="4" fill="#94a3b8" opacity="0.6"/>
-                            
-                            <!-- الكرة الحمراء -->
                             <circle cx="32" cy="60" r="18" fill="url(#redBallGrad)" stroke="#b91c1c" stroke-width="1.5"/>
-                            <!-- الكرة الزرقاء -->
                             <circle cx="68" cy="46" r="16" fill="url(#blueBallGrad)" stroke="#1d4ed8" stroke-width="1.5"/>
-                            
-                            <!-- لمعان الكرات -->
                             <path d="M 22 52 A 10 10 0 0 1 36 46" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7" />
                             <path d="M 59 39 A 9 9 0 0 1 71 33" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7" />
-                            
-                            <!-- خط حركة/ربط جمالي -->
                             <path d="M 45 42 Q 50 35 55 45" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/>
                         </svg>
                     </div>
@@ -438,7 +431,6 @@
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
-            <!-- نهاية القالب الجديد -->
 
             <a href="B.html" class="game-card" style="
                 --theme-color: #e11d48; 
@@ -646,9 +638,53 @@
                 </div>
             </a>
 
+            <!-- القالب المضاف: لعبة المكعب -->
+            <a href="G.html" class="game-card" style="
+                --theme-color: #0d9488; 
+                --theme-color-hover: #0f766e;
+                --theme-color-shadow: rgba(13, 148, 136, 0.4); 
+                --theme-color-light: rgba(13, 148, 136, 0.15); 
+                --theme-bg-1: #f0fdfa; 
+                --theme-bg-2: #ccfbf1;">
+                <div class="icon-wrapper">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="cubeTop" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2dd4bf"/></linearGradient>
+                                <linearGradient id="cubeLeft" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#14b8a6"/><stop offset="100%" stop-color="#0d9488"/></linearGradient>
+                                <linearGradient id="cubeRight" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0f766e"/><stop offset="100%" stop-color="#115e59"/></linearGradient>
+                            </defs>
+                            <!-- ظل المكعب -->
+                            <ellipse cx="50" cy="85" rx="28" ry="7" fill="#94a3b8" opacity="0.5"/>
+                            
+                            <!-- الأوجه الثلاثة للمكعب -->
+                            <path d="M 50 20 L 76 35 L 50 50 L 24 35 Z" fill="url(#cubeTop)" stroke="#99f6e4" stroke-width="1.5" stroke-linejoin="round"/>
+                            <path d="M 24 35 L 50 50 L 50 80 L 24 65 Z" fill="url(#cubeLeft)" stroke="#5eead4" stroke-width="1.5" stroke-linejoin="round"/>
+                            <path d="M 50 50 L 76 35 L 76 65 L 50 80 Z" fill="url(#cubeRight)" stroke="#2dd4bf" stroke-width="1.5" stroke-linejoin="round"/>
+                            
+                            <!-- لمعان وتفاصيل على الأوجه -->
+                            <path d="M 30 42 L 44 50 L 44 72 L 30 64 Z" fill="#ffffff" opacity="0.15"/>
+                            <path d="M 70 42 L 56 50 L 56 72 L 70 64 Z" fill="#ffffff" opacity="0.1"/>
+                            <path d="M 50 28 L 65 36 L 50 44 L 35 36 Z" fill="#ffffff" opacity="0.3"/>
+                            
+                            <!-- نقطة الارتكاز المضيئة في المنتصف -->
+                            <circle cx="50" cy="50" r="3.5" fill="#fef08a" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="game-title">لعبة المكعب</h2>
+                <p class="game-desc">لعبة تفاعلية ثلاثية الأبعاد، قم بحل الألغاز وتدوير المكعب للوصول إلى الإجابات الصحيحة.</p>
+                <div class="action-btn">
+                    <span>انتقل للعبة</span>
+                    <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
+                </div>
+            </a>
+            <!-- نهاية قالب لعبة المكعب -->
+
         </div>
     </div>
 
 </body>
 </html>
 
+```
