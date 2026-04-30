@@ -715,18 +715,8 @@
                 lastTime = timestamp;
                 deltaTime = Math.max(deltaTime / 16.67, 0.5);
                 
-                // تحسين الجاذبية لمنع الطيران
-                playerVelocity -= (gravity * gravityDirection * deltaTime); 
-                playerY += (playerVelocity * deltaTime);
-                
-                // التحقق من الحدود (الأرض والسقف)
-                if (gravityDirection === 1) {
-                    if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; }
-                } else {
-                    const maxTop = gameArea.offsetHeight - groundLevel - 60 - player.offsetHeight;
-                    if (playerY > maxTop) { playerY = maxTop; playerVelocity = 0; isJumping = false; canJump = true; }
-                }
-                
+                playerVelocity -= (gravity * gravityDirection * deltaTime); playerY += (playerVelocity * deltaTime);
+                if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; }
                 player.style.bottom = `${groundLevel + playerY}px`;
                 
                 if (playerMode !== 'ship' && isRolling) { rotationAngle += (rotationSpeed * gravityDirection * deltaTime); player.style.transform = `rotate(${rotationAngle}deg)`; } 
