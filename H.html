@@ -301,7 +301,9 @@ function copyGameLink() {
         #game-container {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            width: 100vw; height: 100vh;
+            width: 100vw; 
+            height: 100vh; /* كود احتياطي للأجهزة القديمة */
+            height: 100dvh; /* الكود الحديث الذي يراعي شريط المتصفح */
             overflow: hidden;
             background: #020617;
             background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
@@ -325,15 +327,17 @@ function copyGameLink() {
         .btn-3d:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--shadow-color, #991b1b), 0 15px 25px rgba(0,0,0,0.5); }
         
         #mobile-controls {
-            display: flex; position: absolute; bottom: 30px; left: 0; right: 0; width: 100%;
+            display: flex; position: absolute; 
+            bottom: calc(20px + env(safe-area-inset-bottom)); /* رفع الأزرار لتجنب شريط الإيماءات السفلي */
+            left: 0; right: 0; width: 100%;
             justify-content: space-between; padding: 0 50px; box-sizing: border-box; z-index: 50; pointer-events: none;
         }
         @media (max-width: 1024px), (hover: none) and (pointer: coarse) { #mobile-controls { display: flex; } }
         
         .touch-btn {
-            /* تم التعديل لتصبح متجاوبة مع الشاشات الكبيرة */
-            width: clamp(110px, 16vw, 160px); 
-            height: clamp(110px, 16vw, 160px);
+            /* الاعتماد على vmin يمنع الزر من التضخم المفرط في الشاشات العريضة */
+            width: clamp(80px, 14vmin, 130px); 
+            height: clamp(80px, 14vmin, 130px);
             pointer-events: auto; user-select: none;
             background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);
             backdrop-filter: blur(5px); opacity: 0.85; transition: all 0.1s;
