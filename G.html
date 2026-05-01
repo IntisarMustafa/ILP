@@ -119,6 +119,7 @@
         @keyframes portalRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .air-pad { width: 60px; height: 15px; background: #4cc9f0; border-radius: 10px; box-shadow: 0 0 20px #4cc9f0; }
         .flying-platform { position: absolute; height: 20px; background: linear-gradient(90deg, #4361ee, #4cc9f0); border-radius: 10px; z-index: 7; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
+        .platform-spikes { position: absolute; bottom: -15px; left: 5%; width: 90%; height: 15px; background: repeating-linear-gradient(45deg, #ff0000, #ff0000 5px, transparent 5px, transparent 10px); clip-path: polygon(0% 0%, 10% 100%, 20% 0%, 30% 100%, 40% 0%, 50% 100%, 60% 0%, 70% 100%, 80% 0%, 90% 100%, 100% 0%); }
         .coin { position: absolute; width: 30px; height: 30px; background: #ffd700; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #b8860b; font-size: 1.2rem; box-shadow: 0 0 15px #ffd700; z-index: 9; animation: coinSpin 1s infinite linear; }
         @keyframes coinSpin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
         .particle { position: absolute; pointer-events: none; border-radius: 50%; z-index: 20; animation: particleFade 0.8s forwards; }
@@ -145,6 +146,14 @@
         .mobile-controls { position: absolute; bottom: 20px; left: 0; width: 100%; display: none; justify-content: space-between; padding: 0 30px; z-index: 100; }
         .control-btn { width: 70px; height: 70px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.4); color: white; font-size: 1.5rem; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         @media (max-width: 768px) { .mobile-controls { display: flex; } .logo { font-size: 3rem; } .subtitle { font-size: 1.3rem; } .game-container { height: 100vh; max-height: none; border-radius: 0; } }
+    
+        /* أنماط لوحة الصدارة */
+        .leaderboard-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 20, 41, 0.98); z-index: 200; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
+        .leaderboard-table { width: 100%; max-width: 500px; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; color: #fff; }
+        .leaderboard-table th { background: #4361ee; padding: 12px; border-radius: 5px; }
+        .leaderboard-table td { background: rgba(255,255,255,0.1); padding: 12px; text-align: center; border-radius: 5px; }
+        .leaderboard-table tr:nth-child(1) td { background: rgba(255, 215, 0, 0.2); border: 1px solid #ffd700; }
+        .loading-text { font-size: 1.2rem; color: #4cc9f0; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -191,8 +200,8 @@
         <div id="screen-student-login" class="screen">
             <div class="card">
                 <h2>دخول الطالب</h2>
-                <input type="text" id="student-name" class="ui-input" placeholder="أدخل اسمك">
                 <input type="number" id="room-pin-input" class="ui-input" placeholder="رقم الغرفة (PIN)">
+                <input type="text" id="student-name" class="ui-input" placeholder="أدخل اسمك">
                 <button class="platform-btn btn-student" onclick="studentLogin()">ابدأ التحدي</button>
                 <button class="platform-btn btn-back" onclick="showScreen('screen-main')">رجوع</button>
             </div>
@@ -293,8 +302,25 @@
                 <div class="stat"><span class="stat-value" id="final-coins">0</span><span>العملات</span></div>
             </div>
             <button id="restart-btn" class="btn" style="background: linear-gradient(45deg, #e21b3c, #ff0054);"><i class="fas fa-redo"></i> حاول مرة أخرى</button>
+            <button onclick="openLeaderboard()" class="btn" style="background: linear-gradient(45deg, #4361ee, #3a0ca3);"><i class="fas fa-trophy"></i> لوحة الصدارة</button>
         </div>
 
+        
+        <div id="leaderboard-overlay" class="leaderboard-overlay">
+            <div class="logo" style="font-size: 3rem;">لوحة الصدارة</div>
+            <div id="leaderboard-loading" class="loading-text">⏳ جاري جلب البيانات...</div>
+            <table id="leaderboard-table" class="leaderboard-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>المركز</th>
+                        <th>اللاعب</th>
+                        <th>النقاط</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+            <button onclick="closeLeaderboard()" class="btn" style="margin-top: 20px; background: #666;"><i class="fas fa-times"></i> إغلاق</button>
+        </div>
         <div class="mobile-controls">
             <button class="control-btn" onmousedown="jumpAction(event)" ontouchstart="jumpAction(event)"><i class="fas fa-arrow-up"></i></button>
             <button class="control-btn" onclick="togglePause()"><i class="fas fa-pause"></i></button>
@@ -317,6 +343,11 @@
 
     <script>
         const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+        const LEADERBOARD_URL = "https://docs.google.com/spreadsheets/d/1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg/pubhtml?gid=1510464629&single=true";
+
+        function openLeaderboard() {
+            window.open(LEADERBOARD_URL, '_blank');
+        }
 
         // =========================================================================
         // 1. نظام المنصة التعليمية (إدارة الأسئلة والغرف)
@@ -393,9 +424,9 @@ function saveAndGeneratePIN() {
 }
 
 async function studentLogin() {
-    const name = document.getElementById('student-name').value;
     const pin = document.getElementById('room-pin-input').value;
-    if (!name || !pin) { alert("يرجى إدخال الاسم ورقم الغرفة!"); return; }
+    const name = document.getElementById('student-name').value;
+    if (!name || !pin) { alert("يرجى إدخال رقم الغرفة والاسم!"); return; }
     
     studentNameForSheet = name;
     currentRoomPIN = pin;
@@ -505,6 +536,7 @@ async function studentLogin() {
         let player; let gameArea; let scoreElement, levelElement, platformsPassedElement, coinsCollectedElement, progressBar;
         let obstacleSpeed = 4.0; let currentSpeedMultiplier = 1.0; let obstacleInterval; let obstacleIntervalTime = 3500;
         let backgroundElements = []; let playerMode = 'cube'; let gravityDirection = 1;
+        let gravityTimer = null;
         let isJumping = false; let canJump = true; let currentPlatform = null; let playerY = 0; let playerVelocity = 0;
         const gravity = 1.1; const jumpForce = 22; const groundLevel = 63; const playerHeight = 45;
         let rotationAngle = 0; let rotationSpeed = -2.5; let isRolling = true;
@@ -570,10 +602,21 @@ async function studentLogin() {
                 if (!gameRunning || gamePaused) return;
                 if (!lastTime) lastTime = currentTime; deltaTime = Math.min((currentTime - lastTime) / 16.67, 2); lastTime = currentTime;
                 
-                flyingPlatforms.forEach((p, i) => {
+                for (let i = flyingPlatforms.length - 1; i >= 0; i--) {
+                    const p = flyingPlatforms[i];
                     const pr = parseFloat(p.element.style.right || 0); p.element.style.right = `${pr + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
-                    if (pr > gameArea.offsetWidth + 120) { p.element.remove(); flyingPlatforms.splice(i, 1); }
-                });
+                    if (pr > gameArea.offsetWidth + 120) { p.element.remove(); flyingPlatforms.splice(i, 1); continue; }
+                    
+                    // التحقق من التصادم مع الأشواك تحت المنصة
+                    const prect = player.getBoundingClientRect(); const orect = p.element.getBoundingClientRect(); const garect = gameArea.getBoundingClientRect();
+                    const pbox = { x: prect.left - garect.left + prect.width * 0.15, y: prect.top - garect.top + prect.height * 0.15, w: prect.width * 0.7, h: prect.height * 0.7 };
+                    const sbox = { x: orect.left - garect.left + (p.width * 0.05), y: orect.bottom - garect.top, w: p.width * 0.9, h: 15 };
+                    
+                    if (pbox.x < sbox.x + sbox.w && pbox.x + pbox.w > sbox.x && pbox.y < sbox.y + sbox.h && pbox.y + pbox.h > sbox.y) {
+                        playSound(80, 'sawtooth', 0.2, 0.3); createParticles(player.offsetLeft, player.offsetTop, '#e94560', 30);
+                        collidedObstacleRef = p; showQuestion(); return;
+                    }
+                }
                 
                 coins.forEach((c, i) => {
                     const cr = parseFloat(c.element.style.right || 0); c.element.style.right = `${cr + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
@@ -596,7 +639,7 @@ async function studentLogin() {
 
                 if (!onPlatform) { playerVelocity -= (gravity * gravityDirection * deltaTime); playerY += (playerVelocity * deltaTime); currentPlatform = null; }
                 const maxY = gameArea.offsetHeight - groundLevel - playerHeight;
-                if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; if (gravityDirection === -1) { gravityDirection = 1; showGameMessage('جاذبية عادية!'); } }
+                if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; if (gravityDirection === -1) { gravityDirection = 1; if(gravityTimer) { clearTimeout(gravityTimer); gravityTimer = null; } showGameMessage('جاذبية عادية!'); } }
                 else if (playerY > maxY) { playerY = maxY; playerVelocity = 0; isJumping = false; canJump = true; if (gravityDirection === 1) { gravityDirection = -1; showGameMessage('جاذبية معكوسة!'); } }
                 
                 player.style.bottom = `${groundLevel + playerY}px`;
@@ -641,7 +684,33 @@ async function studentLogin() {
                 const obox = { x: orect.left - garect.left, y: oy, w: obstacle.offsetWidth, h: obstacle.offsetHeight };
                 if (!(pbox.x < obox.x + obox.w && pbox.x + pbox.w > obox.x && pbox.y < obox.y + obox.h && pbox.y + pbox.h > obox.y)) return false;
                 
-                if (obstacle.classList.contains('gravity-portal')) { if (!obsData.used) { gravityDirection *= -1; obsData.used = true; playSound(900, 'triangle', 0.15, 0.4); showGameMessage(gravityDirection===1?'جاذبية عادية!':'جاذبية معكوسة!'); obstacle.style.opacity = 0; setTimeout(()=>obstacle.remove(), 500); } return false; }
+                if (obstacle.classList.contains('gravity-portal')) { 
+                    if (!obsData.used) { 
+                        gravityDirection *= -1; 
+                        obsData.used = true; 
+                        playSound(900, 'triangle', 0.15, 0.4); 
+                        
+                        if (gravityDirection === -1) {
+                            showGameMessage('جاذبية معكوسة لـ 5 ثوانٍ!');
+                            if (gravityTimer) clearTimeout(gravityTimer);
+                            gravityTimer = setTimeout(() => {
+                                if (gravityDirection === -1) {
+                                    gravityDirection = 1;
+                                    showGameMessage('عودة الجاذبية العادية!');
+                                    playSound(700, 'sine', 0.1, 0.3);
+                                }
+                                gravityTimer = null;
+                            }, 5000);
+                        } else {
+                            showGameMessage('جاذبية عادية!');
+                            if (gravityTimer) { clearTimeout(gravityTimer); gravityTimer = null; }
+                        }
+                        
+                        obstacle.style.opacity = 0; 
+                        setTimeout(()=>obstacle.remove(), 500); 
+                    } 
+                    return false; 
+                }
                 if (obstacle.classList.contains('air-pad')) { if (playerVelocity < 0 && prect.bottom >= orect.top - 10 && prect.bottom <= orect.top + 10) { playerY = (garect.height - orect.top - player.offsetHeight) - groundLevel; playerVelocity = 0; isJumping = false; canJump = true; playSound(550, 'sine', 0.05, 0.2); return false; } }
                 
                 playSound(80, 'sawtooth', 0.2, 0.3); createParticles(player.offsetLeft, player.offsetTop, '#e94560', 30);
@@ -690,7 +759,12 @@ async function studentLogin() {
             
                     setTimeout(() => {
                         document.getElementById('question-modal').style.display = 'none'; gamePaused = false;
-                        if (collidedObstacleRef) { if (collidedObstacleRef.element && collidedObstacleRef.element.parentNode) { collidedObstacleRef.element.remove(); } const index = obstacles.indexOf(collidedObstacleRef); if (index > -1) { obstacles.splice(index, 1); } collidedObstacleRef = null; }
+                        if (collidedObstacleRef) { 
+                            if (collidedObstacleRef.element && collidedObstacleRef.element.parentNode) { collidedObstacleRef.element.remove(); } 
+                            let index = obstacles.indexOf(collidedObstacleRef); if (index > -1) { obstacles.splice(index, 1); } 
+                            index = flyingPlatforms.indexOf(collidedObstacleRef); if (index > -1) { flyingPlatforms.splice(index, 1); }
+                            collidedObstacleRef = null; 
+                        }
                         
                         obstacles = obstacles.filter(obs => { const r = parseFloat(obs.element.style.right || 0); const l = gameArea.offsetWidth - r - obs.element.offsetWidth; if (l < 50 + player.offsetWidth + 100 && l + obs.element.offsetWidth > 50 - 100) { obs.element.remove(); return false; } return true; });
                         
@@ -757,6 +831,10 @@ async function studentLogin() {
                 const platform = document.createElement('div'); platform.classList.add('flying-platform');
                 platform.style.width = `${platformWidth}px`; platform.style.height = `${platformHeight}px`;
                 platform.style.bottom = `${platformY}px`; platform.style.right = `-70px`;
+                
+                const spikes = document.createElement('div'); spikes.classList.add('platform-spikes');
+                platform.appendChild(spikes);
+                
                 gameArea.appendChild(platform);
                 flyingPlatforms.push({ element: platform, width: platformWidth, height: platformHeight, y: platformY, passed: false, activated: false, isDisappearing: (level >= 4 && Math.random() < 0.4), fading: false });
             }
@@ -798,6 +876,59 @@ async function studentLogin() {
                 if (e.key === 'p' || e.key === 'P') togglePause();
             });
             document.addEventListener('touchstart', (e) => { if (document.getElementById('question-modal').style.display === 'flex' || e.target.closest('.btn') || e.target.closest('.mobile-controls') || e.target.closest('#music-toggle-btn')) return; if (gameRunning && !gamePaused) jump(); });
+
+            window.openLeaderboard = async function() {
+                const overlay = document.getElementById('leaderboard-overlay');
+                const loading = document.getElementById('leaderboard-loading');
+                const table = document.getElementById('leaderboard-table');
+                const tbody = document.getElementById('leaderboard-body');
+                
+                overlay.style.display = 'flex';
+                loading.style.display = 'block';
+                loading.innerText = "⏳ جاري جلب البيانات...";
+                table.style.display = 'none';
+                tbody.innerHTML = '';
+
+                try {
+                    const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                    const text = await res.text();
+                    const json = JSON.parse(text.substring(47, text.length - 2));
+                    
+                    // تصفية البيانات حسب رقم الغرفة الحالي واستبعاد الصفوف الإدارية
+                    let players = json.table.rows.filter(r => 
+                        r.c[1]?.v?.toString() === currentRoomPIN && 
+                        r.c[2]?.v !== "QUESTIONS"
+                    );
+                    
+                    // ترتيب اللاعبين حسب النقاط
+                    players.sort((a, b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+
+                    if (players.length === 0) {
+                        loading.innerText = "لا توجد نتائج مسجلة لهذه الغرفة حتى الآن.";
+                        return;
+                    }
+
+                    players.forEach((p, i) => {
+                        let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${i+1} ${medal}</td>
+                                <td style="font-weight: bold;">${p.c[0].v}</td>
+                                <td style="color:#4cc9f0; font-weight:900; font-size: 1.2rem;">${p.c[2].v}</td>
+                            </tr>`;
+                    });
+
+                    loading.style.display = 'none';
+                    table.style.display = 'table';
+                } catch (e) {
+                    loading.innerText = "❌ حدث خطأ أثناء جلب البيانات.";
+                    console.error(e);
+                }
+            };
+
+            window.closeLeaderboard = function() {
+                document.getElementById('leaderboard-overlay').style.display = 'none';
+            };
         });
     </script>
 </body>
