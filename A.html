@@ -1699,7 +1699,12 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 q.blanks.forEach((blank, i) => {
                     let val = document.getElementById(`student-blank-${i}`).value.trim();
                     studentAnswers.push(val);
-                    if (val.toLowerCase() !== blank.trim().toLowerCase()) allCorrect = false;
+                    
+                    // دعم الإجابات المتعددة المفصولة بـ /
+                    let correctOptions = blank.split('/').map(opt => opt.trim().toLowerCase());
+                    if (!correctOptions.includes(val.toLowerCase())) {
+                        allCorrect = false;
+                    }
                 });
             }
             processFinalResult(allCorrect, studentAnswers.join(" ، "), q.blanks.join(" ، "));
