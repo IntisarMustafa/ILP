@@ -424,22 +424,6 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 .img-result:hover{border-color:var(--primary);transform:scale(1.05)}
 .q-image-input{width:100%;padding:10px;border:2px solid #ccc;border-radius:8px;direction:ltr;margin-top:10px}
 
-
-/* MATCH & DRAG NEW */
-.match-left-item, .match-right-item {
-    padding:15px;border-radius:12px;border:2px solid #ddd;
-    background:white;font-weight:bold;font-size:18px;cursor:pointer;
-}
-.match-left-item.active-left{
-    border-color:#1368ce;background:#eef5ff;color:#1368ce;
-}
-.drag-pool-container{
-    min-height:100px;padding:20px;border:3px dashed #ccc;border-radius:15px;
-}
-.drag-zone-container{
-    min-height:150px;border:3px solid #46178f;border-radius:15px;
-}
-
 </style>
 </head>
 <body>
@@ -987,11 +971,14 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 
         let gameQuestions = [], currentRoomPIN = "", refreshInterval;
 let quizTitle = "🎮 التحدي الأكبر";
-        let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 15;
-        let TOTAL_TIME = 15;
+        let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 60;
+        let TOTAL_TIME = 60;
         let currentStreak = 0, powerUpUsed = false, userAnswersHistory = [];
-let currentMatchingState = { selectedLeft: null, matches: {} };
-let currentDragState = { selectedWordId: null, items: [] };
+        
+        // --- حالات جديدة للأسئلة التفاعلية ---
+        let currentMatchingState = { selectedLeft: null, matches: {} };
+        let currentDragState = { items: [], selectedWordId: null };
+        const matchingColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#46178f', '#ff8c00', '#00c2e0', '#ff477e'];
 
         let qBlockCount = 0;
 
@@ -1036,7 +1023,7 @@ let currentDragState = { selectedWordId: null, items: [] };
                     <div style="display:flex; gap:10px; margin-bottom: 10px;">
                         <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="flex:1;">
                         <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-                        <input type="number" class="q-time-input" value="15" min="5" max="300" style="width:90px;" title="الوقت بالثواني">
+                        <input type="number" class="q-time-input" value="60" min="5" max="300" style="width:90px;" title="الوقت بالثواني">
                         <input type="number" class="q-points-input" value="1000" min="0" max="10000" style="width:90px;" placeholder="الدرجة" title="درجة السؤال">
                     </div>
 
@@ -1408,7 +1395,7 @@ let currentDragState = { selectedWordId: null, items: [] };
                 
                 let qData = {
                     q: title,
-                    time: parseInt(timeVal) || 15,
+                    time: parseInt(timeVal) || 60,
                     points: parseInt(pointsVal) || 1000,
                     type: type
                 };
@@ -1563,7 +1550,7 @@ let currentDragState = { selectedWordId: null, items: [] };
             if (currentQIndex >= gameQuestions.length) { endGame(); return; }
             playBGM('game');
             const q = gameQuestions[currentQIndex];
-TOTAL_TIME = q.time || 15;
+TOTAL_TIME = q.time || 60;
 timeLeft = TOTAL_TIME;
 document.getElementById('quiz-title-display').innerText = quizTitle;
 
@@ -1619,42 +1606,64 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 blanksHtml += `<button class="btn btn-primary" onclick="submitBlanksAnswer()" style="width: 80%; max-width: 400px; margin-top: 15px;">تأكيد الإجابة ✔️</button></div>`;
                 ansGrid.innerHTML = blanksHtml;
             } else if (type === 'matching') {
-                let matchingHtml = `<div style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 10px;">`;
-                const leftItems = q.pairs.map(p => p.left);
-                const rightItems = q.pairs.map(p => p.right).sort(() => Math.random() - 0.5);
-                leftItems.forEach((left, i) => {
-                    matchingHtml += `
-                        <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                            <div style="flex: 1; font-weight: bold; color: var(--primary);">${left}</div>
-                            <div style="font-size: 20px;">🔗</div>
-                            <select id="match-select-${i}" style="flex: 1; padding: 10px; border-radius: 5px; border: 2px solid #ddd; font-family: 'Cairo';">
-                                <option value="">اختر المطابق...</option>
-                                ${rightItems.map(ritem => `<option value="${ritem}">${ritem}</option>`).join('')}
-                            </select>
-                        </div>`;
-                });
-                matchingHtml += `<button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 15px;">تأكيد التوصيل ✔️</button></div>`;
+                currentMatchingState = { selectedLeft: null, matches: {} };
+                let leftItems = q.pairs.map(p => p.left);
+                let rightItems = q.pairs.map(p => p.right).sort(() => Math.random() - 0.5);
+                
+                let matchingHtml = `
+                    <div style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 20px;">
+                        <div style="display: flex; gap: 20px; justify-content: space-between;">
+                            <div id="matching-left-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                                ${leftItems.map(item => `
+                                    <button class="match-btn left-item" onclick="selectLeftMatch(this)" data-text="${item}" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                                        <span class="display-text">${item}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div id="matching-right-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                                ${rightItems.map(item => `
+                                    <button class="match-btn right-item" onclick="selectRightMatch(this)" data-text="${item}" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                                        <span class="display-text">${item}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 10px;">تأكيد التوصيل ✔️</button>
+                    </div>`;
                 ansGrid.innerHTML = matchingHtml;
             } else if (type === 'dragdrop') {
-                let dragHtml = `<div style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 15px;">`;
-                q.items.forEach((item, i) => {
-                    dragHtml += `
-                        <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                            <div style="flex: 1; font-weight: bold; color: var(--primary);">${item.text}</div>
-                            <select id="drag-select-${i}" style="flex: 1; padding: 10px; border-radius: 5px; border: 2px solid #ddd; font-family: 'Cairo';">
-                                <option value="-1">اختر المجموعة...</option>
-                                ${q.zones.map((zone, zi) => `<option value="${zi}">${zone}</option>`).join('')}
-                            </select>
-                        </div>`;
-                });
-                dragHtml += `<button class="btn btn-primary" onclick="submitDragDropAnswer()" style="margin-top: 15px;">تأكيد التصنيف ✔️</button></div>`;
+                currentDragState = {
+                    items: q.items.map((it, idx) => ({ id: idx, text: it.text, targetZone: it.zoneIndex, currentZone: 'pool' })),
+                    selectedWordId: null
+                };
+                
+                let dragHtml = `
+                    <div style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 20px;">
+                        <div id="drag-pool" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px; border: 2px dashed #ccc; min-height: 80px;">
+                            <!-- الكلمات ستظهر هنا -->
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            ${q.zones.map((zone, zi) => `
+                                <div class="drag-zone-box" onclick="moveDragItem(${zi})" style="background: white; border: 3px solid var(--primary); border-radius: 15px; padding: 15px; min-height: 120px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s;">
+                                    <div style="font-weight: 900; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid #eee; width: 100%; text-align: center; padding-bottom: 5px;">${zone}</div>
+                                    <div id="drag-zone-items-${zi}" style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; width: 100%;"></div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-primary" onclick="submitDragDropAnswer()" style="margin-top: 10px;">تأكيد التصنيف ✔️</button>
+                    </div>`;
                 ansGrid.innerHTML = dragHtml;
+                renderDragItems();
             }
 
             // 3. الآن نقوم بتشغيل مكتبة MathLive
             if (window.MathLive) {
                 MathLive.renderMathInElement(qContainer);
                 ansGrid.querySelectorAll('.display-text').forEach(el => {
+                    MathLive.renderMathInElement(el);
+                });
+                // تفعيل MathLive للأزرار التفاعلية أيضاً
+                ansGrid.querySelectorAll('.match-btn, .display-text').forEach(el => {
                     MathLive.renderMathInElement(el);
                 });
             }
@@ -1721,26 +1730,142 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             processFinalResult(allCorrect, studentAnswers.join(" ، "), q.blanks.join(" ، "));
         }
 
+        // --- دوال التوصيل التفاعلية ---
+        function selectLeftMatch(element) {
+            // إلغاء تحديد أي عنصر سابق في الجهة اليسرى
+            document.querySelectorAll('.left-item').forEach(el => {
+                if(!Object.keys(currentMatchingState.matches).includes(el.dataset.text)) {
+                    el.style.backgroundColor = 'white';
+                    el.style.color = '#333';
+                    el.style.borderColor = '#ddd';
+                }
+            });
+            
+            currentMatchingState.selectedLeft = element.dataset.text;
+            element.style.backgroundColor = 'var(--primary)';
+            element.style.color = 'white';
+            element.style.borderColor = 'var(--primary)';
+            playTone(600, 'sine', 0.05);
+        }
+
+        function selectRightMatch(element) {
+            if (!currentMatchingState.selectedLeft) {
+                element.style.animation = 'shake 0.5s';
+                setTimeout(() => element.style.animation = '', 500);
+                return;
+            }
+
+            let leftText = currentMatchingState.selectedLeft;
+            let rightText = element.dataset.text;
+
+            // إذا كان اليمين مرتبطاً مسبقاً، نفك ارتباطه القديم
+            for (let key in currentMatchingState.matches) {
+                if (currentMatchingState.matches[key] === rightText) {
+                    delete currentMatchingState.matches[key];
+                    let oldLeftEl = document.querySelector(`.left-item[data-text="${key}"]`);
+                    if(oldLeftEl) {
+                        oldLeftEl.style.backgroundColor = 'white';
+                        oldLeftEl.style.color = '#333';
+                        oldLeftEl.style.borderColor = '#ddd';
+                    }
+                }
+            }
+
+            // ربط الكلمتين وإعطائهما لوناً موحداً
+            currentMatchingState.matches[leftText] = rightText;
+            let matchIndex = Object.keys(currentMatchingState.matches).indexOf(leftText);
+            let color = matchingColors[matchIndex % matchingColors.length];
+            
+            let leftEl = document.querySelector(`.left-item[data-text="${leftText}"]`);
+            leftEl.style.backgroundColor = color;
+            leftEl.style.color = 'white';
+            leftEl.style.borderColor = color;
+            
+            element.style.backgroundColor = color;
+            element.style.color = 'white';
+            element.style.borderColor = color;
+            
+            currentMatchingState.selectedLeft = null;
+            playTone(800, 'sine', 0.05);
+        }
+
         function submitMatchingAnswer() {
             const q = gameQuestions[currentQIndex];
             let allCorrect = true;
             let studentAnswers = [];
             q.pairs.forEach((pair, i) => {
-                let val = document.getElementById(`match-select-${i}`).value;
+                let val = currentMatchingState.matches[pair.left];
                 studentAnswers.push(`${pair.left} -> ${val || '؟'}`);
                 if (val !== pair.right) allCorrect = false;
             });
             processFinalResult(allCorrect, studentAnswers.join(" | "), q.pairs.map(p => `${p.left} -> ${p.right}`).join(" | "));
         }
 
+        // --- دوال السحب والإفلات التفاعلية ---
+        function renderDragItems() {
+            let poolEl = document.getElementById('drag-pool');
+            if(!poolEl) return;
+            poolEl.innerHTML = '';
+            
+            gameQuestions[currentQIndex].zones.forEach((_, zi) => {
+                let zEl = document.getElementById(`drag-zone-items-${zi}`);
+                if(zEl) zEl.innerHTML = '';
+            });
+
+            currentDragState.items.forEach(item => {
+                let btn = document.createElement('button');
+                btn.className = "display-text";
+                btn.innerText = item.text;
+                let isSelected = currentDragState.selectedWordId === item.id;
+                
+                btn.style.padding = "10px 20px";
+                btn.style.borderRadius = "10px";
+                btn.style.border = `2px solid ${isSelected ? 'var(--k-blue)' : '#ccc'}`;
+                btn.style.background = isSelected ? 'var(--k-blue)' : 'white';
+                btn.style.color = isSelected ? 'white' : '#333';
+                btn.style.fontWeight = "bold";
+                btn.style.fontSize = "18px";
+                btn.style.cursor = "pointer";
+                btn.style.transition = "all 0.2s";
+                btn.style.transform = isSelected ? "scale(1.1) translateY(-4px)" : "scale(1)";
+                btn.style.boxShadow = isSelected ? "0 6px 15px rgba(0,0,0,0.2)" : "0 4px 0 #ddd";
+                
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    currentDragState.selectedWordId = (currentDragState.selectedWordId === item.id) ? null : item.id;
+                    renderDragItems();
+                    playTone(700, 'sine', 0.05);
+                };
+
+                if (item.currentZone === 'pool') {
+                    poolEl.appendChild(btn);
+                } else {
+                    let zoneContainer = document.getElementById(`drag-zone-items-${item.currentZone}`);
+                    if(zoneContainer) zoneContainer.appendChild(btn);
+                }
+                
+                if (window.MathLive) MathLive.renderMathInElement(btn);
+            });
+        }
+
+        function moveDragItem(targetZone) {
+            if (currentDragState.selectedWordId !== null) {
+                let item = currentDragState.items.find(i => i.id === currentDragState.selectedWordId);
+                if(item) item.currentZone = targetZone;
+                currentDragState.selectedWordId = null;
+                renderDragItems();
+                playTone(900, 'sine', 0.05);
+            }
+        }
+
         function submitDragDropAnswer() {
             const q = gameQuestions[currentQIndex];
             let allCorrect = true;
             let studentAnswers = [];
-            q.items.forEach((item, i) => {
-                let val = parseInt(document.getElementById(`drag-select-${i}`).value);
-                studentAnswers.push(`${item.text}: ${val !== -1 ? q.zones[val] : '؟'}`);
-                if (val !== item.zoneIndex) allCorrect = false;
+            currentDragState.items.forEach((item) => {
+                let zoneIndex = item.currentZone;
+                studentAnswers.push(`${item.text}: ${zoneIndex !== 'pool' ? q.zones[zoneIndex] : 'لم يصنف'}`);
+                if (zoneIndex !== item.targetZone) allCorrect = false;
             });
             processFinalResult(allCorrect, studentAnswers.join(" | "), q.items.map(it => `${it.text}: ${q.zones[it.zoneIndex]}`).join(" | "));
         }
@@ -1749,7 +1874,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             clearInterval(timerInterval); stopBGM();
             const q = gameQuestions[currentQIndex];
             let maxPoints = q.points || 1000;
-            let basePoints = correct ? Math.round((timeLeft/(q.time || 15))*maxPoints) : 0;
+            let basePoints = correct ? Math.round((timeLeft/(q.time || 60))*maxPoints) : 0;
             let multiplier = 1 + (currentStreak * 0.1);
             let finalPoints = Math.round(basePoints * multiplier);
 
@@ -2062,26 +2187,5 @@ let img=document.getElementById('img-preview-'+id);
 if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 }
 
-
-// MATCH FUNCTIONS
-function selectMatchLeft(el,text){
-document.querySelectorAll('.match-left-item').forEach(e=>e.classList.remove('active-left'));
-el.classList.add('active-left');
-currentMatchingState.selectedLeft=text;
-}
-function selectMatchRight(el,text){
-if(!currentMatchingState.selectedLeft) return;
-currentMatchingState.matches[currentMatchingState.selectedLeft]=text;
-currentMatchingState.selectedLeft=null;
-}
-function submitMatchingAnswer(){console.log(currentMatchingState);}
-
-// DRAG FUNCTIONS
-function moveDragItem(zone){
-if(currentDragState.selectedWordId==null) return;
-let item=currentDragState.items.find(i=>i.id===currentDragState.selectedWordId);
-if(item) item.currentZone=zone;
-currentDragState.selectedWordId=null;
-}
 </script></body>
 </html>
