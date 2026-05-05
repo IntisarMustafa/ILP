@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Ù…Ù†ØµØ© Ø§Ù„ØªØ¹Ù„Ù‘Ù… Ø§Ù„ØªÙØ§Ø¹Ù„ÙŠØ© -Ù„Ø¹Ø¨Ø© Ø§Ù„Ù…Ø³Ø§Ø¨Ù‚Ø©</title>
+<title>منصة التعلّم التفاعلية -لعبة المسابقة</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/mathlive">
 function toggleImageSearch(id){
@@ -15,11 +15,11 @@ async function searchImages(id){
 let q=document.getElementById('search-input-'+id).value;
 let grid=document.getElementById('img-grid-'+id);
 let status=document.getElementById('search-status-'+id);
-grid.innerHTML='';status.innerText='â³...';
+grid.innerHTML='';status.innerText='⏳...';
 try{
 let url=`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=20&prop=imageinfo&iiprop=url&format=json&origin=*`;
 let r=await fetch(url);let d=await r.json();
-if(!d.query){status.innerText='âŒ';return;}
+if(!d.query){status.innerText='❌';return;}
 status.innerText='';
 Object.values(d.query.pages).forEach(p=>{
 let img=document.createElement('img');
@@ -28,7 +28,7 @@ img.className='img-result';
 img.onclick=()=>selectImage(id,img.src);
 grid.appendChild(img);
 });
-}catch(e){status.innerText='âŒ';}
+}catch(e){status.innerText='❌';}
 }
 
 function selectImage(id,url){
@@ -47,7 +47,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 </script>
 <style>
         /* ========================================= */
-        /* Ù…ØªØºÙŠØ±Ø§Øª ÙˆØ£Ù†Ù…Ø§Ø· Ø§Ù„Ù„Ø¹Ø¨Ø© Ø§Ù„Ø£ØµÙ„ÙŠØ©             */
+        /* متغيرات وأنماط اللعبة الأصلية             */
         /* ========================================= */
         :root {
             --primary: #46178f;
@@ -67,7 +67,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
             --k-green: #26890c;
             --k-green-dark: #1e6d0a;
             
-            /* Ù…ØªØºÙŠØ±Ø§Øª Ù„ÙˆØ­Ø© Ø§Ù„Ø±ÙŠØ§Ø¶ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø¨Ø«Ù‚Ø© */
+            /* متغيرات لوحة الرياضيات المنبثقة */
             --word-blue: #2b579a;
             --math-bg: #f3f2f1;
             --key-bg: #ffffff;
@@ -168,7 +168,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
         .opt-row input[type="radio"] { width: 25px; height: 25px; accent-color: var(--success); cursor: pointer; flex-shrink: 0; }
         .remove-q-btn { background: var(--k-red); color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         
-        /* Ø£Ù†Ù…Ø§Ø· Ø¬Ø¯ÙŠØ¯Ø© Ù„Ø£Ù†Ù…Ø§Ø· Ø§Ù„Ø£Ø³Ø¦Ù„Ø© */
+        /* أنماط جديدة لأنماط الأسئلة */
         .type-selector { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
         .type-btn { 
             padding: 8px 15px; border: 2px solid #ddd; border-radius: 20px; 
@@ -339,7 +339,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
         .wrong-ans { color: var(--k-red); font-weight: bold; }
 
         /* ========================================= */
-        /* Ø³ØªØ§ÙŠÙ„ Ù„ÙˆØ­Ø© Ø§Ù„Ø±ÙŠØ§Ø¶ÙŠØ§Øª (Ø§Ù„Ù…Ø­Ø±Ø± Ø§Ù„Ù…Ù†Ø¨Ø«Ù‚)    */
+        /* ستايل لوحة الرياضيات (المحرر المنبثق)    */
         /* ========================================= */
         #math-modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -427,7 +427,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 </style>
 </head>
 <body>
-<button class="mute-btn" id="mute-btn" onclick="toggleMute()">ðŸ”Š</button>
+<button class="mute-btn" id="mute-btn" onclick="toggleMute()">🔊</button>
 <canvas id="confetti-canvas"></canvas>
 <script>
         // --- Define global Iframe callbacks at the top to prevent ReferenceErrors ---
@@ -436,7 +436,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
             if (screen && screen.classList.contains('active')) {
                 const status = document.getElementById('final-status');
                 if (status) {
-                    status.innerText = "ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ù†ØªÙŠØ¬ØªÙƒ Ø¨Ù†Ø¬Ø§Ø­ ÙÙŠ Ù„ÙˆØ­Ø© Ø§Ù„Ø´Ø±Ù! ðŸŒŸ";
+                    status.innerText = "تم تسجيل نتيجتك بنجاح في لوحة الشرف! 🌟";
                     status.style.color = "var(--success)";
                 }
             }
@@ -447,7 +447,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
             if (screen && screen.classList.contains('active')) {
                 const status = document.getElementById('saving-status');
                 if (status) {
-                    status.innerText = "âœ… ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø£Ø³Ø¦Ù„Ø© Ø¨Ù†Ø¬Ø§Ø­! ÙŠÙ…ÙƒÙ† Ù„Ù„Ø·Ù„Ø§Ø¨ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ø§Ù„Ø¢Ù†.";
+                    status.innerText = "✅ تم حفظ الأسئلة بنجاح! يمكن للطلاب الدخول الآن.";
                     status.style.color = "var(--success)";
                 }
             }
@@ -462,11 +462,11 @@ async function searchImages(id){
 let q=document.getElementById('search-input-'+id).value;
 let grid=document.getElementById('img-grid-'+id);
 let status=document.getElementById('search-status-'+id);
-grid.innerHTML='';status.innerText='â³...';
+grid.innerHTML='';status.innerText='⏳...';
 try{
 let url=`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=20&prop=imageinfo&iiprop=url&format=json&origin=*`;
 let r=await fetch(url);let d=await r.json();
-if(!d.query){status.innerText='âŒ';return;}
+if(!d.query){status.innerText='❌';return;}
 status.innerText='';
 Object.values(d.query.pages).forEach(p=>{
 let img=document.createElement('img');
@@ -475,7 +475,7 @@ img.className='img-result';
 img.onclick=()=>selectImage(id,img.src);
 grid.appendChild(img);
 });
-}catch(e){status.innerText='âŒ';}
+}catch(e){status.innerText='❌';}
 }
 
 function selectImage(id,url){
@@ -494,74 +494,74 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 </script>
 <div id="screen-loading-sheet">
 <div class="loader-spinner"></div>
-<div style="font-size: 28px; font-weight: bold; margin-top: 20px;" id="loading-text">Ø¬Ø§Ø±ÙŠ Ø¬Ù„Ø¨ Ø£Ø³Ø¦Ù„Ø© Ø§Ù„ØªØ­Ø¯ÙŠ Ù…Ù† Ø§Ù„Ù…Ø¹Ù„Ù…...</div>
+<div style="font-size: 28px; font-weight: bold; margin-top: 20px;" id="loading-text">جاري جلب أسئلة التحدي من المعلم...</div>
 </div>
 <div id="screen-countdown">
-<div id="countdown-text">Ø§Ø³ØªØ¹Ø¯!</div>
+<div id="countdown-text">استعد!</div>
 <div id="countdown-number">3</div>
 </div>
 <div class="screen active" id="screen-home">
 <div class="card">
-<h1>ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±</h1>
-<p style="margin-bottom: 25px; font-size: 18px; color: #555;">Ù‡Ù„ Ø£Ù†Øª Ù…Ø³ØªØ¹Ø¯ Ù„Ø§Ø®ØªØ¨Ø§Ø± Ù…Ø¹Ù„ÙˆÙ…Ø§ØªÙƒ ÙˆØªØ¬Ø§ÙˆØ² Ø§Ù„ØªØ­Ø¯ÙŠØ§ØªØŸ</p>
-<button class="btn btn-teacher" onclick="openTeacherSetup()">ðŸ‘¨â€ðŸ« Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø³Ø§Ø¨Ù‚Ø© (Ù„Ù„Ù…Ø¹Ù„Ù…)</button>
-<button class="btn btn-student" onclick="goToStudentLogin()">ðŸ§‘â€ðŸŽ“ Ø§Ù„Ø§Ù†Ø¶Ù…Ø§Ù… Ù„ØªØ­Ø¯ÙŠ (Ù„Ù„Ø·Ø§Ù„Ø¨)</button>
-<button class="btn btn-action" onclick="showScreen('screen-standalone-leaderboard')" style="margin-top: 15px; background-color: var(--success); color: white; box-shadow: 0 6px 0 var(--k-green-dark);">ðŸ† Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ù„ÙˆØ­Ø© ØµØ¯Ø§Ø±Ø© Ø³Ø§Ø¨Ù‚Ø©</button>
+<h1>🎮 التحدي الأكبر</h1>
+<p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
+<button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
+<button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
+<button class="btn btn-action" onclick="showScreen('screen-standalone-leaderboard')" style="margin-top: 15px; background-color: var(--success); color: white; box-shadow: 0 6px 0 var(--k-green-dark);">🏆 البحث عن لوحة صدارة سابقة</button>
 </div>
 </div>
 <div class="screen" id="screen-teacher-setup">
 <div class="q-builder-container">
-<h2 style="text-align: center; color: var(--primary);">ðŸ“ Ø¥Ø¹Ø¯Ø§Ø¯ Ø£Ø³Ø¦Ù„Ø© Ø§Ù„ØªØ­Ø¯ÙŠ</h2>
+<h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
 
-<!-- Ø£Ø²Ø±Ø§Ø± Ø§Ù„ØªÙ†Ù‚Ù„ Ø¨ÙŠÙ† Ø§Ù„Ø£Ù‚Ø³Ø§Ù… -->
+<!-- أزرار التنقل بين الأقسام -->
 <div style="display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap;">
-    <button id="nav-btn-recover" class="btn" onclick="showTeacherSection('recover')" style="flex:1; padding:13px; font-size:15px; background:var(--k-green); box-shadow:0 6px 0 var(--k-green-dark); margin-bottom:0; color:white;">ðŸ”„ Ø§Ø³ØªØ±Ø¯Ø§Ø¯ ØºØ±ÙØ© Ø³Ø§Ø¨Ù‚Ø©</button>
-    <button id="nav-btn-new" class="btn" onclick="showTeacherSection('new')" style="flex:1; padding:13px; font-size:15px; background:var(--primary); box-shadow:0 6px 0 var(--primary-dark); margin-bottom:0; color:white;">âœ¨ Ø¥Ù†Ø´Ø§Ø¡ Ø£Ø³Ø¦Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø©</button>
-    <button id="nav-btn-import" class="btn" onclick="showTeacherSection('import')" style="flex:1; padding:13px; font-size:15px; background:var(--info); box-shadow:0 6px 0 var(--k-blue-dark); margin-bottom:0; color:white;">âš¡ Ø§Ø³ØªÙŠØ±Ø§Ø¯ ÙƒÙˆØ¯ Ø¬Ø§Ù‡Ø²</button>
+    <button id="nav-btn-recover" class="btn" onclick="showTeacherSection('recover')" style="flex:1; padding:13px; font-size:15px; background:var(--k-green); box-shadow:0 6px 0 var(--k-green-dark); margin-bottom:0; color:white;">🔄 استرداد غرفة سابقة</button>
+    <button id="nav-btn-new" class="btn" onclick="showTeacherSection('new')" style="flex:1; padding:13px; font-size:15px; background:var(--primary); box-shadow:0 6px 0 var(--primary-dark); margin-bottom:0; color:white;">✨ إنشاء أسئلة جديدة</button>
+    <button id="nav-btn-import" class="btn" onclick="showTeacherSection('import')" style="flex:1; padding:13px; font-size:15px; background:var(--info); box-shadow:0 6px 0 var(--k-blue-dark); margin-bottom:0; color:white;">⚡ استيراد كود جاهز</button>
 </div>
 
-<!-- Ù‚Ø³Ù…: Ø§Ø³ØªØ±Ø¯Ø§Ø¯ ØºØ±ÙØ© Ø³Ø§Ø¨Ù‚Ø© -->
+<!-- قسم: استرداد غرفة سابقة -->
 <div id="section-teacher-recover" style="display:none;">
 <div style="background: #f3f2f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed #ccc;">
-    <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">ðŸ”„ Ø§Ø³ØªØ±Ø¯Ø§Ø¯ ØºØ±ÙØ© Ø³Ø§Ø¨Ù‚Ø©</h3>
+    <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استرداد غرفة سابقة</h3>
     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <input type="number" id="existing-room-pin" placeholder="Ø£Ø¯Ø®Ù„ Ø±Ù‚Ù… Ø§Ù„ØºØ±ÙØ© Ø§Ù„Ù…Ø­ÙÙˆØ¸Ø© (PIN)" style="margin-bottom: 0; flex: 2; min-width: 200px;">
-        <button class="btn btn-action" onclick="loadExistingRoom()" style="margin-bottom: 0; flex: 1; padding: 18px; min-width: 150px;">ÙØªØ­ Ø§Ù„ØºØ±ÙØ©</button>
+        <input type="number" id="existing-room-pin" placeholder="أدخل رقم الغرفة المحفوظة (PIN)" style="margin-bottom: 0; flex: 2; min-width: 200px;">
+        <button class="btn btn-action" onclick="loadExistingRoom()" style="margin-bottom: 0; flex: 1; padding: 18px; min-width: 150px;">فتح الغرفة</button>
     </div>
 </div>
-<button class="btn btn-back" onclick="showScreen('screen-home')">Ø¥Ù„ØºØ§Ø¡</button>
+<button class="btn btn-back" onclick="showScreen('screen-home')">إلغاء</button>
 </div>
 
-<!-- Ù‚Ø³Ù…: Ø¥Ù†Ø´Ø§Ø¡ Ø£Ø³Ø¦Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø© -->
+<!-- قسم: إنشاء أسئلة جديدة -->
 <div id="section-teacher-new" style="display:none;">
-<input type="text" id="quiz-title-input" placeholder="ðŸ“Œ Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù…Ø³Ø§Ø¨Ù‚Ø©..." style="width:100%;padding:15px;margin-bottom:20px;text-align:center;font-weight:bold;border:2px solid #ccc;border-radius:10px;">
-<h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">âœ¨ Ø¥Ù†Ø´Ø§Ø¡ Ø£Ø³Ø¦Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø©</h3>
-<p style="text-align: center; margin-bottom: 20px; color: #666;">Ù‚Ù… Ø¨Ø¥Ø¯Ø®Ø§Ù„ Ø£Ø³Ø¦Ù„ØªÙƒØŒ Ø­Ø¯Ø¯ Ø§Ù„Ø®ÙŠØ§Ø±Ø§ØªØŒ ÙˆØ§Ø®ØªØ± Ø§Ù„Ø¥Ø¬Ø§Ø¨Ø© Ø§Ù„ØµØ­ÙŠØ­Ø© Ù„ÙƒÙ„ Ø³Ø¤Ø§Ù„. (Ø§Ø³ØªØ®Ø¯Ù… Ø²Ø± ðŸ§® Ù„ÙƒØªØ§Ø¨Ø© Ø§Ù„Ù…Ø¹Ø§Ø¯Ù„Ø§Øª)</p>
+<input type="text" id="quiz-title-input" placeholder="📌 عنوان المسابقة..." style="width:100%;padding:15px;margin-bottom:20px;text-align:center;font-weight:bold;border:2px solid #ccc;border-radius:10px;">
+<h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ إنشاء أسئلة جديدة</h3>
+<p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
 <div id="questions-list"></div>
-<button class="btn btn-action" onclick="addQuestionBlock()">+ Ø¥Ø¶Ø§ÙØ© Ø³Ø¤Ø§Ù„ Ø¬Ø¯ÙŠØ¯</button>
+<button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
 <div style="margin-top: 30px; display: flex; gap: 10px;">
-<button class="btn btn-primary" onclick="saveQuestionsToSheet()" style="flex: 2;">ðŸ’¾ Ø­ÙØ¸ ÙˆØ¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØºØ±ÙØ©</button>
-<button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">Ø¥Ù„ØºØ§Ø¡</button>
+<button class="btn btn-primary" onclick="saveQuestionsToSheet()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
+<button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">إلغاء</button>
 </div>
 </div>
 
-<!-- Ù‚Ø³Ù…: Ø§Ø³ØªÙŠØ±Ø§Ø¯ ÙƒÙˆØ¯ Ø¬Ø§Ù‡Ø² -->
+<!-- قسم: استيراد كود جاهز -->
 <div id="section-teacher-import" style="display:none;">
 <div style="background: #e9ecef; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed #adb5bd;">
-    <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 20px;">âš¡ Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø³Ø±ÙŠØ¹ (Ù„Ù„Ù…Ø­ØªØ±ÙÙŠÙ†)</h3>
-    <p style="color: #555; margin-bottom: 15px; font-size: 14px; text-align: right;">Ø£Ù„ØµÙ‚ Ù…ØµÙÙˆÙØ© Ø§Ù„Ø£Ø³Ø¦Ù„Ø© Ø¨ØµÙŠØºØ© JSON Ù‡Ù†Ø§ Ù„Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØºØ±ÙØ© Ø¯ÙØ¹Ø© ÙˆØ§Ø­Ø¯Ø©.</p>
+    <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 20px;">⚡ استيراد سريع (للمحترفين)</h3>
+    <p style="color: #555; margin-bottom: 15px; font-size: 14px; text-align: right;">ألصق مصفوفة الأسئلة بصيغة JSON هنا لإنشاء الغرفة دفعة واحدة.</p>
     <textarea id="json-import-area" rows="5" style="width: 100%; padding: 15px; border-radius: 8px; border: 2px solid #ccc; font-family: monospace; font-size: 16px; direction: ltr; text-align: left; resize: vertical;" placeholder='[
   {
-    "q": "Ø§ÙƒØªØ¨ Ø§Ù„Ø³Ø¤Ø§Ù„ Ù‡Ù†Ø§ØŸ",
-    "opts": ["Ø®ÙŠØ§Ø± 1", "Ø®ÙŠØ§Ø± 2", "Ø®ÙŠØ§Ø± 3", "Ø®ÙŠØ§Ø± 4"],
+    "q": "اكتب السؤال هنا؟",
+    "opts": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
     "ans": 0,
     "time": 30
   }
 ]'></textarea>
-    <button class="btn btn-action" onclick="importQuestionsFromJSON()" style="margin-top: 15px; background-color: var(--info); color: white; box-shadow: 0 6px 0 var(--k-blue-dark);">ðŸš€ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØºØ±ÙØ© Ù…Ù† Ø§Ù„ÙƒÙˆØ¯</button>
+    <button class="btn btn-action" onclick="importQuestionsFromJSON()" style="margin-top: 15px; background-color: var(--info); color: white; box-shadow: 0 6px 0 var(--k-blue-dark);">🚀 إنشاء الغرفة من الكود</button>
     <p id="json-error-msg" style="color: var(--k-red); font-weight: bold; margin-top: 15px; display: none; text-align: center;"></p>
 </div>
-<button class="btn btn-back" onclick="showScreen('screen-home')">Ø¥Ù„ØºØ§Ø¡</button>
+<button class="btn btn-back" onclick="showScreen('screen-home')">إلغاء</button>
 </div>
 
 </div>
@@ -569,37 +569,37 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <div class="screen" id="screen-teacher">
 <div style="width: 100%; text-align: center;">
 <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
-<h2>Ø§Ù†Ø¶Ù…ÙˆØ§ Ø§Ù„Ø¢Ù†! Ø±Ù…Ø² Ø§Ù„ØºØ±ÙØ©:</h2>
+<h2>انضموا الآن! رمز الغرفة:</h2>
 <div class="room-pin" id="display-room-pin">000000</div>
-<p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">â³ Ø¬Ø§Ø±ÙŠ ØªØ®Ø²ÙŠÙ† Ø§Ù„Ø£Ø³Ø¦Ù„Ø© ÙÙŠ Ø§Ù„Ù†Ø¸Ø§Ù… Ø§Ù„Ù…ÙˆØ­Ø¯...</p>
+<p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام الموحد...</p>
 <div id="qr-container" style="margin: 20px 0;">
-<img alt="QR Code Ù„Ù„ØºØ±ÙØ©" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
-<p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">Ø§Ù…Ø³Ø­ Ø§Ù„Ø±Ù…Ø² Ø¹Ø¨Ø± ÙƒØ§Ù…ÙŠØ±Ø§ Ø§Ù„Ù‡Ø§ØªÙ</p>
+<img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
+<p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
 </div>
 <div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
 <input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
-<button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">Ù†Ø³Ø® Ø§Ù„Ø±Ø§Ø¨Ø·</button>
+<button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
 </div>
 </div>
 <table id="leaderboard" style="display: none;">
-<thead><tr><th>Ø§Ù„Ù…Ø±ÙƒØ²</th><th>Ø§Ù„Ø¨Ø·Ù„ Ø§Ù„Ù…ØªÙ…ÙŠØ²</th><th>Ø§Ù„Ù†Ù‚Ø§Ø·</th></tr></thead>
+<thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
 <tbody id="leaderboard-body"></tbody>
 </table>
 <div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
-                â³ Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø¯Ø®ÙˆÙ„ Ø§Ù„Ø£Ø¨Ø·Ø§Ù„ ÙˆØ­Ù„ Ø§Ù„Ø£Ø³Ø¦Ù„Ø©...
+                ⏳ بانتظار دخول الأبطال وحل الأسئلة...
             </div>
-<button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">Ø¥ØºÙ„Ø§Ù‚ Ø§Ù„ØºØ±ÙØ©</button>
+<button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
 </div>
 </div>
 <div class="screen" id="screen-student-login">
 <div class="card">
-<h2>Ø£Ø¯Ø®Ù„ Ø¨ÙŠØ§Ù†Ø§ØªÙƒ Ù„Ù„Ø§Ù†Ø·Ù„Ø§Ù‚ ðŸš€</h2>
-<input id="input-room-pin" placeholder="Ø£Ø¯Ø®Ù„ Ø±Ù‚Ù… Ø§Ù„ØºØ±ÙØ© (PIN)" type="number"/>
-<input id="input-student-name" placeholder="Ù…Ø§ Ù‡Ùˆ Ø§Ø³Ù…Ùƒ Ø§Ù„Ù…Ø³ØªØ¹Ø§Ø±ØŸ" type="text"/>
-<p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">Ø§Ø®ØªØ± ØµÙˆØ±ØªÙƒ Ø§Ù„Ø±Ù…Ø²ÙŠØ©:</p>
+<h2>أدخل بياناتك للانطلاق 🚀</h2>
+<input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
+<input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
+<p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
 <div class="avatar-grid" id="avatar-container"></div>
-<button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">Ø§Ø¨Ø¯Ø£ Ø§Ù„Ù„Ø¹Ø¨ Ø§Ù„Ø¢Ù†!</button>
-<button class="btn btn-back" onclick="showScreen('screen-home')">Ø±Ø¬ÙˆØ¹</button>
+<button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
+<button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
 </div>
 </div>
 <div class="screen" id="screen-student-game" style="max-width: 1000px;">
@@ -608,21 +608,21 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <span id="player-avatar-display" style="font-size: 35px;"></span>
 <span id="player-name-display"></span>
 </div>
-<div class="streak-badge" id="streak-badge">ðŸ”¥ <span id="streak-count">2</span> Ù…ØªØªØ§Ù„ÙŠ!</div>
-<div class="score-badge">Ø§Ù„Ù†Ù‚Ø§Ø·: <span id="score-display">0</span></div>
+<div class="streak-badge" id="streak-badge">🔥 <span id="streak-count">2</span> متتالي!</div>
+<div class="score-badge">النقاط: <span id="score-display">0</span></div>
 </div>
 <div id="quiz-title-display" style="text-align:center;font-size:26px;font-weight:900;color:white;margin-bottom:10px;"></div>
 <div class="timer-container"><div class="timer-bar" id="timer-bar"></div></div>
-<button class="powerup-btn" id="powerup-5050" onclick="use5050()">ðŸ’¡ Ù…Ø³Ø§Ø¹Ø¯Ø© 50/50 (Ø§Ø³ØªØ®Ø¯Ø§Ù… ÙˆØ§Ø­Ø¯)</button>
+<button class="powerup-btn" id="powerup-5050" onclick="use5050()">💡 مساعدة 50/50 (استخدام واحد)</button>
 
 <div id="question-counter" style="text-align: center; font-size: 18px; font-weight: bold; color: var(--white); background-color: var(--primary); padding: 5px 20px; border-radius: 20px; width: fit-content; margin: 0 auto 15px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: background-color 0.3s;"></div>
 
 <div class="question-box display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div>
 <div class="answers-grid">
-<button class="ans-btn bg-red" id="btn-ans-0" onclick="submitAnswer(0)"><span class="ans-icon">â–²</span> <span class="display-text" id="ans-text-0" style="direction: rtl;"></span></button>
-<button class="ans-btn bg-blue" id="btn-ans-1" onclick="submitAnswer(1)"><span class="ans-icon">â—†</span> <span class="display-text" id="ans-text-1" style="direction: rtl;"></span></button>
-<button class="ans-btn bg-yellow" id="btn-ans-2" onclick="submitAnswer(2)"><span class="ans-icon">â—</span> <span class="display-text" id="ans-text-2" style="direction: rtl;"></span></button>
-<button class="ans-btn bg-green" id="btn-ans-3" onclick="submitAnswer(3)"><span class="ans-icon">â– </span> <span class="display-text" id="ans-text-3" style="direction: rtl;"></span></button>
+<button class="ans-btn bg-red" id="btn-ans-0" onclick="submitAnswer(0)"><span class="ans-icon">▲</span> <span class="display-text" id="ans-text-0" style="direction: rtl;"></span></button>
+<button class="ans-btn bg-blue" id="btn-ans-1" onclick="submitAnswer(1)"><span class="ans-icon">◆</span> <span class="display-text" id="ans-text-1" style="direction: rtl;"></span></button>
+<button class="ans-btn bg-yellow" id="btn-ans-2" onclick="submitAnswer(2)"><span class="ans-icon">●</span> <span class="display-text" id="ans-text-2" style="direction: rtl;"></span></button>
+<button class="ans-btn bg-green" id="btn-ans-3" onclick="submitAnswer(3)"><span class="ans-icon">■</span> <span class="display-text" id="ans-text-3" style="direction: rtl;"></span></button>
 </div>
 </div>
 <div id="feedback-overlay">
@@ -634,50 +634,50 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <div class="card" style="padding: 50px 30px; max-width: 650px;">
 <h2 id="final-avatar" style="font-size: 100px; margin-bottom: 10px; animation: bounceIn 1s;"></h2>
 <h2 id="final-player-name" style="font-size: 35px;"></h2>
-<p style="color: #666; font-size: 22px; font-weight: bold; margin-top: 10px;">Ù†Ù‡Ø§ÙŠØ© Ø§Ù„ØªØ­Ø¯ÙŠØŒ Ø±ØµÙŠØ¯Ùƒ Ù‡Ùˆ:</p>
+<p style="color: #666; font-size: 22px; font-weight: bold; margin-top: 10px;">نهاية التحدي، رصيدك هو:</p>
 <h1 id="final-score-display" style="font-size: 90px; color: var(--primary); margin: 10px 0; text-shadow: 3px 3px 0px rgba(0,0,0,0.1);">0</h1>
-<p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--info);">Ø¬Ø§Ø±ÙŠ Ø­ÙØ¸ Ø§Ù„Ù†ØªÙŠØ¬Ø©...</p>
-<button class="btn btn-action" onclick="toggleReview()">ðŸ“ Ù…Ø±Ø§Ø¬Ø¹Ø© Ø¥Ø¬Ø§Ø¨Ø§ØªÙŠ</button>
-<button class="btn btn-action" onclick="viewCurrentRoomLeaderboard()" style="font-size: 22px; margin-top:15px; background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark);">ðŸ† Ø¹Ø±Ø¶ Ù„ÙˆØ­Ø© Ø§Ù„ØµØ¯Ø§Ø±Ø©</button>
+<p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--info);">جاري حفظ النتيجة...</p>
+<button class="btn btn-action" onclick="toggleReview()">📝 مراجعة إجاباتي</button>
+<button class="btn btn-action" onclick="viewCurrentRoomLeaderboard()" style="font-size: 22px; margin-top:15px; background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark);">🏆 عرض لوحة الصدارة</button>
 <div id="review-container"></div>
-<button class="btn btn-primary" onclick="window.location.href = window.location.href.split('?')[0]" style="font-size: 22px; margin-top:15px;">Ø§Ù„Ø¹Ø¨ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰</button>
+<button class="btn btn-primary" onclick="window.location.href = window.location.href.split('?')[0]" style="font-size: 22px; margin-top:15px;">العب مرة أخرى</button>
 </div>
 </div>
 <div class="screen" id="screen-standalone-leaderboard">
     <div class="card" style="max-width: 800px; width: 100%;">
-        <h2>ðŸ† Ù„ÙˆØ­Ø© Ø§Ù„ØµØ¯Ø§Ø±Ø©</h2>
-        <p style="margin-bottom: 20px; color: #666;">Ø£Ø¯Ø®Ù„ Ø±Ù‚Ù… Ø§Ù„ØºØ±ÙØ© (PIN) Ù„Ø¹Ø±Ø¶ ØªØ±ØªÙŠØ¨ Ø§Ù„Ø£Ø¨Ø·Ø§Ù„</p>
+        <h2>🏆 لوحة الصدارة</h2>
+        <p style="margin-bottom: 20px; color: #666;">أدخل رقم الغرفة (PIN) لعرض ترتيب الأبطال</p>
 
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <input type="number" id="search-leaderboard-pin" placeholder="Ø£Ø¯Ø®Ù„ Ø±Ù‚Ù… Ø§Ù„ØºØ±ÙØ©..." style="margin-bottom: 0; flex: 2;">
-            <button class="btn btn-action" onclick="searchStandaloneLeaderboard()" style="margin-bottom: 0; flex: 1;">Ø¨Ø­Ø«</button>
+            <input type="number" id="search-leaderboard-pin" placeholder="أدخل رقم الغرفة..." style="margin-bottom: 0; flex: 2;">
+            <button class="btn btn-action" onclick="searchStandaloneLeaderboard()" style="margin-bottom: 0; flex: 1;">بحث</button>
         </div>
 
         <table id="standalone-leaderboard-table" style="display: none;">
-            <thead><tr><th>Ø§Ù„Ù…Ø±ÙƒØ²</th><th>Ø§Ù„Ø¨Ø·Ù„ Ø§Ù„Ù…ØªÙ…ÙŠØ²</th><th>Ø§Ù„Ù†Ù‚Ø§Ø·</th></tr></thead>
+            <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
             <tbody id="standalone-leaderboard-body"></tbody>
         </table>
 
         <div id="standalone-loading-board" style="display:none; font-size: 18px; font-weight: bold; color: var(--primary);">
-            â³ Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª...
+            ⏳ جاري البحث عن البيانات...
         </div>
 
-        <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top: 25px;">Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</button>
+        <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top: 25px;">العودة للرئيسية</button>
     </div>
 </div>
 <div id="math-modal-overlay">
 <div class="math-modal-content">
 <div class="math-header">
-<span>ðŸ“ Ù…Ø­Ø±Ø± Ø§Ù„Ø±ÙŠØ§Ø¶ÙŠØ§Øª Ø§Ù„Ø´Ø§Ù…Ù„</span>
-<button class="math-close-btn" onclick="closeMathModal()">âœ“ Ø¥Ø¯Ø±Ø§Ø¬ ÙˆØ­ÙØ¸</button>
+<span>📝 محرر الرياضيات الشامل</span>
+<button class="math-close-btn" onclick="closeMathModal()">✓ إدراج وحفظ</button>
 </div>
 <div class="math-editor-container">
 <math-field id="formula" virtual-keyboard-policy="manual"></math-field>
 </div>
 <div class="math-keyboard-wrapper">
 <div class="math-keyboard-tabs">
-<div class="math-tab active" onclick="showMathTab('math_combined', event)">Ø§Ù„Ø£Ø±Ù‚Ø§Ù… ÙˆØ§Ù„Ø±Ù…ÙˆØ²</div>
-<div class="math-tab" onclick="showMathTab('letters', event)">Ø¹Ø±Ø¨ÙŠ</div>
+<div class="math-tab active" onclick="showMathTab('math_combined', event)">الأرقام والرموز</div>
+<div class="math-tab" onclick="showMathTab('letters', event)">عربي</div>
 <div class="math-tab" onclick="showMathTab('english', event)">English</div>
 </div>
 <div class="custom-keyboard active" id="math_combined">
@@ -696,31 +696,31 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <div class="kb-row">
 <button class="key action" onpointerdown="addMath('+', event)">+</button>
 <button class="key action" onpointerdown="addMath('-', event)">-</button>
-<button class="key action" onpointerdown="addMath('\\times', event)">Ã—</button>
-<button class="key action" onpointerdown="addMath('\\div', event)">Ã·</button>
+<button class="key action" onpointerdown="addMath('\\times', event)">×</button>
+<button class="key action" onpointerdown="addMath('\\div', event)">÷</button>
 <button class="key action" onpointerdown="addMath('=', event)">=</button>
 <button class="key" onpointerdown="addMath('.', event)">.</button>
 <button class="key" onpointerdown="insertMathCode('&lt;', event)">&lt;</button>
 <button class="key" onpointerdown="insertMathCode('&gt;', event)">&gt;</button>
-<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">âŒ« Ø­Ø°Ù</button>
+<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
 </div>
 <div class="kb-row">
 <button class="key" onpointerdown="insertMathCode('\\frac{#@}{#?}', event)"><span class="math-icon frac-icon"><span>a</span><span class="line"></span><span>b</span></span></button>
 <button class="key" onpointerdown="insertMathCode('^{#?}', event)"><span class="math-icon">x<sup style="font-size:0.7em;">n</sup></span></button>
-<button class="key" onpointerdown="insertMathCode('\\sqrt{#?}', event)"><span class="math-icon root-icon"><span>âˆš</span><span class="radicand">x</span></span></button>
-<button class="key" onpointerdown="insertMathCode('\\sqrt[#?]{#?}', event)"><span class="math-icon root-icon"><sup style="font-size:0.5em; font-style:normal;">n</sup><span>âˆš</span><span class="radicand">x</span></span></button>
-<button class="key" onpointerdown="insertMathCode('\\le', event)">â‰¤</button>
-<button class="key" onpointerdown="insertMathCode('\\ge', event)">â‰¥</button>
-<button class="key" onpointerdown="insertMathCode('\\neq', event)">â‰ </button>
-<button class="key" onpointerdown="insertMathCode('\\approx', event)">â‰ˆ</button>
+<button class="key" onpointerdown="insertMathCode('\\sqrt{#?}', event)"><span class="math-icon root-icon"><span>√</span><span class="radicand">x</span></span></button>
+<button class="key" onpointerdown="insertMathCode('\\sqrt[#?]{#?}', event)"><span class="math-icon root-icon"><sup style="font-size:0.5em; font-style:normal;">n</sup><span>√</span><span class="radicand">x</span></span></button>
+<button class="key" onpointerdown="insertMathCode('\\le', event)">≤</button>
+<button class="key" onpointerdown="insertMathCode('\\ge', event)">≥</button>
+<button class="key" onpointerdown="insertMathCode('\\neq', event)">≠</button>
+<button class="key" onpointerdown="insertMathCode('\\approx', event)">≈</button>
 </div>
 <div class="kb-row">
-<button class="key" onpointerdown="insertMathCode('^\\circ', event)">Â°</button>
-<button class="key" onpointerdown="insertMathCode('\\angle', event)">âˆ </button>
-<button class="key" onpointerdown="insertMathCode('\\pi', event)">Ï€</button>
-<button class="key" onpointerdown="insertMathCode('\\infty', event)">âˆž</button>
-<button class="key" onpointerdown="insertMathCode('\\Delta', event)">Î”</button>
-<button class="key" onpointerdown="insertMathCode('\\pm', event)">Â±</button>
+<button class="key" onpointerdown="insertMathCode('^\\circ', event)">°</button>
+<button class="key" onpointerdown="insertMathCode('\\angle', event)">∠</button>
+<button class="key" onpointerdown="insertMathCode('\\pi', event)">π</button>
+<button class="key" onpointerdown="insertMathCode('\\infty', event)">∞</button>
+<button class="key" onpointerdown="insertMathCode('\\Delta', event)">Δ</button>
+<button class="key" onpointerdown="insertMathCode('\\pm', event)">±</button>
 <button class="key" onpointerdown="insertMathCode('\\{', event)">{</button>
 <button class="key" onpointerdown="insertMathCode('\\}', event)">}</button>
 <button class="key" onpointerdown="insertMathCode('(', event)">(</button>
@@ -730,60 +730,60 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <button class="key" onpointerdown="insertMathCode('\\sin', event)">sin</button>
 <button class="key" onpointerdown="insertMathCode('\\cos', event)">cos</button>
 <button class="key" onpointerdown="insertMathCode('\\tan', event)">tan</button>
-<button class="key" onpointerdown="insertMathCode('\\theta', event)">Î¸</button>
-<button class="key" onpointerdown="insertMathCode('\\alpha', event)">Î±</button>
-<button class="key" onpointerdown="insertMathCode('\\int', event)">âˆ«</button>
-<button class="key" onpointerdown="insertMathCode('\\sum', event)">Î£</button>
-<button class="key space" onpointerdown="addMathSpace(event)">Ù…Ø³Ø§ÙØ©</button>
+<button class="key" onpointerdown="insertMathCode('\\theta', event)">θ</button>
+<button class="key" onpointerdown="insertMathCode('\\alpha', event)">α</button>
+<button class="key" onpointerdown="insertMathCode('\\int', event)">∫</button>
+<button class="key" onpointerdown="insertMathCode('\\sum', event)">Σ</button>
+<button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
 </div>
 </div>
 <div class="custom-keyboard" id="letters">
 <div class="kb-row">
-<button class="key" onpointerdown="addMath('Ø¶', event)">Ø¶</button>
-<button class="key" onpointerdown="addMath('Øµ', event)">Øµ</button>
-<button class="key" onpointerdown="addMath('Ø«', event)">Ø«</button>
-<button class="key" onpointerdown="addMath('Ù‚', event)">Ù‚</button>
-<button class="key" onpointerdown="addMath('Ù', event)">Ù</button>
-<button class="key" onpointerdown="addMath('Øº', event)">Øº</button>
-<button class="key" onpointerdown="addMath('Ø¹', event)">Ø¹</button>
-<button class="key" onpointerdown="addMath('Ù‡', event)">Ù‡</button>
-<button class="key" onpointerdown="addMath('Ø®', event)">Ø®</button>
-<button class="key" onpointerdown="addMath('Ø­', event)">Ø­</button>
-<button class="key" onpointerdown="addMath('Ø¬', event)">Ø¬</button>
+<button class="key" onpointerdown="addMath('ض', event)">ض</button>
+<button class="key" onpointerdown="addMath('ص', event)">ص</button>
+<button class="key" onpointerdown="addMath('ث', event)">ث</button>
+<button class="key" onpointerdown="addMath('ق', event)">ق</button>
+<button class="key" onpointerdown="addMath('ف', event)">ف</button>
+<button class="key" onpointerdown="addMath('غ', event)">غ</button>
+<button class="key" onpointerdown="addMath('ع', event)">ع</button>
+<button class="key" onpointerdown="addMath('ه', event)">ه</button>
+<button class="key" onpointerdown="addMath('خ', event)">خ</button>
+<button class="key" onpointerdown="addMath('ح', event)">ح</button>
+<button class="key" onpointerdown="addMath('ج', event)">ج</button>
 </div>
 <div class="kb-row">
-<button class="key" onpointerdown="addMath('Ø´', event)">Ø´</button>
-<button class="key" onpointerdown="addMath('Ø³', event)">Ø³</button>
-<button class="key" onpointerdown="addMath('ÙŠ', event)">ÙŠ</button>
-<button class="key" onpointerdown="addMath('Ø¨', event)">Ø¨</button>
-<button class="key" onpointerdown="addMath('Ù„', event)">Ù„</button>
-<button class="key" onpointerdown="addMath('Ø§', event)">Ø§</button>
-<button class="key" onpointerdown="addMath('Øª', event)">Øª</button>
-<button class="key" onpointerdown="addMath('Ù†', event)">Ù†</button>
-<button class="key" onpointerdown="addMath('Ù…', event)">Ù…</button>
-<button class="key" onpointerdown="addMath('Ùƒ', event)">Ùƒ</button>
-<button class="key" onpointerdown="addMath('Ø·', event)">Ø·</button>
+<button class="key" onpointerdown="addMath('ش', event)">ش</button>
+<button class="key" onpointerdown="addMath('س', event)">س</button>
+<button class="key" onpointerdown="addMath('ي', event)">ي</button>
+<button class="key" onpointerdown="addMath('ب', event)">ب</button>
+<button class="key" onpointerdown="addMath('ل', event)">ل</button>
+<button class="key" onpointerdown="addMath('ا', event)">ا</button>
+<button class="key" onpointerdown="addMath('ت', event)">ت</button>
+<button class="key" onpointerdown="addMath('ن', event)">ن</button>
+<button class="key" onpointerdown="addMath('م', event)">م</button>
+<button class="key" onpointerdown="addMath('ك', event)">ك</button>
+<button class="key" onpointerdown="addMath('ط', event)">ط</button>
 </div>
 <div class="kb-row">
-<button class="key" onpointerdown="addMath('Ø¦', event)">Ø¦</button>
-<button class="key" onpointerdown="addMath('Ø¡', event)">Ø¡</button>
-<button class="key" onpointerdown="addMath('Ø¤', event)">Ø¤</button>
-<button class="key" onpointerdown="addMath('Ø±', event)">Ø±</button>
-<button class="key" onpointerdown="addMath('Ù‰', event)">Ù‰</button>
-<button class="key" onpointerdown="addMath('Ø©', event)">Ø©</button>
-<button class="key" onpointerdown="addMath('Ùˆ', event)">Ùˆ</button>
-<button class="key" onpointerdown="addMath('Ø²', event)">Ø²</button>
-<button class="key" onpointerdown="addMath('Ø¸', event)">Ø¸</button>
-<button class="key" onpointerdown="addMath('Ø¯', event)">Ø¯</button>
-<button class="key" onpointerdown="addMath('Ø°', event)">Ø°</button>
+<button class="key" onpointerdown="addMath('ئ', event)">ئ</button>
+<button class="key" onpointerdown="addMath('ء', event)">ء</button>
+<button class="key" onpointerdown="addMath('ؤ', event)">ؤ</button>
+<button class="key" onpointerdown="addMath('ر', event)">ر</button>
+<button class="key" onpointerdown="addMath('ى', event)">ى</button>
+<button class="key" onpointerdown="addMath('ة', event)">ة</button>
+<button class="key" onpointerdown="addMath('و', event)">و</button>
+<button class="key" onpointerdown="addMath('ز', event)">ز</button>
+<button class="key" onpointerdown="addMath('ظ', event)">ظ</button>
+<button class="key" onpointerdown="addMath('د', event)">د</button>
+<button class="key" onpointerdown="addMath('ذ', event)">ذ</button>
 </div>
 <div class="kb-row">
-<button class="key" onpointerdown="addMath('Ø£', event)">Ø£</button>
-<button class="key" onpointerdown="addMath('Ø¥', event)">Ø¥</button>
-<button class="key" onpointerdown="addMath('Ø¢', event)">Ø¢</button>
-<button class="key" onpointerdown="addMath('ØŸ', event)">ØŸ</button>
-<button class="key space" onpointerdown="addMathSpace(event)">Ù…Ø³Ø§ÙØ©</button>
-<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">âŒ« Ø­Ø°Ù</button>
+<button class="key" onpointerdown="addMath('أ', event)">أ</button>
+<button class="key" onpointerdown="addMath('إ', event)">إ</button>
+<button class="key" onpointerdown="addMath('آ', event)">آ</button>
+<button class="key" onpointerdown="addMath('؟', event)">؟</button>
+<button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
+<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
 </div>
 </div>
 <div class="custom-keyboard" id="english">
@@ -818,7 +818,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <button class="key" onpointerdown="addMath('b', event)">b</button>
 <button class="key" onpointerdown="addMath('n', event)">n</button>
 <button class="key" onpointerdown="addMath('m', event)">m</button>
-<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">âŒ«</button>
+<button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫</button>
 </div>
 <div class="kb-row">
 <button class="key space" onpointerdown="addMathSpace(event)">Space</button>
@@ -840,22 +840,22 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <input id="qform-score" name="score" type="hidden" value="QUESTIONS"/> </form>
 <script>
         // ========================================== //
-        // Ø£ÙƒÙˆØ§Ø¯ Ù…Ø­Ø±Ø± Ø§Ù„Ø±ÙŠØ§Ø¶ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø¨Ø«Ù‚               //
+        // أكواد محرر الرياضيات المنبثق               //
         // ========================================== //
         const mf = document.getElementById('formula');
         mf.smartMode = true; 
-        let targetInputField = null; // Ø³ÙŠØ®Ø²Ù† Ø§Ù„Ø­Ù‚Ù„ Ø§Ù„Ø°ÙŠ Ù†Ù‚ÙˆÙ… Ø¨Ø§Ù„ÙƒØªØ§Ø¨Ø© ÙÙŠÙ‡ Ø­Ø§Ù„ÙŠØ§Ù‹
+        let targetInputField = null; // سيخزن الحقل الذي نقوم بالكتابة فيه حالياً
 
         mf.addEventListener('focusin', (e) => {
             e.preventDefault();
             if (window.mathVirtualKeyboard) window.mathVirtualKeyboard.hide();
         });
 
-        // Ø§Ù„ØªÙ‚Ø§Ø· Ø²Ø± Ø§Ù„Ù…Ø³Ø§ÙØ© Ù…Ù† Ù„ÙˆØ­Ø© Ø§Ù„Ù…ÙØ§ØªÙŠØ­ Ø§Ù„Ø¹Ø§Ø¯ÙŠØ©
+        // التقاط زر المسافة من لوحة المفاتيح العادية
         mf.addEventListener('keydown', (e) => {
             if (e.key === ' ') {
-                e.preventDefault(); // Ø¥ÙŠÙ‚Ø§Ù Ø§Ù„Ø³Ù„ÙˆÙƒ Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ Ø§Ù„Ø°ÙŠ ÙŠØªØ¬Ø§Ù‡Ù„ Ø§Ù„Ù…Ø³Ø§ÙØ©
-                mf.insert('\\text{ }'); // Ø¥Ø¬Ø¨Ø§Ø± Ø§Ù„Ù…Ø­Ø±Ø± Ø¹Ù„Ù‰ Ø¥Ø¯Ø±Ø§Ø¬ Ù…Ø³Ø§ÙØ© ÙØ¹Ù„ÙŠØ©
+                e.preventDefault(); // إيقاف السلوك الافتراضي الذي يتجاهل المسافة
+                mf.insert('\\text{ }'); // إجبار المحرر على إدراج مسافة فعلية
             }
         });
 
@@ -886,37 +886,37 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
             if(event) event.currentTarget.classList.add('active');
         }
 
-        // ÙØªØ­ Ù„ÙˆØ­Ø© Ø§Ù„Ø±ÙŠØ§Ø¶ÙŠØ§Øª ÙˆØ±Ø¨Ø·Ù‡Ø§ Ø¨Ø§Ù„Ø­Ù‚Ù„ Ø§Ù„Ù†ØµÙŠ Ø§Ù„Ù…Ø¬Ø§ÙˆØ± Ù„Ù‡Ø§
+        // فتح لوحة الرياضيات وربطها بالحقل النصي المجاور لها
         function openMathModal(inputElement) {
             targetInputField = inputElement;
             document.getElementById('math-modal-overlay').style.display = 'flex';
-            mf.value = ''; // ØªØµÙÙŠØ± Ø§Ù„Ù…Ø­Ø±Ø± Ø¹Ù†Ø¯ ÙƒÙ„ ÙØªØ­Ø© Ø¬Ø¯ÙŠØ¯Ø©
+            mf.value = ''; // تصفير المحرر عند كل فتحة جديدة
             setTimeout(() => mf.focus(), 100);
         }
 
-        // Ø¥ØºÙ„Ø§Ù‚ Ù„ÙˆØ­Ø© Ø§Ù„Ø±ÙŠØ§Ø¶ÙŠØ§Øª ÙˆØªØ­ÙˆÙŠÙ„ Ø§Ù„Ù…Ø¹Ø§Ø¯Ù„Ø§Øª Ø¥Ù„Ù‰ Ù†Øµ Ù„Ù„Ø­Ù‚Ù„ Ø§Ù„Ø£ØµÙ„ÙŠ
+        // إغلاق لوحة الرياضيات وتحويل المعادلات إلى نص للحقل الأصلي
         function closeMathModal() {
             document.getElementById('math-modal-overlay').style.display = 'none';
             if (targetInputField) {
-                // Ø¯Ù…Ø¬ Ø§Ù„Ù‚ÙŠÙ…Ø© Ø§Ù„Ø³Ø§Ø¨Ù‚Ø© Ù…Ø¹ Ø§Ù„Ù‚ÙŠÙ…Ø© Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© Ø§Ù„Ù…ÙƒØªÙˆØ¨Ø© ÙÙŠ Ø§Ù„Ù…Ø­Ø±Ø±
+                // دمج القيمة السابقة مع القيمة الجديدة المكتوبة في المحرر
                 targetInputField.value += " \\(" + mf.value + "\\) ";
                 targetInputField = null;
             }
         }
 
         // ========================================== //
-        // Ø£ÙƒÙˆØ§Ø¯ Ø§Ù„Ù„Ø¹Ø¨Ø© Ø§Ù„Ø£ØµÙ„ÙŠØ© (Ø¨Ø¯ÙˆÙ† ØªØ¹Ø¯ÙŠÙ„ Ø¬ÙˆÙ‡Ø±ÙŠ)   //
+        // أكواد اللعبة الأصلية (بدون تعديل جوهري)   //
         // ========================================== //
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
         let isMuted = false;
         let bgmInterval, bgmStep = 0, currentBgmType = null;
 
-        const avatars = ["ðŸ¦","ðŸ¦‹","ðŸ¤–","ðŸ¥·","ðŸ‘¨â€ðŸ”¬","ðŸ‘©â€ðŸ”¬","ðŸº","ðŸ¦Š","ðŸ¯","ðŸ¼","ðŸ°","ðŸ¹","ðŸ»","ðŸ¥","ðŸ¦‰","ðŸ§","ðŸ«…","ðŸ‘¸","ðŸ¦¸â€â™‚ï¸","ðŸ¦¸â€â™€ï¸","ðŸ•µï¸","ðŸ§™â€â™‚ï¸","ðŸ§šâ€â™€ï¸","ðŸš€","ðŸ›¸","â­","ðŸ”¥","âš¡"];
+        const avatars = ["🦁","🦋","🤖","🥷","👨‍🔬","👩‍🔬","🐺","🦊","🐯","🐼","🐰","🐹","🐻","🐥","🦉","🐧","🫅","👸","🦸‍♂️","🦸‍♀️","🕵️","🧙‍♂️","🧚‍♀️","🚀","🛸","⭐","🔥","⚡"];
         let selectedAvatar = avatars[0];
 
         function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
-        function toggleMute() { isMuted = !isMuted; document.getElementById('mute-btn').innerText = isMuted ? "ðŸ”‡" : "ðŸ”Š"; }
+        function toggleMute() { isMuted = !isMuted; document.getElementById('mute-btn').innerText = isMuted ? "🔇" : "🔊"; }
         
         function playTone(freq, type, dur, vol = 0.05) {
             if (isMuted || !audioCtx) return;
@@ -962,15 +962,15 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
         const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
         
         const defaultQuestions = [
-            { q: "Ù…Ø§ Ù‡ÙŠ Ø¹Ø§ØµÙ…Ø© Ø§Ù„Ø£Ø±Ø¯Ù†ØŸ", opts: ["Ø§Ù„Ù‚Ø¯Ø³", "Ø¹Ù…Ø§Ù†", "Ø¨ØºØ¯Ø§Ø¯", "Ø¯Ù…Ø´Ù‚"], ans: 1 },
-            { q: "ÙƒÙ… Ø¹Ø¯Ø¯ Ø£Ù„ÙˆØ§Ù† Ù‚ÙˆØ³ Ù‚Ø²Ø­ØŸ", opts: ["5", "6", "7", "8"], ans: 2 },
-            { q: "Ù…Ø§ Ù‡Ùˆ Ø§Ù„ÙƒÙˆÙƒØ¨ Ø§Ù„Ù…Ù„Ù‚Ø¨ Ø¨Ø§Ù„Ø£Ø­Ù…Ø±ØŸ", opts: ["Ø§Ù„Ù…Ø±ÙŠØ®", "Ø§Ù„Ù…Ø´ØªØ±ÙŠ", "Ø§Ù„Ø²Ù‡Ø±Ø©", "Ø²Ø­Ù„"], ans: 0 },
-            { q: "Ù…Ø§ Ù‡Ùˆ Ø§Ù„Ø­ÙŠÙˆØ§Ù† Ø§Ù„Ù…Ù„Ù‚Ø¨ Ø¨Ù…Ù„Ùƒ Ø§Ù„ØºØ§Ø¨Ø©ØŸ", opts: ["Ø§Ù„Ù†Ù…Ø±", "Ø§Ù„ÙÙŠÙ„", "Ø§Ù„Ø£Ø³Ø¯", "Ø§Ù„Ø²Ø±Ø§ÙØ©"], ans: 2 },
-            { q: "Ù…Ø§ Ù‡ÙŠ Ù„ØºØ© Ø§Ù„Ø¨Ø±Ù…Ø¬Ø© Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ© Ù„ØªØ·ÙˆÙŠØ± ÙˆØ§Ø¬Ù‡Ø§Øª Ø§Ù„ÙˆÙŠØ¨ØŸ", opts: ["Python", "C++", "JavaScript", "Java"], ans: 2 }
+            { q: "ما هي عاصمة الأردن؟", opts: ["القدس", "عمان", "بغداد", "دمشق"], ans: 1 },
+            { q: "كم عدد ألوان قوس قزح؟", opts: ["5", "6", "7", "8"], ans: 2 },
+            { q: "ما هو الكوكب الملقب بالأحمر؟", opts: ["المريخ", "المشتري", "الزهرة", "زحل"], ans: 0 },
+            { q: "ما هو الحيوان الملقب بملك الغابة؟", opts: ["النمر", "الفيل", "الأسد", "الزرافة"], ans: 2 },
+            { q: "ما هي لغة البرمجة الأساسية لتطوير واجهات الويب؟", opts: ["Python", "C++", "JavaScript", "Java"], ans: 2 }
         ];
 
         let gameQuestions = [], currentRoomPIN = "", refreshInterval;
-let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
+let quizTitle = "🎮 التحدي الأكبر";
         let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 15;
         let TOTAL_TIME = 15;
         let currentStreak = 0, powerUpUsed = false, userAnswersHistory = [];
@@ -996,7 +996,7 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             showTeacherSection('new');
         }
 
-        // ØªÙ… Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ Ù‡Ù†Ø§ Ù„Ø¥Ø¶Ø§ÙØ© Ø²Ø± Ø§Ù„Ø­Ø§Ø³Ø¨Ø© (ðŸ§®) Ø¨Ø¬Ø§Ù†Ø¨ Ø§Ù„Ø­Ù‚ÙˆÙ„
+        // تم التعديل هنا لإضافة زر الحاسبة (🧮) بجانب الحقول
         function addQuestionBlock() {
             const container = document.getElementById('questions-list');
             const index = qBlockCount;
@@ -1004,46 +1004,41 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             const html = `
                 <div class="q-block" id="${blockId}" data-type="mc">
                     <h3>
-                        <span>Ø§Ù„Ø³Ø¤Ø§Ù„ ${index + 1}</span>
-                        ${index > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">Ø­Ø°Ù</button>` : ''}
+                        <span>السؤال ${index + 1}</span>
+                        ${index > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
                     </h3>
                     
                     <div class="type-selector">
-                        <button type="button" class="type-btn active" onclick="setQuestionType('${blockId}', 'mc')">Ø§Ø®ØªÙŠØ§Ø± Ù…Ù† Ù…ØªØ¹Ø¯Ø¯</button>
-                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'tf')">ØµØ­ Ø£Ùˆ Ø®Ø·Ø£</button>
-                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'blanks')">Ø¥ÙƒÙ…Ø§Ù„ ÙØ±Ø§ØºØ§Øª</button>
-                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'matching')">ØªÙˆØµÙŠÙ„</button>
-                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'dragdrop')">ØªØµÙ†ÙŠÙ</button>
+                        <button type="button" class="type-btn active" onclick="setQuestionType('${blockId}', 'mc')">اختيار من متعدد</button>
+                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'tf')">صح أو خطأ</button>
+                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'blanks')">إكمال فراغات</button>
+                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'matching')">توصيل</button>
+                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'dragdrop')">تصنيف</button>
                     </div>
 
                     <div style="display:flex; gap:10px; margin-bottom: 10px;">
-<input type="text" class="q-title-input" placeholder="Ø§ÙƒØªØ¨ Ø§Ù„Ø³Ø¤Ø§Ù„ Ù‡Ù†Ø§..." required style="flex:1;">
-<button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
-<input type="number" class="q-time-input" value="15" min="5" max="300" style="width:90px;">
-</div>
+                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="flex:1;">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                        <input type="number" class="q-time-input" value="15" min="5" max="300" style="width:90px;">
+                    </div>
 
-<div style="margin-bottom: 15px;">
-<div style="display:flex;gap:10px;">
-<label>ØµÙˆØ±Ø© Ø§Ù„Ø³Ø¤Ø§Ù„:</label>
-<button type="button" onclick="toggleImageSearch('${blockId}')">ðŸ” Ø¨Ø­Ø«</button>
-</div>
+                    <div style="margin-bottom: 15px;">
+                        <div style="display:flex;gap:10px;">
+                            <label>صورة السؤال:</label>
+                            <button type="button" onclick="toggleImageSearch('${blockId}')">🔍 بحث</button>
+                        </div>
 
-<div id="search-box-${blockId}" class="img-search-container">
-<input type="text" id="search-input-${blockId}" placeholder="Ø§Ø¨Ø­Ø«...">
-<button onclick="searchImages('${blockId}')">Ø¨Ø­Ø«</button>
-<div id="search-status-${blockId}"></div>
-<div id="img-grid-${blockId}" class="img-grid"></div>
-</div>
+                        <div id="search-box-${blockId}" class="img-search-container">
+                            <input type="text" id="search-input-${blockId}" placeholder="ابحث...">
+                            <button onclick="searchImages('${blockId}')">بحث</button>
+                            <div id="search-status-${blockId}"></div>
+                            <div id="img-grid-${blockId}" class="img-grid"></div>
+                        </div>
 
-<input type="url" id="img-url-${blockId}" class="q-image-input">
-<div id="img-preview-container-${blockId}" style="display:none;">
-<img id="img-preview-${blockId}" style="max-height:150px;">
-</div>
-</div>
-
-                        <input type="text" class="q-title-input" placeholder="Ø§ÙƒØªØ¨ Ø§Ù„Ø³Ø¤Ø§Ù„ Ù‡Ù†Ø§..." required style="margin-bottom: 0; flex:1;">
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="Ø¥Ø¶Ø§ÙØ© Ø±ÙŠØ§Ø¶ÙŠØ§Øª">ðŸ§®</button>
-                        <input type="number" class="q-time-input" value="15" min="5" max="300" placeholder="Ø§Ù„ÙˆÙ‚Øª (Ø«)" style="width:90px; text-align:center;">
+                        <input type="url" id="img-url-${blockId}" class="q-image-input">
+                        <div id="img-preview-container-${blockId}" style="display:none;">
+                            <img id="img-preview-${blockId}" style="max-height:150px;">
+                        </div>
                     </div>
                     
                     <div class="q-editor-content" id="editor-${blockId}">
@@ -1059,7 +1054,7 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             const block = document.getElementById(blockId);
             block.setAttribute('data-type', type);
             
-            // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø£Ø²Ø±Ø§Ø±
+            // تحديث الأزرار
             block.querySelectorAll('.type-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${type}'`));
             });
@@ -1078,23 +1073,23 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             return `
                 <div class="opt-row">
                     <input type="radio" name="correct-${index}" value="0" checked>
-                    <input type="text" class="q-opt-input" placeholder="Ø§Ù„Ø®ÙŠØ§Ø± Ø§Ù„Ø£ÙˆÙ„ (â–²)" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
+                    <input type="text" class="q-opt-input" placeholder="الخيار الأول (▲)" required>
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
                 </div>
                 <div class="opt-row">
                     <input type="radio" name="correct-${index}" value="1">
-                    <input type="text" class="q-opt-input" placeholder="Ø§Ù„Ø®ÙŠØ§Ø± Ø§Ù„Ø«Ø§Ù†ÙŠ (â—†)" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
+                    <input type="text" class="q-opt-input" placeholder="الخيار الثاني (◆)" required>
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
                 </div>
                 <div class="opt-row">
                     <input type="radio" name="correct-${index}" value="2">
-                    <input type="text" class="q-opt-input" placeholder="Ø§Ù„Ø®ÙŠØ§Ø± Ø§Ù„Ø«Ø§Ù„Ø« (â—)" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
+                    <input type="text" class="q-opt-input" placeholder="الخيار الثالث (●)" required>
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
                 </div>
                 <div class="opt-row">
                     <input type="radio" name="correct-${index}" value="3">
-                    <input type="text" class="q-opt-input" placeholder="Ø§Ù„Ø®ÙŠØ§Ø± Ø§Ù„Ø±Ø§Ø¨Ø¹ (â– )" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
+                    <input type="text" class="q-opt-input" placeholder="الخيار الرابع (■)" required>
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
                 </div>
             `;
         }
@@ -1103,25 +1098,25 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             return `
                 <div class="opt-row">
                     <input type="radio" name="correct-${index}" value="0" checked>
-                    <span style="flex:1; text-align:right;">ØµØ­</span>
+                    <span style="flex:1; text-align:right;">صح</span>
                 </div>
                 <div class="opt-row">
                     <input type="radio" name="correct-${index}" value="1">
-                    <span style="flex:1; text-align:right;">Ø®Ø·Ø£</span>
+                    <span style="flex:1; text-align:right;">خطأ</span>
                 </div>
             `;
         }
 
         function getBlanksEditor(index) {
             return `
-                <p style="font-size:12px; color:#666; margin-bottom:10px;">Ø§Ø³ØªØ®Ø¯Ù… [ ] ÙÙŠ Ù†Øµ Ø§Ù„Ø³Ø¤Ø§Ù„ Ù„ØªØ­Ø¯ÙŠØ¯ Ø£Ù…Ø§ÙƒÙ† Ø§Ù„ÙØ±Ø§ØºØ§Øª.</p>
+                <p style="font-size:12px; color:#666; margin-bottom:10px;">استخدم [ ] في نص السؤال لتحديد أماكن الفراغات.</p>
                 <div id="blanks-container-${index}">
                     <div class="opt-row">
-                        <input type="text" class="q-blank-input" placeholder="Ø¥Ø¬Ø§Ø¨Ø© Ø§Ù„ÙØ±Ø§Øº Ø§Ù„Ø£ÙˆÙ„" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
+                        <input type="text" class="q-blank-input" placeholder="إجابة الفراغ الأول" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
                     </div>
                 </div>
-                <button type="button" class="add-btn" onclick="addBlankField(${index})">+ Ø¥Ø¶Ø§ÙØ© ÙØ±Ø§Øº</button>
+                <button type="button" class="add-btn" onclick="addBlankField(${index})">+ إضافة فراغ</button>
             `;
         }
 
@@ -1129,9 +1124,9 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             const container = document.getElementById(`blanks-container-${index}`);
             const html = `
                 <div class="opt-row">
-                    <input type="text" class="q-blank-input" placeholder="Ø¥Ø¬Ø§Ø¨Ø© Ø§Ù„ÙØ±Ø§Øº" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
-                    <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer;">âœ•</button>
+                    <input type="text" class="q-blank-input" placeholder="إجابة الفراغ" required>
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                    <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer;">✕</button>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html);
@@ -1141,14 +1136,14 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             return `
                 <div id="matching-container-${index}">
                     <div class="matching-pair">
-                        <input type="text" class="match-left" placeholder="Ø§Ù„ÙƒÙ„Ù…Ø©" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
-                        <span>ðŸ”—</span>
-                        <input type="text" class="match-right" placeholder="Ø§Ù„Ù…Ø·Ø§Ø¨Ù‚" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
+                        <input type="text" class="match-left" placeholder="الكلمة" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                        <span>🔗</span>
+                        <input type="text" class="match-right" placeholder="المطابق" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
                     </div>
                 </div>
-                <button type="button" class="add-btn" onclick="addMatchingPair(${index})">+ Ø¥Ø¶Ø§ÙØ© Ø²ÙˆØ¬</button>
+                <button type="button" class="add-btn" onclick="addMatchingPair(${index})">+ إضافة زوج</button>
             `;
         }
 
@@ -1156,12 +1151,12 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             const container = document.getElementById(`matching-container-${index}`);
             const html = `
                 <div class="matching-pair">
-                    <input type="text" class="match-left" placeholder="Ø§Ù„ÙƒÙ„Ù…Ø©" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
-                    <span>ðŸ”—</span>
-                    <input type="text" class="match-right" placeholder="Ø§Ù„Ù…Ø·Ø§Ø¨Ù‚" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
-                    <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer;">âœ•</button>
+                    <input type="text" class="match-left" placeholder="الكلمة" required>
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                    <span>🔗</span>
+                    <input type="text" class="match-right" placeholder="المطابق" required>
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                    <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer;">✕</button>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html);
@@ -1171,22 +1166,22 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             return `
                 <div id="zones-container-${index}" style="display:flex; gap:10px; margin-bottom:10px; flex-wrap: wrap;">
                     <div style="flex:1; min-width:120px; position:relative;">
-                        <input type="text" class="zone-name" placeholder="Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø© 1" required style="width:100%;" oninput="updateDragZoneOptions(${index})">
+                        <input type="text" class="zone-name" placeholder="المجموعة 1" required style="width:100%;" oninput="updateDragZoneOptions(${index})">
                     </div>
                     <div style="flex:1; min-width:120px; position:relative;">
-                        <input type="text" class="zone-name" placeholder="Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø© 2" required style="width:100%;" oninput="updateDragZoneOptions(${index})">
+                        <input type="text" class="zone-name" placeholder="المجموعة 2" required style="width:100%;" oninput="updateDragZoneOptions(${index})">
                     </div>
                 </div>
-                <button type="button" class="add-btn" onclick="addDragZone(${index})" style="margin-bottom:15px;">+ Ø¥Ø¶Ø§ÙØ© Ù…Ø¬Ù…ÙˆØ¹Ø©</button>
+                <button type="button" class="add-btn" onclick="addDragZone(${index})" style="margin-bottom:15px;">+ إضافة مجموعة</button>
                 
                 <div id="drag-container-${index}">
                     <div class="drag-item">
-                        <input type="text" class="drag-text" placeholder="Ø§Ù„ÙƒÙ„Ù…Ø©" required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
+                        <input type="text" class="drag-text" placeholder="الكلمة" required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
                         <select class="drag-zone">${getDragZoneOptions(index)}</select>
                     </div>
                 </div>
-                <button type="button" class="add-btn" onclick="addDragItem(${index})">+ Ø¥Ø¶Ø§ÙØ© ÙƒÙ„Ù…Ø©</button>
+                <button type="button" class="add-btn" onclick="addDragItem(${index})">+ إضافة كلمة</button>
             `;
         }
 
@@ -1195,8 +1190,8 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             const zoneCount = container.querySelectorAll('.zone-name').length;
             const html = `
                 <div style="flex:1; min-width:120px; position:relative; display:flex; align-items:center; gap:5px;">
-                    <input type="text" class="zone-name" placeholder="Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø© ${zoneCount + 1}" required style="width:100%;" oninput="updateDragZoneOptions(${index})">
-                    <button type="button" onclick="this.parentElement.remove(); updateDragZoneOptions(${index});" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">âœ•</button>
+                    <input type="text" class="zone-name" placeholder="المجموعة ${zoneCount + 1}" required style="width:100%;" oninput="updateDragZoneOptions(${index})">
+                    <button type="button" onclick="this.parentElement.remove(); updateDragZoneOptions(${index});" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">✕</button>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html);
@@ -1205,12 +1200,12 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
 
         function getDragZoneOptions(index) {
             const zonesContainer = document.getElementById(`zones-container-${index}`);
-            if (!zonesContainer) return '<option value="0">Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø© 1</option><option value="1">Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø© 2</option>';
+            if (!zonesContainer) return '<option value="0">المجموعة 1</option><option value="1">المجموعة 2</option>';
             
             const zones = zonesContainer.querySelectorAll('.zone-name');
             let options = '';
             zones.forEach((zone, i) => {
-                const name = zone.value.trim() || `Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø© ${i + 1}`;
+                const name = zone.value.trim() || `المجموعة ${i + 1}`;
                 options += `<option value="${i}">${name}</option>`;
             });
             return options;
@@ -1222,7 +1217,7 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             selects.forEach(select => {
                 const currentVal = select.value;
                 select.innerHTML = options;
-                // Ù…Ø­Ø§ÙˆÙ„Ø© Ø§Ù„Ø­ÙØ§Ø¸ Ø¹Ù„Ù‰ Ø§Ù„Ù‚ÙŠÙ…Ø© Ø§Ù„Ù…Ø®ØªØ§Ø±Ø© Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ù„Ø§ ØªØ²Ø§Ù„ Ù…ÙˆØ¬ÙˆØ¯Ø©
+                // محاولة الحفاظ على القيمة المختارة إذا كانت لا تزال موجودة
                 if (currentVal < document.getElementById(`zones-container-${index}`).querySelectorAll('.zone-name').length) {
                     select.value = currentVal;
                 }
@@ -1233,46 +1228,46 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             const container = document.getElementById(`drag-container-${index}`);
             const html = `
                 <div class="drag-item">
-                    <input type="text" class="drag-text" placeholder="Ø§Ù„ÙƒÙ„Ù…Ø©" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">ðŸ§®</button>
+                    <input type="text" class="drag-text" placeholder="الكلمة" required>
+                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
                     <select class="drag-zone">${getDragZoneOptions(index)}</select>
-                    <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer;">âœ•</button>
+                    <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer;">✕</button>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html);
         }
 
         // ========================================== //
-        // Ø¯Ø§Ù„Ø© Ø§Ø³ØªØ±Ø¯Ø§Ø¯ ØºØ±ÙØ© Ø³Ø§Ø¨Ù‚Ø© Ù„Ù„Ù…Ø¹Ù„Ù… (Ù…Ø¹Ø¯Ù„Ø© Ù„Ù„Ø§Ø³ØªÙ†Ø³Ø§Ø®) //
+        // دالة استرداد غرفة سابقة للمعلم (معدلة للاستنساخ) //
         // ========================================== //
         async function loadExistingRoom() {
             const pin = document.getElementById('existing-room-pin').value.trim();
             if (!pin) {
-                alert("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ø§Ù„ØºØ±ÙØ©!");
+                alert("يرجى إدخال رقم الغرفة!");
                 return;
             }
 
             const loadingScreen = document.getElementById('screen-loading-sheet');
             const loadingText = document.getElementById('loading-text');
             loadingScreen.style.display = 'flex';
-            loadingText.innerText = "Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„ØºØ±ÙØ© ÙˆØ§Ø³ØªÙ†Ø³Ø§Ø® Ø§Ù„Ø£Ø³Ø¦Ù„Ø©...";
+            loadingText.innerText = "جاري البحث عن الغرفة واستنساخ الأسئلة...";
 
             try {
-                // Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø´ÙŠØª Ø§Ù„Ø¥ÙƒØ³Ù„ Ù„Ø¬Ù„Ø¨ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                // الاتصال بشيت الإكسل لجلب البيانات
                 const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
                 const text = await res.text();
                 const json = JSON.parse(text.substring(47, text.length - 2));
                 const rows = json.table.rows;
                 
                 let roomFound = false;
-                let copiedQuestions = ""; // Ù…ØªØºÙŠØ± Ø¬Ø¯ÙŠØ¯ Ù„Ø­ÙØ¸ Ø§Ù„Ø£Ø³Ø¦Ù„Ø© Ø§Ù„Ù…Ø³ØªÙ†Ø³Ø®Ø©
+                let copiedQuestions = ""; // متغير جديد لحفظ الأسئلة المستنسخة
 
-                // Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„ØºØ±ÙØ© Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© Ù…Ù† Ø§Ù„Ø£Ø³ÙÙ„ Ù„Ù„Ø£Ø¹Ù„Ù‰ (Ù„Ø¥ÙŠØ¬Ø§Ø¯ Ø£Ø­Ø¯Ø« Ù†Ø³Ø®Ø©)
+                // البحث عن الغرفة المطلوبة من الأسفل للأعلى (لإيجاد أحدث نسخة)
                 for(let i = rows.length - 1; i >= 0; i--) {
                     if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
                         if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
                             roomFound = true;
-                            // Ù†Ø³Ø® Ø§Ù„Ø£Ø³Ø¦Ù„Ø© Ø§Ù„Ù…ÙˆØ¬ÙˆØ¯Ø© ÙÙŠ Ø§Ù„Ø®Ù„ÙŠØ© Ø§Ù„Ù…Ø¬Ø§ÙˆØ±Ø©
+                            // نسخ الأسئلة الموجودة في الخلية المجاورة
                             copiedQuestions = rows[i].c[1].v.toString(); 
                             break;
                         }
@@ -1280,18 +1275,18 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
                 }
 
                 if (roomFound) {
-                    // 1. ØªÙˆÙ„ÙŠØ¯ Ø±Ù‚Ù… ØºØ±ÙØ© Ø¬Ø¯ÙŠØ¯ ÙƒÙ„ÙŠØ§Ù‹
+                    // 1. توليد رقم غرفة جديد كلياً
                     currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
 
-                    // 2. Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ø¥Ù†Ø´Ø§Ø¡ Ø³Ø·Ø± Ø¬Ø¯ÙŠØ¯ Ø¨Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù†Ù…ÙˆØ°Ø¬ Ø§Ù„Ù…Ø®ÙÙŠ Ø§Ù„Ù…ÙˆØ¬ÙˆØ¯ Ù…Ø³Ø¨Ù‚Ø§Ù‹
-                    document.getElementById('qform-name').value = currentRoomPIN; // ÙˆØ¶Ø¹ Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ø¬Ø¯ÙŠØ¯
-                    document.getElementById('qform-school').value = copiedQuestions; // ÙˆØ¶Ø¹ Ø§Ù„Ø£Ø³Ø¦Ù„Ø© Ø§Ù„Ù…Ù†Ø³ÙˆØ®Ø©
+                    // 2. إرسال البيانات لإنشاء سطر جديد باستخدام النموذج المخفي الموجود مسبقاً
+                    document.getElementById('qform-name').value = currentRoomPIN; // وضع الرقم الجديد
+                    document.getElementById('qform-school').value = copiedQuestions; // وضع الأسئلة المنسوخة
                     
                     document.getElementById('saving-status').style.display = 'block';
-                    document.getElementById('saving-status').innerText = "â³ Ø¬Ø§Ø±ÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØºØ±ÙØ© Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙÙŠ Ø§Ù„Ù†Ø¸Ø§Ù…...";
-                    document.getElementById('questionsForm').submit(); // Ø­ÙØ¸ Ø§Ù„Ø³Ø·Ø± Ø§Ù„Ø¬Ø¯ÙŠØ¯ ÙÙŠ Ø§Ù„Ø¥ÙƒØ³Ù„
+                    document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
+                    document.getElementById('questionsForm').submit(); // حفظ السطر الجديد في الإكسل
 
-                    // 3. ØªØ­Ø¯ÙŠØ« ÙˆØ§Ø¬Ù‡Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ø¬Ø¯ÙŠØ¯ ÙˆØ§Ù„Ø¨Ø§Ø±ÙƒÙˆØ¯
+                    // 3. تحديث واجهة المستخدم لعرض الرقم الجديد والباركود
                     document.getElementById('display-room-pin').innerText = currentRoomPIN;
                     const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
                     document.getElementById('game-url-input').value = gameUrl;
@@ -1305,32 +1300,32 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
                     playBGM('lobby');
                     showScreen('screen-teacher');
                     
-                    // Ø¥Ø¹Ø§Ø¯Ø© ØªØ´ØºÙŠÙ„ Ø¹Ø¯Ø§Ø¯ Ø¬Ù„Ø¨ Ù„ÙˆØ­Ø© Ø§Ù„Ø´Ø±Ù
+                    // إعادة تشغيل عداد جلب لوحة الشرف
                     if (refreshInterval) clearInterval(refreshInterval);
                     refreshInterval = setInterval(fetchLeaderboard, 4000);
                     fetchLeaderboard(); 
                 } else {
                     loadingScreen.style.display = 'none';
-                    alert("Ø¹Ø°Ø±Ø§Ù‹! Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø£Ø³Ø¦Ù„Ø© Ù…Ø­ÙÙˆØ¸Ø© Ù„Ø±Ù…Ø² Ø§Ù„ØºØ±ÙØ© Ù‡Ø°Ø§. ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ø±Ù‚Ù… Ø£Ùˆ Ù‚Ù… Ø¨Ø¥Ù†Ø´Ø§Ø¡ Ø£Ø³Ø¦Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø©.");
+                    alert("عذراً! لم يتم العثور على أسئلة محفوظة لرمز الغرفة هذا. تأكد من الرقم أو قم بإنشاء أسئلة جديدة.");
                 }
             } catch (err) {
                 loadingScreen.style.display = 'none';
-                alert("Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª. ØªØ£ÙƒØ¯ Ù…Ù† Ø§ØªØµØ§Ù„Ùƒ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª.");
+                alert("حدث خطأ أثناء الاتصال بقاعدة البيانات. تأكد من اتصالك بالإنترنت.");
             }
             
-            // Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ù†Øµ Ù„Ø­Ø§Ù„ØªÙ‡ Ø§Ù„Ø£ØµÙ„ÙŠØ© Ù„Ø§Ø³ØªØ®Ø¯Ø§Ù…Ù‡ Ù„Ø§Ø­Ù‚Ø§Ù‹ Ù…Ù† Ù‚Ø¨Ù„ Ø§Ù„Ø·Ø§Ù„Ø¨
-            loadingText.innerText = "Ø¬Ø§Ø±ÙŠ Ø¬Ù„Ø¨ Ø£Ø³Ø¦Ù„Ø© Ø§Ù„ØªØ­Ø¯ÙŠ Ù…Ù† Ø§Ù„Ù…Ø¹Ù„Ù…...";
+            // إعادة النص لحالته الأصلية لاستخدامه لاحقاً من قبل الطالب
+            loadingText.innerText = "جاري جلب أسئلة التحدي من المعلم...";
         }
 
 
-        // Ø¯Ø§Ù„Ø© Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø§Ù„Ø£Ø³Ø¦Ù„Ø© Ù…Ù† Ù…Ø±Ø¨Ø¹ Ø§Ù„Ù†Øµ (JSON) ÙˆØ¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØºØ±ÙØ©
+        // دالة استيراد الأسئلة من مربع النص (JSON) وإنشاء الغرفة
         function importQuestionsFromJSON() {
             const jsonText = document.getElementById('json-import-area').value.trim();
             const errorMsg = document.getElementById('json-error-msg');
             errorMsg.style.display = 'none';
 
             if (!jsonText) {
-                errorMsg.innerText = "ÙŠØ±Ø¬Ù‰ Ù„ØµÙ‚ ÙƒÙˆØ¯ Ø§Ù„Ø£Ø³Ø¦Ù„Ø© Ø£ÙˆÙ„Ø§Ù‹ ÙÙŠ Ø§Ù„Ù…Ø±Ø¨Ø¹!";
+                errorMsg.innerText = "يرجى لصق كود الأسئلة أولاً في المربع!";
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -1339,12 +1334,12 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
                 const parsedQuestions = JSON.parse(jsonText);
 
                 if (!Array.isArray(parsedQuestions) || parsedQuestions.length === 0) {
-                    throw new Error("ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ø§Ù„ÙƒÙˆØ¯ Ø¹Ø¨Ø§Ø±Ø© Ø¹Ù† Ù…ØµÙÙˆÙØ© Ø£Ø³Ø¦Ù„Ø© [...] ÙˆÙ„Ø§ ÙŠÙ…ÙƒÙ† Ø£Ù† ÙŠÙƒÙˆÙ† ÙØ§Ø±ØºØ§Ù‹.");
+                    throw new Error("يجب أن يكون الكود عبارة عن مصفوفة أسئلة [...] ولا يمكن أن يكون فارغاً.");
                 }
 
                 const sample = parsedQuestions[0];
                 if (typeof sample.q !== 'string' || !Array.isArray(sample.opts) || sample.opts.length !== 4 || typeof sample.ans !== 'number') {
-                    throw new Error("Ø§Ù„Ù‡ÙŠÙƒÙ„ÙŠØ© Ø®Ø§Ø·Ø¦Ø©! ÙŠØ¬Ø¨ Ø£Ù† ÙŠØ­ØªÙˆÙŠ ÙƒÙ„ Ø³Ø¤Ø§Ù„ Ø¹Ù„Ù‰: q, opts (4), ans (0-3).");
+                    throw new Error("الهيكلية خاطئة! يجب أن يحتوي كل سؤال على: q, opts (4), ans (0-3).");
                 }
 
                 playBGM('lobby');
@@ -1355,7 +1350,7 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
                 document.getElementById('qform-school').value = cleanJsonString;
 
                 document.getElementById('saving-status').style.display = 'block';
-                document.getElementById('saving-status').innerText = "â³ Ø¬Ø§Ø±ÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØºØ±ÙØ© ÙˆØ±ÙØ¹ Ø§Ù„Ø£Ø³Ø¦Ù„Ø© Ù…Ù† Ø§Ù„ÙƒÙˆØ¯...";
+                document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة ورفع الأسئلة من الكود...";
                 document.getElementById('questionsForm').submit();
 
                 document.getElementById('display-room-pin').innerText = currentRoomPIN;
@@ -1373,7 +1368,7 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
                 if (refreshInterval) clearInterval(refreshInterval);
                 refreshInterval = setInterval(fetchLeaderboard, 4000);
             } catch (err) {
-                errorMsg.innerText = "âŒ Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ÙƒÙˆØ¯: " + err.message;
+                errorMsg.innerText = "❌ خطأ في الكود: " + err.message;
                 errorMsg.style.display = 'block';
 
                 document.body.classList.add('shake-screen');
@@ -1399,8 +1394,8 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
 
                 if (type === 'mc' || type === 'tf') {
                     const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
-                    // ÙÙŠ Ø­Ø§Ù„ ØµØ­ Ø£Ùˆ Ø®Ø·Ø£ØŒ Ø§Ù„Ø®ÙŠØ§Ø±Ø§Øª Ø«Ø§Ø¨ØªØ©
-                    const finalOpts = type === 'tf' ? ["ØµØ­", "Ø®Ø·Ø£"] : opts;
+                    // في حال صح أو خطأ، الخيارات ثابتة
+                    const finalOpts = type === 'tf' ? ["صح", "خطأ"] : opts;
                     const correctRadio = block.querySelector('input[type="radio"]:checked');
                     
                     if (!title || (type === 'mc' && opts.some(opt => !opt))) isValid = false;
@@ -1436,7 +1431,7 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             });
 
             if (!isValid || customQuestions.length === 0) {
-                alert("ÙŠØ±Ø¬Ù‰ ØªØ¹Ø¨Ø¦Ø© Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„ ÙˆØ§Ù„Ø®ÙŠØ§Ø±Ø§Øª Ù„ÙƒÙ„ Ø§Ù„Ø£Ø³Ø¦Ù„Ø©!");
+                alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!");
                 return;
             }
 
@@ -1448,7 +1443,7 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             document.getElementById('qform-school').value = jsonQuestions; 
             
             document.getElementById('saving-status').style.display = 'block';
-            document.getElementById('saving-status').innerText = "â³ Ø¬Ø§Ø±ÙŠ ØªØ®Ø²ÙŠÙ† Ø§Ù„Ø£Ø³Ø¦Ù„Ø© ÙÙŠ Ø§Ù„Ù†Ø¸Ø§Ù…...";
+            document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
             document.getElementById('questionsForm').submit();
 
             document.getElementById('display-room-pin').innerText = currentRoomPIN;
@@ -1487,7 +1482,7 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             const name = document.getElementById('input-student-name').value.trim();
             const pin = document.getElementById('input-room-pin').value.trim();
             
-            if (!name || !pin) { alert("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ø§Ø³Ù… ÙˆØ±Ù‚Ù… Ø§Ù„ØºØ±ÙØ©"); return; }
+            if (!name || !pin) { alert("يرجى إدخال الاسم ورقم الغرفة"); return; }
             
             document.getElementById('player-name-display').innerText = name;
             document.getElementById('player-avatar-display').innerText = selectedAvatar;
@@ -1537,7 +1532,7 @@ let quizTitle = "ðŸŽ® Ø§Ù„ØªØ­Ø¯ÙŠ Ø§Ù„Ø£ÙƒØ¨Ø±";
             const iv = setInterval(() => {
                 count--;
                 if(count > 0) { numEl.innerText = count; playTone(800, 'sine', 0.1, 0.1); } 
-                else if(count === 0) { numEl.innerText = "Ø§Ù†Ø·Ù„Ù‚!"; playTone(1200, 'sine', 0.4, 0.1); } 
+                else if(count === 0) { numEl.innerText = "انطلق!"; playTone(1200, 'sine', 0.4, 0.1); } 
                 else {
                     clearInterval(iv); cdScreen.style.display = 'none';
                     showScreen('screen-student-game'); loadNextQuestion();
@@ -1553,40 +1548,40 @@ TOTAL_TIME = q.time || 15;
 timeLeft = TOTAL_TIME;
 document.getElementById('quiz-title-display').innerText = quizTitle;
 
-            // --- Ø¨Ø¯Ø§ÙŠØ© Ø§Ù„ØªØ¹Ø¯ÙŠÙ„: ÙƒÙˆØ¯ ØªØ±Ù‚ÙŠÙ… Ø§Ù„Ø£Ø³Ø¦Ù„Ø© ---
+            // --- بداية التعديل: كود ترقيم الأسئلة ---
             const totalQ = gameQuestions.length;
             const currentNumber = currentQIndex + 1;
-            let counterText = `Ø§Ù„Ø³Ø¤Ø§Ù„ ${currentNumber} Ù…Ù† ${totalQ}`;
+            let counterText = `السؤال ${currentNumber} من ${totalQ}`;
 
             const counterEl = document.getElementById('question-counter');
             if (counterEl) {
                 if (currentNumber === totalQ) {
-                    counterText += " ðŸ (Ø§Ù„Ø³Ø¤Ø§Ù„ Ø§Ù„Ø£Ø®ÙŠØ±)";
+                    counterText += " 🏁 (السؤال الأخير)";
                     counterEl.style.backgroundColor = "var(--k-red)";
                 } else if (currentNumber === totalQ - 1) {
-                    counterText += " â³ (Ø§Ù„Ø³Ø¤Ø§Ù„ Ù…Ø§ Ù‚Ø¨Ù„ Ø§Ù„Ø£Ø®ÙŠØ±)";
+                    counterText += " ⏳ (السؤال ما قبل الأخير)";
                     counterEl.style.backgroundColor = "var(--warning)";
                 } else {
                     counterEl.style.backgroundColor = "var(--primary)";
                 }
                 counterEl.innerText = counterText;
             }
-            // --- Ù†Ù‡Ø§ÙŠØ© Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ ---
+            // --- نهاية التعديل ---
 
-            // 1. Ø¹Ø±Ø¶ Ù†Øµ Ø§Ù„Ø³Ø¤Ø§Ù„
+            // 1. عرض نص السؤال
             const qContainer = document.getElementById('question-text');
             qContainer.textContent = q.q;
 
-            // 2. ØªÙ‡ÙŠØ¦Ø© Ù…Ù†Ø·Ù‚Ø© Ø§Ù„Ø¥Ø¬Ø§Ø¨Ø§Øª Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ù†ÙˆØ¹ Ø§Ù„Ø³Ø¤Ø§Ù„
+            // 2. تهيئة منطقة الإجابات بناءً على نوع السؤال
             const ansGrid = document.querySelector('.answers-grid');
-            ansGrid.innerHTML = ''; // Ù…Ø³Ø­ Ø§Ù„Ù…Ø­ØªÙˆÙ‰ Ø§Ù„Ù‚Ø¯ÙŠÙ…
+            ansGrid.innerHTML = ''; // مسح المحتوى القديم
 
             const type = q.type || 'mc';
 
             if (type === 'mc' || type === 'tf') {
                 const opts = q.opts || [];
                 opts.forEach((opt, i) => {
-                    const icons = ['â–²', 'â—†', 'â—', 'â– '];
+                    const icons = ['▲', '◆', '●', '■'];
                     const colors = ['bg-red', 'bg-blue', 'bg-yellow', 'bg-green'];
                     const btn = document.createElement('button');
                     btn.className = `ans-btn ${colors[i % 4]}`;
@@ -1596,14 +1591,14 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                     ansGrid.appendChild(btn);
                 });
             } else {
-                // Ù„Ù„Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø£Ø®Ø±Ù‰ØŒ Ø³Ù†Ø¹Ø±Ø¶ Ø±Ø³Ø§Ù„Ø© Ù…Ø¤Ù‚ØªØ© Ø£Ùˆ Ù†Ø¹ØªÙ…Ø¯ Ø¹Ù„Ù‰ Ù‡ÙŠÙƒÙ„ÙŠØ© Ø¨Ø³ÙŠØ·Ø©
+                // للأنواع الأخرى، سنعرض رسالة مؤقتة أو نعتمد على هيكلية بسيطة
                 ansGrid.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; background: #eee; border-radius: 10px; font-size: 18px;">
-                    Ù‡Ø°Ø§ Ø§Ù„Ù†Ù…Ø· Ù…Ù† Ø§Ù„Ø£Ø³Ø¦Ù„Ø© (${type}) Ù…ØªØ§Ø­ Ø­Ø§Ù„ÙŠØ§Ù‹ ÙÙŠ Ø´Ø§Ø´Ø© Ø§Ù„Ù…Ø¹Ù„Ù… ÙÙ‚Ø·. 
-                    <br> Ø³ÙŠØªÙ… ØªÙØ¹ÙŠÙ„ Ø§Ù„Ø¹Ø±Ø¶ Ø§Ù„ÙƒØ§Ù…Ù„ Ù„Ù‡ ÙÙŠ Ø§Ù„ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù‚Ø§Ø¯Ù….
+                    هذا النمط من الأسئلة (${type}) متاح حالياً في شاشة المعلم فقط. 
+                    <br> سيتم تفعيل العرض الكامل له في التحديث القادم.
                 </div>`;
             }
 
-            // 3. Ø§Ù„Ø¢Ù† Ù†Ù‚ÙˆÙ… Ø¨ØªØ´ØºÙŠÙ„ Ù…ÙƒØªØ¨Ø© MathLive
+            // 3. الآن نقوم بتشغيل مكتبة MathLive
             if (window.MathLive) {
                 MathLive.renderMathInElement(qContainer);
                 ansGrid.querySelectorAll('.display-text').forEach(el => {
@@ -1669,7 +1664,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             
             userAnswersHistory.push({
                 question: q.q,
-                userAnswer: idx !== -1 ? q.opts[idx] : "Ù„Ù… ÙŠØ¬Ø¨",
+                userAnswer: idx !== -1 ? q.opts[idx] : "لم يجب",
                 correctAnswer: q.opts[q.ans],
                 isCorrect: correct
             });
@@ -1680,9 +1675,9 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             if (correct) {
                 currentStreak++;
                 overlay.style.backgroundColor = 'rgba(38,137,12,0.95)';
-                document.getElementById('feedback-icon').innerText = "âœ”ï¸";
-                document.getElementById('feedback-text').innerText = currentStreak > 2 ? "ØªØªØ§Ø¨Ø¹ Ø£Ø³Ø·ÙˆØ±ÙŠ! ðŸ”¥" : "Ø¥Ø¬Ø§Ø¨Ø© ØµØ­ÙŠØ­Ø©!";
-                document.getElementById('feedback-points').innerText = `+${finalPoints} Ù†Ù‚Ø·Ø©`;
+                document.getElementById('feedback-icon').innerText = "✔️";
+                document.getElementById('feedback-text').innerText = currentStreak > 2 ? "تتابع أسطوري! 🔥" : "إجابة صحيحة!";
+                document.getElementById('feedback-points').innerText = `+${finalPoints} نقطة`;
                 document.getElementById('feedback-points').style.display = "block";
                 
                 const streakBadge = document.getElementById('streak-badge');
@@ -1698,8 +1693,8 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 document.getElementById('streak-badge').style.display = 'none';
                 
                 overlay.style.backgroundColor = 'rgba(226,27,60,0.95)';
-                document.getElementById('feedback-icon').innerText = "âŒ";
-                document.getElementById('feedback-text').innerText = "Ù„Ù„Ø£Ø³ÙØŒ Ø¥Ø¬Ø§Ø¨Ø© Ø®Ø§Ø·Ø¦Ø©";
+                document.getElementById('feedback-icon').innerText = "❌";
+                document.getElementById('feedback-text').innerText = "للأسف، إجابة خاطئة";
                 document.getElementById('feedback-points').style.display = "none";
                 
                 document.body.classList.add('shake-screen');
@@ -1763,14 +1758,14 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             if(container.style.display === 'block') {
                 container.style.display = 'none'; return;
             }
-            container.innerHTML = '<h3>Ù…Ù„Ø®Øµ Ø§Ù„Ø¥Ø¬Ø§Ø¨Ø§Øª:</h3><br>';
+            container.innerHTML = '<h3>ملخص الإجابات:</h3><br>';
             userAnswersHistory.forEach((ans, i) => {
                 container.innerHTML += `
                     <div class="review-item" style="border-right-color: ${ans.isCorrect ? 'var(--success)' : 'var(--k-red)'}">
                         <div class="review-q display-text">${i+1}. ${ans.question}</div>
                         <div class="review-ans">
-                            <span>Ø¥Ø¬Ø§Ø¨ØªÙƒ: <span class="${ans.isCorrect ? 'correct-ans' : 'wrong-ans'} display-text">${ans.userAnswer}</span></span>
-                            ${!ans.isCorrect ? `<span>Ø§Ù„ØµØ­ÙŠØ­Ø©: <span class="correct-ans display-text">${ans.correctAnswer}</span></span>` : ''}
+                            <span>إجابتك: <span class="${ans.isCorrect ? 'correct-ans' : 'wrong-ans'} display-text">${ans.userAnswer}</span></span>
+                            ${!ans.isCorrect ? `<span>الصحيحة: <span class="correct-ans display-text">${ans.correctAnswer}</span></span>` : ''}
                         </div>
                     </div>
                 `;
@@ -1806,7 +1801,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 if(!tbody) return;
                 tbody.innerHTML = '';
                 players.forEach((p, i) => {
-                    let medal = i === 0 ? "ðŸ¥‡" : (i === 1 ? "ðŸ¥ˆ" : (i === 2 ? "ðŸ¥‰" : "ðŸ…"));
+                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
                     tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.c[0].v}</td><td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.c[2].v}</td></tr>`;
                 });
                 const loadingBoard = document.getElementById('loading-board');
@@ -1820,12 +1815,12 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             const input = document.getElementById('game-url-input');
             input.select(); document.execCommand('copy');
             const btn = document.getElementById('copy-btn');
-            btn.innerText = "ØªÙ… Ø§Ù„Ù†Ø³Ø®! âœ”ï¸"; btn.style.backgroundColor = "var(--success)";
-            setTimeout(()=>{ btn.innerText = "Ù†Ø³Ø® Ø§Ù„Ø±Ø§Ø¨Ø·"; btn.style.backgroundColor = "var(--primary)"; }, 2000);
+            btn.innerText = "تم النسخ! ✔️"; btn.style.backgroundColor = "var(--success)";
+            setTimeout(()=>{ btn.innerText = "نسخ الرابط"; btn.style.backgroundColor = "var(--primary)"; }, 2000);
         }
 
         // ========================================== //
-        // Ø£ÙƒÙˆØ§Ø¯ Ø´Ø§Ø´Ø© Ù„ÙˆØ­Ø© Ø§Ù„ØµØ¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªÙ‚Ù„Ø© Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø©   //
+        // أكواد شاشة لوحة الصدارة المستقلة الجديدة   //
         // ========================================== //
 
         function viewCurrentRoomLeaderboard() {
@@ -1841,7 +1836,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             const pin = document.getElementById('search-leaderboard-pin').value.trim();
 
             if (!pin) {
-                alert('ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ø§Ù„ØºØ±ÙØ© Ù„Ù„Ø¨Ø­Ø«!');
+                alert('يرجى إدخال رقم الغرفة للبحث!');
                 return;
             }
 
@@ -1851,7 +1846,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
 
             table.style.display = 'none';
             loading.style.display = 'block';
-            loading.innerText = "â³ Ø¬Ø§Ø±ÙŠ Ø¬Ù„Ø¨ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Ø§Ù„Ù†Ø¸Ø§Ù…...";
+            loading.innerText = "⏳ جاري جلب البيانات من النظام...";
             tbody.innerHTML = '';
 
             try {
@@ -1863,12 +1858,12 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
 
                 if (players.length === 0) {
-                    loading.innerText = "Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬ Ù…Ø³Ø¬Ù„Ø© Ù„Ù‡Ø°Ù‡ Ø§Ù„ØºØ±ÙØ© Ø­ØªÙ‰ Ø§Ù„Ø¢Ù†.";
+                    loading.innerText = "لا توجد نتائج مسجلة لهذه الغرفة حتى الآن.";
                     return;
                 }
 
                 players.forEach((p, i) => {
-                    let medal = i === 0 ? "ðŸ¥‡" : (i === 1 ? "ðŸ¥ˆ" : (i === 2 ? "ðŸ¥‰" : "ðŸ…"));
+                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
                     tbody.innerHTML += `
                         <tr>
                             <td>${i+1} ${medal}</td>
@@ -1880,7 +1875,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 loading.style.display = 'none';
                 table.style.display = 'table';
             } catch (e) {
-                loading.innerText = "âŒ Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø¬Ù„Ø¨ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª. ØªØ£ÙƒØ¯ Ù…Ù† Ø§ØªØµØ§Ù„Ùƒ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª.";
+                loading.innerText = "❌ حدث خطأ أثناء جلب البيانات. تأكد من اتصالك بالإنترنت.";
             }
         }
     
@@ -1893,11 +1888,11 @@ async function searchImages(id){
 let q=document.getElementById('search-input-'+id).value;
 let grid=document.getElementById('img-grid-'+id);
 let status=document.getElementById('search-status-'+id);
-grid.innerHTML='';status.innerText='â³...';
+grid.innerHTML='';status.innerText='⏳...';
 try{
 let url=`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=20&prop=imageinfo&iiprop=url&format=json&origin=*`;
 let r=await fetch(url);let d=await r.json();
-if(!d.query){status.innerText='âŒ';return;}
+if(!d.query){status.innerText='❌';return;}
 status.innerText='';
 Object.values(d.query.pages).forEach(p=>{
 let img=document.createElement('img');
@@ -1906,7 +1901,7 @@ img.className='img-result';
 img.onclick=()=>selectImage(id,img.src);
 grid.appendChild(img);
 });
-}catch(e){status.innerText='âŒ';}
+}catch(e){status.innerText='❌';}
 }
 
 function selectImage(id,url){
@@ -1943,11 +1938,11 @@ async function searchImages(id){
 let q=document.getElementById('search-input-'+id).value;
 let grid=document.getElementById('img-grid-'+id);
 let status=document.getElementById('search-status-'+id);
-grid.innerHTML='';status.innerText='â³...';
+grid.innerHTML='';status.innerText='⏳...';
 try{
 let url=`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=20&prop=imageinfo&iiprop=url&format=json&origin=*`;
 let r=await fetch(url);let d=await r.json();
-if(!d.query){status.innerText='âŒ';return;}
+if(!d.query){status.innerText='❌';return;}
 status.innerText='';
 Object.values(d.query.pages).forEach(p=>{
 let img=document.createElement('img');
@@ -1956,7 +1951,7 @@ img.className='img-result';
 img.onclick=()=>selectImage(id,img.src);
 grid.appendChild(img);
 });
-}catch(e){status.innerText='âŒ';}
+}catch(e){status.innerText='❌';}
 }
 
 function selectImage(id,url){
