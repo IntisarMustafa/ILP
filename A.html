@@ -424,6 +424,22 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 .img-result:hover{border-color:var(--primary);transform:scale(1.05)}
 .q-image-input{width:100%;padding:10px;border:2px solid #ccc;border-radius:8px;direction:ltr;margin-top:10px}
 
+
+/* MATCH & DRAG NEW */
+.match-left-item, .match-right-item {
+    padding:15px;border-radius:12px;border:2px solid #ddd;
+    background:white;font-weight:bold;font-size:18px;cursor:pointer;
+}
+.match-left-item.active-left{
+    border-color:#1368ce;background:#eef5ff;color:#1368ce;
+}
+.drag-pool-container{
+    min-height:100px;padding:20px;border:3px dashed #ccc;border-radius:15px;
+}
+.drag-zone-container{
+    min-height:150px;border:3px solid #46178f;border-radius:15px;
+}
+
 </style>
 </head>
 <body>
@@ -974,6 +990,8 @@ let quizTitle = "🎮 التحدي الأكبر";
         let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 15;
         let TOTAL_TIME = 15;
         let currentStreak = 0, powerUpUsed = false, userAnswersHistory = [];
+let currentMatchingState = { selectedLeft: null, matches: {} };
+let currentDragState = { selectedWordId: null, items: [] };
 
         let qBlockCount = 0;
 
@@ -2044,5 +2062,26 @@ let img=document.getElementById('img-preview-'+id);
 if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 }
 
+
+// MATCH FUNCTIONS
+function selectMatchLeft(el,text){
+document.querySelectorAll('.match-left-item').forEach(e=>e.classList.remove('active-left'));
+el.classList.add('active-left');
+currentMatchingState.selectedLeft=text;
+}
+function selectMatchRight(el,text){
+if(!currentMatchingState.selectedLeft) return;
+currentMatchingState.matches[currentMatchingState.selectedLeft]=text;
+currentMatchingState.selectedLeft=null;
+}
+function submitMatchingAnswer(){console.log(currentMatchingState);}
+
+// DRAG FUNCTIONS
+function moveDragItem(zone){
+if(currentDragState.selectedWordId==null) return;
+let item=currentDragState.items.find(i=>i.id===currentDragState.selectedWordId);
+if(item) item.currentZone=zone;
+currentDragState.selectedWordId=null;
+}
 </script></body>
 </html>
