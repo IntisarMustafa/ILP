@@ -1008,18 +1008,18 @@ let quizTitle = "🎮 التحدي الأكبر";
                         ${index > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
                     </h3>
                     
-                    <div class="type-selector">
-                        <button type="button" class="type-btn active" onclick="setQuestionType('${blockId}', 'mc')">اختيار من متعدد</button>
-                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'tf')">صح أو خطأ</button>
-                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'blanks')">إكمال فراغات</button>
-                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'matching')">توصيل</button>
-                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'dragdrop')">تصنيف</button>
-                    </div>
+	                    <div class="type-selector">
+	                        <button type="button" class="type-btn active" onclick="setQuestionType('${blockId}', 'mc')">اختيار من متعدد</button>
+	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'blanks')">إكمال فراغات</button>
+	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'matching')">توصيل</button>
+	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'dragdrop')">تصنيف</button>
+	                    </div>
 
                     <div style="display:flex; gap:10px; margin-bottom: 10px;">
                         <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="flex:1;">
                         <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-                        <input type="number" class="q-time-input" value="15" min="5" max="300" style="width:90px;">
+                        <input type="number" class="q-time-input" value="15" min="5" max="300" style="width:90px;" title="الوقت بالثواني">
+                        <input type="number" class="q-points-input" value="1000" min="0" max="10000" style="width:90px;" placeholder="الدرجة" title="درجة السؤال">
                     </div>
 
                     <div style="margin-bottom: 15px;">
@@ -1062,50 +1062,51 @@ let quizTitle = "🎮 التحدي الأكبر";
             const editor = document.getElementById(`editor-${blockId}`);
             const index = parseInt(blockId.split('-')[2]);
 
-            if (type === 'mc') editor.innerHTML = getMultipleChoiceEditor(index);
-            else if (type === 'tf') editor.innerHTML = getTrueFalseEditor(index);
-            else if (type === 'blanks') editor.innerHTML = getBlanksEditor(index);
+	            if (type === 'mc') editor.innerHTML = getMultipleChoiceEditor(index);
+	            else if (type === 'blanks') editor.innerHTML = getBlanksEditor(index);
             else if (type === 'matching') editor.innerHTML = getMatchingEditor(index);
             else if (type === 'dragdrop') editor.innerHTML = getDragDropEditor(index);
         }
 
-        function getMultipleChoiceEditor(index) {
-            return `
-                <div class="opt-row">
-                    <input type="radio" name="correct-${index}" value="0" checked>
-                    <input type="text" class="q-opt-input" placeholder="الخيار الأول (▲)" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-                </div>
-                <div class="opt-row">
-                    <input type="radio" name="correct-${index}" value="1">
-                    <input type="text" class="q-opt-input" placeholder="الخيار الثاني (◆)" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-                </div>
-                <div class="opt-row">
-                    <input type="radio" name="correct-${index}" value="2">
-                    <input type="text" class="q-opt-input" placeholder="الخيار الثالث (●)" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-                </div>
-                <div class="opt-row">
-                    <input type="radio" name="correct-${index}" value="3">
-                    <input type="text" class="q-opt-input" placeholder="الخيار الرابع (■)" required>
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-                </div>
-            `;
-        }
+	        function getMultipleChoiceEditor(index) {
+	            return `
+	                <div id="mc-container-${index}">
+	                    <div class="opt-row">
+	                        <input type="radio" name="correct-${index}" value="0" checked>
+	                        <input type="text" class="q-opt-input" placeholder="الخيار الأول" required>
+	                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+	                    </div>
+	                    <div class="opt-row">
+	                        <input type="radio" name="correct-${index}" value="1">
+	                        <input type="text" class="q-opt-input" placeholder="الخيار الثاني" required>
+	                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+	                    </div>
+	                </div>
+	                <button type="button" class="add-btn" onclick="addMCOption(${index})">+ إضافة خيار</button>
+	            `;
+	        }
 
-        function getTrueFalseEditor(index) {
-            return `
-                <div class="opt-row">
-                    <input type="radio" name="correct-${index}" value="0" checked>
-                    <span style="flex:1; text-align:right;">صح</span>
-                </div>
-                <div class="opt-row">
-                    <input type="radio" name="correct-${index}" value="1">
-                    <span style="flex:1; text-align:right;">خطأ</span>
-                </div>
-            `;
-        }
+	        function addMCOption(index) {
+	            const container = document.getElementById(`mc-container-${index}`);
+	            const optCount = container.querySelectorAll('.opt-row').length;
+	            const html = `
+	                <div class="opt-row">
+	                    <input type="radio" name="correct-${index}" value="${optCount}">
+	                    <input type="text" class="q-opt-input" placeholder="خيار جديد" required>
+	                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+	                    <button type="button" onclick="this.parentElement.remove(); updateMCOptionValues(${index});" style="color:red; background:none; border:none; cursor:pointer;">✕</button>
+	                </div>
+	            `;
+	            container.insertAdjacentHTML('beforeend', html);
+	        }
+
+	        function updateMCOptionValues(index) {
+	            const container = document.getElementById(`mc-container-${index}`);
+	            const radios = container.querySelectorAll('input[type="radio"]');
+	            radios.forEach((radio, i) => {
+	                radio.value = i;
+	            });
+	        }
 
         function getBlanksEditor(index) {
             return `
@@ -1384,23 +1385,23 @@ let quizTitle = "🎮 التحدي الأكبر";
             blocks.forEach((block, index) => {
                 const title = block.querySelector('.q-title-input').value.trim();
                 const timeVal = block.querySelector('.q-time-input')?.value;
+                const pointsVal = block.querySelector('.q-points-input')?.value;
                 const type = block.getAttribute('data-type') || 'mc';
                 
                 let qData = {
                     q: title,
                     time: parseInt(timeVal) || 15,
+                    points: parseInt(pointsVal) || 1000,
                     type: type
                 };
 
-                if (type === 'mc' || type === 'tf') {
+                if (type === 'mc') {
                     const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
-                    // في حال صح أو خطأ، الخيارات ثابتة
-                    const finalOpts = type === 'tf' ? ["صح", "خطأ"] : opts;
                     const correctRadio = block.querySelector('input[type="radio"]:checked');
                     
-                    if (!title || (type === 'mc' && opts.some(opt => !opt))) isValid = false;
+                    if (!title || opts.length < 2 || opts.some(opt => !opt)) isValid = false;
                     if (correctRadio) {
-                        qData.opts = finalOpts;
+                        qData.opts = opts;
                         qData.ans = parseInt(correctRadio.value);
                     } else {
                         isValid = false;
@@ -1654,9 +1655,10 @@ timeLeft = TOTAL_TIME;
 document.getElementById('quiz-title-display').innerText = quizTitle;
             const correct = (idx === q.ans);
             
-            let basePoints = correct ? Math.round((timeLeft/TOTAL_TIME)*1000) : 0;
-            let multiplier = 1 + (currentStreak * 0.1);
-            let finalPoints = Math.round(basePoints * multiplier);
+	            let maxPoints = q.points || 1000;
+	            let basePoints = correct ? Math.round((timeLeft/TOTAL_TIME)*maxPoints) : 0;
+	            let multiplier = 1 + (currentStreak * 0.1);
+	            let finalPoints = Math.round(basePoints * multiplier);
 
             const oldScore = studentScore;
             studentScore += finalPoints;
