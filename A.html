@@ -1591,12 +1591,46 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                     btn.innerHTML = `<span class="ans-icon">${icons[i % 4]}</span> <span class="display-text" id="ans-text-${i}" style="direction: rtl;">${opt}</span>`;
                     ansGrid.appendChild(btn);
                 });
-            } else {
-                // للأنواع الأخرى، سنعرض رسالة مؤقتة أو نعتمد على هيكلية بسيطة
-                ansGrid.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; background: #eee; border-radius: 10px; font-size: 18px;">
-                    هذا النمط من الأسئلة (${type}) متاح حالياً في شاشة المعلم فقط. 
-                    <br> سيتم تفعيل العرض الكامل له في التحديث القادم.
-                </div>`;
+            } else if (type === 'blanks') {
+                let blanksHtml = `<div style="grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%;">`;
+                if (q.blanks) {
+                    q.blanks.forEach((blank, i) => {
+                        blanksHtml += `<input type="text" id="student-blank-${i}" placeholder="أدخل إجابة الفراغ رقم ${i+1}" style="font-size: 20px; padding: 15px; border-radius: 10px; border: 3px solid var(--primary); text-align: center; width: 80%; max-width: 400px; font-weight: bold;">`;
+                    });
+                }
+                blanksHtml += `<button class="btn btn-primary" onclick="submitBlanksAnswer()" style="width: 80%; max-width: 400px; margin-top: 15px;">تأكيد الإجابة ✔️</button></div>`;
+                ansGrid.innerHTML = blanksHtml;
+            } else if (type === 'matching') {
+                let matchingHtml = `<div style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 10px;">`;
+                const leftItems = q.pairs.map(p => p.left);
+                const rightItems = q.pairs.map(p => p.right).sort(() => Math.random() - 0.5);
+                leftItems.forEach((left, i) => {
+                    matchingHtml += `
+                        <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            <div style="flex: 1; font-weight: bold; color: var(--primary);">${left}</div>
+                            <div style="font-size: 20px;">🔗</div>
+                            <select id="match-select-${i}" style="flex: 1; padding: 10px; border-radius: 5px; border: 2px solid #ddd; font-family: 'Cairo';">
+                                <option value="">اختر المطابق...</option>
+                                ${rightItems.map(ritem => `<option value="${ritem}">${ritem}</option>`).join('')}
+                            </select>
+                        </div>`;
+                });
+                matchingHtml += `<button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 15px;">تأكيد التوصيل ✔️</button></div>`;
+                ansGrid.innerHTML = matchingHtml;
+            } else if (type === 'dragdrop') {
+                let dragHtml = `<div style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 15px;">`;
+                q.items.forEach((item, i) => {
+                    dragHtml += `
+                        <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            <div style="flex: 1; font-weight: bold; color: var(--primary);">${item.text}</div>
+                            <select id="drag-select-${i}" style="flex: 1; padding: 10px; border-radius: 5px; border: 2px solid #ddd; font-family: 'Cairo';">
+                                <option value="-1">اختر المجموعة...</option>
+                                ${q.zones.map((zone, zi) => `<option value="${zi}">${zone}</option>`).join('')}
+                            </select>
+                        </div>`;
+                });
+                dragHtml += `<button class="btn btn-primary" onclick="submitDragDropAnswer()" style="margin-top: 15px;">تأكيد التصنيف ✔️</button></div>`;
+                ansGrid.innerHTML = dragHtml;
             }
 
             // 3. الآن نقوم بتشغيل مكتبة MathLive
@@ -1648,17 +1682,58 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
         }
 
         function submitAnswer(idx) {
+            const q = gameQuestions[currentQIndex];
+            const correct = (idx === q.ans);
+            const userAnswer = idx !== -1 ? q.opts[idx] : "لم يجب";
+            const correctAnswer = q.opts ? q.opts[q.ans] : "";
+            processFinalResult(correct, userAnswer, correctAnswer);
+        }
+
+        function submitBlanksAnswer() {
+            const q = gameQuestions[currentQIndex];
+            let allCorrect = true;
+            let studentAnswers = [];
+            if (q.blanks) {
+                q.blanks.forEach((blank, i) => {
+                    let val = document.getElementById(`student-blank-${i}`).value.trim();
+                    studentAnswers.push(val);
+                    if (val.toLowerCase() !== blank.trim().toLowerCase()) allCorrect = false;
+                });
+            }
+            processFinalResult(allCorrect, studentAnswers.join(" ، "), q.blanks.join(" ، "));
+        }
+
+        function submitMatchingAnswer() {
+            const q = gameQuestions[currentQIndex];
+            let allCorrect = true;
+            let studentAnswers = [];
+            q.pairs.forEach((pair, i) => {
+                let val = document.getElementById(`match-select-${i}`).value;
+                studentAnswers.push(`${pair.left} -> ${val || '؟'}`);
+                if (val !== pair.right) allCorrect = false;
+            });
+            processFinalResult(allCorrect, studentAnswers.join(" | "), q.pairs.map(p => `${p.left} -> ${p.right}`).join(" | "));
+        }
+
+        function submitDragDropAnswer() {
+            const q = gameQuestions[currentQIndex];
+            let allCorrect = true;
+            let studentAnswers = [];
+            q.items.forEach((item, i) => {
+                let val = parseInt(document.getElementById(`drag-select-${i}`).value);
+                studentAnswers.push(`${item.text}: ${val !== -1 ? q.zones[val] : '؟'}`);
+                if (val !== item.zoneIndex) allCorrect = false;
+            });
+            processFinalResult(allCorrect, studentAnswers.join(" | "), q.items.map(it => `${it.text}: ${q.zones[it.zoneIndex]}`).join(" | "));
+        }
+
+        function processFinalResult(correct, userAnswer, correctAnswer) {
             clearInterval(timerInterval); stopBGM();
             const q = gameQuestions[currentQIndex];
-TOTAL_TIME = q.time || 15;
-timeLeft = TOTAL_TIME;
-document.getElementById('quiz-title-display').innerText = quizTitle;
-            const correct = (idx === q.ans);
-            
-	            let maxPoints = q.points || 1000;
-	            let basePoints = correct ? Math.round((timeLeft/TOTAL_TIME)*maxPoints) : 0;
-	            let multiplier = 1 + (currentStreak * 0.1);
-	            let finalPoints = Math.round(basePoints * multiplier);
+            let maxPoints = q.points || 1000;
+            let basePoints = correct ? Math.round((timeLeft/(q.time || 15))*maxPoints) : 0;
+            let multiplier = 1 + (currentStreak * 0.1);
+            let finalPoints = Math.round(basePoints * multiplier);
 
             const oldScore = studentScore;
             studentScore += finalPoints;
@@ -1666,8 +1741,8 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             
             userAnswersHistory.push({
                 question: q.q,
-                userAnswer: idx !== -1 ? q.opts[idx] : "لم يجب",
-                correctAnswer: q.opts[q.ans],
+                userAnswer: userAnswer,
+                correctAnswer: correctAnswer,
                 isCorrect: correct
             });
 
