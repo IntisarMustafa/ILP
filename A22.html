@@ -1276,11 +1276,12 @@ function saveQuestionsToSheet() {
 
         // --- دالة موحدة لحساب النتيجة والانتقال للوحة الانتظار (خاصة بملف A2) ---
         function processFinalResult(correct, userAnswer, correctAnswer) {
-            clearInterval(timerInterval); stopBGM();
+            clearInterval(timerInterval); 
+            stopBGM();
             const q = gameQuestions[currentQIndex];
             
-            // حساب النقاط
-            let basePoints = correct ? Math.round((timeLeft/currentQuestionTime)*1000) : 0;
+            // حساب النقاط (نفس منطق A2)
+            let basePoints = correct ? Math.round((timeLeft / currentQuestionTime) * 1000) : 0;
             let multiplier = 1 + (currentStreak * 0.1);
             let finalPoints = Math.round(basePoints * multiplier);
 
@@ -1288,38 +1289,72 @@ function saveQuestionsToSheet() {
             studentScore += finalPoints; 
             animateScore(oldScore, studentScore);
             
-            userAnswersHistory.push({ question: q.q, userAnswer: userAnswer, correctAnswer: correctAnswer, isCorrect: correct });
+            // تسجيل الإجابة في التاريخ
+            userAnswersHistory.push({ 
+                question: q.q, 
+                userAnswer: userAnswer, 
+                correctAnswer: correctAnswer, 
+                isCorrect: correct 
+            });
 
-            document.getElementById('form-score').value = studentScore;
-            document.getElementById('scoreForm').submit();
+            // تحديث السكور في الفورم المخفي لإرساله لجوجل شيت
+            const formScoreInput = document.getElementById('form-score');
+            if (formScoreInput) {
+                formScoreInput.value = studentScore;
+                document.getElementById('scoreForm').submit();
+            }
 
-            const overlay = document.getElementById('feedback-overlay'); overlay.style.display = 'flex';
+            // إظهار التغذية الراجعة (صح/خطأ)
+            const overlay = document.getElementById('feedback-overlay'); 
+            overlay.style.display = 'flex';
             
             if (correct) {
-                currentStreak++; overlay.style.backgroundColor = 'rgba(38,137,12,0.95)';
+                currentStreak++; 
+                overlay.style.backgroundColor = 'rgba(38,137,12,0.95)';
                 document.getElementById('feedback-icon').innerText = "✔️";
                 document.getElementById('feedback-text').innerText = currentStreak > 2 ? "تتابع أسطوري! 🔥" : "إجابة صحيحة!";
                 document.getElementById('feedback-points').innerText = `+${finalPoints} نقطة`;
                 document.getElementById('feedback-points').style.display = "block";
                 
                 const streakBadge = document.getElementById('streak-badge');
-                if(currentStreak >= 2) { streakBadge.style.display = 'flex'; document.getElementById('streak-count').innerText = currentStreak; }
+                if(currentStreak >= 2) { 
+                    streakBadge.style.display = 'flex'; 
+                    document.getElementById('streak-count').innerText = currentStreak; 
+                }
                 showFloatingPoints(finalPoints);
-                playTone(600, 'sine', 0.1, 0.1); setTimeout(()=>playTone(800, 'sine', 0.2, 0.1), 100);
+                playTone(600, 'sine', 0.1, 0.1); 
+                setTimeout(() => playTone(800, 'sine', 0.2, 0.1), 100);
             } else {
-                currentStreak = 0; document.getElementById('streak-badge').style.display = 'none';
+                currentStreak = 0; 
+                document.getElementById('streak-badge').style.display = 'none';
                 overlay.style.backgroundColor = 'rgba(226,27,60,0.95)';
                 document.getElementById('feedback-icon').innerText = "❌";
                 document.getElementById('feedback-text').innerText = "للأسف، إجابة خاطئة";
                 document.getElementById('feedback-points').style.display = "none";
-                document.body.classList.add('shake-screen'); setTimeout(() => document.body.classList.remove('shake-screen'), 600);
+                document.body.classList.add('shake-screen'); 
+                setTimeout(() => document.body.classList.remove('shake-screen'), 600);
                 playTone(200, 'sawtooth', 0.3, 0.1);
             }
 
+            // الانتقال لشاشة الانتظار (لوحة الصدارة المؤقتة) بعد 2.5 ثانية
             setTimeout(() => {
                 overlay.style.display = 'none';
-                showInterimLeaderboard(); // توجيه الطالب للوحة الانتظار الخاصة بالمعلم!
+                // هذا هو السطر الحرج لإعادة اللوحة
+                switchToInterimScreen(); 
             }, 2500);
+        }
+
+        function switchToInterimScreen() {
+            // إخفاء كل الشاشات
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            
+            // إظهار شاشة لوحة الصدارة المؤقتة
+            const interimScreen = document.getElementById('screen-interim-leaderboard');
+            if (interimScreen) {
+                interimScreen.classList.add('active');
+                // تحديث البيانات داخلها
+                showInterimLeaderboard(); 
+            }
         }
 
         function submitBlanksAnswer() {
@@ -1469,40 +1504,46 @@ function saveQuestionsToSheet() {
             const table = document.getElementById('interim-leaderboard-table');
             const loading = document.getElementById('interim-loading-board');
             
-            table.style.display = 'none';
-            loading.style.display = 'block';
-            tbody.innerHTML = '';
+            if (table) table.style.display = 'none';
+            if (loading) loading.style.display = 'block';
+            if (tbody) tbody.innerHTML = '';
 
             // دالة داخلية لتحديث الجدول
             const updateTableData = (rows) => {
                 let players = rows.filter(r => r.c[1]?.v?.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS" && r.c[0]?.v !== "TEACHER_CMD");
                 let playerMap = {};
                 players.forEach(p => {
-                    let name = p.c[0].v;
-                    let score = parseInt(p.c[2].v) || 0;
-                    if(!playerMap[name] || score > playerMap[name].score) playerMap[name] = { name: name, score: score };
+                    if (p.c[0] && p.c[2]) {
+                        let name = p.c[0].v;
+                        let score = parseInt(p.c[2].v) || 0;
+                        if(!playerMap[name] || score > playerMap[name].score) playerMap[name] = { name: name, score: score };
+                    }
                 });
                 let uniquePlayers = Object.values(playerMap);
                 uniquePlayers.sort((a,b) => b.score - a.score);
-                tbody.innerHTML = '';
-                uniquePlayers.forEach((p, i) => {
-                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
-                    tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.name}</td><td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.score}</td></tr>`;
-                });
-                loading.style.display = 'none';
-                table.style.display = 'table';
+                if (tbody) {
+                    tbody.innerHTML = '';
+                    uniquePlayers.forEach((p, i) => {
+                        let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+                        tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.name}</td><td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.score}</td></tr>`;
+                    });
+                }
+                if (loading) loading.style.display = 'none';
+                if (table) table.style.display = 'table';
             };
 
-	            // إذا كان السؤال الأخير، غير الرسالة
-	            const waitMsg = document.getElementById('wait-teacher-msg');
-	            if (currentQIndex === gameQuestions.length - 1) {
-	                waitMsg.innerHTML = "🏆 انتهى التحدي! بانتظار المعلم لإظهار النتيجة النهائية...";
-	            } else {
-	                waitMsg.innerHTML = "⏳ بانتظار المعلم للانتقال للسؤال التالي...";
-	            }
-	            
-	            // التحقق المستمر كل 3 ثواني
-	            if (studentWaitInterval) clearInterval(studentWaitInterval);
+            // إذا كان السؤال الأخير، غير الرسالة
+            const waitMsg = document.getElementById('wait-teacher-msg');
+            if (waitMsg) {
+                if (currentQIndex === gameQuestions.length - 1) {
+                    waitMsg.innerHTML = "🏆 انتهى التحدي! بانتظار المعلم لإظهار النتيجة النهائية...";
+                } else {
+                    waitMsg.innerHTML = "⏳ بانتظار المعلم للانتقال للسؤال التالي...";
+                }
+            }
+            
+            // التحقق المستمر كل 3 ثواني
+            if (studentWaitInterval) clearInterval(studentWaitInterval);
             studentWaitInterval = setInterval(async () => {
                 try {
                     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=` + new Date().getTime();
@@ -1517,7 +1558,7 @@ function saveQuestionsToSheet() {
                     let teacherCommands = rows.filter(r => r.c[1]?.v?.toString() === currentRoomPIN && r.c[0]?.v === "TEACHER_CMD");
                     
                     // إذا كان عدد ضغطات المعلم (أوامر NEXT) أكبر من رقم السؤال الذي انتهينا منه
-                    if (teacherCommands.length > currentQIndex) {
+                    if (teacherCommands.length > currentQIndex + 1) {
                         clearInterval(studentWaitInterval); // توقف عن البحث
                         currentQIndex++; 
                         if(currentQIndex < gameQuestions.length) {
