@@ -1781,10 +1781,19 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
         }
 
         function selectLeftMatch(element) {
-            if (Object.keys(currentMatchingState.matches).includes(element.dataset.text)) {
-                delete currentMatchingState.matches[element.dataset.text];
+            // إذا كان العنصر مختاراً بالفعل، نلغي اختياره
+            if (currentMatchingState.selectedLeft === element.dataset.text) {
+                currentMatchingState.selectedLeft = null;
                 playTone(400, 'sine', 0.05);
-            } else {
+            } 
+            // إذا كان العنصر مرتبطاً، نفك الارتباط ونختاره
+            else if (Object.keys(currentMatchingState.matches).includes(element.dataset.text)) {
+                delete currentMatchingState.matches[element.dataset.text];
+                currentMatchingState.selectedLeft = element.dataset.text;
+                playTone(600, 'sine', 0.05);
+            } 
+            // اختيار عادي
+            else {
                 currentMatchingState.selectedLeft = element.dataset.text;
                 playTone(600, 'sine', 0.05);
             }
