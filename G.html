@@ -667,8 +667,8 @@ async function studentLogin() {
 
                 if (!onPlatform) { playerVelocity -= (gravity * gravityDirection * deltaTime); playerY += (playerVelocity * deltaTime); currentPlatform = null; }
                 const maxY = gameArea.offsetHeight - groundLevel - playerHeight;
-                if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; if (gravityDirection === -1) { gravityDirection = 1; if(gravityTimer) { clearTimeout(gravityTimer); gravityTimer = null; } showGameMessage('جاذبية عادية!'); } }
-                else if (playerY > maxY) { playerY = maxY; playerVelocity = 0; isJumping = false; canJump = true; if (gravityDirection === 1) { gravityDirection = -1; showGameMessage('جاذبية معكوسة!'); } }
+                if (playerY < 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; }
+                else if (playerY > maxY) { playerY = maxY; playerVelocity = 0; }
                 
                 player.style.bottom = `${groundLevel + playerY}px`;
                 if (playerMode !== 'ship' && isRolling) { rotationAngle += (rotationSpeed * gravityDirection * deltaTime); player.style.transform = `rotate(${rotationAngle}deg)`; } 
@@ -712,33 +712,7 @@ async function studentLogin() {
                 const obox = { x: orect.left - garect.left, y: oy, w: obstacle.offsetWidth, h: obstacle.offsetHeight };
                 if (!(pbox.x < obox.x + obox.w && pbox.x + pbox.w > obox.x && pbox.y < obox.y + obox.h && pbox.y + pbox.h > obox.y)) return false;
                 
-                if (obstacle.classList.contains('gravity-portal')) { 
-                    if (!obsData.used) { 
-                        gravityDirection *= -1; 
-                        obsData.used = true; 
-                        playSound(900, 'triangle', 0.15, 0.4); 
-                        
-                        if (gravityDirection === -1) {
-                            showGameMessage('جاذبية معكوسة لـ 5 ثوانٍ!');
-                            if (gravityTimer) clearTimeout(gravityTimer);
-                            gravityTimer = setTimeout(() => {
-                                if (gravityDirection === -1) {
-                                    gravityDirection = 1;
-                                    showGameMessage('عودة الجاذبية العادية!');
-                                    playSound(700, 'sine', 0.1, 0.3);
-                                }
-                                gravityTimer = null;
-                            }, 5000);
-                        } else {
-                            showGameMessage('جاذبية عادية!');
-                            if (gravityTimer) { clearTimeout(gravityTimer); gravityTimer = null; }
-                        }
-                        
-                        obstacle.style.opacity = 0; 
-                        setTimeout(()=>obstacle.remove(), 500); 
-                    } 
-                    return false; 
-                }
+
                 if (obstacle.classList.contains('air-pad')) { if (playerVelocity < 0 && prect.bottom >= orect.top - 10 && prect.bottom <= orect.top + 10) { playerY = (garect.height - orect.top - player.offsetHeight) - groundLevel; playerVelocity = 0; isJumping = false; canJump = true; playSound(550, 'sine', 0.05, 0.2); return false; } }
                 
                 playSound(80, 'sawtooth', 0.2, 0.3); createParticles(player.offsetLeft, player.offsetTop, '#e94560', 30);
@@ -846,7 +820,6 @@ async function studentLogin() {
                     if (type < 0.3) { obstacle.style.height = `${Math.random() * 70 + 60}px`; obstacle.style.bottom = `${groundLevel}px`; }
                     else if (type < 0.5) { obstacle.classList.add('triangle-obstacle'); if (Math.random() < 0.5) { obstacle.classList.add('inverted'); obstacle.style.top = '60px'; } else { obstacle.style.bottom = `${groundLevel}px`; } }
                     else if (type < 0.65) { obstacle.classList.add('air-pad'); obstacle.style.bottom = `${groundLevel}px`; }
-                    else if (type < 0.8) { obstacle.classList.add('gravity-portal'); obstacle.style.bottom = `${groundLevel}px`; obstacle.innerHTML = '<i class="fas fa-arrows-alt-v"></i>'; if (gravityDirection === -1) obstacle.querySelector('i').classList.add('inverted'); }
                     else { obstacle.classList.add('moving-obstacle'); obstacle.style.bottom = `${groundLevel}px`; obstacle.dataset.initialY = Math.random() * (gameArea.offsetHeight - 200) + groundLevel + 20; obstacle.dataset.moveRange = Math.random() * 50 + 30; obstacle.dataset.moveSpeed = Math.random() * 0.03 + 0.01; obstacle.dataset.moveOffset = Math.random() * Math.PI * 2; }
                 }
                 obstacle.style.right = '-70px'; gameArea.appendChild(obstacle);
