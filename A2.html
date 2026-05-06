@@ -156,6 +156,17 @@
         tbody tr { box-shadow: 0 3px 10px rgba(0,0,0,0.08); transition: transform 0.2s; }
         tbody tr:hover { transform: scale(1.02); }
 
+        /* --- أنماط الأسئلة التفاعلية الجديدة --- */
+        .match-btn {
+            transition: all 0.2s; user-select: none; -webkit-user-select: none;
+            touch-action: manipulation; position: relative; overflow: hidden; z-index: 2;
+        }
+        .match-btn:active { transform: scale(0.95); }
+        #matching-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
+        }
+        .display-text math-field, .display-text .ML__mathlive { font-size: 1.1em !important; }
+
         /* Game UI */
         .game-header { 
             display: flex; justify-content: space-between; align-items: center;
@@ -484,14 +495,12 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 	<div id="question-counter" style="text-align: center; font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">السؤال 1 من 1</div>
 <div class="timer-container"><div class="timer-bar" id="timer-bar"></div></div>
 <button class="powerup-btn" id="powerup-5050" onclick="use5050()">💡 مساعدة 50/50 (استخدام واحد)</button>
-<div class="question-box display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div>
+<div class="question-box display-text" id="question-text"></div>
 <div class="answers-grid">
-<button class="ans-btn bg-red" id="btn-ans-0" onclick="submitAnswer(0)"><span class="ans-icon">▲</span> <span class="display-text" id="ans-text-0" style="direction: rtl;"></span></button>
-<button class="ans-btn bg-blue" id="btn-ans-1" onclick="submitAnswer(1)"><span class="ans-icon">◆</span> <span class="display-text" id="ans-text-1" style="direction: rtl;"></span></button>
-<button class="ans-btn bg-yellow" id="btn-ans-2" onclick="submitAnswer(2)"><span class="ans-icon">●</span> <span class="display-text" id="ans-text-2" style="direction: rtl;"></span></button>
-<button class="ans-btn bg-green" id="btn-ans-3" onclick="submitAnswer(3)"><span class="ans-icon">■</span> <span class="display-text" id="ans-text-3" style="direction: rtl;"></span></button>
 </div>
+
 </div>
+
 <div id="feedback-overlay">
 <div id="feedback-icon"></div>
 <div id="feedback-text"></div>
@@ -857,6 +866,11 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
         let totalRoomQuestions = 0; // إجمالي عدد الأسئلة في الغرفة
         let studentWaitInterval = null; // متغير لضبط عملية الانتظار لدى الطالب
 
+        // --- متغيرات الأسئلة التفاعلية ---
+        let currentMatchingState = { selectedLeft: null, matches: {} };
+        let currentDragState = { items: [], selectedWordId: null, elementsCreated: false };
+        const matchingColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#46178f', '#ff8c00', '#00c2e0', '#ff477e'];
+
         function openTeacherSetup() {
             document.getElementById('questions-list').innerHTML = '';
             qBlockCount = 0;
@@ -1113,54 +1127,113 @@ function saveQuestionsToSheet() {
         }
 
         function loadNextQuestion() {
-            if (currentQIndex >= gameQuestions.length) { 
-                endGame(); 
-                return; 
-            }
+            if (currentQIndex >= gameQuestions.length) { endGame(); return; }
 
             playBGM('game');
             const q = gameQuestions[currentQIndex];
 
-	            // 1) ضع السؤال أولاً
-	            document.getElementById('question-text').textContent = q.q;
-	            
-	            // تحديث الترقيم
-	            const counterEl = document.getElementById('question-counter');
-	            if (counterEl) {
-	                if (currentQIndex === gameQuestions.length - 1) {
-	                    counterEl.innerHTML = `<span style="color: var(--secondary);">السؤال الأخير</span> (${currentQIndex + 1} من ${gameQuestions.length})`;
-	                } else {
-	                    counterEl.innerText = `السؤال ${currentQIndex + 1} من ${gameQuestions.length}`;
-	                }
-	            }
-
-            // 2) ضع الخيارات أولاً داخل الأزرار
-            for (let i = 0; i < 4; i++) {
-                let btn = document.getElementById(`btn-ans-${i}`);
-                let ansEl = document.getElementById(`ans-text-${i}`);
-
-                ansEl.textContent = q.opts[i];
-                btn.style.opacity = '1';
-                btn.style.visibility = 'visible';
-                btn.disabled = false;
-
-                btn.style.animation = 'none';
-                btn.offsetHeight;
-                btn.style.animation = null;
-            }
-
-            // 3) بعد ظهور النصوص شغّل MathLive
-            if (window.MathLive) {
-                MathLive.renderMathInElement(document.getElementById('question-text'));
-
-                for (let i = 0; i < 4; i++) {
-                    MathLive.renderMathInElement(
-                        document.getElementById(`ans-text-${i}`)
-                    );
+            // 1) ضع السؤال
+            document.getElementById('question-text').textContent = q.q;
+            
+            // تحديث الترقيم
+            const counterEl = document.getElementById('question-counter');
+            if (counterEl) {
+                if (currentQIndex === gameQuestions.length - 1) {
+                    counterEl.innerHTML = `<span style="color: var(--secondary);">السؤال الأخير</span> (${currentQIndex + 1} من ${gameQuestions.length})`;
+                } else {
+                    counterEl.innerText = `السؤال ${currentQIndex + 1} من ${gameQuestions.length}`;
                 }
             }
 
-            // 4) تشغيل المؤقت
+            // 2) بناء منطقة الإجابات بناءً على نوع السؤال
+            const ansGrid = document.querySelector('.answers-grid');
+            ansGrid.innerHTML = ''; 
+
+            const type = q.type || 'mc'; // الافتراضي اختيار من متعدد
+
+            if (type === 'mc' || type === 'tf') {
+                const opts = q.opts || [];
+                opts.forEach((opt, i) => {
+                    const icons = ['▲', '◆', '●', '■'];
+                    const colors = ['bg-red', 'bg-blue', 'bg-yellow', 'bg-green'];
+                    const btn = document.createElement('button');
+                    btn.className = `ans-btn ${colors[i % 4]}`;
+                    btn.id = `btn-ans-${i}`;
+                    btn.onclick = () => submitAnswer(i);
+                    btn.innerHTML = `<span class="ans-icon">${icons[i % 4]}</span> <span class="display-text" id="ans-text-${i}" style="direction: rtl;">${opt}</span>`;
+                    ansGrid.appendChild(btn);
+                    
+                    // تأثيرات الظهور
+                    btn.style.opacity = '1'; btn.style.visibility = 'visible'; btn.disabled = false;
+                    btn.style.animation = 'none'; btn.offsetHeight; btn.style.animation = null;
+                });
+            } else if (type === 'blanks') {
+                let blanksHtml = `<div style="grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%;">`;
+                if (q.blanks) {
+                    q.blanks.forEach((blank, i) => {
+                        blanksHtml += `<input type="text" id="student-blank-${i}" placeholder="أدخل إجابة الفراغ رقم ${i+1}" style="font-size: 20px; padding: 15px; border-radius: 10px; border: 3px solid var(--primary); text-align: center; width: 80%; max-width: 400px; font-weight: bold;">`;
+                    });
+                }
+                blanksHtml += `<button class="btn btn-primary" onclick="submitBlanksAnswer()" style="width: 80%; max-width: 400px; margin-top: 15px;">تأكيد الإجابة ✔️</button></div>`;
+                ansGrid.innerHTML = blanksHtml;
+            } else if (type === 'matching') {
+                currentMatchingState = { selectedLeft: null, matches: {} };
+                let leftItems = q.pairs.map((p, i) => ({ id: i, text: p.left }));
+                let rightItems = q.pairs.map((p, i) => ({ id: i, text: p.right })).sort(() => Math.random() - 0.5);
+                
+                let matchingHtml = `
+                    <div id="matching-container-wrapper" style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 20px; position: relative;">
+                        <canvas id="matching-canvas"></canvas>
+                        <div style="display: flex; gap: 40px; justify-content: space-between; position: relative; z-index: 2;">
+                            <div id="matching-left-column" style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+                                ${leftItems.map((item) => `
+                                    <button id="left-item-${item.id}" class="match-btn left-item" onclick="selectLeftMatch(${item.id})" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 24px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; min-height: 65px;">
+                                        <span class="display-text" style="pointer-events: none; width: 100%; text-align: center;">${item.text}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div id="matching-right-column" style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+                                ${rightItems.map((item) => `
+                                    <button id="right-item-${item.id}" class="match-btn right-item" onclick="selectRightMatch(${item.id})" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 24px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; min-height: 65px;">
+                                        <span class="display-text" style="pointer-events: none; width: 100%; text-align: center;">${item.text}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 10px; position: relative; z-index: 2;">تأكيد التوصيل ✔️</button>
+                    </div>`;
+                ansGrid.innerHTML = matchingHtml;
+                setTimeout(drawConnections, 100);
+            } else if (type === 'dragdrop') {
+                currentDragState = {
+                    items: q.items.map((it, idx) => ({ id: idx, text: it.text, targetZone: it.zoneIndex, currentZone: 'pool' })),
+                    selectedWordId: null, elementsCreated: false
+                };
+                
+                let dragHtml = `
+                    <div style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 20px;">
+                        <div id="drag-pool" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px; border: 2px dashed #ccc; min-height: 80px;"></div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+                            ${q.zones.map((zone, zi) => `
+                                <div class="drag-zone-box" onclick="moveDragItem(${zi})" style="background: white; border: 3px solid var(--primary); border-radius: 15px; padding: 15px; min-height: 140px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s;">
+                                    <div style="font-weight: 900; font-size: 22px; color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid #eee; width: 100%; text-align: center; padding-bottom: 5px;">${zone}</div>
+                                    <div id="drag-zone-items-${zi}" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%;"></div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-primary" onclick="submitDragDropAnswer()" style="margin-top: 10px;">تأكيد التصنيف ✔️</button>
+                    </div>`;
+                ansGrid.innerHTML = dragHtml;
+                renderDragItems();
+            }
+
+            // 3) تشغيل MathLive
+            if (window.MathLive) {
+                MathLive.renderMathInElement(document.getElementById('question-text'));
+                ansGrid.querySelectorAll('.display-text').forEach(el => MathLive.renderMathInElement(el));
+            }
+
+            // 4) تشغيل المؤقت (باستخدام توقيت السؤال أو التوقيت الافتراضي 15 ثانية الخاص بملف A2)
             currentQuestionTime = q.time || 15; 
             timeLeft = currentQuestionTime;
             updateTimerBar();
@@ -1169,11 +1242,7 @@ function saveQuestionsToSheet() {
             timerInterval = setInterval(() => {
                 timeLeft -= 0.1;
                 updateTimerBar();
-
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    submitAnswer(-1);
-                }
+                if (timeLeft <= 0) { clearInterval(timerInterval); submitAnswer(-1); }
             }, 100);
         }
 
@@ -1201,17 +1270,28 @@ function saveQuestionsToSheet() {
         }
 
         function submitAnswer(idx) {
-            clearInterval(timerInterval); stopBGM();
             const q = gameQuestions[currentQIndex];
             const correct = (idx === q.ans);
+            const userAnswer = idx !== -1 ? q.opts[idx] : "لم يجب";
+            const correctAnswer = q.opts ? q.opts[q.ans] : "";
+            processFinalResult(correct, userAnswer, correctAnswer);
+        }
+
+        // --- دالة موحدة لحساب النتيجة والانتقال للوحة الانتظار (خاصة بملف A2) ---
+        function processFinalResult(correct, userAnswer, correctAnswer) {
+            clearInterval(timerInterval); stopBGM();
+            const q = gameQuestions[currentQIndex];
             
+            // حساب النقاط
             let basePoints = correct ? Math.round((timeLeft/currentQuestionTime)*1000) : 0;
             let multiplier = 1 + (currentStreak * 0.1);
             let finalPoints = Math.round(basePoints * multiplier);
 
-            const oldScore = studentScore; studentScore += finalPoints; animateScore(oldScore, studentScore);
+            const oldScore = studentScore; 
+            studentScore += finalPoints; 
+            animateScore(oldScore, studentScore);
             
-            userAnswersHistory.push({ question: q.q, userAnswer: idx !== -1 ? q.opts[idx] : "لم يجب", correctAnswer: q.opts[q.ans], isCorrect: correct });
+            userAnswersHistory.push({ question: q.q, userAnswer: userAnswer, correctAnswer: correctAnswer, isCorrect: correct });
 
             document.getElementById('form-score').value = studentScore;
             document.getElementById('scoreForm').submit();
@@ -1241,8 +1321,146 @@ function saveQuestionsToSheet() {
 
             setTimeout(() => {
                 overlay.style.display = 'none';
-                showInterimLeaderboard(); // تشغيل لوحة الانتظار والبحث عن إذن المعلم
+                showInterimLeaderboard(); // توجيه الطالب للوحة الانتظار الخاصة بالمعلم!
             }, 2500);
+        }
+
+        function submitBlanksAnswer() {
+            const q = gameQuestions[currentQIndex];
+            let allCorrect = true; let studentAnswers = [];
+            if (q.blanks) {
+                q.blanks.forEach((blank, i) => {
+                    let val = document.getElementById(`student-blank-${i}`).value.trim();
+                    studentAnswers.push(val);
+                    let correctOptions = blank.split('/').map(opt => opt.trim().toLowerCase());
+                    if (!correctOptions.includes(val.toLowerCase())) allCorrect = false;
+                });
+            }
+            processFinalResult(allCorrect, studentAnswers.join(" ، "), q.blanks.join(" ، "));
+        }
+
+        function drawConnections() {
+            const canvas = document.getElementById('matching-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const wrapper = document.getElementById('matching-container-wrapper');
+            if (!wrapper) return;
+            
+            canvas.width = wrapper.offsetWidth; canvas.height = wrapper.offsetHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let i = 0;
+            for (let leftId in currentMatchingState.matches) {
+                let rightId = currentMatchingState.matches[leftId];
+                let leftEl = document.getElementById(`left-item-${leftId}`);
+                let rightEl = document.getElementById(`right-item-${rightId}`);
+                
+                if (leftEl && rightEl) {
+                    let l = leftEl.getBoundingClientRect(), r = rightEl.getBoundingClientRect(), p = wrapper.getBoundingClientRect();
+                    let sx = (l.left + l.width) - p.left, sy = (l.top + l.height / 2) - p.top;
+                    let ex = r.left - p.left, ey = (r.top + r.height / 2) - p.top;
+
+                    if (document.dir === 'rtl') { sx = l.left - p.left; ex = (r.left + r.width) - p.left; }
+
+                    ctx.beginPath(); ctx.moveTo(sx, sy);
+                    ctx.bezierCurveTo(sx + (document.dir === 'rtl' ? -50 : 50), sy, ex + (document.dir === 'rtl' ? 50 : -50), ey, ex, ey);
+                    ctx.strokeStyle = matchingColors[i % matchingColors.length];
+                    ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.stroke();
+                }
+                i++;
+            }
+        }
+
+        function selectLeftMatch(leftId) {
+            if (currentMatchingState.selectedLeft === leftId) { currentMatchingState.selectedLeft = null; playTone(400, 'sine', 0.05); } 
+            else if (currentMatchingState.matches[leftId] !== undefined) { delete currentMatchingState.matches[leftId]; currentMatchingState.selectedLeft = leftId; playTone(600, 'sine', 0.05); } 
+            else { currentMatchingState.selectedLeft = leftId; playTone(600, 'sine', 0.05); }
+            updateMatchingUI();
+        }
+
+        function selectRightMatch(rightId) {
+            for (let lid in currentMatchingState.matches) { if (currentMatchingState.matches[lid] === rightId) { delete currentMatchingState.matches[lid]; break; } }
+            if (currentMatchingState.selectedLeft !== null) { currentMatchingState.matches[currentMatchingState.selectedLeft] = rightId; currentMatchingState.selectedLeft = null; playTone(800, 'sine', 0.05); } 
+            else { let el = document.getElementById(`right-item-${rightId}`); if (el) { el.style.animation = 'shake 0.5s'; setTimeout(() => el.style.animation = '', 500); } }
+            updateMatchingUI();
+        }
+
+        function updateMatchingUI() {
+            document.querySelectorAll('.match-btn').forEach(el => { el.style.backgroundColor = 'white'; el.style.color = '#333'; el.style.borderColor = '#ddd'; });
+            let i = 0;
+            for (let leftId in currentMatchingState.matches) {
+                let rightId = currentMatchingState.matches[leftId]; let color = matchingColors[i % matchingColors.length];
+                let lEl = document.getElementById(`left-item-${leftId}`); let rEl = document.getElementById(`right-item-${rightId}`);
+                if (lEl) { lEl.style.backgroundColor = color; lEl.style.color = 'white'; lEl.style.borderColor = color; }
+                if (rEl) { rEl.style.backgroundColor = color; rEl.style.color = 'white'; rEl.style.borderColor = color; }
+                i++;
+            }
+            if (currentMatchingState.selectedLeft !== null) {
+                let selEl = document.getElementById(`left-item-${currentMatchingState.selectedLeft}`);
+                if (selEl) { selEl.style.backgroundColor = 'var(--primary)'; selEl.style.color = 'white'; selEl.style.borderColor = 'var(--primary)'; }
+            }
+            drawConnections();
+        }
+
+        window.addEventListener('resize', drawConnections);
+
+        function submitMatchingAnswer() {
+            const q = gameQuestions[currentQIndex];
+            let allCorrect = true; let studentAnswers = [];
+            q.pairs.forEach((pair, i) => {
+                let rightId = currentMatchingState.matches[i];
+                let val = (rightId !== undefined) ? q.pairs[rightId].right : null;
+                studentAnswers.push(`${pair.left} -> ${val || '؟'}`);
+                if (rightId !== i) allCorrect = false;
+            });
+            processFinalResult(allCorrect, studentAnswers.join(" | "), q.pairs.map(p => `${p.left} -> ${p.right}`).join(" | "));
+        }
+
+        function renderDragItems() {
+            let poolEl = document.getElementById('drag-pool'); if(!poolEl) return;
+            if (!currentDragState.elementsCreated) {
+                currentDragState.items.forEach(item => {
+                    let btn = document.createElement('button');
+                    btn.innerHTML = `<span class="display-text" style="pointer-events: none;">${item.text}</span>`;
+                    btn.onclick = (e) => {
+                        e.stopPropagation(); currentDragState.selectedWordId = (currentDragState.selectedWordId === item.id) ? null : item.id;
+                        renderDragItems(); playTone(700, 'sine', 0.05);
+                    };
+                    item.element = btn;
+                });
+                currentDragState.elementsCreated = true;
+            }
+            currentDragState.items.forEach(item => {
+                let btn = item.element; let isSelected = currentDragState.selectedWordId === item.id;
+                btn.style.padding = "12px 25px"; btn.style.borderRadius = "10px";
+                btn.style.border = `2px solid ${isSelected ? 'var(--k-blue)' : '#ccc'}`; btn.style.background = isSelected ? 'var(--k-blue)' : 'white';
+                btn.style.color = isSelected ? 'white' : '#333'; btn.style.fontWeight = "bold"; btn.style.fontSize = "24px";
+                btn.style.minHeight = "60px"; btn.style.display = "flex"; btn.style.alignItems = "center"; btn.style.justifyContent = "center";
+                btn.style.cursor = "pointer"; btn.style.transition = "all 0.2s";
+                btn.style.transform = isSelected ? "scale(1.1) translateY(-4px)" : "scale(1)"; btn.style.boxShadow = isSelected ? "0 6px 15px rgba(0,0,0,0.2)" : "0 4px 0 #ddd";
+                
+                if (item.currentZone === 'pool') poolEl.appendChild(btn);
+                else { let zoneContainer = document.getElementById(`drag-zone-items-${item.currentZone}`); if(zoneContainer) zoneContainer.appendChild(btn); }
+            });
+        }
+
+        function moveDragItem(targetZone) {
+            if (currentDragState.selectedWordId !== null) {
+                let item = currentDragState.items.find(i => i.id === currentDragState.selectedWordId);
+                if(item) item.currentZone = targetZone;
+                currentDragState.selectedWordId = null; renderDragItems(); playTone(900, 'sine', 0.05);
+            }
+        }
+
+        function submitDragDropAnswer() {
+            const q = gameQuestions[currentQIndex];
+            let allCorrect = true; let studentAnswers = [];
+            currentDragState.items.forEach((item) => {
+                let zoneIndex = item.currentZone;
+                studentAnswers.push(`${item.text}: ${zoneIndex !== 'pool' ? q.zones[zoneIndex] : 'لم يصنف'}`);
+                if (zoneIndex !== item.targetZone) allCorrect = false;
+            });
+            processFinalResult(allCorrect, studentAnswers.join(" | "), q.items.map(it => `${it.text}: ${q.zones[it.zoneIndex]}`).join(" | "));
         }
 
         // ========================================== //
