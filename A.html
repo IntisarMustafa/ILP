@@ -210,9 +210,20 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
             touch-action: manipulation;
             position: relative;
             overflow: hidden;
+            z-index: 2;
         }
         .match-btn:active { transform: scale(0.95); }
         .display-text { pointer-events: none; }
+        
+        #matching-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
 
         .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
         
@@ -1613,26 +1624,28 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 let rightItems = q.pairs.map(p => p.right).sort(() => Math.random() - 0.5);
                 
                 let matchingHtml = `
-                    <div style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 20px;">
-                        <div style="display: flex; gap: 20px; justify-content: space-between;">
+                    <div id="matching-container-wrapper" style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 20px; position: relative;">
+                        <canvas id="matching-canvas"></canvas>
+                        <div style="display: flex; gap: 40px; justify-content: space-between; position: relative; z-index: 2;">
                             <div id="matching-left-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
-                                ${leftItems.map(item => `
-                                    <button class="match-btn left-item" onclick="selectLeftMatch(this)" data-text="${item}" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                                ${leftItems.map((item, idx) => `
+                                    <button id="left-item-${idx}" class="match-btn left-item" onclick="selectLeftMatch(this, ${idx})" data-text="${item}" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; cursor: pointer; transition: 0.2s;">
                                         <span class="display-text">${item}</span>
                                     </button>
                                 `).join('')}
                             </div>
                             <div id="matching-right-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
-                                ${rightItems.map(item => `
-                                    <button class="match-btn right-item" onclick="selectRightMatch(this)" data-text="${item}" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                                ${rightItems.map((item, idx) => `
+                                    <button id="right-item-${idx}" class="match-btn right-item" onclick="selectRightMatch(this, ${idx})" data-text="${item}" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; cursor: pointer; transition: 0.2s;">
                                         <span class="display-text">${item}</span>
                                     </button>
                                 `).join('')}
                             </div>
                         </div>
-                        <button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 10px;">تأكيد التوصيل ✔️</button>
+                        <button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 10px; position: relative; z-index: 2;">تأكيد التوصيل ✔️</button>
                     </div>`;
                 ansGrid.innerHTML = matchingHtml;
+                setTimeout(drawConnections, 100);
             } else if (type === 'dragdrop') {
                 currentDragState = {
                     items: q.items.map((it, idx) => ({ id: idx, text: it.text, targetZone: it.zoneIndex, currentZone: 'pool' })),
@@ -1721,99 +1734,125 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             processFinalResult(allCorrect, studentAnswers.join(" ، "), q.blanks.join(" ، "));
         }
 
-        // --- دوال التوصيل التفاعلية ---
-        function selectLeftMatch(element) {
-            // إذا كان العنصر مرتبطاً مسبقاً، نقوم بفك الارتباط
-            if (Object.keys(currentMatchingState.matches).includes(element.dataset.text)) {
-                let rightText = currentMatchingState.matches[element.dataset.text];
-                delete currentMatchingState.matches[element.dataset.text];
-                
-                // إعادة تعيين شكل العنصر الأيمن المرتبط
-                let rightEl = document.querySelector(`.right-item[data-text="${rightText}"]`);
-                if (rightEl) {
-                    rightEl.style.backgroundColor = 'white';
-                    rightEl.style.color = '#333';
-                    rightEl.style.borderColor = '#ddd';
-                }
-                
-                element.style.backgroundColor = 'white';
-                element.style.color = '#333';
-                element.style.borderColor = '#ddd';
-                
-                if (currentMatchingState.selectedLeft === element.dataset.text) {
-                    currentMatchingState.selectedLeft = null;
-                }
-                return;
-            }
-
-            // إلغاء تحديد أي عنصر "مختار حالياً" (وليس مرتبطاً)
-            document.querySelectorAll('.left-item').forEach(el => {
-                if(!Object.keys(currentMatchingState.matches).includes(el.dataset.text)) {
-                    el.style.backgroundColor = 'white';
-                    el.style.color = '#333';
-                    el.style.borderColor = '#ddd';
-                }
-            });
+        // --- دوال التوصيل التفاعلية (Canvas) ---
+        function drawConnections() {
+            const canvas = document.getElementById('matching-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const wrapper = document.getElementById('matching-container-wrapper');
             
-            currentMatchingState.selectedLeft = element.dataset.text;
-            element.style.backgroundColor = 'var(--primary)';
-            element.style.color = 'white';
-            element.style.borderColor = 'var(--primary)';
-            playTone(600, 'sine', 0.05);
+            canvas.width = wrapper.offsetWidth;
+            canvas.height = wrapper.offsetHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let i = 0;
+            for (let leftText in currentMatchingState.matches) {
+                let rightText = currentMatchingState.matches[leftText];
+                
+                let leftEl = document.querySelector(`.left-item[data-text="${leftText}"]`);
+                let rightEl = document.querySelector(`.right-item[data-text="${rightText}"]`);
+                
+                if (leftEl && rightEl) {
+                    let l = leftEl.getBoundingClientRect();
+                    let r = rightEl.getBoundingClientRect();
+                    let p = wrapper.getBoundingClientRect();
+
+                    let sx = (l.left + l.width) - p.left;
+                    let sy = (l.top + l.height / 2) - p.top;
+                    let ex = r.left - p.left;
+                    let ey = (r.top + r.height / 2) - p.top;
+
+                    // في حالة RTL قد نحتاج لتبديل sx و ex حسب اتجاه العناصر
+                    if (document.dir === 'rtl') {
+                        sx = l.left - p.left;
+                        ex = (r.left + r.width) - p.left;
+                    }
+
+                    ctx.beginPath();
+                    ctx.moveTo(sx, sy);
+                    ctx.bezierCurveTo(sx + (document.dir === 'rtl' ? -50 : 50), sy, ex + (document.dir === 'rtl' ? 50 : -50), ey, ex, ey);
+                    ctx.strokeStyle = matchingColors[i % matchingColors.length];
+                    ctx.lineWidth = 4;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+                }
+                i++;
+            }
+        }
+
+        function selectLeftMatch(element) {
+            if (Object.keys(currentMatchingState.matches).includes(element.dataset.text)) {
+                delete currentMatchingState.matches[element.dataset.text];
+                playTone(400, 'sine', 0.05);
+            } else {
+                currentMatchingState.selectedLeft = element.dataset.text;
+                playTone(600, 'sine', 0.05);
+            }
+            updateMatchingUI();
         }
 
         function selectRightMatch(element) {
-            // إذا كان العنصر الأيمن مرتبطاً مسبقاً، نفك ارتباطه
-            let oldLeftKey = null;
+            let rightText = element.dataset.text;
+            
+            // فك أي ارتباط قديم لهذا العنصر الأيمن
             for (let key in currentMatchingState.matches) {
-                if (currentMatchingState.matches[key] === element.dataset.text) {
-                    oldLeftKey = key;
+                if (currentMatchingState.matches[key] === rightText) {
+                    delete currentMatchingState.matches[key];
                     break;
                 }
             }
-            
-            if (oldLeftKey) {
-                delete currentMatchingState.matches[oldLeftKey];
-                let oldLeftEl = document.querySelector(`.left-item[data-text="${oldLeftKey}"]`);
-                if (oldLeftEl) {
-                    oldLeftEl.style.backgroundColor = 'white';
-                    oldLeftEl.style.color = '#333';
-                    oldLeftEl.style.borderColor = '#ddd';
-                }
-                element.style.backgroundColor = 'white';
-                element.style.color = '#333';
-                element.style.borderColor = '#ddd';
-                return;
-            }
 
-            if (!currentMatchingState.selectedLeft) {
+            if (currentMatchingState.selectedLeft) {
+                currentMatchingState.matches[currentMatchingState.selectedLeft] = rightText;
+                currentMatchingState.selectedLeft = null;
+                playTone(800, 'sine', 0.05);
+            } else {
                 element.style.animation = 'shake 0.5s';
                 setTimeout(() => element.style.animation = '', 500);
-                return;
             }
-
-            let leftText = currentMatchingState.selectedLeft;
-            let rightText = element.dataset.text;
-
-            // ربط الكلمتين وإعطائهما لوناً موحداً
-            currentMatchingState.matches[leftText] = rightText;
-            let matchIndex = Object.keys(currentMatchingState.matches).indexOf(leftText);
-            let color = matchingColors[matchIndex % matchingColors.length];
-            
-            let leftEl = document.querySelector(`.left-item[data-text="${leftText}"]`);
-            if (leftEl) {
-                leftEl.style.backgroundColor = color;
-                leftEl.style.color = 'white';
-                leftEl.style.borderColor = color;
-            }
-            
-            element.style.backgroundColor = color;
-            element.style.color = 'white';
-            element.style.borderColor = color;
-            
-            currentMatchingState.selectedLeft = null;
-            playTone(800, 'sine', 0.05);
+            updateMatchingUI();
         }
+
+        function updateMatchingUI() {
+            document.querySelectorAll('.match-btn').forEach(el => {
+                el.style.backgroundColor = 'white';
+                el.style.color = '#333';
+                el.style.borderColor = '#ddd';
+            });
+
+            let i = 0;
+            for (let leftText in currentMatchingState.matches) {
+                let rightText = currentMatchingState.matches[leftText];
+                let color = matchingColors[i % matchingColors.length];
+                
+                let lEl = document.querySelector(`.left-item[data-text="${leftText}"]`);
+                let rEl = document.querySelector(`.right-item[data-text="${rightText}"]`);
+                
+                if (lEl) {
+                    lEl.style.backgroundColor = color;
+                    lEl.style.color = 'white';
+                    lEl.style.borderColor = color;
+                }
+                if (rEl) {
+                    rEl.style.backgroundColor = color;
+                    rEl.style.color = 'white';
+                    rEl.style.borderColor = color;
+                }
+                i++;
+            }
+
+            if (currentMatchingState.selectedLeft) {
+                let selEl = document.querySelector(`.left-item[data-text="${currentMatchingState.selectedLeft}"]`);
+                if (selEl) {
+                    selEl.style.backgroundColor = 'var(--primary)';
+                    selEl.style.color = 'white';
+                    selEl.style.borderColor = 'var(--primary)';
+                }
+            }
+            drawConnections();
+        }
+
+        window.addEventListener('resize', drawConnections);
 
         function submitMatchingAnswer() {
             const q = gameQuestions[currentQIndex];
