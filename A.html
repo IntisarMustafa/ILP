@@ -1132,7 +1132,10 @@ let quizTitle = "🎮 التحدي الأكبر";
 
         function getBlanksEditor(index) {
             return `
-                <p style="font-size:12px; color:#666; margin-bottom:10px;">استخدم [ ] في نص السؤال لتحديد أماكن الفراغات.</p>
+                <p style="font-size:14px; color:#666; margin-bottom:10px; line-height: 1.6;">
+                    ● استخدم ( .... ) في نص السؤال للإشارة لمكان الفراغ.<br>
+                    ● ضع إشارة / بين الإجابات الصحيحة المحتملة لكل فراغ.
+                </p>
                 <div id="blanks-container-${index}">
                     <div class="opt-row">
                         <input type="text" class="q-blank-input" placeholder="إجابة الفراغ الأول" required>
