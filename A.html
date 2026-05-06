@@ -1029,7 +1029,7 @@ let quizTitle = "🎮 التحدي الأكبر";
 	                    <div class="type-selector">
 	                        <button type="button" class="type-btn active" onclick="setQuestionType('${blockId}', 'mc')">اختيار من متعدد</button>
 	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'blanks')">إكمال فراغات</button>
-	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'matching')">مطابقة الأزواج</button>
+	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'matching')">توصيل</button>
 	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'dragdrop')">تصنيف</button>
 	                    </div>
 
@@ -1642,7 +1642,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                                 `).join('')}
                             </div>
                         </div>
-                        <button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 10px; position: relative; z-index: 2;">تأكيد المطابقة ✔️</button>
+                        <button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 10px; position: relative; z-index: 2;">تأكيد التوصيل ✔️</button>
                     </div>`;
                 ansGrid.innerHTML = matchingHtml;
                 setTimeout(drawConnections, 100);
@@ -1734,7 +1734,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             processFinalResult(allCorrect, studentAnswers.join(" ، "), q.blanks.join(" ، "));
         }
 
-        // --- دوال مطابقة الأزواج التفاعلية (Canvas) ---
+        // --- دوال التوصيل التفاعلية (Canvas) ---
         function drawConnections() {
             const canvas = document.getElementById('matching-canvas');
             if (!canvas) return;
@@ -1749,8 +1749,9 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             for (let leftText in currentMatchingState.matches) {
                 let rightText = currentMatchingState.matches[leftText];
                 
-                let leftEl = document.querySelector(`.left-item[data-text="${leftText}"]`);
-                let rightEl = document.querySelector(`.right-item[data-text="${rightText}"]`);
+                // التعديل هنا: استخدام Array.from.find بدلاً من querySelector لرسم الخطوط بأمان
+                let leftEl = Array.from(document.querySelectorAll('.left-item')).find(el => el.dataset.text === leftText);
+                let rightEl = Array.from(document.querySelectorAll('.right-item')).find(el => el.dataset.text === rightText);
                 
                 if (leftEl && rightEl) {
                     let l = leftEl.getBoundingClientRect();
@@ -1762,7 +1763,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                     let ex = r.left - p.left;
                     let ey = (r.top + r.height / 2) - p.top;
 
-                    // في حالة RTL قد نحتاج لتبديل sx و ex حسب اتجاه العناصر
+                    // في حالة RTL نحتاج لتبديل الاتجاهات
                     if (document.dir === 'rtl') {
                         sx = l.left - p.left;
                         ex = (r.left + r.width) - p.left;
@@ -1781,10 +1782,19 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
         }
 
         function selectLeftMatch(element) {
-            if (Object.keys(currentMatchingState.matches).includes(element.dataset.text)) {
-                delete currentMatchingState.matches[element.dataset.text];
+            // إذا كان العنصر مختاراً بالفعل، نلغي اختياره
+            if (currentMatchingState.selectedLeft === element.dataset.text) {
+                currentMatchingState.selectedLeft = null;
                 playTone(400, 'sine', 0.05);
-            } else {
+            } 
+            // إذا كان العنصر مرتبطاً، نفك الارتباط ونختاره
+            else if (Object.keys(currentMatchingState.matches).includes(element.dataset.text)) {
+                delete currentMatchingState.matches[element.dataset.text];
+                currentMatchingState.selectedLeft = element.dataset.text;
+                playTone(600, 'sine', 0.05);
+            } 
+            // اختيار عادي
+            else {
                 currentMatchingState.selectedLeft = element.dataset.text;
                 playTone(600, 'sine', 0.05);
             }
@@ -1814,6 +1824,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
         }
 
         function updateMatchingUI() {
+            // 1. إعادة تعيين جميع الأزرار للون الأبيض
             document.querySelectorAll('.match-btn').forEach(el => {
                 el.style.backgroundColor = 'white';
                 el.style.color = '#333';
@@ -1825,9 +1836,11 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 let rightText = currentMatchingState.matches[leftText];
                 let color = matchingColors[i % matchingColors.length];
                 
-                let lEl = document.querySelector(`.left-item[data-text="${leftText}"]`);
-                let rEl = document.querySelector(`.right-item[data-text="${rightText}"]`);
+                // البحث عن العناصر بطريقة آمنة لا تسبب أخطاء مع الرموز الرياضية
+                let lEl = Array.from(document.querySelectorAll('.left-item')).find(el => el.dataset.text === leftText);
+                let rEl = Array.from(document.querySelectorAll('.right-item')).find(el => el.dataset.text === rightText);
                 
+                // تلوين الزرين بنفس اللون
                 if (lEl) {
                     lEl.style.backgroundColor = color;
                     lEl.style.color = 'white';
@@ -1841,8 +1854,9 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 i++;
             }
 
+            // تلوين العنصر الأيسر المحدد (أثناء الانتظار لاختيار الجزء الأيمن)
             if (currentMatchingState.selectedLeft) {
-                let selEl = document.querySelector(`.left-item[data-text="${currentMatchingState.selectedLeft}"]`);
+                let selEl = Array.from(document.querySelectorAll('.left-item')).find(el => el.dataset.text === currentMatchingState.selectedLeft);
                 if (selEl) {
                     selEl.style.backgroundColor = 'var(--primary)';
                     selEl.style.color = 'white';
