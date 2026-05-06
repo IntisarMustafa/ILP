@@ -602,39 +602,67 @@ async function studentLogin() {
                 if (!gameRunning || gamePaused) return;
                 if (!lastTime) lastTime = currentTime; deltaTime = Math.min((currentTime - lastTime) / 16.67, 2); lastTime = currentTime;
                 
+                let onPlatform = false;
                 for (let i = flyingPlatforms.length - 1; i >= 0; i--) {
                     const p = flyingPlatforms[i];
                     const pr = parseFloat(p.element.style.right || 0); p.element.style.right = `${pr + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
                     if (pr > gameArea.offsetWidth + 120) { p.element.remove(); flyingPlatforms.splice(i, 1); continue; }
                     
-                    // التحقق من التصادم مع الأشواك تحت المنصة
-                    const prect = player.getBoundingClientRect(); const orect = p.element.getBoundingClientRect(); const garect = gameArea.getBoundingClientRect();
-                    const pbox = { x: prect.left - garect.left + prect.width * 0.15, y: prect.top - garect.top + prect.height * 0.15, w: prect.width * 0.7, h: prect.height * 0.7 };
-                    const sbox = { x: orect.left - garect.left + (p.width * 0.05), y: orect.bottom - garect.top, w: p.width * 0.9, h: 15 };
+                    const prect = p.element.getBoundingClientRect(); 
+                    const plrect = player.getBoundingClientRect(); 
+                    const garect = gameArea.getBoundingClientRect();
                     
-                    if (pbox.x < sbox.x + sbox.w && pbox.x + pbox.w > sbox.x && pbox.y < sbox.y + sbox.h && pbox.y + pbox.h > sbox.y) {
-                        playSound(80, 'sawtooth', 0.2, 0.3); createParticles(player.offsetLeft, player.offsetTop, '#e94560', 30);
-                        collidedObstacleRef = p; showQuestion(); return;
+                    const ptop = prect.top - garect.top;
+                    const pbottom = prect.bottom - garect.top;
+                    const pleft = prect.left - garect.left;
+                    const pright = prect.right - garect.left;
+                    
+                    const pltop = plrect.top - garect.top;
+                    const plbottom = plrect.bottom - garect.top;
+                    const plleft = plrect.left - garect.left;
+                    const plright = plrect.right - garect.left;
+
+                    // التحقق من التصادم الأفقي
+                    if (plright > pleft + 5 && plleft < pright - 5) {
+                        // 1. الهبوط على المنصة (من الأعلى)
+                        if (playerVelocity <= 0 && plbottom >= ptop - 15 && plbottom <= ptop + 15) {
+                            onPlatform = true;
+                            playerY = gameArea.offsetHeight - ptop - groundLevel;
+                            playerVelocity = 0;
+                            isJumping = false;
+                            canJump = true;
+                            currentPlatform = p;
+                            
+                            if (!p.activated) {
+                                p.activated = true;
+                                platformsPassed++;
+                                platformsPassedElement.textContent = platformsPassed;
+                                score += 50;
+                                playSound(500, 'sine', 0.1, 0.3);
+                                createParticles(player.offsetLeft + player.offsetWidth/2, player.offsetTop, '#4cc9f0', 15);
+                                if (p.isDisappearing && !p.fading) {
+                                    p.fading = true;
+                                    p.element.style.opacity = 0;
+                                    setTimeout(() => { if(p.element.parentNode) p.element.remove(); }, 300);
+                                }
+                            }
+                        } 
+                        // 2. التصادم مع جانب المنصة (الموت) - إذا كان اللاعب في نفس مستوى ارتفاع المنصة
+                        else if (plbottom > ptop + 5 && pltop < pbottom - 5) {
+                            playSound(80, 'sawtooth', 0.2, 0.3); createParticles(player.offsetLeft, player.offsetTop, '#e94560', 30);
+                            collidedObstacleRef = p; showQuestion(); return;
+                        }
+                        // 3. التصادم مع الأشواك بالأسفل (إذا قفز اللاعب من الأسفل وصدم المنصة)
+                        else if (playerVelocity > 0 && pltop < pbottom && pltop > ptop) {
+                             playSound(80, 'sawtooth', 0.2, 0.3); createParticles(player.offsetLeft, player.offsetTop, '#e94560', 30);
+                             collidedObstacleRef = p; showQuestion(); return;
+                        }
                     }
                 }
                 
                 coins.forEach((c, i) => {
                     const cr = parseFloat(c.element.style.right || 0); c.element.style.right = `${cr + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
                     if (cr > gameArea.offsetWidth + 50) { c.element.remove(); coins.splice(i, 1); }
-                });
-
-                let onPlatform = false;
-                flyingPlatforms.forEach(p => {
-                    const prect = p.element.getBoundingClientRect(); const plrect = player.getBoundingClientRect(); const garect = gameArea.getBoundingClientRect();
-                    const ptop = prect.top - garect.top;
-                    if (plrect.bottom - garect.top >= ptop - 10 && plrect.bottom - garect.top <= ptop + 10 && plrect.right - garect.left > prect.left - garect.left && plrect.left - garect.left < prect.right - garect.left && playerVelocity <= 0) {
-                        onPlatform = true; playerY = gameArea.offsetHeight - ptop - groundLevel; playerVelocity = 0; isJumping = false; canJump = true; currentPlatform = p;
-                        if (!p.activated) {
-                            p.activated = true; platformsPassed++; platformsPassedElement.textContent = platformsPassed; score += 50;
-                            playSound(500, 'sine', 0.1, 0.3); createParticles(player.offsetLeft + player.offsetWidth/2, player.offsetTop, '#4cc9f0', 15);
-                            if (p.isDisappearing && !p.fading) { p.fading = true; p.element.style.opacity = 0; setTimeout(() => { if(p.element.parentNode) p.element.remove(); }, 300); }
-                        }
-                    }
                 });
 
                 if (!onPlatform) { playerVelocity -= (gravity * gravityDirection * deltaTime); playerY += (playerVelocity * deltaTime); currentPlatform = null; }
