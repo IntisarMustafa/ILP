@@ -225,6 +225,10 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
             z-index: 1;
         }
 
+        .display-text math-field, .display-text .ML__mathlive {
+            font-size: 1.1em !important; 
+        }
+
         .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
         
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; }
@@ -1628,17 +1632,17 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                     <div id="matching-container-wrapper" style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 20px; position: relative;">
                         <canvas id="matching-canvas"></canvas>
                         <div style="display: flex; gap: 40px; justify-content: space-between; position: relative; z-index: 2;">
-                            <div id="matching-left-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                            <div id="matching-left-column" style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
                                 ${leftItems.map((item) => `
-                                    <button id="left-item-${item.id}" class="match-btn left-item" onclick="selectLeftMatch(${item.id})" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; cursor: pointer; transition: 0.2s;">
-                                        <span class="display-text" style="pointer-events: none;">${item.text}</span>
+                                    <button id="left-item-${item.id}" class="match-btn left-item" onclick="selectLeftMatch(${item.id})" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 24px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; min-height: 65px;">
+                                        <span class="display-text" style="pointer-events: none; width: 100%; text-align: center;">${item.text}</span>
                                     </button>
                                 `).join('')}
                             </div>
-                            <div id="matching-right-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                            <div id="matching-right-column" style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
                                 ${rightItems.map((item) => `
-                                    <button id="right-item-${item.id}" class="match-btn right-item" onclick="selectRightMatch(${item.id})" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; cursor: pointer; transition: 0.2s;">
-                                        <span class="display-text" style="pointer-events: none;">${item.text}</span>
+                                    <button id="right-item-${item.id}" class="match-btn right-item" onclick="selectRightMatch(${item.id})" style="padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 24px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; min-height: 65px;">
+                                        <span class="display-text" style="pointer-events: none; width: 100%; text-align: center;">${item.text}</span>
                                     </button>
                                 `).join('')}
                             </div>
@@ -1658,11 +1662,11 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                     <div style="grid-column: 1/-1; width: 100%; display: flex; flex-direction: column; gap: 20px;">
                         <div id="drag-pool" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px; border: 2px dashed #ccc; min-height: 80px;">
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
                             ${q.zones.map((zone, zi) => `
-                                <div class="drag-zone-box" onclick="moveDragItem(${zi})" style="background: white; border: 3px solid var(--primary); border-radius: 15px; padding: 15px; min-height: 120px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s;">
-                                    <div style="font-weight: 900; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid #eee; width: 100%; text-align: center; padding-bottom: 5px;">${zone}</div>
-                                    <div id="drag-zone-items-${zi}" style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; width: 100%;"></div>
+                                <div class="drag-zone-box" onclick="moveDragItem(${zi})" style="background: white; border: 3px solid var(--primary); border-radius: 15px; padding: 15px; min-height: 140px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s;">
+                                    <div style="font-weight: 900; font-size: 22px; color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid #eee; width: 100%; text-align: center; padding-bottom: 5px;">${zone}</div>
+                                    <div id="drag-zone-items-${zi}" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%;"></div>
                                 </div>
                             `).join('')}
                         </div>
@@ -1889,13 +1893,17 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 let btn = item.element;
                 let isSelected = currentDragState.selectedWordId === item.id;
                 
-                btn.style.padding = "10px 20px";
+                btn.style.padding = "12px 25px";
                 btn.style.borderRadius = "10px";
                 btn.style.border = `2px solid ${isSelected ? 'var(--k-blue)' : '#ccc'}`;
                 btn.style.background = isSelected ? 'var(--k-blue)' : 'white';
                 btn.style.color = isSelected ? 'white' : '#333';
                 btn.style.fontWeight = "bold";
-                btn.style.fontSize = "18px";
+                btn.style.fontSize = "24px"; // تم التكبير هنا لتوضيح الرياضيات
+                btn.style.minHeight = "60px"; // ضمان مساحة كافية للرموز
+                btn.style.display = "flex";
+                btn.style.alignItems = "center";
+                btn.style.justifyContent = "center";
                 btn.style.cursor = "pointer";
                 btn.style.transition = "all 0.2s";
                 btn.style.transform = isSelected ? "scale(1.1) translateY(-4px)" : "scale(1)";
