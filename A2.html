@@ -1253,18 +1253,32 @@ function saveQuestionsToSheet() {
             if(timeLeft <= 3) bar.classList.add('danger'); else bar.classList.remove('danger');
         }
 
-        function use5050() {
-            if(powerUpUsed) return; powerUpUsed = true; document.getElementById('powerup-5050').style.display = 'none';
-            playTone(1000, 'sine', 0.3, 0.1); let q = gameQuestions[currentQIndex]; let hiddenCount = 0;
-            for(let i=0; i<4; i++) {
-                if(i !== q.ans && hiddenCount < 2) {
-                    let btn = document.getElementById(`btn-ans-${i}`);
-                    btn.style.opacity = '0.2'; btn.disabled = true; hiddenCount++;
-                }
+        
+function use5050() {
+    if(powerUpUsed) return;
+    powerUpUsed = true; 
+    document.getElementById('powerup-5050').style.display = 'none';
+    playTone(1000, 'sine', 0.3, 0.1); 
+
+    let q = gameQuestions[currentQIndex]; 
+    let hiddenCount = 0;
+
+    for(let i = 0; i < 4; i++) {
+        if(i !== q.ans && hiddenCount < 2) {
+            let btn = document.getElementById(`btn-ans-${i}`);
+            if (btn) {
+                btn.style.backgroundColor = '#333'; 
+                btn.style.boxShadow = '0 8px 0 #111';
+                btn.style.opacity = '0.6';
+                btn.style.color = '#777';
+                btn.style.cursor = 'not-allowed';
+                btn.disabled = true; 
+                hiddenCount++;
             }
         }
-
-        function showFloatingPoints(points) {
+    }
+}
+function showFloatingPoints(points) {
             const el = document.createElement('div'); el.className = 'floating-points'; el.innerText = `+${points}`;
             document.body.appendChild(el); setTimeout(() => el.remove(), 1500);
         }
