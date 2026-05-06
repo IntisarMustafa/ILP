@@ -203,6 +203,17 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
         .avatar-item:hover { transform: scale(1.15); z-index: 2; }
         .avatar-item.selected { background: var(--warning); transform: scale(1.2); box-shadow: 0 0 0 4px var(--primary); z-index: 3; }
 
+        .match-btn {
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            position: relative;
+            overflow: hidden;
+        }
+        .match-btn:active { transform: scale(0.95); }
+        .display-text { pointer-events: none; }
+
         .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
         
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; }
@@ -1712,7 +1723,30 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
 
         // --- دوال التوصيل التفاعلية ---
         function selectLeftMatch(element) {
-            // إلغاء تحديد أي عنصر سابق في الجهة اليسرى
+            // إذا كان العنصر مرتبطاً مسبقاً، نقوم بفك الارتباط
+            if (Object.keys(currentMatchingState.matches).includes(element.dataset.text)) {
+                let rightText = currentMatchingState.matches[element.dataset.text];
+                delete currentMatchingState.matches[element.dataset.text];
+                
+                // إعادة تعيين شكل العنصر الأيمن المرتبط
+                let rightEl = document.querySelector(`.right-item[data-text="${rightText}"]`);
+                if (rightEl) {
+                    rightEl.style.backgroundColor = 'white';
+                    rightEl.style.color = '#333';
+                    rightEl.style.borderColor = '#ddd';
+                }
+                
+                element.style.backgroundColor = 'white';
+                element.style.color = '#333';
+                element.style.borderColor = '#ddd';
+                
+                if (currentMatchingState.selectedLeft === element.dataset.text) {
+                    currentMatchingState.selectedLeft = null;
+                }
+                return;
+            }
+
+            // إلغاء تحديد أي عنصر "مختار حالياً" (وليس مرتبطاً)
             document.querySelectorAll('.left-item').forEach(el => {
                 if(!Object.keys(currentMatchingState.matches).includes(el.dataset.text)) {
                     el.style.backgroundColor = 'white';
@@ -1729,6 +1763,29 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
         }
 
         function selectRightMatch(element) {
+            // إذا كان العنصر الأيمن مرتبطاً مسبقاً، نفك ارتباطه
+            let oldLeftKey = null;
+            for (let key in currentMatchingState.matches) {
+                if (currentMatchingState.matches[key] === element.dataset.text) {
+                    oldLeftKey = key;
+                    break;
+                }
+            }
+            
+            if (oldLeftKey) {
+                delete currentMatchingState.matches[oldLeftKey];
+                let oldLeftEl = document.querySelector(`.left-item[data-text="${oldLeftKey}"]`);
+                if (oldLeftEl) {
+                    oldLeftEl.style.backgroundColor = 'white';
+                    oldLeftEl.style.color = '#333';
+                    oldLeftEl.style.borderColor = '#ddd';
+                }
+                element.style.backgroundColor = 'white';
+                element.style.color = '#333';
+                element.style.borderColor = '#ddd';
+                return;
+            }
+
             if (!currentMatchingState.selectedLeft) {
                 element.style.animation = 'shake 0.5s';
                 setTimeout(() => element.style.animation = '', 500);
@@ -1738,28 +1795,17 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             let leftText = currentMatchingState.selectedLeft;
             let rightText = element.dataset.text;
 
-            // إذا كان اليمين مرتبطاً مسبقاً، نفك ارتباطه القديم
-            for (let key in currentMatchingState.matches) {
-                if (currentMatchingState.matches[key] === rightText) {
-                    delete currentMatchingState.matches[key];
-                    let oldLeftEl = document.querySelector(`.left-item[data-text="${key}"]`);
-                    if(oldLeftEl) {
-                        oldLeftEl.style.backgroundColor = 'white';
-                        oldLeftEl.style.color = '#333';
-                        oldLeftEl.style.borderColor = '#ddd';
-                    }
-                }
-            }
-
             // ربط الكلمتين وإعطائهما لوناً موحداً
             currentMatchingState.matches[leftText] = rightText;
             let matchIndex = Object.keys(currentMatchingState.matches).indexOf(leftText);
             let color = matchingColors[matchIndex % matchingColors.length];
             
             let leftEl = document.querySelector(`.left-item[data-text="${leftText}"]`);
-            leftEl.style.backgroundColor = color;
-            leftEl.style.color = 'white';
-            leftEl.style.borderColor = color;
+            if (leftEl) {
+                leftEl.style.backgroundColor = color;
+                leftEl.style.color = 'white';
+                leftEl.style.borderColor = color;
+            }
             
             element.style.backgroundColor = color;
             element.style.color = 'white';
