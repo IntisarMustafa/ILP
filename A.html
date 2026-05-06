@@ -1029,7 +1029,7 @@ let quizTitle = "🎮 التحدي الأكبر";
 	                    <div class="type-selector">
 	                        <button type="button" class="type-btn active" onclick="setQuestionType('${blockId}', 'mc')">اختيار من متعدد</button>
 	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'blanks')">إكمال فراغات</button>
-	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'matching')">توصيل</button>
+	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'matching')">مطابقة الأزواج</button>
 	                        <button type="button" class="type-btn" onclick="setQuestionType('${blockId}', 'dragdrop')">تصنيف</button>
 	                    </div>
 
@@ -1642,7 +1642,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                                 `).join('')}
                             </div>
                         </div>
-                        <button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 10px; position: relative; z-index: 2;">تأكيد التوصيل ✔️</button>
+                        <button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 10px; position: relative; z-index: 2;">تأكيد المطابقة ✔️</button>
                     </div>`;
                 ansGrid.innerHTML = matchingHtml;
                 setTimeout(drawConnections, 100);
@@ -1734,7 +1734,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             processFinalResult(allCorrect, studentAnswers.join(" ، "), q.blanks.join(" ، "));
         }
 
-        // --- دوال التوصيل التفاعلية (Canvas) ---
+        // --- دوال مطابقة الأزواج التفاعلية (Canvas) ---
         function drawConnections() {
             const canvas = document.getElementById('matching-canvas');
             if (!canvas) return;
@@ -1781,19 +1781,10 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
         }
 
         function selectLeftMatch(element) {
-            // إذا كان العنصر مختاراً بالفعل، نلغي اختياره
-            if (currentMatchingState.selectedLeft === element.dataset.text) {
-                currentMatchingState.selectedLeft = null;
-                playTone(400, 'sine', 0.05);
-            } 
-            // إذا كان العنصر مرتبطاً، نفك الارتباط ونختاره
-            else if (Object.keys(currentMatchingState.matches).includes(element.dataset.text)) {
+            if (Object.keys(currentMatchingState.matches).includes(element.dataset.text)) {
                 delete currentMatchingState.matches[element.dataset.text];
-                currentMatchingState.selectedLeft = element.dataset.text;
-                playTone(600, 'sine', 0.05);
-            } 
-            // اختيار عادي
-            else {
+                playTone(400, 'sine', 0.05);
+            } else {
                 currentMatchingState.selectedLeft = element.dataset.text;
                 playTone(600, 'sine', 0.05);
             }
