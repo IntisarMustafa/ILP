@@ -265,6 +265,39 @@ document.addEventListener('click', () => {
         .option-btn:hover { background: #FFC107; transform: scale(1.02); }
         #feedbackText { font-weight: bold; margin-bottom: 10px; font-size: clamp(1rem, 3.5vw, 1.5rem); }
 
+        /* --- أنماط الأسئلة التفاعلية الجديدة --- */
+        .match-btn {
+            transition: all 0.2s; user-select: none; -webkit-user-select: none;
+            touch-action: manipulation; position: relative; overflow: hidden; z-index: 2;
+        }
+        .match-btn:active { transform: scale(0.95); }
+        #matching-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
+        }
+        .display-text math-field, .display-text .ML__mathlive { font-size: 1.1em !important; }
+        
+        .drag-zone-box {
+            background: white; border: 3px solid #46178f; border-radius: 15px; padding: 15px; min-height: 140px; 
+            display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s;
+        }
+        .drag-item-btn {
+            padding: 12px 25px; border-radius: 10px; border: 2px solid #ccc; background: white;
+            color: #333; font-weight: bold; font-size: 20px; min-height: 60px; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 4px 0 #ddd; margin: 5px;
+        }
+        .drag-item-selected {
+            border-color: #1368ce !important; background: #1368ce !important; color: white !important;
+            transform: scale(1.1) translateY(-4px); box-shadow: 0 6px 15px rgba(0,0,0,0.2) !important;
+        }
+        .ans-btn { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 10px; border: none; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 15px; }
+        .bg-red { background-color: #e21b3c; }
+        .bg-blue { background-color: #1368ce; }
+        .bg-yellow { background-color: #d89e00; }
+        .bg-green { background-color: #26890c; }
+        .ans-icon { font-size: 1.5rem; }
+
+
         #math-modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); z-index: 99999; align-items: center; justify-content: center;
@@ -519,7 +552,13 @@ document.addEventListener('click', () => {
             <input type="text" id="lesson-title-input" placeholder="عنوان الدرس (مثال: الجمع والطرح)" required>
 
             <div id="questions-list"></div>
-            <button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                <button class="btn btn-action" style="font-size:14px; padding:10px;" onclick="addQuestionBlock('mc')">+ اختيار من متعدد</button>
+                <button class="btn btn-action" style="font-size:14px; padding:10px;" onclick="addQuestionBlock('tf')">+ صح أو خطأ</button>
+                <button class="btn btn-action" style="font-size:14px; padding:10px;" onclick="addQuestionBlock('blanks')">+ فراغات</button>
+                <button class="btn btn-action" style="font-size:14px; padding:10px;" onclick="addQuestionBlock('matching')">+ توصيل</button>
+                <button class="btn btn-action" style="font-size:14px; padding:10px;" onclick="addQuestionBlock('dragdrop')">+ تصنيف</button>
+            </div>
             <div style="margin-top: 30px; display: flex; gap: 10px;">
                 <button class="btn btn-primary" onclick="saveQuestionsToSheet()">💾 حفظ وإنشاء الغرفة</button>
                 <button class="btn btn-back" onclick="showScreen('screen-home')">إلغاء</button>
@@ -909,6 +948,12 @@ document.addEventListener('click', () => {
         const avatars = ["🦁","🦋","🤖","🥷","👨‍🔬","🐺","🦊","🐯","🐼","🐰","🐹","🐻","🦉","🫅","👸","🦸‍♂️","🚀","⭐","🔥"];
         
         let qBlockCount = 0;
+        // --- متغيرات الأسئلة التفاعلية ---
+        let currentMatchingState = { selectedLeft: null, matches: {} };
+        let currentDragState = { items: [], selectedWordId: null, elementsCreated: false };
+        const matchingColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#46178f', '#ff8c00', '#00c2e0', '#ff477e'];
+        let currentQIndex = 0; // إضافة مؤشر السؤال الحالي لمتابعة التقدم
+
         
         // ========================================== //
         // دالة استرداد غرفة سابقة للمعلم (الاستنساخ) //
@@ -990,10 +1035,44 @@ document.addEventListener('click', () => {
         }
 
         // باقي دوال المعلم والطالب
-        function addQuestionBlock() {
+        function addQuestionBlock(type = 'mc') {
             const container = document.getElementById('questions-list');
             const blockId = `q-block-${qBlockCount}`;
-            const html = `<div class="q-block" id="${blockId}"><h3><span>السؤال ${qBlockCount+1}</span>${qBlockCount>0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}</h3><div style="display:flex; gap:10px;"><input type="text" class="q-title-input" placeholder="اكتب السؤال..." required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>${[0,1,2,3].map(i=>`<div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="${i}" ${i===0?'checked':''}><input type="text" class="q-opt-input" placeholder="الخيار ${i+1}" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`).join('')}</div>`;
+            let typeText = type === 'mc' ? 'اختيار من متعدد' : type === 'tf' ? 'صح أو خطأ' : type === 'blanks' ? 'فراغات' : type === 'matching' ? 'توصيل' : 'تصنيف (سحب وإفلات)';
+            
+            let contentHtml = '';
+            if (type === 'mc' || type === 'tf') {
+                const options = type === 'mc' ? [0,1,2,3] : [0,1];
+                contentHtml = options.map(i => `<div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="${i}" ${i===0?'checked':''}><input type="text" class="q-opt-input" placeholder="${type === 'tf' ? (i === 0 ? 'صح' : 'خطأ') : `الخيار ${i+1}`}" value="${type === 'tf' ? (i === 0 ? 'صح' : 'خطأ') : ''}" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`).join('');
+            } else if (type === 'blanks') {
+                contentHtml = [0,1].map(i => `<div class="opt-row"><input type="text" class="q-blank-input" placeholder="الإجابة الصحيحة للفراغ ${i+1}" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`).join('') + `<button type="button" class="btn btn-action" style="font-size:14px; padding:5px;" onclick="this.insertAdjacentHTML('beforebegin', '<div class=\'opt-row\'><input type=\'text\' class=\'q-blank-input\' placeholder=\'إجابة فراغ إضافي\' required><button type=\'button\' class=\'math-trigger-btn\' onclick=\'openMathModal(this.previousElementSibling)\'>🧮</button></div>')">+ إضافة فراغ</button>`;
+            } else if (type === 'matching') {
+                contentHtml = [0,1,2].map(i => `<div class="opt-row"><input type="text" class="q-match-left" placeholder="يمين ${i+1}" style="width:45%" required><span style="margin:0 5px;">🔗</span><input type="text" class="q-match-right" placeholder="يسار ${i+1}" style="width:45%" required></div>`).join('') + `<button type="button" class="btn btn-action" style="font-size:14px; padding:5px;" onclick="this.insertAdjacentHTML('beforebegin', '<div class=\'opt-row\'><input type=\'text\' class=\'q-match-left\' placeholder=\'يمين جديد\' style=\'width:45%\' required><span style=\'margin:0 5px;\'>🔗</span><input type=\'text\' class=\'q-match-right\' placeholder=\'يسار جديد\' style=\'width:45%\' required></div>')">+ إضافة زوج توصيل</button>`;
+            } else if (type === 'dragdrop') {
+                contentHtml = `
+                    <div style="margin-bottom:10px;">
+                        <p style="font-weight:bold; font-size:14px; margin-bottom:5px;">المجموعات (التصنيفات):</p>
+                        <div class="opt-row"><input type="text" class="q-zone-input" placeholder="المجموعة 1" value="المجموعة أ" required><input type="text" class="q-zone-input" placeholder="المجموعة 2" value="المجموعة ب" required></div>
+                    </div>
+                    <div>
+                        <p style="font-weight:bold; font-size:14px; margin-bottom:5px;">العناصر المطلوب سحبها:</p>
+                        <div class="opt-row"><input type="text" class="q-drag-item-text" placeholder="العنصر" style="width:60%" required><select class="q-drag-item-zone" style="width:35%; padding:10px; border-radius:8px;"><option value="0">المجموعة 1</option><option value="1">المجموعة 2</option></select></div>
+                        <button type="button" class="btn btn-action" style="font-size:14px; padding:5px;" onclick="this.insertAdjacentHTML('beforebegin', '<div class=\'opt-row\'><input type=\'text\' class=\'q-drag-item-text\' placeholder=\'عنصر جديد\' style=\'width:60%\' required><select class=\'q-drag-item-zone\' style=\'width:35%; padding:10px; border-radius:8px;\'><option value=\'0\'>المجموعة 1</option><option value=\'1\'>المجموعة 2</option></select></div>')">+ إضافة عنصر سحب</button>
+                    </div>`;
+            }
+
+            const html = `
+                <div class="q-block" id="${blockId}" data-type="${type}">
+                    <h3>
+                        <span>السؤال ${qBlockCount+1} (${typeText})</span>
+                        ${qBlockCount>0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
+                    </h3>
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required>
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                    </div>
+                    ${contentHtml}
+                </div>`;
             container.insertAdjacentHTML('beforeend', html);
             qBlockCount++;
         }
@@ -1016,10 +1095,33 @@ document.addEventListener('click', () => {
 
             blocks.forEach(block => {
                 const title = block.querySelector('.q-title-input').value.trim();
-                const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(i=>i.value.trim());
-                const correct = block.querySelector('input[type="radio"]:checked');
-                if(!title || opts.some(o=>!o)) valid=false;
-                if(correct) customQuestions.push({ q: title, opts: opts, ans: parseInt(correct.value) });
+                const type = block.dataset.type || 'mc';
+                
+                if (type === 'mc' || type === 'tf') {
+                    const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(i=>i.value.trim());
+                    const correct = block.querySelector('input[type="radio"]:checked');
+                    if(!title || opts.some(o=>!o)) valid=false;
+                    if(correct) customQuestions.push({ q: title, opts: opts, ans: parseInt(correct.value), type: type });
+                } else if (type === 'blanks') {
+                    const blanks = Array.from(block.querySelectorAll('.q-blank-input')).map(i=>i.value.trim());
+                    if(!title || blanks.some(b=>!b)) valid=false;
+                    customQuestions.push({ q: title, blanks: blanks, type: 'blanks' });
+                } else if (type === 'matching') {
+                    const pairs = [];
+                    const lefts = Array.from(block.querySelectorAll('.q-match-left')).map(i=>i.value.trim());
+                    const rights = Array.from(block.querySelectorAll('.q-match-right')).map(i=>i.value.trim());
+                    if(!title || lefts.some(l=>!l) || rights.some(r=>!r)) valid=false;
+                    lefts.forEach((l, i) => pairs.push({ left: l, right: rights[i] }));
+                    customQuestions.push({ q: title, pairs: pairs, type: 'matching' });
+                } else if (type === 'dragdrop') {
+                    const zones = Array.from(block.querySelectorAll('.q-zone-input')).map(i=>i.value.trim());
+                    const items = [];
+                    const itemTexts = Array.from(block.querySelectorAll('.q-drag-item-text')).map(i=>i.value.trim());
+                    const itemZones = Array.from(block.querySelectorAll('.q-drag-item-zone')).map(i=>parseInt(i.value));
+                    if(!title || zones.some(z=>!z) || itemTexts.some(t=>!t)) valid=false;
+                    itemTexts.forEach((t, i) => items.push({ text: t, zoneIndex: itemZones[i] }));
+                    customQuestions.push({ q: title, zones: zones, items: items, type: 'dragdrop' });
+                }
             });
             
             if(!valid || customQuestions.length===0) { 
@@ -1334,30 +1436,261 @@ document.addEventListener('click', () => {
         }
 
         function nextBird(){ if(releasedBirds.some(b=>b.launched && (Math.abs(b.velocity.x)>0.5||Math.abs(b.velocity.y)>0.5))){ setTimeout(nextBird,500); return; } const targets=gameObjects.filter(obj=>obj instanceof TargetBird); if(targets.length===0){ playSound(1000,'triangle',0.5,0.6); showGameOverMessage('لقد نجحت!',`نقاطك: ${score}`,true,false); } else if(birdsLeft>0){ loadNextBird(); } else { loadNextQuestion(); } }
-        function loadNextQuestion(){ if(!gameQuestions.length) return; gameRunning=false; const q = gameQuestions[Math.floor(Math.random()*gameQuestions.length)]; const questionEl=document.getElementById('questionText'); const container=document.getElementById('optionsContainer'); questionEl.textContent = q.q; container.innerHTML=''; q.opts.forEach((opt,idx)=>{ const btn=document.createElement('button'); btn.classList.add('option-btn'); btn.textContent=opt; btn.onclick=()=>checkAnswer(idx,q.ans,q.q); container.appendChild(btn); }); if(window.MathLive){ MathLive.renderMathInElement(questionEl); Array.from(container.querySelectorAll('.option-btn')).forEach(btn=>MathLive.renderMathInElement(btn)); } document.getElementById('feedbackText').innerHTML=''; document.getElementById('explanation').style.display='none'; document.getElementById('questionScreen').classList.add('visible'); }
-        function showQuestion(){ loadNextQuestion(); }
-        
-        function checkAnswer(selected,correct,questionText){ 
-            const btns=document.querySelectorAll('.option-btn'); 
-            btns.forEach(b=>b.disabled=true); 
-            if(selected===correct){ 
-                birdsLeft+=3; updateUI(); playSound(523.25,'sine',0.2,0.5); 
-                document.getElementById('feedbackText').innerHTML='✓ إجابة صحيحة! +3 طيور'; 
-                document.getElementById('feedbackText').style.color='#2ecc71'; 
-                setTimeout(()=>{ 
-                    document.getElementById('questionScreen').classList.remove('visible'); 
-                    gameRunning=true; loadNextBird(); 
-                },2000); 
-            } else { 
-                playSound(200,'square',0.5,0.6); 
-                document.getElementById('feedbackText').innerHTML='❌ إجابة خاطئة! انتهت اللعبة.'; 
-                document.getElementById('feedbackText').style.color='#e74c3c'; 
+        function loadNextQuestion() {
+            if (!gameQuestions.length) return;
+            gameRunning = false;
+            
+            // اختيار سؤال عشوائي أو بالترتيب (سنستخدم الترتيب لضمان تجربة متناسقة مع التحديث)
+            const q = gameQuestions[currentQIndex % gameQuestions.length];
+            currentQIndex++;
+
+            const questionEl = document.getElementById('questionText');
+            const container = document.getElementById('optionsContainer');
+            questionEl.textContent = q.q;
+            container.innerHTML = '';
+            document.getElementById('feedbackText').innerHTML = '';
+            document.getElementById('explanation').style.display = 'none';
+
+            const type = q.type || 'mc';
+
+            if (type === 'mc' || type === 'tf') {
+                const opts = q.opts || [];
+                opts.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.onclick = () => checkAnswer(i === q.ans, opt, q.opts[q.ans]);
+                    btn.innerHTML = `<span class="display-text">${opt}</span>`;
+                    container.appendChild(btn);
+                });
+            } else if (type === 'blanks') {
+                let blanksHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%;">`;
+                if (q.blanks) {
+                    q.blanks.forEach((blank, i) => {
+                        blanksHtml += `<input type="text" id="student-blank-${i}" placeholder="أدخل إجابة الفراغ رقم ${i+1}" style="font-size: 20px; padding: 15px; border-radius: 10px; border: 3px solid #46178f; text-align: center; width: 100%; max-width: 400px; font-weight: bold;">`;
+                    });
+                }
+                blanksHtml += `<button class="btn btn-primary" onclick="submitBlanksAnswer()" style="width: 100%; max-width: 400px; margin-top: 15px;">تأكيد الإجابة ✔️</button></div>`;
+                container.innerHTML = blanksHtml;
+            } else if (type === 'matching') {
+                currentMatchingState = { selectedLeft: null, matches: {} };
+                let leftItems = q.pairs.map((p, i) => ({ id: i, text: p.left }));
+                let rightItems = q.pairs.map((p, i) => ({ id: i, text: p.right })).sort(() => Math.random() - 0.5);
                 
-                setTimeout(()=>{ 
-                    document.getElementById('questionScreen').classList.remove('visible'); 
-                    endGame(); 
-                },2000); 
-            } 
+                let matchingHtml = `
+                    <div id="matching-container-wrapper" style="width: 100%; display: flex; flex-direction: column; gap: 20px; position: relative; padding: 10px;">
+                        <canvas id="matching-canvas"></canvas>
+                        <div style="display: flex; gap: 20px; justify-content: space-between; position: relative; z-index: 2;">
+                            <div id="matching-left-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                                ${leftItems.map((item) => `
+                                    <button id="left-item-${item.id}" class="match-btn left-item" onclick="selectLeftMatch(${item.id})" style="padding: 10px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 18px; cursor: pointer; transition: 0.2s; min-height: 50px;">
+                                        <span class="display-text">${item.text}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div id="matching-right-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                                ${rightItems.map((item) => `
+                                    <button id="right-item-${item.id}" class="match-btn right-item" onclick="selectRightMatch(${item.id})" style="padding: 10px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 18px; cursor: pointer; transition: 0.2s; min-height: 50px;">
+                                        <span class="display-text">${item.text}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="submitMatchingAnswer()" style="margin-top: 10px; position: relative; z-index: 2;">تأكيد التوصيل ✔️</button>
+                    </div>`;
+                container.innerHTML = matchingHtml;
+                setTimeout(drawConnections, 100);
+            } else if (type === 'dragdrop') {
+                currentDragState = {
+                    items: q.items.map((it, idx) => ({ id: idx, text: it.text, targetZone: it.zoneIndex, currentZone: 'pool' })),
+                    selectedWordId: null, elementsCreated: false
+                };
+                
+                let dragHtml = `
+                    <div style="width: 100%; display: flex; flex-direction: column; gap: 20px;">
+                        <div id="drag-pool" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 15px; border: 2px dashed #ccc; min-height: 60px;"></div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                            ${q.zones.map((zone, zi) => `
+                                <div class="drag-zone-box" onclick="moveDragItem(${zi})" style="min-height: 100px;">
+                                    <div style="font-weight: 900; font-size: 18px; color: #46178f; margin-bottom: 10px; border-bottom: 2px solid #eee; width: 100%; text-align: center;">${zone}</div>
+                                    <div id="drag-zone-items-${zi}" style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; width: 100%;"></div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-primary" onclick="submitDragDropAnswer()" style="margin-top: 10px;">تأكيد التصنيف ✔️</button>
+                    </div>`;
+                container.innerHTML = dragHtml;
+                renderDragItems();
+            }
+
+            if (window.MathLive) {
+                MathLive.renderMathInElement(questionEl);
+                Array.from(container.querySelectorAll('.display-text')).forEach(el => MathLive.renderMathInElement(el));
+            }
+            document.getElementById('questionScreen').classList.add('visible');
+        }
+
+        function showQuestion() { loadNextQuestion(); }
+
+        function checkAnswer(correct, userAnswer, correctAnswer) {
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(b => b.disabled = true);
+            
+            if (correct) {
+                birdsLeft += 3;
+                updateUI();
+                playSound(523.25, 'sine', 0.2, 0.5);
+                document.getElementById('feedbackText').innerHTML = '✓ إجابة صحيحة! +3 طيور';
+                document.getElementById('feedbackText').style.color = '#2ecc71';
+                setTimeout(() => {
+                    document.getElementById('questionScreen').classList.remove('visible');
+                    gameRunning = true;
+                    loadNextBird();
+                }, 2000);
+            } else {
+                playSound(200, 'square', 0.5, 0.6);
+                document.getElementById('feedbackText').innerHTML = `❌ إجابة خاطئة! الإجابة الصحيحة هي: ${correctAnswer}`;
+                document.getElementById('feedbackText').style.color = '#e74c3c';
+                setTimeout(() => {
+                    document.getElementById('questionScreen').classList.remove('visible');
+                    endGame();
+                }, 3000);
+            }
+        }
+
+        function submitBlanksAnswer() {
+            const q = gameQuestions[(currentQIndex - 1) % gameQuestions.length];
+            let allCorrect = true;
+            let studentAnswers = [];
+            let correctAnswers = [];
+            
+            if (q.blanks) {
+                q.blanks.forEach((blank, i) => {
+                    let val = document.getElementById(`student-blank-${i}`).value.trim();
+                    studentAnswers.push(val);
+                    let correctOptions = blank.split('/').map(opt => opt.trim().toLowerCase());
+                    correctAnswers.push(blank);
+                    if (!correctOptions.includes(val.toLowerCase())) allCorrect = false;
+                });
+            }
+            checkAnswer(allCorrect, studentAnswers.join(" ، "), correctAnswers.join(" ، "));
+        }
+
+        function drawConnections() {
+            const canvas = document.getElementById('matching-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const wrapper = document.getElementById('matching-container-wrapper');
+            
+            canvas.width = wrapper.offsetWidth;
+            canvas.height = wrapper.offsetHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let i = 0;
+            for (let leftId in currentMatchingState.matches) {
+                let rightId = currentMatchingState.matches[leftId];
+                let leftEl = document.getElementById(`left-item-${leftId}`);
+                let rightEl = document.getElementById(`right-item-${rightId}`);
+                
+                if (leftEl && rightEl) {
+                    let l = leftEl.getBoundingClientRect(), r = rightEl.getBoundingClientRect(), p = wrapper.getBoundingClientRect();
+                    let sx = (l.left + l.width) - p.left, sy = (l.top + l.height / 2) - p.top;
+                    let ex = r.left - p.left, ey = (r.top + r.height / 2) - p.top;
+
+                    if (document.dir === 'rtl') { sx = l.left - p.left; ex = (r.left + r.width) - p.left; }
+
+                    ctx.beginPath(); ctx.moveTo(sx, sy);
+                    ctx.bezierCurveTo(sx + (document.dir === 'rtl' ? -30 : 30), sy, ex + (document.dir === 'rtl' ? 30 : -30), ey, ex, ey);
+                    ctx.strokeStyle = matchingColors[i % matchingColors.length];
+                    ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
+                }
+                i++;
+            }
+        }
+
+        function selectLeftMatch(leftId) {
+            if (currentMatchingState.selectedLeft === leftId) { currentMatchingState.selectedLeft = null; } 
+            else if (currentMatchingState.matches[leftId] !== undefined) { delete currentMatchingState.matches[leftId]; currentMatchingState.selectedLeft = leftId; } 
+            else { currentMatchingState.selectedLeft = leftId; }
+            updateMatchingUI();
+        }
+
+        function selectRightMatch(rightId) {
+            for (let lid in currentMatchingState.matches) { if (currentMatchingState.matches[lid] === rightId) { delete currentMatchingState.matches[lid]; break; } }
+            if (currentMatchingState.selectedLeft !== null) { currentMatchingState.matches[currentMatchingState.selectedLeft] = rightId; currentMatchingState.selectedLeft = null; } 
+            updateMatchingUI();
+        }
+
+        function updateMatchingUI() {
+            document.querySelectorAll('.match-btn').forEach(el => { el.style.backgroundColor = 'white'; el.style.color = '#333'; el.style.borderColor = '#ddd'; });
+            let i = 0;
+            for (let leftId in currentMatchingState.matches) {
+                let rightId = currentMatchingState.matches[leftId]; let color = matchingColors[i % matchingColors.length];
+                let lEl = document.getElementById(`left-item-${leftId}`); let rEl = document.getElementById(`right-item-${rightId}`);
+                if (lEl) { lEl.style.backgroundColor = color; lEl.style.color = 'white'; lEl.style.borderColor = color; }
+                if (rEl) { rEl.style.backgroundColor = color; rEl.style.color = 'white'; rEl.style.borderColor = color; }
+                i++;
+            }
+            if (currentMatchingState.selectedLeft !== null) {
+                let selEl = document.getElementById(`left-item-${currentMatchingState.selectedLeft}`);
+                if (selEl) { selEl.style.backgroundColor = '#46178f'; selEl.style.color = 'white'; selEl.style.borderColor = '#46178f'; }
+            }
+            drawConnections();
+        }
+
+        function submitMatchingAnswer() {
+            const q = gameQuestions[(currentQIndex - 1) % gameQuestions.length];
+            let allCorrect = true;
+            let studentAnswers = [];
+            q.pairs.forEach((pair, i) => {
+                let rightId = currentMatchingState.matches[i];
+                if (rightId !== i) allCorrect = false;
+            });
+            checkAnswer(allCorrect, "توصيل", "التوصيل الصحيح");
+        }
+
+        function renderDragItems() {
+            let poolEl = document.getElementById('drag-pool'); if(!poolEl) return;
+            if (!currentDragState.elementsCreated) {
+                currentDragState.items.forEach(item => {
+                    let btn = document.createElement('button');
+                    btn.className = 'drag-item-btn';
+                    btn.innerHTML = `<span class="display-text">${item.text}</span>`;
+                    btn.onclick = (e) => {
+                        e.stopPropagation(); currentDragState.selectedWordId = (currentDragState.selectedWordId === item.id) ? null : item.id;
+                        renderDragItems();
+                    };
+                    item.element = btn;
+                });
+                currentDragState.elementsCreated = true;
+            }
+            currentDragState.items.forEach(item => {
+                let btn = item.element; let isSelected = currentDragState.selectedWordId === item.id;
+                if (isSelected) btn.classList.add('drag-item-selected');
+                else btn.classList.remove('drag-item-selected');
+                
+                if (item.currentZone === 'pool') poolEl.appendChild(btn);
+                else { let zoneContainer = document.getElementById(`drag-zone-items-${item.currentZone}`); if(zoneContainer) zoneContainer.appendChild(btn); }
+            });
+            if (window.MathLive) {
+                Array.from(document.querySelectorAll('.drag-item-btn .display-text')).forEach(el => MathLive.renderMathInElement(el));
+            }
+        }
+
+        function moveDragItem(targetZone) {
+            if (currentDragState.selectedWordId !== null) {
+                let item = currentDragState.items.find(i => i.id === currentDragState.selectedWordId);
+                if(item) item.currentZone = targetZone;
+                currentDragState.selectedWordId = null; renderDragItems();
+            }
+        }
+
+        function submitDragDropAnswer() {
+            const q = gameQuestions[(currentQIndex - 1) % gameQuestions.length];
+            let allCorrect = true;
+            currentDragState.items.forEach((item) => {
+                if (item.currentZone !== item.targetZone) allCorrect = false;
+            });
+            checkAnswer(allCorrect, "تصنيف", "التصنيف الصحيح");
         }
         
         function showGameOverMessage(title,scoreMsg,levelComplete,gameWon){ document.getElementById('gameOverTitle').innerText=title; document.getElementById('gameOverScore').innerText=scoreMsg; document.getElementById('gameOverOverlay').classList.add('visible'); if(gameWon) { document.getElementById('nextLevelBtn').style.display='none';  } else if(levelComplete){ document.getElementById('nextLevelBtn').style.display='block';  } else { document.getElementById('nextLevelBtn').style.display='none'; } }
