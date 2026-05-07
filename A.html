@@ -655,7 +655,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 
 <div id="question-counter" style="text-align: center; font-size: 18px; font-weight: bold; color: var(--white); background-color: var(--primary); padding: 5px 20px; border-radius: 20px; width: fit-content; margin: 0 auto 15px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: background-color 0.3s;"></div>
 
-<div class="question-box display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div>
+<div class="question-box" id="question-box-wrapper"><div class="display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div></div>
 <div class="answers-grid">
 <button class="ans-btn bg-red" id="btn-ans-0" onclick="submitAnswer(0)"><span class="ans-icon">▲</span> <span class="display-text" id="ans-text-0" style="direction: rtl;"></span></button>
 <button class="ans-btn bg-blue" id="btn-ans-1" onclick="submitAnswer(1)"><span class="ans-icon">◆</span> <span class="display-text" id="ans-text-1" style="direction: rtl;"></span></button>
@@ -1634,8 +1634,24 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             }
             // --- نهاية التعديل ---
 
-            // 1. عرض نص السؤال
+            // 1. عرض الصورة فوق نص السؤال إن وجدت، ثم نص السؤال
             const qContainer = document.getElementById('question-text');
+            const qBox = document.getElementById('question-box-wrapper');
+
+            // إزالة الصورة القديمة إن وجدت
+            const existingImg = document.getElementById('question-image-display');
+            if (existingImg) existingImg.remove();
+
+            if (q.img) {
+                const imgEl = document.createElement('img');
+                imgEl.id = 'question-image-display';
+                imgEl.src = q.img;
+                imgEl.alt = 'صورة السؤال';
+                imgEl.style.cssText = 'max-width:100%; max-height:260px; border-radius:12px; margin-bottom:15px; display:block; margin-left:auto; margin-right:auto; border:3px solid var(--primary); object-fit:contain;';
+                imgEl.onerror = () => imgEl.remove();
+                qBox.insertBefore(imgEl, qContainer);
+            }
+
             qContainer.textContent = q.q;
 
             // 2. تهيئة منطقة الإجابات بناءً على نوع السؤال
