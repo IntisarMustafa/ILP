@@ -552,6 +552,19 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <!-- قسم: إنشاء أسئلة جديدة -->
 <div id="section-teacher-new" style="display:none;">
 <input type="text" id="quiz-title-input" placeholder="📌 عنوان المسابقة..." style="width:100%;padding:15px;margin-bottom:20px;text-align:center;font-weight:bold;border:2px solid #ccc;border-radius:10px;">
+
+<!-- حقلا اسم المعلم واسم المدرسة -->
+<div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+    <div style="flex:1; min-width:180px;">
+        <label style="display:block; font-weight:bold; color:var(--primary); margin-bottom:6px; font-size:15px;">👨‍🏫 اسم المعلم</label>
+        <input type="text" id="teacher-name-input" placeholder="أدخل اسم المعلم..." style="width:100%; padding:12px; margin-bottom:0; border:2px solid #ccc; border-radius:10px; font-size:16px; text-align:right;">
+    </div>
+    <div style="flex:1; min-width:180px;">
+        <label style="display:block; font-weight:bold; color:var(--primary); margin-bottom:6px; font-size:15px;">🏫 اسم المدرسة</label>
+        <input type="text" id="school-name-input" placeholder="أدخل اسم المدرسة..." style="width:100%; padding:12px; margin-bottom:0; border:2px solid #ccc; border-radius:10px; font-size:16px; text-align:right;">
+    </div>
+</div>
+
 <h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ إنشاء أسئلة جديدة</h3>
 <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
 <div id="questions-list"></div>
@@ -588,6 +601,14 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
 <h2>انضموا الآن! رمز الغرفة:</h2>
 <div class="room-pin" id="display-room-pin">000000</div>
+<!-- بطاقة معلومات المعلم والمدرسة -->
+<div id="teacher-info-display" style="display:none; background: linear-gradient(135deg, var(--primary), var(--k-blue)); color:white; border-radius:14px; padding:14px 22px; margin: 10px 0 15px 0; display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; box-shadow: 0 6px 18px rgba(70,23,143,0.25);">
+    <span style="font-size:22px;">👨‍🏫</span>
+    <span id="teacher-info-name" style="font-size:20px; font-weight:900; letter-spacing:0.5px;"></span>
+    <span style="opacity:0.6; font-size:20px;">|</span>
+    <span style="font-size:18px;">🏫</span>
+    <span id="teacher-info-school" style="font-size:20px; font-weight:700;"></span>
+</div>
 <p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام الموحد...</p>
 <div id="qr-container" style="margin: 20px 0;">
 <img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
@@ -1464,13 +1485,32 @@ let quizTitle = "🎮 التحدي الأكبر";
             playBGM('lobby');
             currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
             const jsonQuestions = JSON.stringify(customQuestions);
-            
+
+            // قراءة اسم المعلم واسم المدرسة
+            const teacherName = (document.getElementById('teacher-name-input')?.value.trim()) || '';
+            const schoolName = (document.getElementById('school-name-input')?.value.trim()) || '';
+            const teacherLabel = (teacherName || schoolName) ? `${teacherName} _ ${schoolName}` : '';
+
+            // تخزين الأسئلة في qform-school والمعرف في qform-name
+            // العمود C (qform-score هنا هو score) سيحمل التسمية
             document.getElementById('qform-name').value = currentRoomPIN; 
-            document.getElementById('qform-school').value = jsonQuestions; 
+            document.getElementById('qform-school').value = jsonQuestions;
+            // نضع اسم المعلم_المدرسة في حقل qform-score الذي يُخزَّن في العمود C
+            const qformScore = document.getElementById('qform-score');
+            if (qformScore) qformScore.value = teacherLabel || 'QUESTIONS';
             
             document.getElementById('saving-status').style.display = 'block';
             document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
             document.getElementById('questionsForm').submit();
+
+            // عرض اسم المعلم والمدرسة في لوحة المعلم
+            if (teacherName || schoolName) {
+                document.getElementById('teacher-info-name').innerText = teacherName || '—';
+                document.getElementById('teacher-info-school').innerText = schoolName || '—';
+                document.getElementById('teacher-info-display').style.display = 'flex';
+            } else {
+                document.getElementById('teacher-info-display').style.display = 'none';
+            }
 
             document.getElementById('display-room-pin').innerText = currentRoomPIN;
             const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
