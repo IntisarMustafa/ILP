@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>لوحة مراقبة الغرف</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$','$']], displayMath: [['$$','$$']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea'] },
+      startup: { typeset: false }
+    };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js" crossorigin="anonymous"></script>
   <style>
     :root {
       --bg: #0b0f1a;
@@ -202,7 +210,94 @@
       color: var(--muted);
       font-weight: 700;
       letter-spacing: 1.5px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .questions-label .q-count {
+      background: rgba(0,212,255,0.15);
+      color: var(--accent);
+      border-radius: 10px;
+      padding: 1px 8px;
+      font-size: 11px;
+    }
+    /* toggle button */
+    .toggle-q-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: 'Tajawal', sans-serif;
+      margin-right: auto;
+      transition: all 0.2s;
+    }
+    .toggle-q-btn:hover { border-color: var(--accent2); color: var(--text); }
+    .questions-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    .q-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 12px 14px;
+      transition: border-color 0.2s;
+    }
+    .q-card:hover { border-color: rgba(124,58,237,0.4); }
+    .q-num {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent2);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .q-text {
+      font-size: 14px;
+      color: #d8e8ff;
+      line-height: 1.8;
+      font-family: 'Cairo', sans-serif;
+      margin-bottom: 10px;
+    }
+    .opts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .opt-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 7px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: #aabbd4;
+      font-family: 'Cairo', sans-serif;
+      line-height: 1.5;
+    }
+    .opt-item.correct {
+      background: rgba(16,185,129,0.12);
+      border-color: rgba(16,185,129,0.35);
+      color: #6ee7b7;
+    }
+    .opt-letter {
+      font-size: 10px;
+      font-weight: 900;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.07);
+      color: var(--muted);
+    }
+    .opt-item.correct .opt-letter {
+      background: rgba(16,185,129,0.3);
+      color: #6ee7b7;
     }
     .questions-text {
       font-size: 14px;
@@ -504,10 +599,73 @@
     }
   }
 
+  function parseQuestions(raw) {
+    if (!raw) return null;
+    const str = String(raw).trim();
+    if (!str.startsWith('[') && !str.startsWith('{')) return null;
+    try {
+      const parsed = JSON.parse(str);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch(e) { return null; }
+  }
+
+  const LETTERS = ['أ', 'ب', 'ج', 'د'];
+
+  function buildQuestionsHTML(raw, roomId) {
+    const qs = parseQuestions(raw);
+    if (!qs) {
+      // fallback: plain text
+      return raw ? `<div class="room-questions"><div class="questions-label">📋 الأسئلة</div><div class="questions-text">${raw}</div></div>` : '';
+    }
+
+    const listId = 'qlist-' + roomId;
+    const btnId  = 'qbtn-'  + roomId;
+
+    const cardsHTML = qs.map((q, i) => {
+      const optsHTML = (q.opts || []).map((opt, oi) => {
+        const isCorrect = (q.ans === oi);
+        return `<div class="opt-item${isCorrect ? ' correct' : ''}">
+          <span class="opt-letter">${LETTERS[oi] || (oi+1)}</span>
+          <span>${opt}</span>
+        </div>`;
+      }).join('');
+
+      return `<div class="q-card">
+        <div class="q-num">السؤال ${i + 1}</div>
+        <div class="q-text">${q.q || ''}</div>
+        ${optsHTML ? `<div class="opts-grid">${optsHTML}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="room-questions">
+        <div class="questions-label" style="display:flex;align-items:center;gap:8px;">
+          📋 الأسئلة
+          <span class="q-count">${qs.length} سؤال</span>
+          <button class="toggle-q-btn" id="${btnId}" onclick="toggleQuestions('${listId}','${btnId}')">عرض ◀</button>
+        </div>
+        <div class="questions-list" id="${listId}" style="display:none;">${cardsHTML}</div>
+      </div>`;
+  }
+
+  function toggleQuestions(listId, btnId) {
+    const list = document.getElementById(listId);
+    const btn  = document.getElementById(btnId);
+    if (!list) return;
+    const hidden = list.style.display === 'none';
+    list.style.display = hidden ? 'flex' : 'none';
+    btn.textContent = hidden ? 'إخفاء ▼' : 'عرض ◀';
+    if (hidden && window.MathJax) {
+      MathJax.typesetPromise([list]).catch(e => console.warn(e));
+    }
+  }
+
   function buildRoomCard(room, idx) {
     const card = document.createElement('div');
     card.className = 'room-card';
     card.style.animationDelay = (idx * 0.06) + 's';
+
+    const roomId = 'room-' + idx;
 
     // Sort students by score desc
     const sorted = [...room.students].sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
@@ -540,12 +698,7 @@
         </div>
         <div class="student-count-badge">👤 ${room.students.length} طالب</div>
       </div>
-      ${room.questions ? `
-      <div class="room-questions">
-        <div class="questions-label">📋 الأسئلة</div>
-        <div class="questions-text">${room.questions}</div>
-      </div>
-      ` : ''}
+      ${buildQuestionsHTML(room.questions, roomId)}
       <div class="room-students">
         <div class="students-label">👥 الطلاب المشاركون</div>
         <div class="students-list">${studentsHTML}</div>
