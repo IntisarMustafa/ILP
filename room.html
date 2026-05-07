@@ -5,7 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>لوحة مراقبة الغرف - الأونروا</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
-  <script>
+  <!-- STATS MODAL -->
+<div class="modal-overlay" id="statsModal" onclick="closeModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modalTitle">📊 إحصائيات المدارس والمعلمين</h2>
+      <button class="modal-close" onclick="closeStatsModal()">✕ إغلاق</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-schools" onclick="switchTab('schools')">🏫 حسب المدارس</button>
+      <button class="modal-tab" id="tab-teachers" onclick="switchTab('teachers')">👨‍🏫 حسب المعلمين</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+    </div>
+  </div>
+</div>
+
+<script>
     window.MathJax = {
       tex: { inlineMath: [["\\(","\\)"], ["$","$"]], displayMath: [["$$","$$"]] },
       options: { skipHtmlTags: ["script","noscript","style","textarea"] },
@@ -403,6 +419,143 @@
       color: var(--red); margin: 20px;
     }
 
+    /* ===== STATS MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,40,80,0.55);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: white;
+      border-radius: 18px;
+      width: 95%;
+      max-width: 750px;
+      max-height: 85vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,40,80,0.3);
+      animation: modalIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    @keyframes modalIn { from { opacity:0; transform:scale(0.9) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    .modal-header {
+      background: linear-gradient(135deg, var(--unrwa-blue-dk), var(--unrwa-blue));
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-header h2 { color: white; font-size: 18px; font-weight: 900; }
+    .modal-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 16px;
+      font-family: "Tajawal", sans-serif;
+      font-weight: 700;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.35); }
+    .modal-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      flex-shrink: 0;
+      background: var(--unrwa-sky);
+    }
+    .modal-tab {
+      flex: 1;
+      padding: 13px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      font-family: "Tajawal", sans-serif;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .modal-tab.active { color: var(--unrwa-blue); border-bottom-color: var(--unrwa-blue); background: white; }
+    .modal-body {
+      overflow-y: auto;
+      padding: 20px 24px;
+      flex: 1;
+    }
+    .stat-table { width: 100%; border-collapse: collapse; }
+    .stat-table thead th {
+      background: var(--unrwa-blue-dk);
+      color: white;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+    }
+    .stat-table thead th:last-child { text-align: center; }
+    .stat-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    .stat-table tbody tr:hover { background: var(--unrwa-sky); }
+    .stat-table tbody td { padding: 11px 14px; font-size: 14px; color: var(--text); }
+    .stat-table tbody td:last-child { text-align: center; }
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 900;
+      background: var(--unrwa-sky2);
+      color: var(--unrwa-blue);
+    }
+    .rank-badge.gold { background: #FEF3C7; color: #B45309; }
+    .rank-badge.silver { background: #F1F5F9; color: #64748B; }
+    .rank-badge.bronze { background: #FEF0E7; color: #C2410C; }
+    .rooms-count-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bar-fill {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--unrwa-blue);
+      transition: width 0.5s;
+    }
+    .rooms-num {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--unrwa-blue);
+      min-width: 24px;
+    }
+    .students-num {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .stats-btn {
+      background: linear-gradient(135deg, #E07B00, #F59E0B);
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: "Tajawal", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(224,123,0,0.3);
+    }
+    .stats-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(224,123,0,0.4); }
+
     @media (max-width: 600px) {
       .top-bar { padding: 0 14px; flex-wrap: wrap; height: auto; padding: 12px 14px; gap: 10px; }
       .stats-bar { padding: 12px 14px; }
@@ -424,6 +577,7 @@
     <div class="meta-info">
       <span>آخر تحديث: <strong id="last-update">--:--</strong></span>
       <span class="countdown">تحديث خلال: <strong id="countdown">10</strong>ث</span>
+      <button class="stats-btn" onclick="openStatsModal()">📊 إحصائيات المدارس</button>
       <button class="refresh-btn" onclick="loadData(true)" id="refreshBtn">🔄 تحديث</button>
     </div>
   </div>
@@ -688,6 +842,116 @@
     return card;
   }
 
+  // ===== GLOBAL ROOMS DATA =====
+  let allRoomsData = [];
+
+  // ===== STATS MODAL =====
+  let currentTab = 'schools';
+
+  function openStatsModal() {
+    buildStatsContent(currentTab);
+    document.getElementById('statsModal').classList.add('open');
+  }
+
+  function closeStatsModal() {
+    document.getElementById('statsModal').classList.remove('open');
+  }
+
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('statsModal')) closeStatsModal();
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    buildStatsContent(tab);
+  }
+
+  function buildStatsContent(tab) {
+    const body = document.getElementById('modalBody');
+    const rooms = allRoomsData;
+    if (!rooms.length) { body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;">لا توجد بيانات</div>'; return; }
+
+    if (tab === 'schools') {
+      // تجميع حسب المدارس
+      const schoolMap = {};
+      rooms.forEach(r => {
+        const school = r.schoolName || 'غير محدد';
+        if (!schoolMap[school]) schoolMap[school] = { rooms: 0, students: 0, teachers: new Set() };
+        schoolMap[school].rooms++;
+        schoolMap[school].students += r.students.length;
+        if (r.teacherName) schoolMap[school].teachers.add(r.teacherName);
+      });
+      const sorted = Object.entries(schoolMap).sort((a,b) => b[1].rooms - a[1].rooms);
+      const maxRooms = sorted[0]?.[1].rooms || 1;
+      const medals = ['gold','silver','bronze'];
+      body.innerHTML = `
+        <table class="stat-table">
+          <thead><tr>
+            <th>#</th>
+            <th>المدرسة</th>
+            <th>عدد الغرف</th>
+            <th>الطلاب</th>
+            <th>المعلمون</th>
+          </tr></thead>
+          <tbody>
+            ${sorted.map(([school, d], i) => `
+              <tr>
+                <td><span class="rank-badge ${medals[i]||''}">${i+1}</span></td>
+                <td><strong>${school}</strong></td>
+                <td>
+                  <div class="rooms-count-bar">
+                    <div class="bar-fill" style="width:${Math.round((d.rooms/maxRooms)*120)}px"></div>
+                    <span class="rooms-num">${d.rooms}</span>
+                  </div>
+                </td>
+                <td><span class="students-num">👥 ${d.students}</span></td>
+                <td><span class="students-num">👨‍🏫 ${d.teachers.size}</span></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } else {
+      // تجميع حسب المعلمين
+      const teacherMap = {};
+      rooms.forEach(r => {
+        const teacher = r.teacherName || 'غير محدد';
+        const school = r.schoolName || 'غير محدد';
+        if (!teacherMap[teacher]) teacherMap[teacher] = { rooms: 0, students: 0, school };
+        teacherMap[teacher].rooms++;
+        teacherMap[teacher].students += r.students.length;
+      });
+      const sorted = Object.entries(teacherMap).sort((a,b) => b[1].rooms - a[1].rooms);
+      const maxRooms = sorted[0]?.[1].rooms || 1;
+      const medals = ['gold','silver','bronze'];
+      body.innerHTML = `
+        <table class="stat-table">
+          <thead><tr>
+            <th>#</th>
+            <th>المعلم</th>
+            <th>المدرسة</th>
+            <th>عدد الغرف</th>
+            <th>الطلاب</th>
+          </tr></thead>
+          <tbody>
+            ${sorted.map(([teacher, d], i) => `
+              <tr>
+                <td><span class="rank-badge ${medals[i]||''}">${i+1}</span></td>
+                <td><strong>${teacher}</strong></td>
+                <td><span style="font-size:13px;color:var(--muted);">🏫 ${d.school}</span></td>
+                <td>
+                  <div class="rooms-count-bar">
+                    <div class="bar-fill" style="width:${Math.round((d.rooms/maxRooms)*100)}px"></div>
+                    <span class="rooms-num">${d.rooms}</span>
+                  </div>
+                </td>
+                <td><span class="students-num">👥 ${d.students}</span></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+  }
+
   // ===== LOAD DATA =====
   async function loadData(manual = false) {
     if (manual) {
@@ -745,6 +1009,7 @@
       document.getElementById("stat-avg").textContent = allScores.length?Math.round(allScores.reduce((a,b)=>a+b,0)/allScores.length):0;
       const grid = document.getElementById("roomsGrid");
       grid.innerHTML = "";
+      allRoomsData = rooms;
       if (rooms.length === 0) {
         grid.innerHTML = "<div style='color:var(--muted);padding:40px;text-align:center;'>لم يتم العثور على غرف من السطر 20</div>";
       } else {
