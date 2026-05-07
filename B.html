@@ -158,6 +158,7 @@
         .opt-row { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
         .opt-row input[type="text"] { flex: 1; padding: 10px; margin-bottom: 0; border: 2px solid #ccc; font-size: 16px; text-align: right; }
         .opt-row input[type="radio"] { width: 25px; height: 25px; accent-color: #26890c; cursor: pointer; flex-shrink: 0; }
+        .type-switcher button:hover { opacity: 0.8; }
         .remove-q-btn { background: #e21b3c; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .math-trigger-btn { background: #46178f; color: white; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 0 #321067; }
         .math-trigger-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #321067; }
@@ -994,47 +995,128 @@ document.addEventListener('click', () => {
             }
         }
 
+        // ===== دوال مساعدة لإضافة عناصر ديناميكية =====
+
+        // إضافة زوج توصيل جديد
+        function addMatchPair(btn) {
+            const block = btn.closest('.q-block');
+            const pairCount = block.querySelectorAll('.q-match-left').length + 1;
+            const div = document.createElement('div');
+            div.className = 'opt-row';
+            div.innerHTML = `<input type="text" class="q-match-left" placeholder="يمين ${pairCount}" style="width:45%" required><span style="margin:0 5px;">🔗</span><input type="text" class="q-match-right" placeholder="يسار ${pairCount}" style="width:45%" required>`;
+            btn.insertAdjacentElement('beforebegin', div);
+        }
+
+        // إضافة فراغ جديد
+        function addBlankInput(btn) {
+            const block = btn.closest('.q-block');
+            const count = block.querySelectorAll('.q-blank-input').length + 1;
+            const div = document.createElement('div');
+            div.className = 'opt-row';
+            div.innerHTML = `<input type="text" class="q-blank-input" placeholder="إجابة فراغ ${count}" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>`;
+            btn.insertAdjacentElement('beforebegin', div);
+        }
+
+        // إضافة مجموعة تصنيف جديدة مع تحديث القوائم المنسدلة
+        function addZoneInput(btn) {
+            const block = btn.closest('.q-block');
+            const zonesRow = block.querySelector('.zones-row');
+            const zoneCount = zonesRow.querySelectorAll('.q-zone-input').length;
+            const newIndex = zoneCount;
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.className = 'q-zone-input';
+            inp.placeholder = `المجموعة ${newIndex + 1}`;
+            inp.value = `المجموعة ${String.fromCharCode(0x623 + newIndex)}`; // أ، ب، ج...
+            inp.required = true;
+            inp.style.cssText = 'flex:1; padding:10px; border:2px solid #ccc; border-radius:8px; font-size:14px; text-align:right;';
+            zonesRow.appendChild(inp);
+            // تحديث كل القوائم المنسدلة الموجودة
+            refreshZoneSelects(block);
+        }
+
+        // تحديث القوائم المنسدلة لمطابقة المجموعات الموجودة
+        function refreshZoneSelects(block) {
+            const zoneInputs = block.querySelectorAll('.q-zone-input');
+            const selects = block.querySelectorAll('.q-drag-item-zone');
+            selects.forEach(sel => {
+                const currentVal = sel.value;
+                sel.innerHTML = '';
+                zoneInputs.forEach((zi, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = zi.value || `المجموعة ${idx + 1}`;
+                    sel.appendChild(opt);
+                });
+                sel.value = currentVal < zoneInputs.length ? currentVal : 0;
+            });
+        }
+
+        // إضافة عنصر سحب جديد
+        function addDragItem(btn) {
+            const block = btn.closest('.q-block');
+            const zoneInputs = block.querySelectorAll('.q-zone-input');
+            const div = document.createElement('div');
+            div.className = 'opt-row';
+            const optionsHtml = Array.from(zoneInputs).map((zi, idx) =>
+                `<option value="${idx}">${zi.value || 'المجموعة ' + (idx+1)}</option>`
+            ).join('');
+            div.innerHTML = `<input type="text" class="q-drag-item-text" placeholder="عنصر جديد" style="width:60%" required><select class="q-drag-item-zone" style="width:35%; padding:10px; border-radius:8px;">${optionsHtml}</select>`;
+            btn.insertAdjacentElement('beforebegin', div);
+        }
+
+        // تغيير نوع السؤال الحالي
+        function changeQuestionType(blockId, newType) {
+            const block = document.getElementById(blockId);
+            if (!block) return;
+            const savedTitle = block.querySelector('.q-title-input') ? block.querySelector('.q-title-input').value : '';
+            const qNum = block.querySelector('h3 span') ? block.querySelector('h3 span').textContent.match(/\d+/) : ['1'];
+            const numStr = qNum ? qNum[0] : '1';
+            
+            // إعادة بناء المحتوى بالنوع الجديد
+            const typeText = newType === 'mc' ? 'اختيار من متعدد' : newType === 'tf' ? 'صح أو خطأ' : newType === 'blanks' ? 'فراغات' : newType === 'matching' ? 'توصيل' : 'تصنيف (سحب وإفلات)';
+            block.dataset.type = newType;
+
+            // بناء أزرار الأنواع
+            const typeBtns = `<div class="type-switcher" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px;">
+                <span style="font-size:12px; color:#666; align-self:center;">نوع السؤال:</span>
+                ${['mc','tf','blanks','matching','dragdrop'].map(t => `<button type="button" onclick="changeQuestionType('${blockId}','${t}')" style="font-size:12px; padding:4px 10px; border:none; border-radius:20px; cursor:pointer; font-weight:bold; background:${t===newType?'#46178f':'#ddd'}; color:${t===newType?'white':'#333'};">${t==='mc'?'اختيار':''}${t==='tf'?'صح/خطأ':''}${t==='blanks'?'فراغات':''}${t==='matching'?'توصيل':''}${t==='dragdrop'?'تصنيف':''}</button>`).join('')}
+            </div>`;
+
+            let contentHtml = '';
+            if (newType === 'mc' || newType === 'tf') {
+                const options = newType === 'mc' ? [0,1,2,3] : [0,1];
+                contentHtml = options.map(i => `<div class="opt-row"><input type="radio" name="correct-${blockId}" value="${i}" ${i===0?'checked':''}><input type="text" class="q-opt-input" placeholder="${newType === 'tf' ? (i===0?'صح':'خطأ') : 'الخيار '+(i+1)}" value="${newType === 'tf' ? (i===0?'صح':'خطأ') : ''}" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`).join('');
+            } else if (newType === 'blanks') {
+                contentHtml = `<div class="opt-row"><input type="text" class="q-blank-input" placeholder="الإجابة الصحيحة للفراغ 1" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div><div class="opt-row"><input type="text" class="q-blank-input" placeholder="الإجابة الصحيحة للفراغ 2" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div><button type="button" class="btn btn-action" style="font-size:14px; padding:5px;" onclick="addBlankInput(this)">+ إضافة فراغ</button>`;
+            } else if (newType === 'matching') {
+                contentHtml = [0,1,2].map(i => `<div class="opt-row"><input type="text" class="q-match-left" placeholder="يمين ${i+1}" style="width:45%" required><span style="margin:0 5px;">🔗</span><input type="text" class="q-match-right" placeholder="يسار ${i+1}" style="width:45%" required></div>`).join('') + `<button type="button" class="btn btn-action" style="font-size:14px; padding:5px;" onclick="addMatchPair(this)">+ إضافة زوج توصيل</button>`;
+            } else if (newType === 'dragdrop') {
+                contentHtml = `<div style="margin-bottom:10px;"><p style="font-weight:bold; font-size:14px; margin-bottom:5px;">المجموعات (التصنيفات):</p><div class="zones-row opt-row" style="flex-wrap:wrap; gap:5px;"><input type="text" class="q-zone-input" placeholder="المجموعة 1" value="المجموعة أ" required style="flex:1; padding:10px; border:2px solid #ccc; border-radius:8px; font-size:14px; text-align:right;"><input type="text" class="q-zone-input" placeholder="المجموعة 2" value="المجموعة ب" required style="flex:1; padding:10px; border:2px solid #ccc; border-radius:8px; font-size:14px; text-align:right;"></div><button type="button" class="btn btn-action" style="font-size:12px; padding:4px 10px; margin-top:5px;" onclick="addZoneInput(this)">+ إضافة مجموعة</button></div><div><p style="font-weight:bold; font-size:14px; margin-bottom:5px;">العناصر المطلوب سحبها:</p><div class="opt-row"><input type="text" class="q-drag-item-text" placeholder="العنصر" style="width:60%" required><select class="q-drag-item-zone" style="width:35%; padding:10px; border-radius:8px;"><option value="0">المجموعة أ</option><option value="1">المجموعة ب</option></select></div><button type="button" class="btn btn-action" style="font-size:14px; padding:5px;" onclick="addDragItem(this)">+ إضافة عنصر سحب</button></div>`;
+            }
+
+            block.innerHTML = `<h3><span>السؤال ${numStr} (${typeText})</span><button class="remove-q-btn" onclick="removeQuestionBlock('${blockId}')">🗑 حذف</button></h3>${typeBtns}<div style="display:flex; gap:10px; margin-bottom:15px;"><input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." value="${savedTitle}" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>${contentHtml}`;
+        }
+
         // باقي دوال المعلم والطالب
+        function removeQuestionBlock(blockId) {
+            const all = document.querySelectorAll('.q-block');
+            if (all.length <= 1) { alert('يجب أن يكون هناك سؤال واحد على الأقل!'); return; }
+            document.getElementById(blockId).remove();
+        }
+
         function addQuestionBlock(type = 'mc') {
             const container = document.getElementById('questions-list');
             const blockId = `q-block-${qBlockCount}`;
-            let typeText = type === 'mc' ? 'اختيار من متعدد' : type === 'tf' ? 'صح أو خطأ' : type === 'blanks' ? 'فراغات' : type === 'matching' ? 'توصيل' : 'تصنيف (سحب وإفلات)';
-            
-            let contentHtml = '';
-            if (type === 'mc' || type === 'tf') {
-                const options = type === 'mc' ? [0,1,2,3] : [0,1];
-                contentHtml = options.map(i => `<div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="${i}" ${i===0?'checked':''}><input type="text" class="q-opt-input" placeholder="${type === 'tf' ? (i === 0 ? 'صح' : 'خطأ') : `الخيار ${i+1}`}" value="${type === 'tf' ? (i === 0 ? 'صح' : 'خطأ') : ''}" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`).join('');
-            } else if (type === 'blanks') {
-                contentHtml = [0,1].map(i => `<div class="opt-row"><input type="text" class="q-blank-input" placeholder="الإجابة الصحيحة للفراغ ${i+1}" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`).join('') + `<button type="button" class="btn btn-action" style="font-size:14px; padding:5px;" onclick="this.insertAdjacentHTML('beforebegin', '<div class=\'opt-row\'><input type=\'text\' class=\'q-blank-input\' placeholder=\'إجابة فراغ إضافي\' required><button type=\'button\' class=\'math-trigger-btn\' onclick=\'openMathModal(this.previousElementSibling)\'>🧮</button></div>')">+ إضافة فراغ</button>`;
-            } else if (type === 'matching') {
-                contentHtml = [0,1,2].map(i => `<div class="opt-row"><input type="text" class="q-match-left" placeholder="يمين ${i+1}" style="width:45%" required><span style="margin:0 5px;">🔗</span><input type="text" class="q-match-right" placeholder="يسار ${i+1}" style="width:45%" required></div>`).join('') + `<button type="button" class="btn btn-action" style="font-size:14px; padding:5px;" onclick="this.insertAdjacentHTML('beforebegin', '<div class=\'opt-row\'><input type=\'text\' class=\'q-match-left\' placeholder=\'يمين جديد\' style=\'width:45%\' required><span style=\'margin:0 5px;\'>🔗</span><input type=\'text\' class=\'q-match-right\' placeholder=\'يسار جديد\' style=\'width:45%\' required></div>')">+ إضافة زوج توصيل</button>`;
-            } else if (type === 'dragdrop') {
-                contentHtml = `
-                    <div style="margin-bottom:10px;">
-                        <p style="font-weight:bold; font-size:14px; margin-bottom:5px;">المجموعات (التصنيفات):</p>
-                        <div class="opt-row"><input type="text" class="q-zone-input" placeholder="المجموعة 1" value="المجموعة أ" required><input type="text" class="q-zone-input" placeholder="المجموعة 2" value="المجموعة ب" required></div>
-                    </div>
-                    <div>
-                        <p style="font-weight:bold; font-size:14px; margin-bottom:5px;">العناصر المطلوب سحبها:</p>
-                        <div class="opt-row"><input type="text" class="q-drag-item-text" placeholder="العنصر" style="width:60%" required><select class="q-drag-item-zone" style="width:35%; padding:10px; border-radius:8px;"><option value="0">المجموعة 1</option><option value="1">المجموعة 2</option></select></div>
-                        <button type="button" class="btn btn-action" style="font-size:14px; padding:5px;" onclick="this.insertAdjacentHTML('beforebegin', '<div class=\'opt-row\'><input type=\'text\' class=\'q-drag-item-text\' placeholder=\'عنصر جديد\' style=\'width:60%\' required><select class=\'q-drag-item-zone\' style=\'width:35%; padding:10px; border-radius:8px;\'><option value=\'0\'>المجموعة 1</option><option value=\'1\'>المجموعة 2</option></select></div>')">+ إضافة عنصر سحب</button>
-                    </div>`;
-            }
 
-            const html = `
-                <div class="q-block" id="${blockId}" data-type="${type}">
-                    <h3>
-                        <span>السؤال ${qBlockCount+1} (${typeText})</span>
-                        ${qBlockCount>0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}
-                    </h3>
-                    <div style="display:flex; gap:10px; margin-bottom:15px;">
-                        <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required>
-                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-                    </div>
-                    ${contentHtml}
-                </div>`;
-            container.insertAdjacentHTML('beforeend', html);
+            const block = document.createElement('div');
+            block.className = 'q-block';
+            block.id = blockId;
+            block.dataset.type = type;
+            container.appendChild(block);
             qBlockCount++;
+
+            changeQuestionType(blockId, type);
         }
         
         function openTeacherSetup() { 
@@ -1060,7 +1142,7 @@ document.addEventListener('click', () => {
                 if (type === 'mc' || type === 'tf') {
                     const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(i=>i.value.trim());
                     const correct = block.querySelector('input[type="radio"]:checked');
-                    if(!title || opts.some(o=>!o)) valid=false;
+                    if(!title || opts.some(o=>!o) || !correct) valid=false;
                     if(correct) customQuestions.push({ q: title, opts: opts, ans: parseInt(correct.value), type: type });
                 } else if (type === 'blanks') {
                     const blanks = Array.from(block.querySelectorAll('.q-blank-input')).map(i=>i.value.trim());
