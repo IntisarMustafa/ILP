@@ -155,6 +155,28 @@
             unicode-bidi: plaintext;
         }
 
+        /* دعم الصور والمحتوى الغني داخل الأسئلة والخيارات */
+        #question-text img,
+        .answer-btn img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            display: block;
+            margin: 8px auto;
+            object-fit: contain;
+        }
+        #question-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .answer-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
         /* leaderboard الجدول */
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; }
         th, td { padding: 15px; text-align: center; }
@@ -250,7 +272,7 @@
 <div class="particles" id="particles"></div>
 <button class="mute-btn" id="mute-btn" style="position:fixed; top:20px; left:20px; background:white; border:none; border-radius:50%; width:50px; height:50px; cursor:pointer; z-index: 3000; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s;">🔊</button>
 
-<div class="screen active" id="screen-home">
+<div class="screen" id="screen-home">
     <div class="card">
         <h1>🍬 كاندي كرش التعليمي 🎓</h1>
         <p style="margin-bottom:25px; font-size: 1.2rem; color: #555;">تحدي المعلم والطالب: أنشئ أسئلتك أو انضم للعب!</p>
@@ -289,7 +311,7 @@
     </div>
 </div>
 
-<div class="screen" id="screen-student-login">
+<div class="screen active" id="screen-student-login">
     <div class="card">
         <h2>🚀 ادخل بياناتك</h2>
         <input id="input-room-pin" placeholder="رمز الغرفة (PIN)" type="number">
@@ -297,7 +319,6 @@
         <p style="font-weight: bold; margin-bottom: 5px; color: #555;">اختر صورتك:</p>
         <div class="avatar-grid" id="avatar-container"></div>
         <button class="btn btn-student" onclick="startStudentFlow()"><i class="fas fa-gamepad"></i> ابدأ التحدي!</button>
-        <button class="btn btn-back" onclick="showScreen('screen-home')"><i class="fas fa-arrow-right"></i> رجوع</button>
     </div>
 </div>
 
@@ -978,13 +999,14 @@
     window.openTeacherSetup=openTeacherSetup; window.addQuestionBlock=addQuestionBlock; window.saveQuestionsToSheet=saveQuestionsToSheet; window.showScreen=showScreen; window.goToStudentLogin=goToStudentLogin; window.startStudentFlow=startStudentFlow; window.copyGameLink=copyGameLink; window.stopBGM=stopBGM; window.loadExistingRoom=loadExistingRoom;
     
     window.onload=()=>{ 
+        setupAvatars();
         initLevelSelect(); 
         const urlParams=new URLSearchParams(window.location.search); 
         if(urlParams.get('pin')){ 
             let pin=document.getElementById('input-room-pin'); 
             if(pin) pin.value=urlParams.get('pin'); 
-            showScreen('screen-student-login'); 
-        } 
+        }
+        showScreen('screen-student-login');
     };
 </script>
 
