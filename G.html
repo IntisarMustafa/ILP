@@ -1,15 +1,186 @@
-أهلاً بك أستاذة انتصار. خطوة ممتازة جداً وفصل لوحة المعلم (Teacher) عن واجهة الطالب (Game) هو الإجراء البرمجي الأصح لضمان أمان الأسئلة وتخفيف حجم الملف على أجهزة الطلاب.
-لتحقيق هذا الربط بدقة، وجعل ملف اللعبة G (6).html يستقبل كافة أنواع الأسئلة الجديدة (اختيار متعدد، إكمال فراغات، توصيل، تصنيف، وشريحة النص) بالإضافة إلى الصور والتنسيقات، مع الحفاظ التام على ديناميكية اللعبة، يرجى اتباع هذه الخطوات التفصيلية وتطبيقها على ملف G (6).html:
-### الخطوة الأولى: تنظيف واجهة المستخدم (HTML)
-سنقوم بحذف شاشات المعلم واختيار نوع الدخول، ونجعل شاشة "دخول الطالب" هي الشاشة الافتراضية والوحيدة.
-ابحثي في ملف G (6).html عن الكود التالي (من بداية <div id="platform-ui" وحتى نهايته):
-```html
-    <div id="platform-ui" class="platform-ui">
-        </div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة المكعب</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/mathlive"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 
-```
-**واستبدليه بهذا الكود فقط:**
-```html
+    <style>
+        /* ========================================= */
+        /* 1. أنماط نظام الدخول والأسئلة (المنصة)    */
+        /* ========================================= */
+        :root {
+            --primary: #46178f; --primary-dark: #321067; --secondary: #eb2730;
+            --success: #26890c; --info: #1368ce; --warning: #ffa602;
+            --light: #f2f2f2; --white: #ffffff; --k-red: #e21b3c;
+            --word-blue: #2b579a; --math-bg: #f3f2f1; --key-bg: #ffffff;
+            --key-border: #d2d2d2; --key-hover: #e1dfdd; --action-bg: #adb5bd; --kb-bg: #d1d4d9;
+        } 
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: 'Cairo', 'Segoe UI', sans-serif; overflow: hidden; background: #0f1429; color: #fff;}
+        
+        .platform-ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: linear-gradient(-45deg, #46178f, #1368ce, #e21b3c, #ffa602); background-size: 400% 400%; animation: gradientBG 15s ease infinite; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        .screen { display: none; width: 100%; max-width: 900px; padding: 20px; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .screen.active { display: flex; } 
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } } 
+        
+        .card { background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 550px; text-align: center; backdrop-filter: blur(10px); } 
+        .card h1 { color: var(--primary); margin-bottom: 25px; font-size: 38px; }
+        .card h2 { color: #333; margin-bottom: 20px; font-size: 28px; }
+        .card p { color: #555; }
+        
+        .platform-btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 15px; color: var(--white); box-shadow: 0 6px 0 rgba(0,0,0,0.2); transition: 0.1s; }
+        .platform-btn:active { transform: translateY(6px); box-shadow: 0 0px 0 rgba(0,0,0,0.2); }
+        .btn-teacher { background-color: var(--info); box-shadow: 0 6px 0 #0f54a8; }
+        .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 #b81631; }
+        .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; }
+        .btn-primary-ui { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
+        
+        input[type="text"].ui-input, input[type="number"].ui-input { width: 100%; padding: 18px; margin-bottom: 20px; border: 3px solid #ddd; border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; color: #333;}
+        input.ui-input:focus { outline: none; border-color: var(--primary); }
+
+        .q-builder-container { width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px; max-height: 80vh; overflow-y: auto; text-align: right; }
+        .q-block { background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #eee; color: #333;}
+        .opt-row { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .math-trigger-btn { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 10px 15px; cursor: pointer; font-size: 20px; }
+        .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); text-align: center;}
+        
+        #screen-loading-sheet { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10001; background: rgba(70, 23, 143, 0.95); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .loader-spinner { border: 8px solid rgba(255,255,255,0.3); border-top: 8px solid white; border-radius: 50%; width: 80px; height: 80px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* محرر الرياضيات المنبثق */
+        #math-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100000; align-items: center; justify-content: center; }
+        .math-modal-content { width: 95%; max-width: 800px; background: var(--math-bg); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        .math-header { background-color: var(--word-blue); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .math-close-btn { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .math-editor-container { padding: 20px; background: white; display: flex; justify-content: center;}
+        math-field { font-size: 1.8rem; width: 100%; min-height: 120px; border: 2px solid var(--word-blue); padding: 15px; border-radius: 8px; outline: none; color: #000; }
+        .math-keyboard-tabs { display: flex; background: #e9ecef; }
+        .math-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: #333; }
+        .math-tab.active { background: white; font-weight: bold; color: var(--word-blue); }
+        .custom-keyboard { padding: 5px; display: none; flex-direction: column; gap: 5px; }
+        .custom-keyboard.active { display: flex; }
+        .kb-row { display: flex; justify-content: center; gap: 4px; }
+        .key { background: var(--key-bg); border: none; border-bottom: 2px solid #999; border-radius: 5px; height: 50px; flex: 1; font-size: 1.2rem; cursor: pointer; color:#333; }
+        .key:active { background: var(--key-hover); border-bottom-width: 1px; transform: translateY(1px); }
+
+        /* ========================================= */
+        /* 2. أنماط اللعبة الاحترافية                */
+        /* ========================================= */
+        .game-container { display: none; width: 100%; max-width: 900px; height: 90vh; max-height: 700px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 60px rgba(0, 0, 0, 0.9); border-radius: 20px; overflow: hidden; border: 2px solid rgba(76, 201, 240, 0.3); z-index: 10; background: radial-gradient(circle at top left, #1a2a6c, #1d3557, #0f1429); color: #fff; }
+        .start-screen, .end-screen, .question-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(12, 26, 58, 0.98), rgba(15, 20, 41, 0.98)); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; text-align: center; }
+        .end-screen { background: linear-gradient(135deg, rgba(58, 12, 26, 0.95), rgba(41, 15, 20, 0.95)); display: none; }
+        .question-modal { background: linear-gradient(135deg, rgba(29, 53, 87, 0.95), rgba(45, 123, 157, 0.95)); z-index: 120; display: none; padding: 15px; }
+        .logo { font-size: 4.5rem; font-weight: 900; margin-bottom: 20px; background: linear-gradient(45deg, #4cc9f0, #4361ee, #7209b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(76, 201, 240, 0.6); animation: pulseGlow 2s infinite alternate; }
+        @keyframes pulseGlow { 0% { text-shadow: 0 0 20px rgba(76, 201, 240, 0.4); } 100% { text-shadow: 0 0 40px rgba(76, 201, 240, 0.8); } }
+        .subtitle { font-size: 1.8rem; margin-bottom: 30px; color: #f1faee; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); }
+        .characters { display: flex; gap: 25px; margin: 20px 0; justify-content: center; flex-wrap: wrap;}
+        .character { width: 80px; height: 80px; border-radius: 15px; background: linear-gradient(135deg, #1d3557, #457b9d); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 4px solid transparent; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden;}
+        .character::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.1); transform: translateX(-100%) skewX(-30deg); transition: transform 0.5s ease; }
+        .character:hover::before { transform: translateX(100%) skewX(-30deg); }
+        .character.active { border-color: #4cc9f0; box-shadow: 0 0 25px rgba(76, 201, 240, 0.9); transform: translateY(-8px) scale(1.05); }
+        .character i { font-size: 3rem; color: #f1faee; margin-bottom: 5px; }
+        .character span { font-size: 0.9rem; color: #f1faee; font-weight: 600; }
+        .character:nth-child(2) i { color: #ff9e00; }
+        .character:nth-child(3) i { color: #ff0054; }
+        
+        .btn { background: linear-gradient(45deg, #4361ee, #3a0ca3); color: white; border: none; padding: 16px 40px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; margin: 15px; box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6); display: flex; align-items: center; gap: 10px; transition: all 0.3s ease;}
+        .btn:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(67, 97, 238, 0.8); }
+        .music-toggle-btn { position: absolute; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 10px 15px; font-size: 1.2rem; border-radius: 50%; cursor: pointer; z-index: 101; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5); transition: background 0.3s ease, transform 0.2s ease;}
+        .music-toggle-btn:hover { background: rgba(0, 0, 0, 0.7); transform: scale(1.05); }
+        .controls-info { display: flex; flex-wrap: wrap; justify-content: center; margin: 25px 0; gap: 12px; }
+        .control-item { background: rgba(76, 201, 240, 0.2); padding: 12px 20px; border-radius: 18px; font-size: 1.1rem; border: 1px solid rgba(76, 201, 240, 0.4); }
+        .stats { display: flex; gap: 25px; margin-top: 25px; background: rgba(0, 0, 0, 0.4); padding: 15px 35px; border-radius: 20px; font-size: 1.2rem; justify-content: center; flex-wrap: wrap; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .stat { display: flex; flex-direction: column; align-items: center; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: #4cc9f0; text-shadow: 0 0 15px rgba(76, 201, 240, 0.7);}
+        
+        #game-area { width: 100%; height: 100%; background: linear-gradient(to bottom, #1d3557, #0f1429); position: relative; overflow: hidden; }
+        .background-element { position: absolute; background: rgba(76, 201, 240, 0.1); border-radius: 8px; }
+        .ground { position: absolute; bottom: 0; left: 0; width: 100%; height: 63px; background: linear-gradient(to bottom, #4361ee, #3a0ca3); border-top: 4px solid #4cc9f0; box-shadow: 0 -10px 20px rgba(76, 201, 240, 0.3); }
+        .ceiling { position: absolute; top: 0; left: 0; width: 100%; height: 60px; background: linear-gradient(to top, #4361ee, #3a0ca3); border-bottom: 4px solid #4cc9f0; box-shadow: 0 10px 20px rgba(76, 201, 240, 0.3); }
+        
+        .player { position: absolute; width: 45px; height: 45px; left: 50px; z-index: 50; display: flex; justify-content: center; align-items: center; transition: transform 0.1s linear; }
+        .player-icon { font-size: 40px; color: #fff; text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
+        .player.rolling { animation: none; }
+        .player.ship-mode { transition: bottom 0.1s ease-out, transform 0.1s linear; }
+        
+        .obstacle { position: absolute; width: 60px; background: linear-gradient(to bottom, #f72585, #b5179e); border: 3px solid #ff0054; border-radius: 8px; box-shadow: 0 0 20px rgba(247, 37, 133, 0.5); }
+        .triangle-obstacle { width: 0; height: 0; border-left: 35px solid transparent; border-right: 35px solid transparent; border-bottom: 70px solid #ff0054; background: none; border-top: none; border-radius: 0; filter: drop-shadow(0 0 10px #ff0054); }
+        .triangle-obstacle.inverted { border-bottom: none; border-top: 70px solid #ff0054; }
+        .moving-obstacle { width: 50px; height: 50px; background: #7209b7; border-radius: 50%; border: 3px solid #4cc9f0; animation: rotate 2s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .flying-platform { position: absolute; background: rgba(76, 201, 240, 0.8); border: 2px solid #fff; border-radius: 5px; box-shadow: 0 0 15px rgba(76, 201, 240, 0.6); }
+        .platform-spikes { position: absolute; top: -15px; left: 0; width: 100%; height: 15px; background-image: linear-gradient(45deg, transparent 33.33%, #ff0054 33.33%, #ff0054 66.66%, transparent 66.66%); background-size: 20px 15px; }
+        .air-pad { position: absolute; width: 80px; height: 15px; background: #4cc9f0; border-radius: 10px; box-shadow: 0 0 20px #4cc9f0; animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.6; transform: scaleX(0.9); } to { opacity: 1; transform: scaleX(1.1); } }
+        
+        .coin { position: absolute; width: 35px; height: 35px; background: #ffd700; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 20px; box-shadow: 0 0 15px #ffd700; animation: coinRotate 1s linear infinite; border: 2px solid #fff; }
+        @keyframes coinRotate { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+        
+        .particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; z-index: 40; }
+        
+        .game-ui { position: absolute; top: 80px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 110; pointer-events: none; }
+        .game-stats { display: flex; gap: 15px; }
+        .game-stat-item { background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); }
+        .progress-container { position: absolute; top: 65px; left: 50%; transform: translateX(-50%); width: 60%; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.2); z-index: 110; }
+        #progress-bar { width: 0%; height: 100%; background: linear-gradient(to right, #4cc9f0, #4361ee); transition: width 0.3s ease; }
+        
+        .option-btn { background: rgba(255, 255, 255, 0.15); border: 2px solid rgba(255, 255, 255, 0.3); color: white; padding: 12px 20px; border-radius: 12px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease; text-align: right; width: 100%; font-family: 'Cairo'; }
+        .option-btn:hover { background: rgba(255, 255, 255, 0.25); transform: translateX(-5px); }
+        .option-btn.selected { background: #4361ee; border-color: #4cc9f0; box-shadow: 0 0 15px rgba(76, 201, 240, 0.5); }
+        .option-btn.correct-answer { background: #26890c !important; border-color: #2ecc71 !important; animation: correctPulse 0.5s; }
+        .option-btn.incorrect-answer { background: #e21b3c !important; border-color: #ff4d4d !important; animation: shake 0.5s; }
+        
+        @keyframes correctPulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        
+        #feedback-message { margin-top: 15px; font-size: 1.2rem; font-weight: 700; min-height: 1.5em; }
+        .correct { color: #2ecc71; }
+        .incorrect { color: #ff4d4d; }
+        
+        .game-message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(0, 0, 0, 0.8); z-index: 150; display: none; pointer-events: none; text-align: center; }
+        
+        .leaderboard-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 20, 41, 0.95); z-index: 200; display: none; flex-direction: column; align-items: center; padding: 40px 20px; overflow-y: auto; }
+        .leaderboard-table { width: 100%; max-width: 600px; border-collapse: collapse; margin-top: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; overflow: hidden; }
+        .leaderboard-table th, .leaderboard-table td { padding: 15px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .leaderboard-table th { background: rgba(67, 97, 238, 0.3); color: #4cc9f0; font-size: 1.2rem; }
+        .leaderboard-table tr:nth-child(1) td:nth-child(1) { color: #ffd700; font-size: 1.5rem; }
+        .leaderboard-table tr:nth-child(2) td:nth-child(1) { color: #c0c0c0; }
+        .leaderboard-table tr:nth-child(3) td:nth-child(1) { color: #cd7f32; }
+        
+        .mobile-controls { position: absolute; bottom: 20px; left: 0; width: 100%; display: none; justify-content: space-between; padding: 0 30px; z-index: 110; }
+        .control-btn { width: 70px; height: 70px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.4); color: white; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        
+        @media (max-width: 768px) {
+            .logo { font-size: 3rem; }
+            .subtitle { font-size: 1.2rem; }
+            .mobile-controls { display: flex; }
+            .controls-info { display: none; }
+            .game-container { height: 100vh; max-height: none; border-radius: 0; width: 100vw; }
+        }
+
+        /* تنسيقات أنواع الأسئلة الجديدة */
+        .q-image-display { max-width: 100%; max-height: 150px; border-radius: 10px; border: 2px solid #4cc9f0; margin-bottom: 15px; display: none; }
+        .blanks-container, .matching-container, .dragdrop-container { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 15px; }
+        .blank-input { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.2); color: white; font-size: 1.1rem; text-align: center; }
+        .blank-input:focus { outline: none; border-color: #4cc9f0; background: rgba(0,0,0,0.4); }
+        .match-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; }
+        .match-text { flex: 1; text-align: right; font-weight: bold; }
+        .match-select { flex: 1; padding: 8px; border-radius: 5px; border: none; background: rgba(255,255,255,0.9); color: #333; font-family: 'Cairo'; cursor: pointer; }
+        .text-slide-content { padding: 20px; border-radius: 10px; color: #333; text-align: right; margin-bottom: 15px; max-height: 250px; overflow-y: auto; background: white; }
+    </style>
+</head>
+<body>
+
     <div id="platform-ui" class="platform-ui">
         <div id="screen-student-login" class="screen active">
             <div class="card">
@@ -23,267 +194,659 @@
         </div>
     </div>
 
-```
-### الخطوة الثانية: إضافة تنسيقات CSS للأسئلة الجديدة
-نحتاج لإضافة تنسيقات للتعامل مع الفراغات، القوائم المنسدلة (للتوصيل والتصنيف)، وشريحة النص والصور.
-في قسم <style>، أضيفي هذه الأسطر قبل إغلاق </style> مباشرة:
-```css
-        /* تنسيقات أنواع الأسئلة الجديدة */
-        .q-image-display { max-width: 100%; max-height: 150px; border-radius: 10px; border: 2px solid #4cc9f0; margin-bottom: 15px; display: none; }
-        .blanks-container, .matching-container, .dragdrop-container { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 15px; }
-        .blank-input { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.2); color: white; font-size: 1.1rem; text-align: center; }
-        .blank-input:focus { outline: none; border-color: #4cc9f0; background: rgba(0,0,0,0.4); }
-        .match-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; }
-        .match-text { flex: 1; text-align: right; font-weight: bold; }
-        .match-select { flex: 1; padding: 8px; border-radius: 5px; border: none; background: rgba(255,255,255,0.9); color: #333; font-family: 'Cairo'; cursor: pointer; }
-        .text-slide-content { padding: 20px; border-radius: 10px; color: #333; text-align: right; margin-bottom: 15px; max-height: 250px; overflow-y: auto; background: white; }
+    <div id="screen-loading-sheet" style="display: none;">
+        <div class="loader-spinner"></div>
+        <h3 style="margin-top: 20px;">جاري التحميل...</h3>
+    </div>
 
-```
-### الخطوة الثالثة: تحديث دوال جلب البيانات (JavaScript)
-بما أن الطالب لا ينشئ أسئلة، احذفي الدوال التالية تماماً من قسم الجافاسكربت:
-showScreen(screenId), addQuestionBlock(), saveAndGeneratePIN()
-ثم، ابحثي عن دالة studentLogin() **واستبدليها بالكامل بهذه النسخة المحدثة** التي تفهم الهيكل الجديد لبيانات JSON القادمة من ملف المعلم:
-```javascript
-async function studentLogin() {
-    const pin = document.getElementById('room-pin-input').value;
-    const name = document.getElementById('student-name').value;
-    if (!name || !pin) { alert("يرجى إدخال رقم الغرفة والاسم!"); return; }
-    
-    studentNameForSheet = name;
-    currentRoomPIN = pin;
-    
-    document.getElementById('form-name').value = name;
-    document.getElementById('form-school').value = pin;
+    <div id="math-modal-overlay">
+        <div class="math-modal-content">
+            <div class="math-header">
+                <span>محرر الرياضيات</span>
+                <button class="math-close-btn" onclick="closeMathModal()">تم</button>
+            </div>
+            <div class="math-editor-container">
+                <math-field id="formula"></math-field>
+            </div>
+            <div class="math-keyboard-tabs">
+                <div class="math-tab active" onclick="showMathTab('kb-basic', event)">أساسي</div>
+                <div class="math-tab" onclick="showMathTab('kb-advanced', event)">متقدم</div>
+            </div>
+            <div id="kb-basic" class="custom-keyboard active">
+                <div class="kb-row">
+                    <button class="key" onclick="addMath('+', event)">+</button>
+                    <button class="key" onclick="addMath('-', event)">-</button>
+                    <button class="key" onclick="addMath('\\times', event)">×</button>
+                    <button class="key" onclick="addMath('\\div', event)">÷</button>
+                </div>
+                <div class="kb-row">
+                    <button class="key" onclick="insertMathCode('\\frac{#@}{#?}', event)">\(\frac{a}{b}\)</button>
+                    <button class="key" onclick="insertMathCode('^2', event)">\(x^2\)</button>
+                    <button class="key" onclick="insertMathCode('^{#?}', event)">\(x^n\)</button>
+                    <button class="key" onclick="insertMathCode('\\sqrt{#?}', event)">\(\sqrt{x}\)</button>
+                </div>
+            </div>
+            <div id="kb-advanced" class="custom-keyboard">
+                <div class="kb-row">
+                    <button class="key" onclick="addMath('\\pi', event)">π</button>
+                    <button class="key" onclick="addMath('\\sin', event)">sin</button>
+                    <button class="key" onclick="addMath('\\cos', event)">cos</button>
+                    <button class="key" onclick="addMath('\\infty', event)">∞</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    document.getElementById('screen-loading-sheet').style.display = 'flex';
-    
-    try {
-        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-        const text = await res.text();
-        const json = JSON.parse(text.substring(47, text.length - 2));
-        let foundQuestions = null;
+    <div id="game-container" class="game-container">
+        <button id="music-toggle-btn" class="music-toggle-btn"><i class="fas fa-volume-up"></i></button>
         
-        for(let i = json.table.rows.length - 1; i >= 0; i--) {
-            let row = json.table.rows[i];
-            if(row && row.c[0] && row.c[0].v && row.c[0].v.toString() === pin && row.c[1] && row.c[1].v && row.c[1].v.toString().trim().startsWith('[')) {
-                // هنا نقرأ المصفوفة المعقدة الجديدة
-                foundQuestions = JSON.parse(row.c[1].v.toString());
-                break;
+        <div id="game-area"></div>
+        
+        <div class="game-ui">
+            <div class="game-stats">
+                <div class="game-stat-item"><i class="fas fa-star"></i> <span id="score">0</span></div>
+                <div class="game-stat-item"><i class="fas fa-trophy"></i> <span id="high-score">0</span></div>
+                <div class="game-stat-item"><i class="fas fa-layer-group"></i> <span id="level">1</span></div>
+            </div>
+            <div class="game-stats">
+                <div class="game-stat-item"><i class="fas fa-coins"></i> <span id="coins-collected">0</span></div>
+                <div class="game-stat-item"><i class="fas fa-check-circle"></i> <span id="platforms-passed">0</span></div>
+            </div>
+        </div>
+        
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        <div id="game-message" class="game-message"></div>
+        <div id="level-up" class="game-message" style="color: #ffd700;">مستوى جديد!</div>
+
+        <div id="start-screen" class="start-screen">
+            <div class="logo">لعبة المكعب</div>
+            <div class="subtitle">تحدَّ الجاذبية وأجب عن الأسئلة!</div>
+            <div class="characters">
+                <div class="character active" data-character="1"><i class="fas fa-cube"></i><span>مكعب</span></div>
+                <div class="character" data-character="2"><i class="fas fa-ship"></i><span>سفينة</span></div>
+                <div class="character" data-character="3"><i class="fas fa-ghost"></i><span>شبح</span></div>
+            </div>
+            <div class="controls-info">
+                <div class="control-item"><b>مسافة / ↑ :</b> قفز</div>
+                <div class="control-item"><b>P :</b> إيقاف مؤقت</div>
+            </div>
+            <button id="start-btn" class="btn"><i class="fas fa-play"></i> ابدأ المغامرة</button>
+        </div>
+
+        <div id="question-modal" class="question-modal">
+            <h2 style="color: #fff; margin-bottom: 20px; font-size: 1.8rem;" id="question-text">سؤال تعليمي هنا؟</h2>
+            <div id="options-container" style="width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px;"></div>
+            <button id="submit-answer-btn" class="btn" style="margin-top: 20px; width: 100%; max-width: 500px; justify-content: center;" onclick="checkAnswer()">تأكيد الإجابة</button>
+            <div id="feedback-message"></div>
+        </div>
+
+        <div id="end-screen" class="end-screen">
+            <div class="logo" style="background: linear-gradient(45deg, #ff0054, #e21b3c);">انتهت اللعبة!</div>
+            <div class="stats">
+                <div class="stat"><span class="stat-value" id="final-score">0</span><span>النقاط</span></div>
+                <div class="stat"><span class="stat-value" id="final-high-score">0</span><span>أعلى نقاط</span></div>
+                <div class="stat"><span class="stat-value" id="final-coins">0</span><span>العملات</span></div>
+            </div>
+            <button id="restart-btn" class="btn" style="background: linear-gradient(45deg, #e21b3c, #ff0054);"><i class="fas fa-redo"></i> حاول مرة أخرى</button>
+            <button onclick="openLeaderboard()" class="btn" style="background: linear-gradient(45deg, #4361ee, #3a0ca3);"><i class="fas fa-trophy"></i> لوحة الصدارة</button>
+        </div>
+
+        
+        <div id="leaderboard-overlay" class="leaderboard-overlay">
+            <div class="logo" style="font-size: 3rem;">لوحة الصدارة</div>
+            <div id="leaderboard-loading" class="loading-text">⏳ جاري جلب البيانات...</div>
+            <table id="leaderboard-table" class="leaderboard-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>المركز</th>
+                        <th>اللاعب</th>
+                        <th>النقاط</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+            <button onclick="closeLeaderboard()" class="btn" style="margin-top: 20px; background: #666;"><i class="fas fa-times"></i> إغلاق</button>
+        </div>
+        <div class="mobile-controls">
+            <button class="control-btn" onmousedown="jumpAction(event)" ontouchstart="jumpAction(event)"><i class="fas fa-arrow-up"></i></button>
+            <button class="control-btn" onclick="togglePause()"><i class="fas fa-pause"></i></button>
+        </div>
+    </div>
+
+<iframe id="hidden_iframe_score" name="hidden_iframe_score" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="scoreForm" method="POST" style="display: none;" target="hidden_iframe_score">
+    <input id="form-name" name="name" type="hidden"/>
+    <input id="form-school" name="school" type="hidden"/>
+    <input id="form-score" name="score" type="hidden"/>
+</form>
+
+<iframe id="hidden_iframe_questions" name="hidden_iframe_questions" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display: none;" target="hidden_iframe_questions">
+    <input id="qform-name" name="name" type="hidden"/>
+    <input id="qform-school" name="school" type="hidden"/>
+    <input id="qform-score" name="score" type="hidden" value="QUESTIONS"/> 
+</form>
+
+    <script>
+        const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+        const LEADERBOARD_URL = "https://docs.google.com/spreadsheets/d/1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg/pubhtml?gid=1510464629&single=true";
+
+        function openLeaderboard() {
+            window.open(LEADERBOARD_URL, '_blank');
+        }
+
+        // =========================================================================
+        // 1. نظام المنصة التعليمية (إدارة الأسئلة والغرف)
+        // =========================================================================
+        let gameQuestions = [
+            { question: "ما هو ناتج 5 + 7؟", options: ["10", "11", "12", "13"], correctOptionIndex: 2 },
+            { question: "ما هي عاصمة السعودية؟", options: ["جدة", "الرياض", "مكة", "الدمام"], correctOptionIndex: 1 }
+        ];
+        let currentRoomPIN = "";
+        let studentNameForSheet = "";
+        let currentQData = null; // لحفظ بيانات السؤال المعروض حالياً
+
+        async function studentLogin() {
+            const pin = document.getElementById('room-pin-input').value;
+            const name = document.getElementById('student-name').value;
+            if (!name || !pin) { alert("يرجى إدخال رقم الغرفة والاسم!"); return; }
+            
+            studentNameForSheet = name;
+            currentRoomPIN = pin;
+            
+            document.getElementById('form-name').value = name;
+            document.getElementById('form-school').value = pin;
+            document.getElementById('screen-loading-sheet').style.display = 'flex';
+            
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                let foundQuestions = null;
+                
+                for(let i = json.table.rows.length - 1; i >= 0; i--) {
+                    let row = json.table.rows[i];
+                    if(row && row.c[0] && row.c[0].v && row.c[0].v.toString() === pin && row.c[1] && row.c[1].v && row.c[1].v.toString().trim().startsWith('[')) {
+                        // هنا نقرأ المصفوفة المعقدة الجديدة
+                        foundQuestions = JSON.parse(row.c[1].v.toString());
+                        break;
+                    }
+                }
+                
+                if (foundQuestions && foundQuestions.length > 0) { 
+                    gameQuestions = foundQuestions; 
+                } else { 
+                    throw new Error("No questions"); 
+                }
+            } catch (err) {
+                document.getElementById('screen-loading-sheet').style.display = 'none';
+                alert("تعذر العثور على أسئلة لهذه الغرفة! تأكد من الرقم.");
+                return;
             }
+            document.getElementById('screen-loading-sheet').style.display = 'none';
+            document.getElementById('platform-ui').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
         }
+
+        const mf = document.getElementById('formula');
+        let targetInputField = null;
+        if(mf) mf.smartMode = true; 
+        function addMath(val, e) { if(e) e.preventDefault(); mf.focus(); mf.insert(val); }
+        function insertMathCode(latex, e) { if(e) e.preventDefault(); mf.focus(); mf.insert(latex); }
+        function backspaceMath(e) { if(e) e.preventDefault(); mf.focus(); mf.executeCommand('deleteBackward'); }
+        function closeMathModal() { document.getElementById('math-modal-overlay').style.display = 'none'; if(targetInputField) { targetInputField.value = mf.value; targetInputField.focus(); } }
+        function openMathModal(inputEl) { targetInputField = inputEl; mf.value = inputEl.value; document.getElementById('math-modal-overlay').style.display = 'flex'; setTimeout(() => mf.focus(), 100); }
+        function showMathTab(tabId, e) { document.querySelectorAll('.custom-keyboard').forEach(k => k.classList.remove('active')); document.querySelectorAll('.math-tab').forEach(t => t.classList.remove('active')); document.getElementById(tabId).classList.add('active'); e.target.classList.add('active'); }
+
+        // =========================================================================
+        // 2. محرك اللعبة الاحترافي
+        // =========================================================================
         
-        if (foundQuestions && foundQuestions.length > 0) { 
-            gameQuestions = foundQuestions; 
-        } else { 
-            throw new Error("No questions"); 
+        let isPlaying = false; let nextNoteTime = 0.0; let scheduleInterval = null; const tempo = 240;
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const cMajorScale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+        const cMajorChord = [cMajorScale[0], cMajorScale[2], cMajorScale[4]];
+        const gMajorChord = [cMajorScale[4], cMajorScale[6], cMajorScale[1] * 2];
+        const aMinorChord = [cMajorScale[5], cMajorScale[0] * 2, cMajorScale[2] * 2];
+        const fMajorChord = [cMajorScale[3], cMajorScale[5], cMajorScale[0] * 2];
+        const chordProgression = [cMajorChord, gMajorChord, aMinorChord, fMajorChord];
+        const melodyPattern = [ { noteIndex: 0, duration: 0.25 }, { noteIndex: 1, duration: 0.25 }, { noteIndex: 2, duration: 0.5 }, { noteIndex: -1, duration: 0.5 }, { noteIndex: 3, duration: 0.5 }, { noteIndex: 2, duration: 0.5 }, { noteIndex: 1, duration: 1 } ];
+
+        function playKickDrum(startTime) { const osc = audioContext.createOscillator(); const gain = audioContext.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(120, startTime); osc.frequency.exponentialRampToValueAtTime(0.01, startTime + 0.05); gain.gain.setValueAtTime(0.6, startTime); gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.05); osc.connect(gain); gain.connect(audioContext.destination); osc.start(startTime); osc.stop(startTime + 0.1); }
+        function playSnare(startTime) { const snareGain = audioContext.createGain(); snareGain.connect(audioContext.destination); snareGain.gain.setValueAtTime(0.5, startTime); snareGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.1); const bodyOsc = audioContext.createOscillator(); bodyOsc.type = 'sine'; bodyOsc.frequency.setValueAtTime(200, startTime); bodyOsc.connect(snareGain); bodyOsc.start(startTime); bodyOsc.stop(startTime + 0.1); const noise = audioContext.createBufferSource(); const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate); const output = noiseBuffer.getChannelData(0); for (let i = 0; i < output.length; i++) { output[i] = Math.random() * 2 - 1; } noise.buffer = noiseBuffer; const noiseGain = audioContext.createGain(); noiseGain.gain.setValueAtTime(1, startTime); noiseGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1); noise.connect(noiseGain); noiseGain.connect(snareGain); noise.start(startTime); }
+        function playHiHat(startTime) { const noise = audioContext.createBufferSource(); const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate); const output = noiseBuffer.getChannelData(0); for (let i = 0; i < output.length; i++) { output[i] = Math.random() * 2 - 1; } noise.buffer = noiseBuffer; const noiseGain = audioContext.createGain(); noiseGain.gain.setValueAtTime(0.2, startTime); noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.05); noise.connect(noiseGain); noiseGain.connect(audioContext.destination); noise.start(startTime); noise.stop(startTime + 0.1); }
+        function playNoteWithADSR(freq, type, startTime, dur, vol) { if (!freq || vol === 0) return; const osc = audioContext.createOscillator(); const gain = audioContext.createGain(); osc.type = type; osc.frequency.value = freq; osc.connect(gain); gain.connect(audioContext.destination); gain.gain.setValueAtTime(0, startTime); gain.gain.linearRampToValueAtTime(vol, startTime + 0.01); gain.gain.linearRampToValueAtTime(vol * 0.5, startTime + 0.11); osc.start(startTime); osc.stop(startTime + dur + 0.2); gain.gain.setValueAtTime(vol * 0.5, startTime + dur); gain.gain.linearRampToValueAtTime(0, startTime + dur + 0.2); }
+        function playBassNote(freq, startTime, dur, vol) { if (!freq || vol === 0) return; const osc = audioContext.createOscillator(); const gain = audioContext.createGain(); osc.type = 'sine'; osc.frequency.value = freq; osc.connect(gain); gain.connect(audioContext.destination); gain.gain.setValueAtTime(0, startTime); gain.gain.linearRampToValueAtTime(vol, startTime + 0.01); gain.gain.linearRampToValueAtTime(0, startTime + dur + 0.3); osc.start(startTime); osc.stop(startTime + dur + 0.3); }
+
+        let beatCounter = 0; let chordIndex = 0; let melodyPatternIndex = 0;
+        function scheduler() { const spb = 60.0 / tempo; while (nextNoteTime < audioContext.currentTime + 0.1) { const chord = chordProgression[chordIndex]; const root = chord[0]; if (beatCounter % 4 === 0) playKickDrum(nextNoteTime); if (beatCounter % 4 === 1 || beatCounter % 4 === 3) playSnare(nextNoteTime); if (beatCounter % 2 === 0) playHiHat(nextNoteTime); if (beatCounter % 4 === 0) playBassNote(root / 2, nextNoteTime, spb * 1.5, 0.4); const note = melodyPattern[melodyPatternIndex]; if (note.noteIndex !== -1) playNoteWithADSR(chord[note.noteIndex] * 2, 'sine', nextNoteTime, spb * note.duration, 0.35); melodyPatternIndex = (melodyPatternIndex + 1) % melodyPattern.length; nextNoteTime += spb; beatCounter = (beatCounter + 1) % 16; if (beatCounter % 4 === 0) chordIndex = (chordIndex + 1) % chordProgression.length; } }
+        function startMusic() { if (isPlaying) return; isPlaying = true; if (audioContext.state === 'suspended') audioContext.resume(); nextNoteTime = audioContext.currentTime; beatCounter = 0; chordIndex = 0; melodyPatternIndex = 0; scheduleInterval = setInterval(scheduler, 25); }
+        function stopMusic() { if (!isPlaying) return; isPlaying = false; clearInterval(scheduleInterval); scheduleInterval = null; }
+
+        function playSound(frequency, type = 'sine', duration = 0.1, volume = 0.3) {
+            if (!soundEnabled) return;
+            try { const osc = audioContext.createOscillator(); const gain = audioContext.createGain(); osc.connect(gain); gain.connect(audioContext.destination); osc.type = type; osc.frequency.value = frequency; gain.gain.value = volume; osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration); osc.stop(audioContext.currentTime + duration); } catch (e) {}
         }
-    } catch (err) {
-        document.getElementById('screen-loading-sheet').style.display = 'none';
-        alert("تعذر العثور على أسئلة لهذه الغرفة! تأكد من الرقم.");
-        return;
-    }
 
-    document.getElementById('screen-loading-sheet').style.display = 'none';
-    document.getElementById('platform-ui').style.display = 'none';
-    document.getElementById('game-container').style.display = 'block';
-}
+        // --- تهيئة اللعبة ---
+        let lastTime = 0; let deltaTime = 1;
+        let gameRunning = false; let gamePaused = false; let score = 0; let level = 1; let platformsPassed = 0; let coinsCollected = 0;
+        let soundEnabled = true;
+        let obstacles = []; let flyingPlatforms = []; let coins = [];
+        let player; let gameArea; let scoreElement, levelElement, platformsPassedElement, coinsCollectedElement, progressBar;
+        let obstacleSpeed = 4.0; let currentSpeedMultiplier = 1.0; let obstacleInterval; let obstacleIntervalTime = 3500;
+        let backgroundElements = []; let playerMode = 'cube'; let gravityDirection = 1;
+        let gravityTimer = null;
+        let isJumping = false; let canJump = true; let currentPlatform = null; let playerY = 0; let playerVelocity = 0;
+        const gravity = 1.1; const jumpForce = 22; const groundLevel = 63; const playerHeight = 45;
+        let rotationAngle = 0; let rotationSpeed = -2.5; let isRolling = true;
+        let currentCorrectOptionIndex = -1; let currentSelectedOptionIndex = -1; let collidedObstacleRef = null;
+        let selectedCharacter = 1;
+        let gameQuestionsData = [];
 
-```
-### الخطوة الرابعة: نظام عرض الأسئلة الشامل (JavaScript)
-ابحثي عن دالة showQuestion()، هذه الدالة تحتاج لتحديث جذري لتعرض كل أنواع الأسئلة (صور، نصوص، قوائم منسدلة). سنحتاج أيضاً لمتغيرات عامة جديدة لحفظ السؤال الحالي.
-أضيفي هذه المتغيرات في الأعلى (مع باقي المتغيرات العامة):
-```javascript
-let currentQData = null; // لحفظ بيانات السؤال المعروض حالياً
+        document.addEventListener('DOMContentLoaded', () => {
+            gameArea = document.getElementById('game-area');
+            scoreElement = document.getElementById('score');
+            levelElement = document.getElementById('level');
+            platformsPassedElement = document.getElementById('platforms-passed');
+            coinsCollectedElement = document.getElementById('coins-collected');
+            progressBar = document.getElementById('progress-bar');
+            
+            const startBtn = document.getElementById('start-btn');
+            const restartBtn = document.getElementById('restart-btn');
+            const musicToggleButton = document.getElementById('music-toggle-btn');
+            const submitAnswerBtn = document.getElementById('submit-answer-btn');
+            const characterElements = document.querySelectorAll('.character');
 
-```
-**واستبدلي دالة showQuestion() بالكامل بهذا الكود:**
-```javascript
-function showQuestion() {
-    gamePaused = true;
-    currentQData = gameQuestions[Math.floor(Math.random() * gameQuestions.length)];
-    const questionModal = document.getElementById('question-modal');
-    const questionTextElement = document.getElementById('question-text');
-    const optionsContainer = document.getElementById('options-container');
-    const feedbackMessageElement = document.getElementById('feedback-message');
-    
-    // تنظيف الحاوية
-    feedbackMessageElement.textContent = ''; feedbackMessageElement.className = '';
-    optionsContainer.innerHTML = ''; currentSelectedOptionIndex = -1;
+            function createBackgroundElements() {
+                backgroundElements.forEach(el => el.remove()); backgroundElements = [];
+                for (let i = 0; i < 30; i++) {
+                    const el = document.createElement('div'); el.classList.add('background-element');
+                    const size = Math.random() * 40 + 10; el.style.width = `${size}px`; el.style.height = `${size}px`;
+                    el.style.left = `${Math.random() * gameArea.offsetWidth * 2}px`; el.style.top = `${Math.random() * (gameArea.offsetHeight - 100) + 50}px`;
+                    el.style.opacity = Math.random() * 0.2 + 0.05; el.dataset.parallaxSpeed = Math.random() * 0.5 + 0.1;
+                    gameArea.appendChild(el); backgroundElements.push(el);
+                }
+            }
 
-    // عرض الصورة إن وجدت
-    let imgHtml = '';
-    if (currentQData.img) {
-        imgHtml = `<img src="${currentQData.img}" class="q-image-display" style="display:block; margin: 0 auto 15px auto;">`;
-    }
+            function createPlayer() {
+                if (player) player.remove(); player = document.createElement('div'); player.classList.add('player');
+                const icon = document.createElement('i'); icon.classList.add('player-icon');
+                player.classList.remove('rolling', 'ship-mode');
+                if (selectedCharacter === 1) { icon.classList.add('fas', 'fa-cube'); player.classList.add('rolling'); playerMode = 'cube'; isRolling = true; } 
+                else if (selectedCharacter === 2) { icon.classList.add('fas', 'fa-ship'); playerMode = 'ship'; isRolling = false; }
+                else { icon.classList.add('fas', 'fa-ghost'); playerMode = 'ghost'; isRolling = false; }
+                player.appendChild(icon); gameArea.appendChild(player);
+                player.style.bottom = `${groundLevel}px`; playerY = 0; playerVelocity = 0; gravityDirection = 1;
+            }
 
-    questionTextElement.innerHTML = imgHtml + (currentQData.q || 'سؤال');
-    const type = currentQData.type || 'mc';
+            function startGame() {
+                gameRunning = true; gamePaused = false; score = 0; level = 1; platformsPassed = 0; coinsCollected = 0;
+                obstacles.forEach(o => o.element.remove()); obstacles = [];
+                flyingPlatforms.forEach(p => p.element.remove()); flyingPlatforms = [];
+                coins.forEach(c => c.element.remove()); coins = [];
+                obstacleSpeed = 4.0; currentSpeedMultiplier = 1.0; lastTime = 0;
+                document.getElementById('start-screen').style.display = 'none'; 
+                document.getElementById('end-screen').style.display = 'none'; 
+                document.getElementById('question-modal').style.display = 'none';
+                gameArea.innerHTML = '';
+                createBackgroundElements(); createPlayer();
+                const ground = document.createElement('div'); ground.classList.add('ground'); gameArea.appendChild(ground);
+                const ceiling = document.createElement('div'); ceiling.classList.add('ceiling'); gameArea.appendChild(ceiling);
+                levelElement.textContent = level; scoreElement.textContent = score; platformsPassedElement.textContent = platformsPassed; coinsCollectedElement.textContent = coinsCollected;
+                clearInterval(obstacleInterval); obstacleInterval = setInterval(() => { if (!gamePaused && gameRunning) { createObstacle(); } }, obstacleIntervalTime / currentSpeedMultiplier);
+                requestAnimationFrame(updateGame); startMusic();
+            }
 
-    if (type === 'textslide') {
-        // شريحة نصية فقط
-        const bg = currentQData.textBg || '#ffffff';
-        optionsContainer.innerHTML = `<div class="text-slide-content" style="background-color: ${bg};">${currentQData.textContent || ''}</div>`;
-        document.getElementById('submit-answer-btn').textContent = "متابعة ➡️";
-    } 
-    else if (type === 'blanks') {
-        // إكمال الفراغات
-        let html = '<div class="blanks-container">';
-        currentQData.blanks.forEach((_, i) => {
-            html += `<input type="text" class="blank-input" id="blank-ans-${i}" placeholder="إجابة الفراغ رقم ${i+1}">`;
-        });
-        html += '</div>';
-        optionsContainer.innerHTML = html;
-        document.getElementById('submit-answer-btn').textContent = "تأكيد الإجابة";
-    }
-    else if (type === 'matching') {
-        // سؤال التوصيل (قوائم منسدلة)
-        let html = '<div class="matching-container">';
-        // خلط الخيارات للجهة اليسرى
-        let rightOptions = currentQData.pairs.map(p => p.right).sort(() => Math.random() - 0.5);
-        
-        currentQData.pairs.forEach((pair, i) => {
-            let selectOptions = `<option value="">-- اختر الإجابة --</option>`;
-            rightOptions.forEach(opt => { selectOptions += `<option value="${opt}">${opt}</option>`; });
-            html += `
-                <div class="match-row">
-                    <div class="match-text">${pair.left}</div>
-                    <select class="match-select" id="match-ans-${i}">${selectOptions}</select>
-                </div>`;
-        });
-        html += '</div>';
-        optionsContainer.innerHTML = html;
-        document.getElementById('submit-answer-btn').textContent = "تأكيد الإجابة";
-    }
-    else if (type === 'dragdrop') {
-        // التصنيف (قوائم منسدلة لتحديد المجموعة)
-        let html = '<div class="dragdrop-container">';
-        let zoneOptions = `<option value="-1">-- اختر المجموعة --</option>`;
-        currentQData.zones.forEach((z, idx) => { zoneOptions += `<option value="${idx}">${z}</option>`; });
-        
-        currentQData.items.forEach((item, i) => {
-            html += `
-                <div class="match-row">
-                    <div class="match-text">${item.text}</div>
-                    <select class="match-select" id="drag-ans-${i}">${zoneOptions}</select>
-                </div>`;
-        });
-        html += '</div>';
-        optionsContainer.innerHTML = html;
-        document.getElementById('submit-answer-btn').textContent = "تأكيد الإجابة";
-    }
-    else {
-        // اختيار من متعدد الافتراضي (mc)
-        currentCorrectOptionIndex = currentQData.ans;
-        currentQData.opts.forEach((optionText, index) => {
-            const optionBtn = document.createElement('button'); optionBtn.classList.add('option-btn');
-            optionBtn.innerHTML = optionText; optionBtn.dataset.index = index;
-            optionBtn.addEventListener('click', () => { 
-                optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected')); 
-                optionBtn.classList.add('selected'); 
-                currentSelectedOptionIndex = index; 
+            function updateGame(currentTime) {
+                if (!gameRunning || gamePaused) return;
+                if (!lastTime) lastTime = currentTime; deltaTime = Math.min((currentTime - lastTime) / 16.67, 2); lastTime = currentTime;
+                
+                let onPlatform = false;
+                for (let i = flyingPlatforms.length - 1; i >= 0; i--) {
+                    const p = flyingPlatforms[i];
+                    const pr = parseFloat(p.element.style.right || 0); p.element.style.right = `${pr + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
+                    if (pr > gameArea.offsetWidth + 100) { p.element.remove(); flyingPlatforms.splice(i, 1); continue; }
+                    const prect = player.getBoundingClientRect(); const orect = p.element.getBoundingClientRect(); const garect = gameArea.getBoundingClientRect();
+                    if (prect.right > orect.left + 5 && prect.left < orect.right - 5) {
+                        if (gravityDirection === 1) { if (playerVelocity <= 0 && prect.bottom >= orect.top && prect.bottom <= orect.top + 20) { onPlatform = true; currentPlatform = p; playerY = (garect.height - orect.top - player.offsetHeight) - groundLevel; playerVelocity = 0; isJumping = false; canJump = true; if (p.isDisappearing && !p.fading) { p.fading = true; p.element.style.transition = 'opacity 0.5s'; p.element.style.opacity = '0'; setTimeout(() => { if (p.element.parentNode) p.element.remove(); }, 500); } } }
+                        else { if (playerVelocity >= 0 && prect.top <= orect.bottom && prect.top >= orect.bottom - 20) { onPlatform = true; currentPlatform = p; playerY = (garect.height - orect.bottom) - groundLevel; playerVelocity = 0; isJumping = false; canJump = true; } }
+                    }
+                }
+
+                if (playerMode === 'cube') {
+                    if (!onPlatform) { playerVelocity -= gravity * gravityDirection * deltaTime; playerY += playerVelocity * deltaTime; }
+                    if (gravityDirection === 1) { if (playerY <= 0) { playerY = 0; playerVelocity = 0; isJumping = false; canJump = true; } }
+                    else { if (playerY >= gameArea.offsetHeight - groundLevel - 60 - player.offsetHeight) { playerY = gameArea.offsetHeight - groundLevel - 60 - player.offsetHeight; playerVelocity = 0; isJumping = false; canJump = true; } }
+                    if (isJumping || playerY > 0) { rotationAngle += rotationSpeed * deltaTime; player.style.transform = `rotate(${rotationAngle}deg)`; } else { let targetAngle = Math.round(rotationAngle / 90) * 90; rotationAngle += (targetAngle - rotationAngle) * 0.2; player.style.transform = `rotate(${rotationAngle}deg)`; }
+                } else if (playerMode === 'ship') {
+                    playerVelocity -= (gravity * 0.6) * gravityDirection * deltaTime; playerY += playerVelocity * deltaTime;
+                    if (playerY <= 0) { playerY = 0; playerVelocity = 0; }
+                    if (playerY >= gameArea.offsetHeight - groundLevel - 60 - player.offsetHeight) { playerY = gameArea.offsetHeight - groundLevel - 60 - player.offsetHeight; playerVelocity = 0; }
+                    let targetRot = playerVelocity * 2; player.style.transform = `rotate(${-targetRot}deg)`;
+                }
+
+                player.style.bottom = `${playerY + groundLevel}px`;
+                
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    const o = obstacles[i]; const or = parseFloat(o.element.style.right || 0); o.element.style.right = `${or + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
+                    if (o.isMoving) { o.moveOffset += o.moveSpeed * deltaTime; const newY = o.initialY + Math.sin(o.moveOffset) * o.moveRange; o.element.style.bottom = `${newY}px`; }
+                    if (or > gameArea.offsetWidth + 100) { o.element.remove(); obstacles.splice(i, 1); continue; }
+                    if (!o.passed && or > gameArea.offsetWidth - 150) { o.passed = true; platformsPassed++; platformsPassedElement.textContent = platformsPassed; score += 50; if (platformsPassed % 5 === 0) { level++; levelElement.textContent = level; currentSpeedMultiplier += 0.15; showGameMessage(`مستوى ${level}`); playSound(523.25, 'square', 0.3, 0.2); } }
+                    if (detectCollision(player, o.element, o)) return;
+                }
+
+                coins.forEach((c, i) => {
+                    if (c.collected) return; const cr = parseFloat(c.element.style.right || 0); c.element.style.right = `${cr + (obstacleSpeed * currentSpeedMultiplier * deltaTime)}px`;
+                    if (cr > gameArea.offsetWidth + 100) { c.element.remove(); coins.splice(i, 1); return; }
+                    const prect = player.getBoundingClientRect(); const crect = c.element.getBoundingClientRect();
+                    if (prect.left < crect.right && prect.right > crect.left && prect.top < crect.bottom && prect.bottom > crect.top) {
+                        c.collected = true; coinsCollected++; coinsCollectedElement.textContent = coinsCollected; score += 100; playSound(880, 'triangle', 0.1, 0.2); c.element.remove();
+                    }
+                });
+
+                requestAnimationFrame(updateGame);
+            }
+
+            function detectCollision(player, obstacle, obsData) {
+                const prect = player.getBoundingClientRect(); const orect = obstacle.getBoundingClientRect(); const garect = gameArea.getBoundingClientRect();
+                let oy = orect.top - garect.top; if (obsData.isMoving) oy = garect.height - parseFloat(obstacle.style.bottom) - obstacle.offsetHeight;
+                const pbox = { x: prect.left - garect.left + prect.width * 0.15, y: prect.top - garect.top + prect.height * 0.15, w: prect.width * 0.7, h: prect.height * 0.7 };
+                const obox = { x: orect.left - garect.left, y: oy, w: obstacle.offsetWidth, h: obstacle.offsetHeight };
+                if (!(pbox.x < obox.x + obox.w && pbox.x + pbox.w > obox.x && pbox.y < obox.y + obox.h && pbox.y + pbox.h > obox.y)) return false;
+                
+
+                if (obstacle.classList.contains('air-pad')) { if (playerVelocity < 0 && prect.bottom >= orect.top - 10 && prect.bottom <= orect.top + 10) { playerY = (garect.height - orect.top - player.offsetHeight) - groundLevel; playerVelocity = 0; isJumping = false; canJump = true; playSound(550, 'sine', 0.05, 0.2); return false; } }
+                
+                playSound(80, 'sawtooth', 0.2, 0.3); createParticles(player.offsetLeft, player.offsetTop, '#e94560', 30);
+                collidedObstacleRef = obsData; showQuestion(); return true;
+            }
+
+            function showQuestion() {
+                gamePaused = true;
+                currentQData = gameQuestions[Math.floor(Math.random() * gameQuestions.length)];
+                const questionModal = document.getElementById('question-modal');
+                const questionTextElement = document.getElementById('question-text');
+                const optionsContainer = document.getElementById('options-container');
+                const feedbackMessageElement = document.getElementById('feedback-message');
+                
+                // تنظيف الحاوية
+                feedbackMessageElement.textContent = ''; feedbackMessageElement.className = '';
+                optionsContainer.innerHTML = ''; currentSelectedOptionIndex = -1;
+                // عرض الصورة إن وجدت
+                let imgHtml = '';
+                if (currentQData.img) {
+                    imgHtml = `<img src="${currentQData.img}" class="q-image-display" style="display:block; margin: 0 auto 15px auto;">`;
+                }
+                questionTextElement.innerHTML = imgHtml + (currentQData.q || currentQData.question || 'سؤال');
+                const type = currentQData.type || 'mc';
+                if (type === 'textslide') {
+                    // شريحة نصية فقط
+                    const bg = currentQData.textBg || '#ffffff';
+                    optionsContainer.innerHTML = `<div class="text-slide-content" style="background-color: ${bg};">${currentQData.textContent || ''}</div>`;
+                    document.getElementById('submit-answer-btn').textContent = "متابعة ➡️";
+                } 
+                else if (type === 'blanks') {
+                    // إكمال الفراغات
+                    let html = '<div class="blanks-container">';
+                    currentQData.blanks.forEach((_, i) => {
+                        html += `<input type="text" class="blank-input" id="blank-ans-${i}" placeholder="إجابة الفراغ رقم ${i+1}">`;
+                    });
+                    html += '</div>';
+                    optionsContainer.innerHTML = html;
+                    document.getElementById('submit-answer-btn').textContent = "تأكيد الإجابة";
+                }
+                else if (type === 'matching') {
+                    // سؤال التوصيل (قوائم منسدلة)
+                    let html = '<div class="matching-container">';
+                    // خلط الخيارات للجهة اليسرى
+                    let rightOptions = currentQData.pairs.map(p => p.right).sort(() => Math.random() - 0.5);
+                    
+                    currentQData.pairs.forEach((pair, i) => {
+                        let selectOptions = `<option value="">-- اختر الإجابة --</option>`;
+                        rightOptions.forEach(opt => { selectOptions += `<option value="${opt}">${opt}</option>`; });
+                        html += `
+                            <div class="match-row">
+                                <div class="match-text">${pair.left}</div>
+                                <select class="match-select" id="match-ans-${i}">${selectOptions}</select>
+                            </div>`;
+                    });
+                    html += '</div>';
+                    optionsContainer.innerHTML = html;
+                    document.getElementById('submit-answer-btn').textContent = "تأكيد الإجابة";
+                }
+                else if (type === 'dragdrop') {
+                    // التصنيف (قوائم منسدلة لتحديد المجموعة)
+                    let html = '<div class="dragdrop-container">';
+                    let zoneOptions = `<option value="-1">-- اختر المجموعة --</option>`;
+                    currentQData.zones.forEach((z, idx) => { zoneOptions += `<option value="${idx}">${z}</option>`; });
+                    
+                    currentQData.items.forEach((item, i) => {
+                        html += `
+                            <div class="match-row">
+                                <div class="match-text">${item.text}</div>
+                                <select class="match-select" id="drag-ans-${i}">${zoneOptions}</select>
+                            </div>`;
+                    });
+                    html += '</div>';
+                    optionsContainer.innerHTML = html;
+                    document.getElementById('submit-answer-btn').textContent = "تأكيد الإجابة";
+                }
+                else {
+                    // اختيار من متعدد الافتراضي (mc)
+                    currentCorrectOptionIndex = currentQData.ans !== undefined ? currentQData.ans : currentQData.correctOptionIndex;
+                    const opts = currentQData.opts || currentQData.options || [];
+                    opts.forEach((optionText, index) => {
+                        const optionBtn = document.createElement('button'); optionBtn.classList.add('option-btn');
+                        optionBtn.innerHTML = optionText; optionBtn.dataset.index = index;
+                        optionBtn.addEventListener('click', () => { 
+                            optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected')); 
+                            optionBtn.classList.add('selected'); 
+                            currentSelectedOptionIndex = index; 
+                        });
+                        optionsContainer.appendChild(optionBtn);
+                    });
+                    document.getElementById('submit-answer-btn').textContent = "تأكيد الإجابة";
+                }
+                
+                questionModal.style.display = 'flex'; playSound(150, 'square', 0.2, 0.4);
+                
+                // تشغيل دعم الرياضيات
+                if (window.MathLive) { 
+                    MathLive.renderMathInElement(questionTextElement); 
+                    optionsContainer.querySelectorAll('.option-btn, .text-slide-content, .match-text').forEach(el => MathLive.renderMathInElement(el)); 
+                }
+                if (typeof MathJax !== 'undefined') { MathJax.typesetPromise([questionTextElement, optionsContainer]); }
+            }
+
+            window.checkAnswer = function() {
+                if (!currentQData) return;
+                
+                const type = currentQData.type || 'mc';
+                const feedbackMessageElement = document.getElementById('feedback-message');
+                let isCorrect = false;
+                if (type === 'textslide') {
+                    // الشريحة النصية تعتبر دائماً صحيحة (مجرد استمرار)
+                    isCorrect = true;
+                }
+                else if (type === 'blanks') {
+                    let allCorrect = true;
+                    currentQData.blanks.forEach((correctAnswersStr, i) => {
+                        const studentInput = document.getElementById(`blank-ans-${i}`).value.trim();
+                        // دعم إجابات متعددة صحيحة مفصولة بـ /
+                        const possibleAnswers = correctAnswersStr.split('/').map(s => s.trim());
+                        if (!possibleAnswers.includes(studentInput)) { allCorrect = false; }
+                    });
+                    isCorrect = allCorrect;
+                }
+                else if (type === 'matching') {
+                    let allCorrect = true;
+                    currentQData.pairs.forEach((pair, i) => {
+                        const studentSelection = document.getElementById(`match-ans-${i}`).value;
+                        if (studentSelection !== pair.right) { allCorrect = false; }
+                    });
+                    isCorrect = allCorrect;
+                }
+                else if (type === 'dragdrop') {
+                    let allCorrect = true;
+                    currentQData.items.forEach((item, i) => {
+                        const studentSelection = parseInt(document.getElementById(`drag-ans-${i}`).value);
+                        if (studentSelection !== parseInt(item.zoneIndex)) { allCorrect = false; }
+                    });
+                    isCorrect = allCorrect;
+                }
+                else {
+                    // اختيار من متعدد
+                    if (currentSelectedOptionIndex === -1) return; // لم يختر شيئاً
+                    isCorrect = (currentSelectedOptionIndex === currentCorrectOptionIndex);
+                    
+                    const allOptions = document.querySelectorAll('#options-container .option-btn');
+                    allOptions.forEach(btn => btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'));
+                    
+                    const selectedButton = allOptions[currentSelectedOptionIndex];
+                    const correctAnswerButton = allOptions[currentCorrectOptionIndex];
+                    
+                    if (selectedButton) selectedButton.classList.add(isCorrect ? 'selected' : 'incorrect-answer');
+                    if (correctAnswerButton && !isCorrect) correctAnswerButton.classList.add('correct-answer');
+                }
+                // التعامل مع النتيجة
+                if (isCorrect) {
+                    feedbackMessageElement.textContent = type === 'textslide' ? 'نستكمل اللعب...' : 'إجابة صحيحة! استمر في اللعب.'; 
+                    feedbackMessageElement.classList.remove('incorrect');
+                    feedbackMessageElement.classList.add('correct');
+                    playSound(600, 'sine', 0.1, 0.5); 
+                    setTimeout(() => {
+                        document.getElementById('question-modal').style.display = 'none'; gamePaused = false;
+                        if (collidedObstacleRef) { 
+                            if (collidedObstacleRef.element && collidedObstacleRef.element.parentNode) { collidedObstacleRef.element.remove(); } 
+                            let index = obstacles.indexOf(collidedObstacleRef); if (index > -1) { obstacles.splice(index, 1); } 
+                            index = flyingPlatforms.indexOf(collidedObstacleRef); if (index > -1) { flyingPlatforms.splice(index, 1); }
+                            collidedObstacleRef = null; 
+                        }
+                        
+                        obstacles = obstacles.filter(obs => { const r = parseFloat(obs.element.style.right || 0); const l = gameArea.offsetWidth - r - obs.element.offsetWidth; if (l < 50 + player.offsetWidth + 100 && l + obs.element.offsetWidth > 50 - 100) { obs.element.remove(); return false; } return true; });
+                        
+                        player.style.left = '50px'; player.style.bottom = `${groundLevel}px`;
+                        playerY = 0; playerVelocity = 0; gravityDirection = 1; rotationAngle = 0;
+                        requestAnimationFrame(updateGame);
+                    }, type === 'textslide' ? 500 : 1000); // تسريع الإغلاق في حالة شريحة النص
+                } else {
+                    feedbackMessageElement.textContent = `خطأ! حاول الانتباه أكثر في المرات القادمة.`; 
+                    feedbackMessageElement.classList.remove('correct');
+                    feedbackMessageElement.classList.add('incorrect');
+                    playSound(80, 'sawtooth', 0.3, 0.5); 
+                    setTimeout(() => { document.getElementById('question-modal').style.display = 'none'; endGame(); }, 2000);
+                }
+            }
+
+            function endGame() {
+                gameRunning = false; clearInterval(obstacleInterval); stopMusic();
+                const endScreen = document.getElementById('end-screen');
+                const highScoreElement = document.getElementById('high-score');
+                let highScore = localStorage.getItem('gdHighScore') || 0;
+                if (score > highScore) { highScore = score; localStorage.setItem('gdHighScore', highScore); highScoreElement.textContent = highScore; }
+                endScreen.style.display = 'flex'; 
+                document.getElementById('final-score').textContent = score; 
+                document.getElementById('final-high-score').textContent = highScore; 
+                document.getElementById('final-coins').textContent = coinsCollected;
+                if (studentNameForSheet && currentRoomPIN) { 
+                    document.getElementById('form-name').value = studentNameForSheet;
+                    document.getElementById('form-school').value = currentRoomPIN;
+                    document.getElementById('form-score').value = score; 
+                    document.getElementById('scoreForm').submit(); 
+                }
+            }
+
+            function jump() { if (!gameRunning || gamePaused || !canJump) return; isJumping = true; canJump = false; playerVelocity = jumpForce * gravityDirection; playSound(440, 'sine', 0.1, 0.2); if (playerMode !== 'ship') { rotationSpeed = -4 * gravityDirection; } createParticles(player.offsetLeft + player.offsetWidth/2, player.offsetTop + (gravityDirection===1?player.offsetHeight:0), '#4cc9f0'); }
+            function slide() { if (!gameRunning || gamePaused) return; player.style.transform = 'rotate(0deg)'; }
+            function togglePause() { if (!gameRunning) return; gamePaused = !gamePaused; if (!gamePaused) { lastTime = 0; requestAnimationFrame(updateGame); } }
+            function toggleSound() { soundEnabled = !soundEnabled; musicToggleButton.innerHTML = soundEnabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-off"></i>'; if(soundEnabled && gameRunning && !gamePaused) startMusic(); else stopMusic(); }
+
+            function createObstacle() {
+                if (!gameRunning || gamePaused) return;
+                if (Math.random() < 0.4) { createFlyingPlatform(); return; }
+                if (Math.random() < 0.25) { createCoin(); }
+                
+                const obstacle = document.createElement('div'); obstacle.classList.add('obstacle');
+                let type = Math.random();
+                if (level === 1) {
+                    if (type < 0.6) { obstacle.style.height = `${Math.random() * 70 + 60}px`; obstacle.style.bottom = `${groundLevel}px`; }
+                    else if (type < 0.9) { obstacle.classList.add('triangle-obstacle'); obstacle.style.bottom = `${groundLevel}px`; }
+                    else { obstacle.classList.add('air-pad'); obstacle.style.bottom = `${groundLevel}px`; }
+                } else if (level >= 2) {
+                    if (type < 0.3) { obstacle.style.height = `${Math.random() * 70 + 60}px`; obstacle.style.bottom = `${groundLevel}px`; }
+                    else if (type < 0.5) { obstacle.classList.add('triangle-obstacle'); if (Math.random() < 0.5) { obstacle.classList.add('inverted'); obstacle.style.top = '60px'; } else { obstacle.style.bottom = `${groundLevel}px`; } }
+                    else if (type < 0.65) { obstacle.classList.add('air-pad'); obstacle.style.bottom = `${groundLevel}px`; }
+                    else { obstacle.classList.add('moving-obstacle'); obstacle.style.bottom = `${groundLevel}px`; obstacle.dataset.initialY = Math.random() * (gameArea.offsetHeight - 200) + groundLevel + 20; obstacle.dataset.moveRange = Math.random() * 50 + 30; obstacle.dataset.moveSpeed = Math.random() * 0.03 + 0.01; obstacle.dataset.moveOffset = Math.random() * Math.PI * 2; }
+                }
+                obstacle.style.right = '-70px'; gameArea.appendChild(obstacle);
+                obstacles.push({ element: obstacle, passed: false, used: false, isMoving: obstacle.classList.contains('moving-obstacle'), initialY: parseFloat(obstacle.dataset.initialY || 0), moveRange: parseFloat(obstacle.dataset.moveRange || 0), moveSpeed: parseFloat(obstacle.dataset.moveSpeed || 0), moveOffset: parseFloat(obstacle.dataset.moveOffset || 0) });
+            }
+
+            function createFlyingPlatform() {
+                const platformWidth = Math.random() * 120 + 80; const platformHeight = 20;
+                const platformY = Math.random() * 80 + (groundLevel + 20);
+                const platform = document.createElement('div'); platform.classList.add('flying-platform');
+                platform.style.width = `${platformWidth}px`; platform.style.height = `${platformHeight}px`;
+                platform.style.bottom = `${platformY}px`; platform.style.right = `-70px`;
+                
+                const spikes = document.createElement('div'); spikes.classList.add('platform-spikes');
+                platform.appendChild(spikes);
+                
+                gameArea.appendChild(platform);
+                flyingPlatforms.push({ element: platform, width: platformWidth, height: platformHeight, y: platformY, passed: false, activated: false, isDisappearing: (level >= 4 && Math.random() < 0.4), fading: false });
+            }
+
+            function createCoin() {
+                const coin = document.createElement('div'); coin.classList.add('coin'); coin.innerHTML = '<i class="fas fa-coins"></i>';
+                const coinY = Math.random() * (gameArea.offsetHeight - 200) + 100;
+                coin.style.bottom = `${coinY}px`; coin.style.right = '-50px'; gameArea.appendChild(coin);
+                coins.push({ element: coin, y: coinY, collected: false });
+            }
+
+            function showGameMessage(msg, duration = 1500) {
+                const gameMessageElement = document.getElementById('game-message');
+                gameMessageElement.textContent = msg; gameMessageElement.style.display = 'block';
+                gameMessageElement.style.animation = `fadeInOutMessage ${duration / 1000}s forwards`;
+                setTimeout(() => { gameMessageElement.style.display = 'none'; }, duration);
+            }
+
+            function createParticles(x, y, color, count = 10) {
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('div'); particle.classList.add('particle'); particle.style.backgroundColor = color;
+                    particle.style.left = `${x}px`; particle.style.top = `${y}px`;
+                    const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 5 + 2;
+                    const vx = Math.cos(angle) * speed; const vy = Math.sin(angle) * speed;
+                    gameArea.appendChild(particle);
+                    let px = x; let py = y; let opacity = 1;
+                    const pInterval = setInterval(() => {
+                        px += vx; py += vy; opacity -= 0.05; particle.style.left = `${px}px`; particle.style.top = `${py}px`; particle.style.opacity = opacity;
+                        if (opacity <= 0) { clearInterval(pInterval); particle.remove(); }
+                    }, 20);
+                }
+            }
+
+            function jumpAction(e) { if (e) e.preventDefault(); jump(); }
+            window.jumpAction = jumpAction;
+            window.togglePause = togglePause;
+
+            startBtn.addEventListener('click', startGame);
+            restartBtn.addEventListener('click', startGame);
+            musicToggleButton.addEventListener('click', toggleSound);
+            
+            characterElements.forEach(el => {
+                el.addEventListener('click', () => {
+                    characterElements.forEach(c => c.classList.remove('active'));
+                    el.classList.add('active');
+                    selectedCharacter = parseInt(el.dataset.character);
+                });
             });
-            optionsContainer.appendChild(optionBtn);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' || e.code === 'ArrowUp') { jump(); }
+                if (e.code === 'KeyP') { togglePause(); }
+            });
         });
-        document.getElementById('submit-answer-btn').textContent = "تأكيد الإجابة";
-    }
-    
-    questionModal.style.display = 'flex'; playSound(150, 'square', 0.2, 0.4);
-    
-    // تشغيل دعم الرياضيات
-    if (window.MathLive) { 
-        MathLive.renderMathInElement(questionTextElement); 
-        optionsContainer.querySelectorAll('.option-btn, .text-slide-content, .match-text').forEach(el => MathLive.renderMathInElement(el)); 
-    }
-    if (typeof MathJax !== 'undefined') { MathJax.typesetPromise([questionTextElement, optionsContainer]); }
-}
-
-```
-### الخطوة الخامسة: نظام التحقق من الإجابات (JavaScript)
-الآن يجب أن تتعامل دالة checkAnswer() مع جميع أنواع الأسئلة للتحقق من صحتها.
-**ابحثي عن دالة window.checkAnswer = function() واستبدليها بالكامل بهذا الكود:**
-```javascript
-window.checkAnswer = function() {
-    if (!currentQData) return;
-    
-    const type = currentQData.type || 'mc';
-    const feedbackMessageElement = document.getElementById('feedback-message');
-    let isCorrect = false;
-
-    if (type === 'textslide') {
-        // الشريحة النصية تعتبر دائماً صحيحة (مجرد استمرار)
-        isCorrect = true;
-    }
-    else if (type === 'blanks') {
-        let allCorrect = true;
-        currentQData.blanks.forEach((correctAnswersStr, i) => {
-            const studentInput = document.getElementById(`blank-ans-${i}`).value.trim();
-            // دعم إجابات متعددة صحيحة مفصولة بـ /
-            const possibleAnswers = correctAnswersStr.split('/').map(s => s.trim());
-            if (!possibleAnswers.includes(studentInput)) { allCorrect = false; }
-        });
-        isCorrect = allCorrect;
-    }
-    else if (type === 'matching') {
-        let allCorrect = true;
-        currentQData.pairs.forEach((pair, i) => {
-            const studentSelection = document.getElementById(`match-ans-${i}`).value;
-            if (studentSelection !== pair.right) { allCorrect = false; }
-        });
-        isCorrect = allCorrect;
-    }
-    else if (type === 'dragdrop') {
-        let allCorrect = true;
-        currentQData.items.forEach((item, i) => {
-            const studentSelection = parseInt(document.getElementById(`drag-ans-${i}`).value);
-            if (studentSelection !== parseInt(item.zoneIndex)) { allCorrect = false; }
-        });
-        isCorrect = allCorrect;
-    }
-    else {
-        // اختيار من متعدد
-        if (currentSelectedOptionIndex === -1) return; // لم يختر شيئاً
-        isCorrect = (currentSelectedOptionIndex === currentCorrectOptionIndex);
-        
-        const allOptions = document.querySelectorAll('#options-container .option-btn');
-        allOptions.forEach(btn => btn.classList.remove('selected', 'correct-answer', 'incorrect-answer'));
-        
-        const selectedButton = allOptions[currentSelectedOptionIndex];
-        const correctAnswerButton = allOptions[currentCorrectOptionIndex];
-        
-        if (selectedButton) selectedButton.classList.add(isCorrect ? 'selected' : 'incorrect-answer');
-        if (correctAnswerButton && !isCorrect) correctAnswerButton.classList.add('correct-answer');
-    }
-
-    // التعامل مع النتيجة
-    if (isCorrect) {
-        feedbackMessageElement.textContent = type === 'textslide' ? 'نستكمل اللعب...' : 'إجابة صحيحة! استمر في اللعب.'; 
-        feedbackMessageElement.classList.remove('incorrect');
-        feedbackMessageElement.classList.add('correct');
-        playSound(600, 'sine', 0.1, 0.5); 
-
-        setTimeout(() => {
-            document.getElementById('question-modal').style.display = 'none'; gamePaused = false;
-            if (collidedObstacleRef) { 
-                if (collidedObstacleRef.element && collidedObstacleRef.element.parentNode) { collidedObstacleRef.element.remove(); } 
-                let index = obstacles.indexOf(collidedObstacleRef); if (index > -1) { obstacles.splice(index, 1); } 
-                index = flyingPlatforms.indexOf(collidedObstacleRef); if (index > -1) { flyingPlatforms.splice(index, 1); }
-                collidedObstacleRef = null; 
-            }
-            
-            obstacles = obstacles.filter(obs => { const r = parseFloat(obs.element.style.right || 0); const l = gameArea.offsetWidth - r - obs.element.offsetWidth; if (l < 50 + player.offsetWidth + 100 && l + obs.element.offsetWidth > 50 - 100) { obs.element.remove(); return false; } return true; });
-            
-            player.style.left = '50px'; player.style.bottom = `${groundLevel}px`;
-            playerY = 0; playerVelocity = 0; gravityDirection = 1; rotationAngle = 0;
-            requestAnimationFrame(updateGame);
-        }, type === 'textslide' ? 500 : 1000); // تسريع الإغلاق في حالة شريحة النص
-    } else {
-        feedbackMessageElement.textContent = `خطأ! حاول الانتباه أكثر في المرات القادمة.`; 
-        feedbackMessageElement.classList.remove('correct');
-        feedbackMessageElement.classList.add('incorrect');
-        playSound(80, 'sawtooth', 0.3, 0.5); 
-        setTimeout(() => { document.getElementById('question-modal').style.display = 'none'; endGame(); }, 2000);
-    }
-}
-
-```
-بهذه التعديلات، تم إلغاء لوحة تحكم المعلم كلياً من هذا الملف، وأصبح ملفاً مخصصاً بالكامل كلعبة للطالب. والآن هو قادر على قراءة واستيعاب كل أنواع المصفوفات المعقدة التي ينشئها النظام الموجود في ملف Teacher-1.txt (شاملة الصور، ومعادلات الجيمناي نانو بانانا برو إذا تم تحويلها لـ LaTeX، والتنسيقات).
+    </script>
+</body>
+</html>
