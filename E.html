@@ -502,6 +502,25 @@
             font-weight: bold;
             color: #00b09b;
         }
+
+        /* دعم الصور والمحتوى الغني داخل الأسئلة */
+        .question-overlay h2 img,
+        .question-overlay .answer-btn img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            display: block;
+            margin: 8px auto;
+            object-fit: contain;
+        }
+        .question-overlay h2 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .question-overlay .answer-btn {
+            flex-direction: column;
+        }
         
         @media (max-height: 600px) {
             .question-overlay .question-content {
@@ -547,7 +566,7 @@
         <div id="loading-text" style="font-size: 28px; font-weight: bold; margin-top: 20px; font-family: 'Cairo', sans-serif;">جاري تجهيز بيانات التحدي...</div>
     </div>
 
-    <div class="screen active" id="screen-home">
+    <div class="screen" id="screen-home">
         <div class="card">
             <h1>🎮 Space Waves Challenge</h1>
             <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات الفضائية؟</p>
@@ -604,7 +623,7 @@
         </div>
     </div>
 
-    <div class="screen" id="screen-student-login">
+    <div class="screen active" id="screen-student-login">
         <div class="card">
             <h2>🚀 الانضمام للتحدي</h2>
             <input type="number" id="room-pin-input" placeholder="أدخل رقم الغرفة" style="font-size: 28px; letter-spacing: 3px; text-align: center;"/>
@@ -612,7 +631,6 @@
             <p style="color: #666; margin-bottom: 20px; font-size: 14px;">اختر صورتك الرمزية:</p>
             <div class="avatar-grid" id="avatar-selector"></div>
             <button class="sys-btn btn-student" onclick="validateAndStartGame()">بدء اللعبة</button>
-            <button class="sys-btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
         </div>
     </div>
 
@@ -1966,8 +1984,8 @@ function loadExistingRoom() {
         if (pin) {
             const pinInput = document.getElementById('room-pin-input');
             if (pinInput) pinInput.value = pin;
-            showScreen('screen-student-login');
         }
+        showScreen('screen-student-login');
     });
 })();
 </script>
