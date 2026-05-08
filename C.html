@@ -220,8 +220,23 @@
         .root-icon .radicand { border-top: 1.2px solid #333; padding-top: 1px; margin-left: 1px; font-style: italic; }
 
         /* ========================================= */
-        /* 2. أنماط لعبة ماريو الأساسية (Ma1)        */
+        /* أنماط أنواع الأسئلة الإضافية              */
         /* ========================================= */
+        .question-content { max-height: 90vh; overflow-y: auto; }
+        #optionsContainer input[type="text"] {
+            width: 100%; padding: 10px; border: 2px solid #ccc; border-radius: 8px;
+            font-size: 16px; font-family: 'Cairo', sans-serif; text-align: right;
+            box-sizing: border-box; margin-bottom: 0;
+        }
+        #optionsContainer select {
+            padding: 8px; border: 2px solid #ccc; border-radius: 8px;
+            font-size: 14px; font-family: 'Cairo', sans-serif; direction: rtl;
+            background: white; cursor: pointer;
+        }
+        #optionsContainer [id^="dropzone-"] { transition: background 0.2s; }
+        #optionsContainer [id^="dropzone-"]:hover { background: #e8f0fe !important; border-color: var(--primary) !important; }
+        #optionsContainer [draggable="true"] { transition: opacity 0.2s; }
+        #optionsContainer [draggable="true"]:active { opacity: 0.7; }
         #game-view {
             display: none; width: 100%; height: 100%; flex-direction: column;
             align-items: center; justify-content: center; color: white; padding: 20px 10px;
@@ -439,14 +454,7 @@
             }
         }
         function handleQuestionsLoad() {
-            const screen = document.getElementById('screen-teacher');
-            if (screen && screen.classList.contains('active')) {
-                const status = document.getElementById('saving-status');
-                if (status) {
-                    status.innerText = "✅ تم حفظ الأسئلة بنجاح! يمكن للطلاب الدخول الآن.";
-                    status.style.color = "var(--success)";
-                }
-            }
+            // تم حفظ الأسئلة بنجاح
         }
     </script>
     <div id="screen-loading-sheet">
@@ -456,67 +464,7 @@
 
     <div id="ui-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
         
-        <div class="screen active" id="screen-home">
-            <div class="card">
-                <h1>🎮 القط والهدف </h1>
-                <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
-                <button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
-                <button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
-            </div>
-        </div>
-        
-        <div class="screen" id="screen-teacher-setup">
-            <div class="q-builder-container">
-                <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
-                
-                <div style="background: #f0f4f8; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 2px dashed #a0aec0; text-align: center;">
-                    <h3 style="color: var(--primary); margin-bottom: 15px;">🔄 هل لديك أسئلة سابقة؟</h3>
-                    <input type="number" id="reuse-pin-input" placeholder="أدخل رقم الغرفة السابق لاسترجاع الأسئلة" style="width: 100%; max-width: 400px; margin-bottom: 15px; font-size: 16px;">
-                    <button class="btn btn-action" onclick="reuseQuestions()" style="width: 100%; max-width: 400px; font-size: 18px;">استرجاع وإنشاء غرفة جديدة</button>
-                    <p id="reuse-status" style="display: none; color: var(--k-red); margin-top: 10px; font-weight: bold;"></p>
-                </div>
-                
-                <div style="text-align: center; margin-bottom: 20px; color: #666; font-weight: bold;">--- أو قم بإدخال أسئلة جديدة ---</div>
-
-                <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
-                <div id="questions-list"></div>
-                <button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
-                <div style="margin-top: 30px; display: flex; gap: 10px;">
-                    <button class="btn btn-primary" onclick="saveQuestionsToSheet()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
-                    <button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">إلغاء</button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="screen" id="screen-teacher">
-            <div style="width: 100%; text-align: center;">
-                <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
-                    <h2>انضموا الآن! رمز الغرفة:</h2>
-                    <div class="room-pin" id="display-room-pin">000000</div>
-                    <p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام الموحد...</p>
-                    
-                    <div id="qr-container" style="margin: 20px 0;">
-                        <img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
-                        <p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
-                    </div>
-
-                    <div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
-                        <input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
-                        <button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
-                    </div>
-                </div>
-                <table class="lb-table" id="leaderboard" style="display: none;">
-                    <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
-                    <tbody id="leaderboard-body"></tbody>
-                </table>
-                <div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
-                    ⏳ بانتظار دخول الأبطال وحل الأسئلة...
-                </div>
-                <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
-            </div>
-        </div>
-        
-        <div class="screen" id="screen-student-login">
+        <div class="screen active" id="screen-student-login">
             <div class="card">
                 <h2>أدخل بياناتك للانطلاق 🚀</h2>
                 <input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
@@ -524,7 +472,6 @@
                 <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
                 <div class="avatar-grid" id="avatar-container"></div>
                 <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
-                <button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
             </div>
         </div>
     </div>
@@ -1360,8 +1307,14 @@
             gameState.questionActive = true; gameState.running = false; 
             
             const q = gameQuestions[currentQIndex % gameQuestions.length];
+            const qType = q.type || 'mc';
             
-            questionText.innerHTML = q.q; 
+            // عرض السؤال مع الصورة إن وُجدت
+            let titleHTML = q.q || '';
+            if (q.img) {
+                titleHTML += `<br><img src="${q.img}" alt="صورة السؤال" style="max-width:100%; max-height:180px; border-radius:10px; margin-top:8px; object-fit:contain;">`;
+            }
+            questionText.innerHTML = titleHTML;
             resultMessage.textContent = ""; 
             resultMessage.className = "result";
             
@@ -1371,46 +1324,236 @@
             continueBtn.style.display = "none";
             optionsContainer.innerHTML = "";
             
-            q.opts.forEach((optionText, idx) => {
-                const optionElement = document.createElement('div'); 
-                optionElement.className = 'option'; 
-                optionElement.innerHTML = optionText;
-                
-                optionElement.onclick = () => checkCustomAnswer(idx, q.ans, q.opts);
-                optionsContainer.appendChild(optionElement);
-            });
-            
-            if (window.MathJax) MathJax.typesetPromise([optionsContainer]);
+            if (qType === 'mc') {
+                // اختيار من متعدد
+                (q.opts || []).forEach((optionText, idx) => {
+                    const optionElement = document.createElement('div'); 
+                    optionElement.className = 'option'; 
+                    optionElement.innerHTML = optionText;
+                    optionElement.onclick = () => checkMCAnswer(idx, q.ans, q.opts);
+                    optionsContainer.appendChild(optionElement);
+                });
+                if (window.MathJax) MathJax.typesetPromise([optionsContainer]);
+
+            } else if (qType === 'blanks') {
+                // إكمال فراغات
+                const blanksCount = (q.blanks || []).length;
+                let blanksHTML = '<div style="display:flex; flex-direction:column; gap:10px; width:100%;">';
+                for (let i = 0; i < blanksCount; i++) {
+                    blanksHTML += `<div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-weight:bold; color:var(--primary); min-width:20px;">${i+1}.</span>
+                        <input type="text" id="blank-input-${i}" placeholder="الإجابة ${i+1}" 
+                            style="flex:1; padding:10px; border:2px solid #ccc; border-radius:8px; font-size:16px; font-family:'Cairo',sans-serif; text-align:right;">
+                    </div>`;
+                }
+                blanksHTML += '</div><button onclick="checkBlanksAnswer()" style="margin-top:12px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; font-family:\'Cairo\',sans-serif;">✔ تحقق من الإجابة</button>';
+                optionsContainer.innerHTML = blanksHTML;
+
+            } else if (qType === 'matching') {
+                // توصيل / مطابقة
+                const pairs = q.pairs || [];
+                const shuffledRight = [...pairs.map(p => p.right)].sort(() => Math.random() - 0.5);
+                let matchHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%;">
+                    <div style="font-weight:bold; color:var(--primary); text-align:center; padding:5px; border-bottom:2px solid var(--primary);">العمود الأول</div>
+                    <div style="font-weight:bold; color:var(--primary); text-align:center; padding:5px; border-bottom:2px solid var(--primary);">العمود الثاني</div>`;
+                pairs.forEach((pair, i) => {
+                    matchHTML += `<div style="padding:8px; background:#f0f4ff; border-radius:8px; text-align:center; font-size:15px;">${pair.left}</div>
+                    <select id="match-select-${i}" style="padding:8px; border:2px solid #ccc; border-radius:8px; font-size:14px; font-family:'Cairo',sans-serif; width:100%;">
+                        <option value="">اختر...</option>
+                        ${shuffledRight.map((r,ri) => `<option value="${r}">${r}</option>`).join('')}
+                    </select>`;
+                });
+                matchHTML += `</div>
+                    <button onclick="checkMatchingAnswer(${JSON.stringify(pairs).replace(/"/g,'&quot;')})" style="margin-top:12px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; font-family:'Cairo',sans-serif;">✔ تحقق من الإجابة</button>`;
+                optionsContainer.innerHTML = matchHTML;
+                if (window.MathJax) MathJax.typesetPromise([optionsContainer]);
+
+            } else if (qType === 'dragdrop') {
+                // تصنيف / سحب وإفلات
+                const zones = q.zones || [];
+                const items = q.items || [];
+                const shuffledItems = [...items].sort(() => Math.random() - 0.5);
+                let ddHTML = `<div style="margin-bottom:12px;">
+                    <p style="font-size:13px; color:#666; margin-bottom:8px;">اسحب كل كلمة إلى مجموعتها الصحيحة:</p>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; padding:10px; background:#f0f4ff; border-radius:10px; min-height:50px;" id="drag-bank">`;
+                shuffledItems.forEach((item, i) => {
+                    ddHTML += `<div draggable="true" id="ditem-${i}" data-index="${i}" data-correct-zone="${item.zoneIndex}"
+                        ondragstart="dragStart(event)" onclick="mobileSelectItem(this)"
+                        style="padding:8px 14px; background:var(--primary); color:white; border-radius:20px; cursor:grab; font-size:14px; font-weight:bold; user-select:none; touch-action:manipulation;">${item.text}</div>`;
+                });
+                ddHTML += `</div></div><div style="display:grid; grid-template-columns:${zones.length > 2 ? 'repeat('+zones.length+',1fr)' : '1fr 1fr'}; gap:10px;">`;
+                zones.forEach((zone, zi) => {
+                    ddHTML += `<div id="dropzone-${zi}" data-zone="${zi}" 
+                        ondragover="event.preventDefault()" ondrop="dropItem(event,${zi})" onclick="mobileDropItem(this,${zi})"
+                        style="min-height:80px; border:2px dashed #ccc; border-radius:10px; padding:8px; text-align:center; background:#fafafa; transition:background 0.2s;">
+                        <div style="font-weight:bold; color:var(--primary); margin-bottom:6px; font-size:14px;">${zone}</div>
+                    </div>`;
+                });
+                ddHTML += `</div>
+                    <button onclick="checkDragDropAnswer(${zones.length})" style="margin-top:12px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; font-family:'Cairo',sans-serif;">✔ تحقق من الإجابة</button>`;
+                optionsContainer.innerHTML = ddHTML;
+                if (window.MathJax) MathJax.typesetPromise([optionsContainer]);
+
+            } else if (qType === 'textslide') {
+                // شريحة نص
+                questionText.innerHTML = (q.textContent || q.q || '');
+                const cont = document.querySelector('.question-content');
+                if (cont) cont.style.background = (q.textBg && q.textBg !== '#ffffff') ? q.textBg : '';
+                optionsContainer.innerHTML = '';
+                if (window.MathJax) MathJax.typesetPromise([questionText]);
+                // تخطي مباشرة بعد قراءة النص
+                continueBtn.style.display = "block";
+                continueBtn.innerText = "متابعة ←";
+                currentQIndex++;
+                return;
+            }
         }
 
-        function checkCustomAnswer(selectedIndex, correctIndex, opts) {
+        // --- دوال السحب والإفلات ---
+        let selectedDragItem = null;
+        function dragStart(event) { event.dataTransfer.setData('text/plain', event.target.id); }
+        function dropItem(event, zoneIndex) {
+            event.preventDefault();
+            const id = event.dataTransfer.getData('text/plain');
+            const el = document.getElementById(id);
+            if (!el) return;
+            const zone = document.getElementById(`dropzone-${zoneIndex}`);
+            if (zone) zone.appendChild(el);
+            el.style.cursor = 'default';
+        }
+        function mobileSelectItem(el) {
+            if (selectedDragItem === el) { selectedDragItem = null; el.style.outline = ''; return; }
+            if (selectedDragItem) selectedDragItem.style.outline = '';
+            selectedDragItem = el;
+            el.style.outline = '3px solid yellow';
+        }
+        function mobileDropItem(zoneEl, zoneIndex) {
+            if (selectedDragItem) {
+                zoneEl.appendChild(selectedDragItem);
+                selectedDragItem.style.outline = '';
+                selectedDragItem = null;
+            }
+        }
+
+        // --- دوال التحقق من الإجابة ---
+        function checkMCAnswer(selectedIndex, correctIndex, opts) {
             const optionsElements = document.querySelectorAll('.option');
             optionsElements.forEach((opt, idx) => {
                 opt.onclick = null;
                 if (idx === correctIndex) opt.classList.add('correct'); 
                 else if (idx === selectedIndex) opt.classList.add('incorrect');
             });
-            
             if (selectedIndex === correctIndex) {
                 resultMessage.textContent = "إجابة صحيحة! +500 نقطة + محاولة إضافية ❤️"; 
                 resultMessage.classList.add("correct"); 
-                gameState.score += 500; 
-                gameState.questionsSolved++;
-                gameState.lives++; // إضافة صحة إضافية
-                scoreDisplay.textContent = gameState.score; 
-                livesDisplay.textContent = gameState.lives; // تحديث عرض القلوب
-                playSound(600, 'sine', 0.1, 0.4); 
-                playSound(800, 'sine', 0.1, 0.4);
-                playSound(1000, 'sine', 0.2, 0.3); // صوت إضافي للمكافأة
+                gameState.score += 500; gameState.questionsSolved++;
+                gameState.lives++; scoreDisplay.textContent = gameState.score; livesDisplay.textContent = gameState.lives;
+                playSound(600, 'sine', 0.1, 0.4); playSound(800, 'sine', 0.1, 0.4); playSound(1000, 'sine', 0.2, 0.3);
             } else {
                 resultMessage.textContent = `إجابة خاطئة! الإجابة الصحيحة: ${opts[correctIndex]}`; 
                 resultMessage.classList.add("incorrect"); 
-                playSound(200, 'square', 0.2, 0.5); 
-                playerHit();
+                playSound(200, 'square', 0.2, 0.5); playerHit();
             }
-            
-            currentQIndex++; 
-            continueBtn.style.display = "block";
+            currentQIndex++; continueBtn.style.display = "block";
+        }
+
+        function checkBlanksAnswer() {
+            const currentQ = gameQuestions[currentQIndex % gameQuestions.length];
+            const blanks = currentQ.blanks || [];
+            let allCorrect = true;
+            blanks.forEach((correctAns, i) => {
+                const input = document.getElementById(`blank-input-${i}`);
+                if (!input) return;
+                const userAns = input.value.trim();
+                const acceptedAnswers = correctAns.split('/').map(a => a.trim().toLowerCase());
+                if (acceptedAnswers.includes(userAns.toLowerCase())) {
+                    input.style.border = '2px solid var(--success)';
+                } else {
+                    input.style.border = '2px solid var(--k-red)';
+                    allCorrect = false;
+                }
+            });
+            if (allCorrect) {
+                resultMessage.textContent = "إجابة صحيحة! +500 نقطة + محاولة إضافية ❤️";
+                resultMessage.classList.add("correct");
+                gameState.score += 500; gameState.questionsSolved++;
+                gameState.lives++; scoreDisplay.textContent = gameState.score; livesDisplay.textContent = gameState.lives;
+                playSound(600, 'sine', 0.1, 0.4); playSound(800, 'sine', 0.1, 0.4);
+            } else {
+                resultMessage.textContent = "بعض الإجابات غير صحيحة. تحقق من الإجابات المحددة باللون الأحمر.";
+                resultMessage.classList.add("incorrect");
+                playSound(200, 'square', 0.2, 0.5); playerHit();
+            }
+            document.querySelectorAll('[id^="blank-input-"]').forEach(inp => inp.disabled = true);
+            const checkBtn = optionsContainer.querySelector('button');
+            if (checkBtn) checkBtn.disabled = true;
+            currentQIndex++; continueBtn.style.display = "block";
+        }
+
+        function checkMatchingAnswer(pairs) {
+            let allCorrect = true;
+            pairs.forEach((pair, i) => {
+                const sel = document.getElementById(`match-select-${i}`);
+                if (!sel) return;
+                if (sel.value === pair.right) {
+                    sel.style.border = '2px solid var(--success)';
+                } else {
+                    sel.style.border = '2px solid var(--k-red)';
+                    allCorrect = false;
+                }
+            });
+            if (allCorrect) {
+                resultMessage.textContent = "إجابة صحيحة! +500 نقطة + محاولة إضافية ❤️";
+                resultMessage.classList.add("correct");
+                gameState.score += 500; gameState.questionsSolved++;
+                gameState.lives++; scoreDisplay.textContent = gameState.score; livesDisplay.textContent = gameState.lives;
+                playSound(600, 'sine', 0.1, 0.4); playSound(800, 'sine', 0.1, 0.4);
+            } else {
+                resultMessage.textContent = "بعض التوصيلات غير صحيحة. تحقق من المحاولات المحددة باللون الأحمر.";
+                resultMessage.classList.add("incorrect");
+                playSound(200, 'square', 0.2, 0.5); playerHit();
+            }
+            pairs.forEach((pair, i) => {
+                const sel = document.getElementById(`match-select-${i}`);
+                if (sel) sel.disabled = true;
+            });
+            const checkBtn = optionsContainer.querySelector('button[onclick*="checkMatchingAnswer"]');
+            if (checkBtn) checkBtn.disabled = true;
+            currentQIndex++; continueBtn.style.display = "block";
+        }
+
+        function checkDragDropAnswer(zonesCount) {
+            const currentQ = gameQuestions[currentQIndex % gameQuestions.length];
+            let allCorrect = true;
+            const items = currentQ.items || [];
+            items.forEach((item, i) => {
+                const el = document.getElementById(`ditem-${i}`);
+                if (!el) return;
+                const parentZone = el.closest('[id^="dropzone-"]');
+                if (!parentZone) { allCorrect = false; return; }
+                const zoneIdx = parseInt(parentZone.dataset.zone);
+                if (zoneIdx === item.zoneIndex) {
+                    el.style.background = 'var(--success)';
+                } else {
+                    el.style.background = 'var(--k-red)';
+                    allCorrect = false;
+                }
+            });
+            if (allCorrect) {
+                resultMessage.textContent = "إجابة صحيحة! +500 نقطة + محاولة إضافية ❤️";
+                resultMessage.classList.add("correct");
+                gameState.score += 500; gameState.questionsSolved++;
+                gameState.lives++; scoreDisplay.textContent = gameState.score; livesDisplay.textContent = gameState.lives;
+                playSound(600, 'sine', 0.1, 0.4); playSound(800, 'sine', 0.1, 0.4);
+            } else {
+                resultMessage.textContent = "بعض التصنيفات غير صحيحة. تحقق من الكلمات المحددة باللون الأحمر.";
+                resultMessage.classList.add("incorrect");
+                playSound(200, 'square', 0.2, 0.5); playerHit();
+            }
+            document.querySelectorAll('[id^="ditem-"]').forEach(el => el.draggable = false);
+            const checkBtn = optionsContainer.querySelector('button[onclick*="checkDragDropAnswer"]');
+            if (checkBtn) checkBtn.disabled = true;
+            currentQIndex++; continueBtn.style.display = "block";
         }
 
         function playerHit() {
@@ -1519,8 +1662,21 @@
         setupMobileControls();
         continueBtn.addEventListener('click', () => { questionModal.style.display = "none"; nextLevel(); });
         document.getElementById('restartBtn').addEventListener('click', () => {
-            window.location.href = window.location.href.split('?')[0]; 
+            document.getElementById('ui-container').style.display = 'flex';
+            document.body.classList.remove('mario-mode');
+            document.getElementById('game-view').style.display = 'none';
+            showScreen('screen-student-login');
         });
+
+        // ملء رقم الغرفة تلقائياً من رابط URL
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pinFromUrl = urlParams.get('pin');
+            if (pinFromUrl) {
+                const pinInput = document.getElementById('input-room-pin');
+                if (pinInput) pinInput.value = pinFromUrl;
+            }
+        })();
         
     </script>
 </body>
