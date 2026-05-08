@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title> القط والهدف: منصة التعلّم التفاعلية</title>
     
@@ -389,7 +390,7 @@
         .question-content, .win-content { background: linear-gradient(135deg, #0f172a, #1e293b); border-radius: 20px; padding: 40px; width: 90%; max-width: 600px; text-align: center; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7); border: 2px solid #38bdf8; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .win-content { border-color: #10b981; }
         .question-content h2 { color: #38bdf8; margin-bottom: 25px; font-size: 2rem; }
-        .question { font-size: 2rem; margin: 30px 0; color: white; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; font-weight: bold; min-height: 120px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(56, 189, 248, 0.3); direction: rtl; }
+        .question { font-size: 1.8rem; margin: 20px 0; color: white; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; font-weight: bold; min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px solid rgba(56, 189, 248, 0.3); direction: rtl; }
         .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 30px; direction: rtl; }
         .option { background: rgba(30, 41, 59, 0.8); border: 2px solid #334155; border-radius: 12px; padding: 20px; font-size: 1.5rem; cursor: pointer; transition: all 0.2s; color: white; display: flex; align-items: center; justify-content: center; direction: rtl; }
         .option:hover { background: #38bdf8; border-color: #38bdf8; transform: translateY(-3px); color: #0f172a; }
@@ -1312,7 +1313,7 @@
             // عرض السؤال مع الصورة إن وُجدت
             let titleHTML = q.q || '';
             if (q.img) {
-                titleHTML += `<br><img src="${q.img}" alt="صورة السؤال" style="max-width:100%; max-height:180px; border-radius:10px; margin-top:8px; object-fit:contain;">`;
+                titleHTML += `<img src="${q.img}" alt="صورة السؤال" referrerpolicy="no-referrer" crossorigin="anonymous" style="max-width:100%; max-height:220px; border-radius:10px; margin-top:4px; object-fit:contain; display:block;" onerror="this.style.display='none'">`;
             }
             questionText.innerHTML = titleHTML;
             resultMessage.textContent = ""; 
