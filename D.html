@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <title>لعبة الطائر الفهمان - منصة التعلّم التفاعلية</title>
     
@@ -31,14 +32,7 @@
         }
 
         function handleQuestionsLoad() {
-            const screen = document.getElementById('screen-teacher');
-            if (screen && screen.classList.contains('active')) {
-                const status = document.getElementById('saving-status');
-                if (status) {
-                    status.innerText = "✅ تم حفظ الأسئلة بنجاح! بانتظار دخول الطلاب...";
-                    status.style.color = "var(--success)";
-                }
-            }
+            // تم حفظ الأسئلة بنجاح
         }
     </script>
 
@@ -347,7 +341,7 @@
             border-radius: 15px; box-shadow: 0 0 30px rgba(0, 0, 0, 0.7); text-align: center;
             max-width: 500px; width: 95%; max-height: 90vh; overflow-y: auto; border: 3px solid #fff;
         }
-        #question-text-flappy { color: white; font-size: 1.8rem; margin-bottom: 20px; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); direction: rtl; }
+        #question-text-flappy { color: white; font-size: 1.6rem; margin-bottom: 15px; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); direction: rtl; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .options-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .option-btn {
             padding: 12px 20px; font-size: 1.3rem; background: linear-gradient(to right, #f1c40f, #f39c12);
@@ -469,68 +463,7 @@
     </div>
     <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
 
-    <div class="screen active" id="screen-home">
-        <div class="card">
-            <h1>🎮 لعبة الطائر الفهمان</h1>
-            <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
-            <button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
-            <button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
-            
-            <div style="margin-top: 25px; padding-top: 25px; border-top: 2px dashed #ccc;">
-                <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استنساخ غرفة سابقة</h3>
-                <input type="number" id="existing-room-pin" placeholder="أدخل رقم الغرفة القديم (PIN)" style="margin-bottom: 15px;">
-                <button class="btn btn-action" onclick="loadExistingRoom()">استنساخ وفتح غرفة جديدة</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="screen" id="screen-teacher-setup">
-        <div class="q-builder-container">
-            <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
-            
-            <input type="text" id="quiz-title-input" placeholder="أدخل عنوان التحدي (مثال: اختبار الرياضيات)" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #ccc; border-radius: 8px; font-size: 18px; text-align: right;" required>
-
-            <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
-            <div id="questions-list"></div>
-            <button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
-            <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <button class="btn btn-primary" onclick="saveQuestionsToRoom()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
-                <button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="screen" id="screen-teacher">
-        <div style="width: 100%; text-align: center;">
-            <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
-                <h3 id="teacher-room-title-display" style="color: var(--primary); margin-bottom: 15px;"></h3>
-                <h2>انضموا الآن! رمز الغرفة:</h2>
-                <div class="room-pin" id="display-room-pin">000000</div>
-                <p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام...</p>
-                
-                <div id="qr-container" style="margin: 20px 0;">
-                    <img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
-                    <p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
-                </div>
-                <div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
-                    <input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
-                    <button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
-                </div>
-            </div>
-
-            <table id="leaderboard" style="display: none;">
-                <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
-                <tbody id="leaderboard-body"></tbody>
-            </table>
-            <div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
-                ⏳ بانتظار دخول الأبطال وحل الأسئلة...
-            </div>
-
-            <button class="btn btn-back" onclick="closeTeacherRoom()" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
-        </div>
-    </div>
-
-    <div class="screen" id="screen-student-login">
+    <div class="screen active" id="screen-student-login">
         <div class="card">
             <h2>أدخل بياناتك للانطلاق 🚀</h2>
             <input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
@@ -538,7 +471,6 @@
             <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
             <div class="avatar-grid" id="avatar-container"></div>
             <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
-            <button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
         </div>
     </div>
 
@@ -549,7 +481,7 @@
             <p style="color: #666; font-size: 22px; font-weight: bold; margin-top: 10px;">نهاية التحدي، رصيدك هو:</p>
             <h1 id="final-score-display-result" style="font-size: 90px; color: var(--primary); margin: 10px 0; text-shadow: 3px 3px 0px rgba(0,0,0,0.1);">0</h1>
             <p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--info);">جاري حفظ النتيجة...</p>
-            <button class="btn btn-primary" onclick="window.location.reload()" style="font-size: 22px; margin-top:15px;">العودة للرئيسية</button>
+            <button class="btn btn-primary" onclick="showScreen('screen-student-login')" style="font-size: 22px; margin-top:15px;">العودة للرئيسية</button>
         </div>
     </div>
 
@@ -1425,23 +1357,198 @@
             const randomIndex = Math.floor(Math.random() * globalGameQuestions.length);
             currentQuestion = globalGameQuestions[randomIndex];
 
-            questionText.textContent = currentQuestion.q;
-            optionsContainer.innerHTML = ''; 
+            const qType = currentQuestion.type || 'mc';
 
-            currentQuestion.opts.forEach((option, index) => {
-                const button = document.createElement('button');
-                button.classList.add('option-btn');
-                button.textContent = option;
-                button.dataset.index = index;
-                button.addEventListener('click', () => checkAnswer(index));
-                optionsContainer.appendChild(button);
-            });
+            // بناء محتوى السؤال مع دعم الصور والنص والرياضيات
+            let questionHTML = '';
+            if (currentQuestion.img) {
+                questionHTML += `<div style="margin-bottom:12px; text-align:center;">
+                    <img src="${currentQuestion.img}" alt="صورة السؤال"
+                        referrerpolicy="no-referrer" crossorigin="anonymous"
+                        onerror="this.style.display='none'"
+                        style="max-width:100%; max-height:220px; border-radius:10px; object-fit:contain; display:block; margin:0 auto;">
+                </div>`;
+            }
+            if (currentQuestion.textContent) {
+                questionHTML += currentQuestion.textContent;
+            } else {
+                questionHTML += currentQuestion.q || '';
+            }
+            questionText.innerHTML = questionHTML;
 
+            optionsContainer.innerHTML = '';
             feedbackMessage.style.display = 'none';
             continueBtn.style.display = 'none';
-            questionModal.style.display = 'flex';
 
+            if (qType === 'mc') {
+                // اختيار من متعدد
+                (currentQuestion.opts || []).forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-btn');
+                    button.innerHTML = option;
+                    button.dataset.index = index;
+                    button.addEventListener('click', () => checkAnswer(index));
+                    optionsContainer.appendChild(button);
+                });
+
+            } else if (qType === 'blanks') {
+                // إكمال فراغات
+                const blanks = currentQuestion.blanks || [];
+                let html = '<div style="display:flex;flex-direction:column;gap:8px;width:100%;">';
+                blanks.forEach((_, i) => {
+                    html += `<div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-weight:bold;color:#38bdf8;min-width:20px;">${i+1}.</span>
+                        <input type="text" id="d-blank-${i}" placeholder="الإجابة ${i+1}"
+                            style="flex:1;padding:10px;border:2px solid rgba(255,255,255,0.3);border-radius:8px;
+                            font-size:16px;font-family:'Cairo',sans-serif;text-align:right;
+                            background:rgba(0,0,0,0.4);color:white;">
+                    </div>`;
+                });
+                html += '</div>';
+                html += `<button onclick="checkBlanksAnswer()" style="margin-top:12px;width:100%;padding:12px;
+                    background:var(--primary);color:white;border:none;border-radius:8px;
+                    font-size:17px;font-weight:bold;cursor:pointer;font-family:'Cairo',sans-serif;">✔ تحقق</button>`;
+                optionsContainer.innerHTML = html;
+
+            } else if (qType === 'matching') {
+                // توصيل
+                const pairs = currentQuestion.pairs || [];
+                const shuffled = [...pairs.map(p => p.right)].sort(() => Math.random() - 0.5);
+                let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-bottom:8px;">
+                    <div style="font-weight:bold;color:#38bdf8;text-align:center;padding:4px;border-bottom:1px solid rgba(255,255,255,0.3);">العمود الأول</div>
+                    <div style="font-weight:bold;color:#38bdf8;text-align:center;padding:4px;border-bottom:1px solid rgba(255,255,255,0.3);">العمود الثاني</div>`;
+                pairs.forEach((pair, i) => {
+                    html += `<div style="padding:8px;background:rgba(255,255,255,0.15);border-radius:8px;text-align:center;color:white;font-size:14px;">${pair.left}</div>
+                        <select id="d-match-${i}" style="padding:8px;border:2px solid rgba(255,255,255,0.3);border-radius:8px;
+                            font-family:'Cairo',sans-serif;background:rgba(0,0,0,0.5);color:white;direction:rtl;width:100%;">
+                            <option value="">اختر...</option>
+                            ${shuffled.map(r => `<option value="${r}">${r}</option>`).join('')}
+                        </select>`;
+                });
+                html += `</div><button onclick="checkMatchingAnswer()" style="margin-top:8px;width:100%;padding:12px;
+                    background:var(--primary);color:white;border:none;border-radius:8px;
+                    font-size:17px;font-weight:bold;cursor:pointer;font-family:'Cairo',sans-serif;">✔ تحقق</button>`;
+                optionsContainer.innerHTML = html;
+
+            } else if (qType === 'dragdrop') {
+                // تصنيف
+                const zones = currentQuestion.zones || [];
+                const items = currentQuestion.items || [];
+                const shuffledItems = [...items].sort(() => Math.random() - 0.5);
+                let html = `<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+                    padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:8px;min-height:40px;" id="d-drag-bank">`;
+                shuffledItems.forEach((item, i) => {
+                    html += `<div draggable="true" id="d-ditem-${i}" data-idx="${i}" data-zone="${item.zoneIndex}"
+                        ondragstart="event.dataTransfer.setData('text',event.target.id)"
+                        onclick="dMobileSelect(this)"
+                        style="padding:7px 14px;background:var(--primary);color:white;border-radius:20px;
+                        cursor:grab;font-size:13px;font-weight:bold;user-select:none;">${item.text}</div>`;
+                });
+                html += `</div><div style="display:grid;grid-template-columns:${zones.map(()=>'1fr').join(' ')};gap:8px;margin-bottom:8px;">`;
+                zones.forEach((zone, zi) => {
+                    html += `<div id="d-dropzone-${zi}" data-zone="${zi}"
+                        ondragover="event.preventDefault()" ondrop="dDrop(event,${zi})" onclick="dMobileDrop(this,${zi})"
+                        style="min-height:70px;border:2px dashed rgba(255,255,255,0.4);border-radius:10px;
+                        padding:6px;text-align:center;background:rgba(0,0,0,0.3);">
+                        <div style="font-weight:bold;color:#38bdf8;font-size:13px;margin-bottom:4px;">${zone}</div>
+                    </div>`;
+                });
+                html += `</div><button onclick="checkDragAnswer()" style="width:100%;padding:12px;
+                    background:var(--primary);color:white;border:none;border-radius:8px;
+                    font-size:17px;font-weight:bold;cursor:pointer;font-family:'Cairo',sans-serif;">✔ تحقق</button>`;
+                optionsContainer.innerHTML = html;
+
+            } else if (qType === 'textslide') {
+                // شريحة نص - اعرض مباشرة وأظهر زر المتابعة
+                if (currentQuestion.textBg) questionText.style.backgroundColor = currentQuestion.textBg;
+                else questionText.style.backgroundColor = '';
+                continueBtn.style.display = 'block';
+                continueBtn.textContent = 'متابعة 🚀';
+            }
+
+            questionModal.style.display = 'flex';
             if (typeof MathJax !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub, questionModal]);
+        }
+
+        // --- دوال أنواع الأسئلة الإضافية ---
+        let dSelectedItem = null;
+        function dMobileSelect(el) {
+            if (dSelectedItem === el) { dSelectedItem = null; el.style.outline = ''; return; }
+            if (dSelectedItem) dSelectedItem.style.outline = '';
+            dSelectedItem = el; el.style.outline = '3px solid yellow';
+        }
+        function dMobileDrop(zoneEl, zi) {
+            if (dSelectedItem) { zoneEl.appendChild(dSelectedItem); dSelectedItem.style.outline = ''; dSelectedItem = null; }
+        }
+        function dDrop(event, zi) {
+            event.preventDefault();
+            const el = document.getElementById(event.dataTransfer.getData('text'));
+            if (el) document.getElementById(`d-dropzone-${zi}`).appendChild(el);
+        }
+
+        function checkBlanksAnswer() {
+            const blanks = currentQuestion.blanks || [];
+            let allCorrect = true;
+            blanks.forEach((correctAns, i) => {
+                const input = document.getElementById(`d-blank-${i}`);
+                if (!input) return;
+                const accepted = correctAns.split('/').map(a => a.trim().toLowerCase());
+                if (accepted.includes(input.value.trim().toLowerCase())) {
+                    input.style.borderColor = '#2ecc71';
+                } else {
+                    input.style.borderColor = '#e74c3c';
+                    allCorrect = false;
+                }
+                input.disabled = true;
+            });
+            _showFeedback(allCorrect);
+        }
+
+        function checkMatchingAnswer() {
+            const pairs = currentQuestion.pairs || [];
+            let allCorrect = true;
+            pairs.forEach((pair, i) => {
+                const sel = document.getElementById(`d-match-${i}`);
+                if (!sel) return;
+                if (sel.value === pair.right) { sel.style.borderColor = '#2ecc71'; }
+                else { sel.style.borderColor = '#e74c3c'; allCorrect = false; }
+                sel.disabled = true;
+            });
+            _showFeedback(allCorrect);
+        }
+
+        function checkDragAnswer() {
+            const items = currentQuestion.items || [];
+            let allCorrect = true;
+            items.forEach((item, i) => {
+                const el = document.getElementById(`d-ditem-${i}`);
+                if (!el) return;
+                const parent = el.closest('[id^="d-dropzone-"]');
+                if (!parent || parseInt(parent.dataset.zone) !== item.zoneIndex) {
+                    el.style.background = '#e74c3c'; allCorrect = false;
+                } else {
+                    el.style.background = '#2ecc71';
+                }
+                el.draggable = false;
+            });
+            _showFeedback(allCorrect);
+        }
+
+        function _showFeedback(isCorrect) {
+            if (isCorrect) {
+                feedbackMessage.textContent = "إجابة صحيحة! أحسنت.";
+                feedbackMessage.style.color = '#2ecc71';
+                feedbackMessage.style.display = 'block';
+                continueBtn.style.display = 'block';
+                if (!isMuted) { correctAnswerSound.currentTime = 0; correctAnswerSound.play().catch(e=>{}); }
+            } else {
+                feedbackMessage.textContent = "إجابة خاطئة. انتهى التحدي!";
+                feedbackMessage.style.color = '#e74c3c';
+                feedbackMessage.style.display = 'block';
+                if (!isMuted) { wrongAnswerSound.currentTime = 0; wrongAnswerSound.play().catch(e=>{}); }
+                setTimeout(() => endFlappyGame(), 1500);
+            }
+            optionsContainer.querySelector('button[onclick]') && (optionsContainer.querySelector('button[onclick]').disabled = true);
         }
 
         function checkAnswer(selectedIndex) {
@@ -1462,7 +1569,7 @@
                 feedbackMessage.style.color = '#e74c3c'; 
                 feedbackMessage.style.display = 'block';
                 if (!isMuted) { wrongAnswerSound.currentTime = 0; wrongAnswerSound.play().catch(e=>{}); }
-                setTimeout(() => endFlappyGame(), 1500); // الانتقال التلقائي للنتيجة
+                setTimeout(() => endFlappyGame(), 1500);
             }
         }
 
@@ -1489,7 +1596,6 @@
             if (urlParams.get('pin')) {
                 const pinInput = document.getElementById('input-room-pin');
                 if(pinInput) pinInput.value = urlParams.get('pin');
-                showScreen('screen-student-login');
             }
         };
     </script>
