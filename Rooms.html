@@ -556,12 +556,117 @@
     }
     .stats-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(224,123,0,0.4); }
 
+    /* ===== SORT & DATE TOOLBAR ===== */
+    .sort-toolbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .sort-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+    .sort-btn {
+      background: var(--unrwa-sky);
+      border: 1.5px solid var(--border);
+      color: var(--unrwa-blue-dk);
+      border-radius: 8px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: "Tajawal", sans-serif;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sort-btn:hover { border-color: var(--unrwa-blue); background: var(--unrwa-sky2); }
+    .sort-btn.active {
+      background: var(--unrwa-blue);
+      border-color: var(--unrwa-blue-dk);
+      color: white;
+    }
+    .sort-divider {
+      width: 1px; height: 28px;
+      background: var(--border);
+    }
+    .date-filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .date-input {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-family: "Tajawal", sans-serif;
+      color: var(--text);
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .date-input:focus { border-color: var(--unrwa-blue); }
+    .date-filter-btn {
+      background: var(--unrwa-blue);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: "Tajawal", sans-serif;
+      transition: all 0.2s;
+    }
+    .date-filter-btn:hover { background: var(--unrwa-blue-dk); }
+    .date-clear-btn {
+      background: var(--red-lt);
+      color: var(--red);
+      border: 1.5px solid #F0B4AE;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: "Tajawal", sans-serif;
+      transition: all 0.2s;
+      display: none;
+    }
+    .date-clear-btn.show { display: inline-flex; align-items: center; gap: 4px; }
+    .date-clear-btn:hover { background: #FDECEA; border-color: var(--red); }
+
+    /* ===== AUDIT STORAGE BADGE ===== */
+    .audit-saved-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--green-lt);
+      border: 1px solid #9ADBC3;
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 11px;
+      color: var(--green);
+      font-weight: 700;
+      margin-right: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+
     @media (max-width: 600px) {
       .top-bar { padding: 0 14px; flex-wrap: wrap; height: auto; padding: 12px 14px; gap: 10px; }
       .stats-bar { padding: 12px 14px; }
       .main { padding: 14px; }
       .rooms-grid { grid-template-columns: 1fr; }
       .filter-badge { margin: 10px 14px 0; }
+      .sort-toolbar { padding: 10px 14px; }
     }
   </style>
 </head>
@@ -582,6 +687,20 @@
     </div>
   </div>
   <div class="blue-stripe"></div>
+
+  <!-- SORT & DATE FILTER TOOLBAR -->
+  <div class="sort-toolbar">
+    <span class="sort-label">🔃 ترتيب:</span>
+    <button class="sort-btn active" id="sort-default" onclick="setSortMode('default')">🔢 افتراضي</button>
+    <button class="sort-btn" id="sort-asc" onclick="setSortMode('asc')">📅 تاريخ ↑ تصاعدي</button>
+    <button class="sort-btn" id="sort-desc" onclick="setSortMode('desc')">📅 تاريخ ↓ تنازلي</button>
+    <div class="sort-divider"></div>
+    <div class="date-filter-group">
+      <span class="sort-label">📆 فلتر بتاريخ:</span>
+      <input type="date" class="date-input" id="dateFilterInput" onchange="applyDateFilter()" />
+      <button class="date-clear-btn" id="dateClearBtn" onclick="clearDateFilter()">✕ مسح التاريخ</button>
+    </div>
+  </div>
 
   <!-- STATS BAR -->
   <div class="stats-bar">
@@ -653,9 +772,33 @@
 
 <script>
   const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+  const AUDIT_STORAGE_KEY = "unrwa_audit_states_v2";
 
   let currentFilter = "all";
+  let currentSortMode = "default";
+  let currentDateFilter = null;
   const auditStates = {};
+
+  // ===== LOAD / SAVE AUDIT STATES =====
+  function loadAuditStates() {
+    try {
+      const saved = localStorage.getItem(AUDIT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        Object.assign(auditStates, parsed);
+      }
+    } catch(e) {}
+  }
+
+  function saveAuditStates() {
+    try {
+      localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(auditStates));
+    } catch(e) {}
+  }
+
+  function getAuditCount() {
+    return Object.values(auditStates).filter(v => v === true).length;
+  }
 
   function hasEmoji(str) {
     const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F000}-\u{1F02F}\u{1F0A0}-\u{1F0FF}\u{1F100}-\u{1F1FF}\u{1F200}-\u{1F2FF}\u{1F004}\u{1F0CF}]/u;
@@ -677,6 +820,67 @@
       if (!isNaN(d)) return d.toLocaleDateString("ar-SA",{year:"numeric",month:"short",day:"numeric"});
     } catch(e) {}
     return String(val);
+  }
+
+  // Parse a student date value to a JS Date object for comparison
+  function parseStudentDate(val) {
+    if (!val) return null;
+    try {
+      if (typeof val === "string" && val.startsWith("Date(")) {
+        const parts = val.slice(5,-1).split(",").map(Number);
+        return new Date(parts[0], parts[1], parts[2], parts[3]||0, parts[4]||0);
+      }
+      const d = new Date(val);
+      if (!isNaN(d)) return d;
+    } catch(e) {}
+    return null;
+  }
+
+  // Get the earliest student date in a room (for sorting)
+  function getRoomEarliestDate(room) {
+    const dates = room.students.map(s => parseStudentDate(s.date)).filter(Boolean);
+    if (!dates.length) return null;
+    return new Date(Math.min(...dates.map(d => d.getTime())));
+  }
+
+  // Check if a room has any student with a matching date
+  function roomMatchesDate(room, targetDateStr) {
+    if (!targetDateStr) return true;
+    const target = new Date(targetDateStr);
+    target.setHours(0,0,0,0);
+    return room.students.some(s => {
+      const d = parseStudentDate(s.date);
+      if (!d) return false;
+      const dc = new Date(d); dc.setHours(0,0,0,0);
+      return dc.getTime() === target.getTime();
+    });
+  }
+
+  // ===== SORT MODE =====
+  function setSortMode(mode) {
+    currentSortMode = mode;
+    ["default","asc","desc"].forEach(m => {
+      const btn = document.getElementById("sort-" + m);
+      if (btn) btn.classList.toggle("active", m === mode);
+    });
+    renderRooms();
+  }
+
+  // ===== DATE FILTER =====
+  function applyDateFilter() {
+    const val = document.getElementById("dateFilterInput").value;
+    currentDateFilter = val || null;
+    const clearBtn = document.getElementById("dateClearBtn");
+    if (clearBtn) clearBtn.classList.toggle("show", !!val);
+    renderRooms();
+  }
+
+  function clearDateFilter() {
+    currentDateFilter = null;
+    document.getElementById("dateFilterInput").value = "";
+    const clearBtn = document.getElementById("dateClearBtn");
+    if (clearBtn) clearBtn.classList.remove("show");
+    renderRooms();
   }
 
   // ===== FILTER =====
@@ -701,10 +905,67 @@
       label.textContent = "⏳ عرض الغرف غير المدققة فقط";
       title.textContent = "⏳ الغرف غير المدققة";
     }
-    applyFilter();
+    renderRooms();
   }
 
-  function applyFilter() {
+  // ===== RENDER ROOMS (sort + filter + date) =====
+  function renderRooms() {
+    let rooms = [...allRoomsData];
+
+    // Apply date filter
+    if (currentDateFilter) {
+      rooms = rooms.filter(r => roomMatchesDate(r, currentDateFilter));
+    }
+
+    // Apply sort
+    if (currentSortMode === "asc") {
+      rooms.sort((a, b) => {
+        const da = getRoomEarliestDate(a), db = getRoomEarliestDate(b);
+        if (!da && !db) return 0;
+        if (!da) return 1;
+        if (!db) return -1;
+        return da - db;
+      });
+    } else if (currentSortMode === "desc") {
+      rooms.sort((a, b) => {
+        const da = getRoomEarliestDate(a), db = getRoomEarliestDate(b);
+        if (!da && !db) return 0;
+        if (!da) return 1;
+        if (!db) return -1;
+        return db - da;
+      });
+    }
+
+    const grid = document.getElementById("roomsGrid");
+    grid.innerHTML = "";
+    if (rooms.length === 0) {
+      grid.innerHTML = "<div style='color:var(--muted);padding:40px;text-align:center;'>لا توجد غرف تطابق الفلتر المحدد</div>";
+      return;
+    }
+    rooms.forEach((room, i) => {
+      const origIdx = allRoomsData.indexOf(room);
+      const card = buildRoomCard(room, origIdx);
+      grid.appendChild(card);
+    });
+
+    // Re-apply audit visual states
+    Object.entries(auditStates).forEach(([roomId, checked]) => {
+      const card = document.getElementById("card-" + roomId);
+      const cb = document.getElementById("chk-" + roomId);
+      const ts = document.getElementById("ts-" + roomId);
+      if (card && cb && checked) {
+        cb.checked = true;
+        card.classList.add("audited");
+        if (ts && !ts.textContent) ts.textContent = "✓ محفوظ";
+      }
+    });
+
+    // Apply status filter
+    applyStatusFilter();
+    updateAuditStats();
+  }
+
+  function applyStatusFilter() {
     document.querySelectorAll(".room-card").forEach(card => {
       const isAudited = card.classList.contains("audited");
       if (currentFilter === "all") card.style.display = "";
@@ -719,7 +980,7 @@
     const audited = [...cards].filter(c => c.classList.contains("audited")).length;
     document.getElementById("stat-audited").textContent = audited;
     document.getElementById("stat-not-audited").textContent = cards.length - audited;
-    applyFilter();
+    applyStatusFilter();
   }
 
   function toggleAudit(roomId, checkboxId, tsId) {
@@ -727,14 +988,35 @@
     const card = document.getElementById("card-" + roomId);
     const ts   = document.getElementById(tsId);
     auditStates[roomId] = cb.checked;
+    saveAuditStates();
     if (cb.checked) {
       card.classList.add("audited");
-      ts.textContent = "✓ تم التدقيق " + new Date().toLocaleTimeString("ar-SA");
+      const now = new Date().toLocaleTimeString("ar-SA");
+      ts.textContent = "✓ تم التدقيق " + now;
+      auditStates[roomId + "__ts"] = now;
+      saveAuditStates();
     } else {
       card.classList.remove("audited");
       ts.textContent = "";
+      delete auditStates[roomId + "__ts"];
+      saveAuditStates();
     }
     updateAuditStats();
+    updateSavedBadge();
+  }
+
+  function updateSavedBadge() {
+    const count = getAuditCount();
+    let badge = document.getElementById("auditSavedBadge");
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.id = "auditSavedBadge";
+      badge.className = "audit-saved-badge";
+      const bar = document.querySelector(".stats-bar");
+      if (bar) bar.appendChild(badge);
+    }
+    badge.innerHTML = `💾 ${count} غرفة محفوظة`;
+    badge.style.display = count > 0 ? "inline-flex" : "none";
   }
 
   // ===== QUESTIONS =====
@@ -812,6 +1094,12 @@
         <div class="teacher-chip"><span class="chip-icon">👨‍🏫</span><span class="chip-label">المعلم</span>${room.teacherName||'—'}</div>
         <div class="teacher-chip"><span class="chip-icon">🏫</span><span class="chip-label">المدرسة</span>${room.schoolName||'—'}</div>
       </div>` : `<div class="teacher-info-bar"><span class="no-teacher">لا توجد معلومات معلم لهذه الغرفة</span></div>`;
+
+    // Check saved audit state
+    const savedAudited = auditStates[roomId] === true;
+    const savedTs = auditStates[roomId + "__ts"] || "";
+    if (savedAudited) card.classList.add("audited");
+
     card.innerHTML = `
       <div class="room-header">
         <div class="room-number">
@@ -832,11 +1120,11 @@
       </div>
       <div class="audit-bar">
         <label class="audit-label">
-          <input type="checkbox" id="chk-${roomId}" onchange="toggleAudit('${roomId}','chk-${roomId}','ts-${roomId}')">
+          <input type="checkbox" id="chk-${roomId}" ${savedAudited?"checked":""} onchange="toggleAudit('${roomId}','chk-${roomId}','ts-${roomId}')">
           <span class="audit-box">✓</span>
           <span class="audit-text">تم التدقيق</span>
         </label>
-        <span class="audit-timestamp" id="ts-${roomId}"></span>
+        <span class="audit-timestamp" id="ts-${roomId}">${savedAudited && savedTs ? "✓ تم التدقيق " + savedTs : ""}</span>
       </div>`;
     return card;
   }
@@ -873,19 +1161,22 @@
     if (!rooms.length) { body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;">لا توجد بيانات</div>'; return; }
 
     if (tab === 'schools') {
-      // تجميع حسب المدارس
       const schoolMap = {};
       rooms.forEach(r => {
         const school = r.schoolName || 'غير محدد';
-        if (!schoolMap[school]) schoolMap[school] = { rooms: 0, students: 0, teachers: new Set() };
+        if (!schoolMap[school]) schoolMap[school] = { rooms: 0, students: 0, teachers: new Set(), audited: 0 };
         schoolMap[school].rooms++;
         schoolMap[school].students += r.students.length;
         if (r.teacherName) schoolMap[school].teachers.add(r.teacherName);
+        // count audited rooms
+        const idx = allRoomsData.indexOf(r);
+        if (auditStates["room-" + idx]) schoolMap[school].audited++;
       });
       const sorted = Object.entries(schoolMap).sort((a,b) => b[1].rooms - a[1].rooms);
       const maxRooms = sorted[0]?.[1].rooms || 1;
       const medals = ['gold','silver','bronze'];
       body.innerHTML = `
+        <div style="margin-bottom:14px;font-size:13px;color:var(--muted);">إجمالي المدارس المشاركة: <strong style="color:var(--unrwa-blue)">${sorted.length}</strong></div>
         <table class="stat-table">
           <thead><tr>
             <th>#</th>
@@ -893,6 +1184,7 @@
             <th>عدد الغرف</th>
             <th>الطلاب</th>
             <th>المعلمون</th>
+            <th>مدققة ✅</th>
           </tr></thead>
           <tbody>
             ${sorted.map(([school, d], i) => `
@@ -907,23 +1199,26 @@
                 </td>
                 <td><span class="students-num">👥 ${d.students}</span></td>
                 <td><span class="students-num">👨‍🏫 ${d.teachers.size}</span></td>
+                <td><span class="students-num" style="color:var(--green)">✅ ${d.audited}</span></td>
               </tr>`).join('')}
           </tbody>
         </table>`;
     } else {
-      // تجميع حسب المعلمين
       const teacherMap = {};
       rooms.forEach(r => {
         const teacher = r.teacherName || 'غير محدد';
         const school = r.schoolName || 'غير محدد';
-        if (!teacherMap[teacher]) teacherMap[teacher] = { rooms: 0, students: 0, school };
+        if (!teacherMap[teacher]) teacherMap[teacher] = { rooms: 0, students: 0, school, audited: 0 };
         teacherMap[teacher].rooms++;
         teacherMap[teacher].students += r.students.length;
+        const idx = allRoomsData.indexOf(r);
+        if (auditStates["room-" + idx]) teacherMap[teacher].audited++;
       });
       const sorted = Object.entries(teacherMap).sort((a,b) => b[1].rooms - a[1].rooms);
       const maxRooms = sorted[0]?.[1].rooms || 1;
       const medals = ['gold','silver','bronze'];
       body.innerHTML = `
+        <div style="margin-bottom:14px;font-size:13px;color:var(--muted);">إجمالي المعلمين المشاركين: <strong style="color:var(--unrwa-blue)">${sorted.length}</strong></div>
         <table class="stat-table">
           <thead><tr>
             <th>#</th>
@@ -931,6 +1226,7 @@
             <th>المدرسة</th>
             <th>عدد الغرف</th>
             <th>الطلاب</th>
+            <th>مدققة ✅</th>
           </tr></thead>
           <tbody>
             ${sorted.map(([teacher, d], i) => `
@@ -945,6 +1241,7 @@
                   </div>
                 </td>
                 <td><span class="students-num">👥 ${d.students}</span></td>
+                <td><span class="students-num" style="color:var(--green)">✅ ${d.audited}</span></td>
               </tr>`).join('')}
           </tbody>
         </table>`;
@@ -969,8 +1266,7 @@
       const allRows = json.table.rows;
       if (!allRows || allRows.length === 0) throw new Error("لا توجد بيانات في الجدول");
       const rows = allRows.slice(19);
-      // استخراج معلومات المعلم أولاً (سطر معلومات المعلم)
-      const teacherMap = {}; // رقم الغرفة -> { teacherName, schoolName }
+      const teacherMap = {};
       rows.forEach(row => {
         const col0 = row.c[0]?(row.c[0].v!==null?String(row.c[0].v).trim():""):"";
         const col1 = row.c[1]?(row.c[1].v!==null?String(row.c[1].v).trim():""):"";
@@ -991,7 +1287,7 @@
         const col2 = row.c[2]?(row.c[2].v!==null?row.c[2].v:null):null;
         const col3 = row.c[3]?(row.c[3].v!==null?row.c[3].v:null):null;
         if (!col0) return;
-        if (col0 === "معلومات المعلم") return; // تخطي سطر المعلم
+        if (col0 === "معلومات المعلم") return;
         if (isRoomNumber(col0)) {
           const info = teacherMap[col0] || { teacherName: "", schoolName: "" };
           currentRoom = { number: col0, questions: col1?String(col1):"", students: [], teacherName: info.teacherName, schoolName: info.schoolName };
@@ -1006,19 +1302,15 @@
       document.getElementById("stat-students").textContent = totalStudents;
       document.getElementById("stat-top").textContent = allScores.length?Math.max(...allScores):0;
       document.getElementById("stat-avg").textContent = allScores.length?Math.round(allScores.reduce((a,b)=>a+b,0)/allScores.length):0;
-      const grid = document.getElementById("roomsGrid");
-      grid.innerHTML = "";
+
       allRoomsData = rooms;
-      if (rooms.length === 0) {
-        grid.innerHTML = "<div style='color:var(--muted);padding:40px;text-align:center;'>لم يتم العثور على غرف من السطر 20</div>";
-      } else {
-        rooms.forEach((room,i) => grid.appendChild(buildRoomCard(room, i)));
-      }
       loading.style.display = "none";
       errorState.style.display = "none";
       roomsContainer.style.display = "block";
       document.getElementById("last-update").textContent = new Date().toLocaleTimeString("ar-SA");
-      updateAuditStats();
+
+      renderRooms();
+      updateSavedBadge();
     } catch(err) {
       loading.style.display = "none";
       errorState.style.display = "block";
@@ -1026,8 +1318,8 @@
     }
   }
 
-
-
+  // Load saved audit states then fetch data
+  loadAuditStates();
   loadData();
 </script>
 </body>
