@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>📝 لوحة المعلم - إنشاء الأسئلة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/mathlive"></script>
+<style>
+    :root {
+        --primary: #46178f;
+        --primary-dark: #321067;
+        --secondary: #eb2730;
+        --success: #26890c;
+        --info: #1368ce;
+        --warning: #ffa602;
+        --light: #f2f2f2;
+        --white: #ffffff;
+        --k-red: #e21b3c;
+        --k-red-dark: #b81631;
+        --k-blue: #1368ce;
+        --k-blue-dark: #0f54a8;
+        --k-yellow: #d89e00;
+        --k-yellow-dark: #b08100;
+        --k-green: #26890c;
+        --k-green-dark: #1e6d0a;
+        --word-blue: #2b579a;
+        --math-bg: #f3f2f1;
+        --key-bg: #ffffff;
+        --key-border: #d2d2d2;
+        --key-hover: #e1dfdd;
+        --action-bg: #adb5bd;
+        --kb-bg: #d1d4d9;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+    body {
+        background: linear-gradient(-45deg, #46178f, #1368ce, #e21b3c, #ffa602);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* ===== SCREENS ===== */
+    .screen {
+        display: none; width: 100%; max-width: 950px; padding: 20px;
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        flex-direction: column; align-items: center; justify-content: flex-start;
+        min-height: 100vh; position: relative; z-index: 10;
+        padding-top: 30px;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.9) translateY(30px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .card {
+        background: rgba(255,255,255,0.97); padding: 40px; border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; text-align: center;
+        backdrop-filter: blur(10px);
+    }
+
+    h1 { color: var(--primary); margin-bottom: 20px; font-size: 38px; }
+    h2 { color: #333; margin-bottom: 20px; font-size: 26px; }
+
+    .btn {
+        width: 100%; padding: 16px; border: none; border-radius: 8px;
+        font-size: 18px; font-weight: 900; cursor: pointer;
+        margin-bottom: 15px; color: var(--white);
+        transition: all 0.1s; position: relative; top: 0;
+        box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+    }
+    .btn:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0.2); }
+    .btn-primary { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
+    .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; }
+    .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark); }
+    .btn-green { background-color: var(--k-green); box-shadow: 0 6px 0 var(--k-green-dark); }
+    .btn-blue { background-color: var(--k-blue); box-shadow: 0 6px 0 var(--k-blue-dark); }
+
+    input[type="text"], input[type="number"], input[type="url"] {
+        width: 100%; padding: 14px; margin-bottom: 15px;
+        border: 3px solid #ddd; border-radius: 8px;
+        font-size: 16px; font-weight: bold; text-align: right;
+        transition: border-color 0.3s; font-family: 'Cairo', sans-serif;
+    }
+    input:focus { outline: none; border-color: var(--primary); }
+
+    /* ===== HOME SCREEN ===== */
+    .home-logo { font-size: 80px; margin-bottom: 10px; }
+
+    /* ===== QUESTION BUILDER ===== */
+    .q-builder-container {
+        width: 100%; background: rgba(255,255,255,0.97);
+        padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        text-align: right;
+    }
+
+    .section-nav {
+        display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap;
+    }
+    .section-nav .btn {
+        flex: 1; padding: 13px; font-size: 14px; margin-bottom: 0; min-width: 120px;
+    }
+
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    .q-block {
+        background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 20px;
+        border: 2px solid #eee; position: relative;
+    }
+    .q-block h3 {
+        margin-bottom: 15px; color: var(--primary);
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 18px;
+    }
+    .remove-q-btn {
+        background: var(--k-red); color: white; border: none;
+        padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;
+    }
+
+    .type-selector { margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .type-btn {
+        padding: 8px 14px; border: 2px solid #ddd; border-radius: 20px;
+        cursor: pointer; background: white; font-weight: bold; transition: 0.2s;
+        font-size: 13px; font-family: 'Cairo', sans-serif;
+    }
+    .type-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .q-input-row {
+        display: flex; gap: 10px; margin-bottom: 10px; align-items: center;
+    }
+    .q-title-input {
+        flex: 1; padding: 12px; border: 2px solid #ccc;
+        border-radius: 8px; font-size: 16px; text-align: right;
+        font-family: 'Cairo', sans-serif;
+    }
+    .q-time-input, .q-points-input {
+        width: 85px; padding: 12px; border: 2px solid #ccc; border-radius: 8px;
+        font-size: 14px; text-align: center; font-family: 'Cairo', sans-serif; margin-bottom: 0;
+    }
+
+    .math-trigger-btn {
+        background: var(--primary); color: white; border: none; border-radius: 8px;
+        padding: 0 14px; cursor: pointer; font-size: 20px;
+        display: flex; align-items: center; justify-content: center;
+        transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 0 var(--primary-dark);
+        height: 48px;
+    }
+    .math-trigger-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--primary-dark); }
+
+    .opt-row {
+        display: flex; align-items: center; margin-bottom: 10px; gap: 10px;
+    }
+    .opt-row input[type="text"] {
+        flex: 1; padding: 10px; margin-bottom: 0;
+        border: 2px solid #ccc; border-radius: 8px; font-size: 15px; text-align: right;
+    }
+    .opt-row input[type="radio"] {
+        width: 22px; height: 22px; accent-color: var(--success); cursor: pointer; flex-shrink: 0;
+    }
+
+    .q-editor-content {
+        margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;
+    }
+
+    .matching-pair, .drag-item {
+        display: flex; gap: 10px; align-items: center; margin-bottom: 10px;
+    }
+    .zone-name, .drag-text, .match-left, .match-right, .q-blank-input {
+        padding: 10px; border: 2px solid #ccc; border-radius: 8px;
+        font-size: 15px; text-align: right; font-family: 'Cairo', sans-serif;
+    }
+    .drag-zone {
+        padding: 10px; border-radius: 8px; border: 2px solid #ccc;
+        font-family: 'Cairo', sans-serif; font-size: 14px;
+    }
+    .matching-pair input, .drag-item input { flex: 1; }
+
+    .add-btn {
+        background: #eee; border: 1px solid #ccc; padding: 7px 14px;
+        border-radius: 5px; cursor: pointer; font-size: 14px; margin-top: 5px;
+        font-family: 'Cairo', sans-serif;
+    }
+    .add-btn:hover { background: #e0e0e0; }
+
+    /* ===== IMAGE SEARCH ===== */
+    .img-search-container {
+        background: #f8f9fa; border: 2px solid #ccc; padding: 15px;
+        border-radius: 10px; margin-bottom: 15px; display: none;
+    }
+    .img-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px; max-height: 320px; overflow-y: auto; margin-top: 10px;
+        padding: 4px;
+    }
+    .img-result {
+        width: 100%; height: 100px; object-fit: cover; border-radius: 8px;
+        cursor: pointer; border: 3px solid transparent; transition: all 0.2s;
+        display: block;
+    }
+    .img-result:hover { border-color: var(--primary); transform: scale(1.04); box-shadow: 0 4px 12px rgba(70,23,143,0.25); }
+    .q-image-input {
+        width: 100%; padding: 10px; border: 2px solid #ccc; border-radius: 8px;
+        direction: ltr; margin-top: 10px; margin-bottom: 5px;
+    }
+    .img-preview-box { margin-top: 10px; text-align: center; display: none; }
+    .img-preview-box img { max-height: 140px; border-radius: 10px; border: 3px solid var(--primary); }
+
+    /* ===== TEACHER ROOM SCREEN ===== */
+    .room-card {
+        background: white; border-radius: 20px; padding: 35px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; text-align: center;
+        margin-bottom: 20px;
+    }
+    .room-pin {
+        font-size: 72px; font-weight: 900; letter-spacing: 6px;
+        color: var(--primary); margin: 15px 0;
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+    }
+    .teacher-badge {
+        background: linear-gradient(135deg, var(--primary), var(--k-blue));
+        color: white; border-radius: 14px; padding: 14px 22px;
+        margin: 10px 0 20px 0; display: flex; align-items: center;
+        justify-content: center; gap: 12px; flex-wrap: wrap;
+        box-shadow: 0 6px 18px rgba(70,23,143,0.25);
+    }
+    .teacher-badge span { font-size: 18px; font-weight: 700; }
+
+    .share-row { display: flex; gap: 10px; margin-top: 20px; }
+    .share-row input { margin-bottom: 0; flex: 1; font-size: 13px; direction: ltr; }
+    .share-row .btn { margin-bottom: 0; width: auto; padding: 0 25px; }
+
+    table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 20px; }
+    th, td { padding: 16px; text-align: center; font-size: 18px; background: white; }
+    th { background: var(--primary); color: white; font-weight: 900; }
+    tr td:first-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+    tr td:last-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+    tbody tr { box-shadow: 0 3px 10px rgba(0,0,0,0.08); transition: transform 0.2s; }
+    tbody tr:hover { transform: scale(1.02); }
+
+    /* ===== MATH MODAL ===== */
+    #math-modal-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); z-index: 99999;
+        align-items: center; justify-content: center; backdrop-filter: blur(5px);
+    }
+    .math-modal-content {
+        width: 95%; max-width: 800px; background: var(--math-bg);
+        border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid #d2d2d2;
+    }
+    .math-header {
+        background-color: var(--word-blue); color: white; padding: 15px;
+        font-weight: 600; font-size: 1.1rem;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .math-close-btn {
+        background: var(--success); color: white; border: none;
+        padding: 8px 18px; border-radius: 6px; cursor: pointer;
+        font-weight: bold; font-size: 16px; font-family: 'Cairo', sans-serif;
+    }
+    .math-editor-container { padding: 20px 10px; display: flex; justify-content: center; background: white; }
+    math-field {
+        font-size: 1.8rem; width: 100%; min-height: 110px;
+        border: 2px solid var(--word-blue); padding: 15px;
+        border-radius: 8px; background: #fff; outline: none;
+    }
+    .math-keyboard-wrapper { background: var(--kb-bg); border-top: 1px solid #bbb; }
+    .math-keyboard-tabs { display: flex; background: #e9ecef; border-bottom: 1px solid #ccc; overflow-x: auto; }
+    .math-tab {
+        flex: 1; min-width: 80px; padding: 12px 5px; text-align: center;
+        font-size: 0.9rem; cursor: pointer; color: #555; transition: 0.2s;
+        white-space: nowrap; font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .math-tab.active { background: white; font-weight: bold; color: var(--word-blue); }
+    .custom-keyboard {
+        padding: 5px; display: none; flex-direction: column; gap: 5px;
+        user-select: none; max-height: 310px; overflow-y: auto;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .custom-keyboard.active { display: flex; }
+    .kb-row { display: flex; justify-content: center; gap: 4px; width: 100%; }
+    .key {
+        background: var(--key-bg); border: none; border-bottom: 2px solid #999;
+        border-radius: 5px; height: 48px; flex: 1; min-width: 33px; max-width: 58px;
+        font-size: 1.15rem; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: #333; touch-action: manipulation;
+    }
+    .key:active { background: var(--key-hover); transform: translateY(1px); border-bottom-width: 1px; }
+    .key.action { background: var(--action-bg); color: white; font-size: 0.95rem; max-width: none; }
+    .key.num { background: #f8f9fa; font-weight: bold; border-color: #bbb; }
+    .key.space { flex: 5; max-width: none; background: #f8f9fa; font-size: 0.95rem; color: #444; font-weight: bold; }
+    .math-icon { display: inline-flex; align-items: center; justify-content: center; font-family: 'Times New Roman', serif; font-style: italic; pointer-events: none; }
+    .frac-icon { flex-direction: column; font-size: 0.75em; line-height: 1.1; }
+    .frac-icon .line { border-top: 1px solid #333; width: 12px; margin: 1px 0; }
+    .root-icon { align-items: center; }
+    .root-icon .radicand { border-top: 1.2px solid #333; padding-top: 1px; margin-left: 1px; font-style: italic; }
+
+    /* ===== LOADING ===== */
+    #loading-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(70,23,143,0.95); z-index: 9999;
+        flex-direction: column; align-items: center; justify-content: center;
+        color: white; backdrop-filter: blur(5px);
+    }
+    .loader-spinner {
+        border: 8px solid rgba(255,255,255,0.3); border-top: 8px solid white;
+        border-radius: 50%; width: 80px; height: 80px;
+        animation: spin 1s linear infinite; margin-bottom: 20px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* ===== RECOVER SECTION ===== */
+    .recover-box {
+        background: #f3f2f1; padding: 22px; border-radius: 12px;
+        margin-bottom: 25px; border: 2px dashed #ccc;
+    }
+    .recover-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .recover-row input { margin-bottom: 0; flex: 2; min-width: 200px; }
+    .recover-row .btn { margin-bottom: 0; flex: 1; min-width: 130px; }
+
+    /* ===== IMPORT SECTION ===== */
+    .import-box {
+        background: #e9ecef; padding: 22px; border-radius: 12px;
+        margin-bottom: 25px; border: 2px dashed #adb5bd;
+    }
+    textarea {
+        width: 100%; padding: 14px; border-radius: 8px; border: 2px solid #ccc;
+        font-family: monospace; font-size: 15px; direction: ltr;
+        text-align: left; resize: vertical;
+    }
+
+    /* ===== SAVING STATUS ===== */
+    .saving-status {
+        color: var(--primary); font-weight: bold; font-size: 17px; margin: 12px 0;
+    }
+
+    /* ===== QR ===== */
+    #room-qr-code {
+        width: 200px; height: 200px; border-radius: 12px;
+        border: 6px solid var(--primary); display: none; margin: 0 auto;
+    }
+
+    /* ===== LEADERBOARD ===== */
+    #loading-board {
+        background: rgba(255,255,255,0.9); padding: 25px; border-radius: 15px;
+        font-size: 22px; font-weight: bold; color: var(--primary); margin-top: 15px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+        .room-pin { font-size: 52px; }
+        h1 { font-size: 28px; }
+        .q-builder-container { padding: 15px; }
+        .key { height: 44px; font-size: 0.95rem; }
+        .section-nav .btn { font-size: 13px; padding: 10px; }
+    }
+
+    .tag-label {
+        display: block; font-weight: bold; color: var(--primary);
+        margin-bottom: 6px; font-size: 15px;
+    }
+    .field-group { flex: 1; min-width: 180px; }
+    .flex-row { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay">
+    <div class="loader-spinner"></div>
+    <div style="font-size: 26px; font-weight: bold;" id="loading-text">جاري المعالجة...</div>
+</div>
+
+<!-- Math Modal -->
+<div id="math-modal-overlay">
+    <div class="math-modal-content">
+        <div class="math-header">
+            <span>📝 محرر الرياضيات الشامل</span>
+            <button class="math-close-btn" onclick="closeMathModal()">✓ إدراج وحفظ</button>
+        </div>
+        <div class="math-editor-container">
+            <math-field id="formula" virtual-keyboard-policy="manual"></math-field>
+        </div>
+        <div class="math-keyboard-wrapper">
+            <div class="math-keyboard-tabs">
+                <div class="math-tab active" onclick="showMathTab('math_combined', event)">الأرقام والرموز</div>
+                <div class="math-tab" onclick="showMathTab('letters', event)">عربي</div>
+                <div class="math-tab" onclick="showMathTab('english', event)">English</div>
+            </div>
+            <div class="custom-keyboard active" id="math_combined">
+                <div class="kb-row">
+                    <button class="key num" onpointerdown="addMath('1',event)">1</button><button class="key num" onpointerdown="addMath('2',event)">2</button><button class="key num" onpointerdown="addMath('3',event)">3</button><button class="key num" onpointerdown="addMath('4',event)">4</button><button class="key num" onpointerdown="addMath('5',event)">5</button><button class="key num" onpointerdown="addMath('6',event)">6</button><button class="key num" onpointerdown="addMath('7',event)">7</button><button class="key num" onpointerdown="addMath('8',event)">8</button><button class="key num" onpointerdown="addMath('9',event)">9</button><button class="key num" onpointerdown="addMath('0',event)">0</button>
+                </div>
+                <div class="kb-row">
+                    <button class="key action" onpointerdown="addMath('+',event)">+</button><button class="key action" onpointerdown="addMath('-',event)">-</button><button class="key action" onpointerdown="addMath('\\times',event)">×</button><button class="key action" onpointerdown="addMath('\\div',event)">÷</button><button class="key action" onpointerdown="addMath('=',event)">=</button><button class="key" onpointerdown="addMath('.',event)">.</button><button class="key" onpointerdown="insertMathCode('&lt;',event)">&lt;</button><button class="key" onpointerdown="insertMathCode('&gt;',event)">&gt;</button><button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button>
+                </div>
+                <div class="kb-row">
+                    <button class="key" onpointerdown="insertMathCode('\\frac{#@}{#?}',event)"><span class="math-icon frac-icon"><span>a</span><span class="line"></span><span>b</span></span></button><button class="key" onpointerdown="insertMathCode('^{#?}',event)"><span class="math-icon">x<sup style="font-size:0.7em;">n</sup></span></button><button class="key" onpointerdown="insertMathCode('\\sqrt{#?}',event)"><span class="math-icon root-icon"><span>√</span><span class="radicand">x</span></span></button><button class="key" onpointerdown="insertMathCode('\\sqrt[#?]{#?}',event)"><span class="math-icon root-icon"><sup style="font-size:0.5em;font-style:normal;">n</sup><span>√</span><span class="radicand">x</span></span></button><button class="key" onpointerdown="insertMathCode('\\le',event)">≤</button><button class="key" onpointerdown="insertMathCode('\\ge',event)">≥</button><button class="key" onpointerdown="insertMathCode('\\neq',event)">≠</button><button class="key" onpointerdown="insertMathCode('\\approx',event)">≈</button>
+                </div>
+                <div class="kb-row">
+                    <button class="key" onpointerdown="insertMathCode('^\\circ',event)">°</button><button class="key" onpointerdown="insertMathCode('\\angle',event)">∠</button><button class="key" onpointerdown="insertMathCode('\\pi',event)">π</button><button class="key" onpointerdown="insertMathCode('\\infty',event)">∞</button><button class="key" onpointerdown="insertMathCode('\\Delta',event)">Δ</button><button class="key" onpointerdown="insertMathCode('\\pm',event)">±</button><button class="key" onpointerdown="insertMathCode('\\{',event)">{</button><button class="key" onpointerdown="insertMathCode('\\}',event)">}</button><button class="key" onpointerdown="insertMathCode('(',event)">(</button><button class="key" onpointerdown="insertMathCode(')',event)">)</button>
+                </div>
+                <div class="kb-row">
+                    <button class="key" onpointerdown="insertMathCode('\\sin',event)">sin</button><button class="key" onpointerdown="insertMathCode('\\cos',event)">cos</button><button class="key" onpointerdown="insertMathCode('\\tan',event)">tan</button><button class="key" onpointerdown="insertMathCode('\\theta',event)">θ</button><button class="key" onpointerdown="insertMathCode('\\alpha',event)">α</button><button class="key" onpointerdown="insertMathCode('\\int',event)">∫</button><button class="key" onpointerdown="insertMathCode('\\sum',event)">Σ</button><button class="key space" onpointerdown="addMathSpace(event)">مسافة</button>
+                </div>
+            </div>
+            <div class="custom-keyboard" id="letters">
+                <div class="kb-row"><button class="key" onpointerdown="addMath('ض',event)">ض</button><button class="key" onpointerdown="addMath('ص',event)">ص</button><button class="key" onpointerdown="addMath('ث',event)">ث</button><button class="key" onpointerdown="addMath('ق',event)">ق</button><button class="key" onpointerdown="addMath('ف',event)">ف</button><button class="key" onpointerdown="addMath('غ',event)">غ</button><button class="key" onpointerdown="addMath('ع',event)">ع</button><button class="key" onpointerdown="addMath('ه',event)">ه</button><button class="key" onpointerdown="addMath('خ',event)">خ</button><button class="key" onpointerdown="addMath('ح',event)">ح</button><button class="key" onpointerdown="addMath('ج',event)">ج</button></div>
+                <div class="kb-row"><button class="key" onpointerdown="addMath('ش',event)">ش</button><button class="key" onpointerdown="addMath('س',event)">س</button><button class="key" onpointerdown="addMath('ي',event)">ي</button><button class="key" onpointerdown="addMath('ب',event)">ب</button><button class="key" onpointerdown="addMath('ل',event)">ل</button><button class="key" onpointerdown="addMath('ا',event)">ا</button><button class="key" onpointerdown="addMath('ت',event)">ت</button><button class="key" onpointerdown="addMath('ن',event)">ن</button><button class="key" onpointerdown="addMath('م',event)">م</button><button class="key" onpointerdown="addMath('ك',event)">ك</button><button class="key" onpointerdown="addMath('ط',event)">ط</button></div>
+                <div class="kb-row"><button class="key" onpointerdown="addMath('ئ',event)">ئ</button><button class="key" onpointerdown="addMath('ء',event)">ء</button><button class="key" onpointerdown="addMath('ؤ',event)">ؤ</button><button class="key" onpointerdown="addMath('ر',event)">ر</button><button class="key" onpointerdown="addMath('ى',event)">ى</button><button class="key" onpointerdown="addMath('ة',event)">ة</button><button class="key" onpointerdown="addMath('و',event)">و</button><button class="key" onpointerdown="addMath('ز',event)">ز</button><button class="key" onpointerdown="addMath('ظ',event)">ظ</button><button class="key" onpointerdown="addMath('د',event)">د</button><button class="key" onpointerdown="addMath('ذ',event)">ذ</button></div>
+                <div class="kb-row"><button class="key" onpointerdown="addMath('أ',event)">أ</button><button class="key" onpointerdown="addMath('إ',event)">إ</button><button class="key" onpointerdown="addMath('آ',event)">آ</button><button class="key" onpointerdown="addMath('؟',event)">؟</button><button class="key space" onpointerdown="addMathSpace(event)">مسافة</button><button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫ حذف</button></div>
+            </div>
+            <div class="custom-keyboard" id="english">
+                <div class="kb-row"><button class="key" onpointerdown="addMath('q',event)">q</button><button class="key" onpointerdown="addMath('w',event)">w</button><button class="key" onpointerdown="addMath('e',event)">e</button><button class="key" onpointerdown="addMath('r',event)">r</button><button class="key" onpointerdown="addMath('t',event)">t</button><button class="key" onpointerdown="addMath('y',event)">y</button><button class="key" onpointerdown="addMath('u',event)">u</button><button class="key" onpointerdown="addMath('i',event)">i</button><button class="key" onpointerdown="addMath('o',event)">o</button><button class="key" onpointerdown="addMath('p',event)">p</button></div>
+                <div class="kb-row"><button class="key" onpointerdown="addMath('a',event)">a</button><button class="key" onpointerdown="addMath('s',event)">s</button><button class="key" onpointerdown="addMath('d',event)">d</button><button class="key" onpointerdown="addMath('f',event)">f</button><button class="key" onpointerdown="addMath('g',event)">g</button><button class="key" onpointerdown="addMath('h',event)">h</button><button class="key" onpointerdown="addMath('j',event)">j</button><button class="key" onpointerdown="addMath('k',event)">k</button><button class="key" onpointerdown="addMath('l',event)">l</button></div>
+                <div class="kb-row"><button class="key" onpointerdown="addMath('z',event)">z</button><button class="key" onpointerdown="addMath('x',event)">x</button><button class="key" onpointerdown="addMath('c',event)">c</button><button class="key" onpointerdown="addMath('v',event)">v</button><button class="key" onpointerdown="addMath('b',event)">b</button><button class="key" onpointerdown="addMath('n',event)">n</button><button class="key" onpointerdown="addMath('m',event)">m</button><button class="key action" onpointerdown="backspaceMath(event)" style="flex:2">⌫</button></div>
+                <div class="kb-row"><button class="key space" onpointerdown="addMathSpace(event)">Space</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Forms -->
+<iframe id="hidden_iframe_questions" name="hidden_iframe_questions" onload="handleQuestionsLoad()" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="questionsForm" method="POST" style="display:none;" target="hidden_iframe_questions">
+    <input id="qform-name" name="name" type="hidden"/>
+    <input id="qform-school" name="school" type="hidden"/>
+    <input id="qform-score" name="score" type="hidden" value="QUESTIONS"/>
+</form>
+<!-- فورم معلومات المعلم -->
+<iframe id="hidden_iframe_teacher" name="hidden_iframe_teacher" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec" id="teacherInfoForm" method="POST" style="display:none;" target="hidden_iframe_teacher">
+    <input id="tform-name" name="name" type="hidden" value="معلومات المعلم"/>
+    <input id="tform-school" name="school" type="hidden"/>
+    <input id="tform-score" name="score" type="hidden" value="0"/>
+</form>
+
+<!-- ============================= -->
+<!-- SCREEN: HOME                  -->
+<!-- ============================= -->
+<div class="screen active" id="screen-home">
+    <div class="card" style="max-width: 520px; margin: auto;">
+        <div class="home-logo">👨‍🏫</div>
+        <h1>لوحة المعلم</h1>
+        <p style="color:#666; font-size:17px; margin-bottom:30px;">أنشئ مسابقتك التفاعلية وشارك الأسئلة مع طلابك</p>
+        <button class="btn btn-primary" onclick="openNewQuestions()">✨ إنشاء أسئلة جديدة</button>
+        <button class="btn btn-green" onclick="openRecoverSection()">🔄 استرداد غرفة سابقة</button>
+        <button class="btn btn-blue" onclick="openImportSection()">⚡ استيراد أسئلة (JSON)</button>
+    </div>
+</div>
+
+<!-- ============================= -->
+<!-- SCREEN: QUESTION BUILDER      -->
+<!-- ============================= -->
+<div class="screen" id="screen-teacher-setup">
+    <div class="q-builder-container">
+        <h2 style="text-align:center; color:var(--primary); margin-bottom:20px;">📝 إعداد أسئلة التحدي</h2>
+
+        <!-- NAV -->
+        <div class="section-nav">
+            <button class="btn btn-green" id="nav-new" onclick="showTeacherSection('new')" style="margin-bottom:0;">✨ أسئلة جديدة</button>
+            <button class="btn btn-green" id="nav-recover" onclick="showTeacherSection('recover')" style="margin-bottom:0; opacity:0.6;">🔄 استرداد غرفة</button>
+            <button class="btn btn-blue" id="nav-import" onclick="showTeacherSection('import')" style="margin-bottom:0; opacity:0.6;">⚡ استيراد JSON</button>
+        </div>
+
+        <!-- SECTION: NEW -->
+        <div id="section-teacher-new" class="section-panel active">
+            <input type="text" id="quiz-title-input" placeholder="📌 عنوان المسابقة..." style="text-align:center; font-weight:bold; font-size:18px; margin-bottom:18px;">
+            <div class="flex-row">
+                <div class="field-group">
+                    <label class="tag-label">👨‍🏫 اسم المعلم</label>
+                    <input type="text" id="teacher-name-input" placeholder="أدخل اسم المعلم..." style="margin-bottom:0;">
+                </div>
+                <div class="field-group">
+                    <label class="tag-label">🏫 اسم المدرسة</label>
+                    <input type="text" id="school-name-input" placeholder="أدخل اسم المدرسة..." style="margin-bottom:0;">
+                </div>
+            </div>
+            <h3 style="color:var(--primary); margin:18px 0 8px 0; font-size:18px;">✨ قائمة الأسئلة</h3>
+            <p style="color:#777; margin-bottom:18px; font-size:14px;">اكتب أسئلتك وحدد الإجابة الصحيحة. استخدم 🧮 لكتابة المعادلات الرياضية.</p>
+            <div id="questions-list"></div>
+            <button class="btn btn-action" onclick="addQuestionBlock()" style="margin-bottom:18px;">+ إضافة سؤال جديد</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-primary" onclick="saveQuestionsToSheet()" style="flex:2;">💾 حفظ وإنشاء الغرفة</button>
+                <button class="btn btn-back" onclick="showScreen('screen-home')" style="flex:1;">إلغاء</button>
+            </div>
+        </div>
+
+        <!-- SECTION: RECOVER -->
+        <div id="section-teacher-recover" class="section-panel">
+            <div class="recover-box">
+                <h3 style="color:var(--primary); margin-bottom:15px;">🔄 استرداد غرفة سابقة</h3>
+                <p style="color:#666; margin-bottom:15px; font-size:14px;">أدخل رقم الغرفة القديمة لاستنساخ أسئلتها في غرفة جديدة.</p>
+                <div class="recover-row">
+                    <input type="number" id="existing-room-pin" placeholder="أدخل رقم الغرفة المحفوظة (PIN)" style="margin-bottom:0;">
+                    <button class="btn btn-action" onclick="loadExistingRoom()" style="margin-bottom:0;">فتح الغرفة</button>
+                </div>
+            </div>
+            <button class="btn btn-back" onclick="showScreen('screen-home')">إلغاء</button>
+        </div>
+
+        <!-- SECTION: IMPORT -->
+        <div id="section-teacher-import" class="section-panel">
+            <div class="import-box">
+                <h3 style="color:var(--primary); margin-bottom:10px;">⚡ استيراد سريع (JSON)</h3>
+                <p style="color:#666; margin-bottom:15px; font-size:14px;">ألصق مصفوفة الأسئلة بصيغة JSON لإنشاء الغرفة دفعة واحدة.</p>
+                <textarea id="json-import-area" rows="7" placeholder='[
+  {
+    "q": "اكتب السؤال هنا؟",
+    "opts": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+    "ans": 0,
+    "time": 30
+  }
+]'></textarea>
+                <button class="btn btn-blue" onclick="importQuestionsFromJSON()" style="margin-top:12px;">🚀 إنشاء الغرفة من الكود</button>
+                <p id="json-error-msg" style="color:var(--k-red); font-weight:bold; margin-top:12px; display:none; text-align:center;"></p>
+            </div>
+            <button class="btn btn-back" onclick="showScreen('screen-home')">إلغاء</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- ============================= -->
+<!-- SCREEN: TEACHER ROOM          -->
+<!-- ============================= -->
+<div class="screen" id="screen-teacher">
+    <div class="room-card">
+        <h2>انضموا الآن! رمز الغرفة:</h2>
+        <div class="room-pin" id="display-room-pin">000000</div>
+
+        <div id="teacher-info-display" style="display:none;" class="teacher-badge">
+            <span>👨‍🏫</span>
+            <span id="teacher-info-name"></span>
+            <span style="opacity:0.5; font-size:20px;">|</span>
+            <span>🏫</span>
+            <span id="teacher-info-school"></span>
+        </div>
+
+        <p id="saving-status" class="saving-status">⏳ جاري تخزين الأسئلة في النظام...</p>
+
+        <div id="qr-container" style="margin:20px 0; text-align:center;">
+            <img alt="QR Code" id="room-qr-code" src=""/>
+            <p style="margin-top:12px; font-size:18px; font-weight:bold; color:var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
+        </div>
+
+        <div class="share-row">
+            <input id="game-url-input" readonly type="text" placeholder="رابط اللعبة سيظهر هنا..."/>
+            <button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; white-space:nowrap;">نسخ الرابط</button>
+        </div>
+    </div>
+
+    <table id="leaderboard" style="display:none; width:100%; max-width:900px;">
+        <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+        <tbody id="leaderboard-body"></tbody>
+    </table>
+
+    <div id="loading-board">⏳ بانتظار دخول الأبطال وحل الأسئلة...</div>
+
+    <button class="btn btn-back" onclick="closeRoom()" style="margin-top:25px; max-width:260px;">إغلاق الغرفة</button>
+</div>
+
+<script>
+// =====================
+// CONSTANTS
+// =====================
+const SHEET_ID = "1BDRGA-F7LuQcv_aXYjnGJBFxBkFGPbxECsHqM2dshZs";
+let currentRoomPIN = "";
+let refreshInterval = null;
+let qBlockCount = 0;
+let targetInputField = null;
+
+// =====================
+// MATH EDITOR
+// =====================
+const mf = document.getElementById('formula');
+mf.smartMode = true;
+
+mf.addEventListener('focusin', (e) => {
+    e.preventDefault();
+    if (window.mathVirtualKeyboard) window.mathVirtualKeyboard.hide();
+});
+mf.addEventListener('keydown', (e) => {
+    if (e.key === ' ') { e.preventDefault(); mf.insert('\\text{ }'); }
+});
+
+function addMath(val, e) { if(e) e.preventDefault(); mf.focus(); mf.insert(val); }
+function insertMathCode(latex, e) { if(e) e.preventDefault(); mf.focus(); mf.insert(latex); }
+function addMathSpace(e) { if(e) e.preventDefault(); mf.focus(); mf.insert('\\text{ }'); }
+function backspaceMath(e) { if(e) e.preventDefault(); mf.focus(); mf.executeCommand('deleteBackward'); }
+
+function showMathTab(tabId, event) {
+    document.querySelectorAll('.custom-keyboard').forEach(kb => kb.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    document.querySelectorAll('.math-tab').forEach(t => t.classList.remove('active'));
+    if(event) event.currentTarget.classList.add('active');
+}
+
+function openMathModal(inputElement) {
+    targetInputField = inputElement;
+    document.getElementById('math-modal-overlay').style.display = 'flex';
+    mf.value = '';
+    setTimeout(() => mf.focus(), 100);
+}
+
+function closeMathModal() {
+    document.getElementById('math-modal-overlay').style.display = 'none';
+    if (targetInputField) {
+        targetInputField.value += " \\(" + mf.value + "\\) ";
+        targetInputField = null;
+    }
+}
+
+// =====================
+// IMAGE SEARCH
+// =====================
+function toggleImageSearch(id) {
+    let box = document.getElementById('search-box-' + id);
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+async function searchImages(id) {
+    let q = document.getElementById('search-input-' + id).value.trim();
+    let grid = document.getElementById('img-grid-' + id);
+    let status = document.getElementById('search-status-' + id);
+    if (!q) { status.innerText = '⚠️ أدخل كلمة بحث أولاً'; return; }
+    grid.innerHTML = ''; 
+    status.innerHTML = '⏳ جاري البحث...';
+
+    let allImages = [];
+
+    // === المصدر 1: ويكيميديا كومنز ===
+    try {
+        // بحث دقيق بالصور فقط (JPG, PNG, SVG) مع فلترة الأيقونات والرسوم الصغيرة
+        let wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=40&prop=imageinfo&iiprop=url|size|mediatype&iiurlwidth=400&format=json&origin=*`;
+        let r = await fetch(wikiUrl);
+        let d = await r.json();
+        if (d.query && d.query.pages) {
+            Object.values(d.query.pages).forEach(p => {
+                let info = p.imageinfo?.[0];
+                if (!info) return;
+                // فلترة: صور فقط (ليس ملفات صوتية أو فيديو)
+                if (info.mediatype && !['BITMAP','DRAWING'].includes(info.mediatype)) return;
+                // فلترة: تجاهل الصور الصغيرة جداً (أيقونات)
+                if (info.width && info.width < 100) return;
+                if (info.height && info.height < 100) return;
+                // استخدام النسخة المصغرة للعرض السريع
+                let thumbUrl = info.thumburl || info.url;
+                allImages.push({ thumb: thumbUrl, full: info.url, source: 'ويكيميديا' });
+            });
+        }
+    } catch(e) {}
+
+    // === المصدر 2: ويكيبيديا العربية (صور المقالات) ===
+    try {
+        let arUrl = `https://ar.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(q)}&prop=images&imlimit=20&format=json&origin=*`;
+        let r2 = await fetch(arUrl);
+        let d2 = await r2.json();
+        if (d2.query && d2.query.pages) {
+            let pageImages = [];
+            Object.values(d2.query.pages).forEach(page => {
+                if (page.images) pageImages.push(...page.images.map(i => i.title));
+            });
+            // جلب روابط هذه الصور
+            if (pageImages.length > 0) {
+                let titles = pageImages.slice(0, 15).join('|');
+                let infoUrl = `https://ar.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url|size|mediatype&iiurlwidth=400&format=json&origin=*`;
+                let r3 = await fetch(infoUrl);
+                let d3 = await r3.json();
+                if (d3.query && d3.query.pages) {
+                    Object.values(d3.query.pages).forEach(p => {
+                        let info = p.imageinfo?.[0];
+                        if (!info || !info.url) return;
+                        if (info.mediatype && !['BITMAP','DRAWING'].includes(info.mediatype)) return;
+                        if (info.width && info.width < 100) return;
+                        if (info.height && info.height < 100) return;
+                        let thumbUrl = info.thumburl || info.url;
+                        // تجنب التكرار
+                        if (!allImages.find(x => x.full === info.url)) {
+                            allImages.push({ thumb: thumbUrl, full: info.url, source: 'ويكيبيديا ع' });
+                        }
+                    });
+                }
+            }
+        }
+    } catch(e) {}
+
+    // === المصدر 3: ويكيبيديا الإنجليزية ===
+    try {
+        let enUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(q)}&prop=images&imlimit=20&format=json&origin=*`;
+        let r4 = await fetch(enUrl);
+        let d4 = await r4.json();
+        if (d4.query && d4.query.pages) {
+            let pageImages = [];
+            Object.values(d4.query.pages).forEach(page => {
+                if (page.images) pageImages.push(...page.images.map(i => i.title));
+            });
+            if (pageImages.length > 0) {
+                let titles = pageImages.slice(0, 15).join('|');
+                let infoUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url|size|mediatype&iiurlwidth=400&format=json&origin=*`;
+                let r5 = await fetch(infoUrl);
+                let d5 = await r5.json();
+                if (d5.query && d5.query.pages) {
+                    Object.values(d5.query.pages).forEach(p => {
+                        let info = p.imageinfo?.[0];
+                        if (!info || !info.url) return;
+                        if (info.mediatype && !['BITMAP','DRAWING'].includes(info.mediatype)) return;
+                        if (info.width && info.width < 100) return;
+                        if (info.height && info.height < 100) return;
+                        let thumbUrl = info.thumburl || info.url;
+                        if (!allImages.find(x => x.full === info.url)) {
+                            allImages.push({ thumb: thumbUrl, full: info.url, source: 'ويكيبيديا إن' });
+                        }
+                    });
+                }
+            }
+        }
+    } catch(e) {}
+
+    // عرض النتائج
+    if (allImages.length === 0) {
+        status.innerText = '❌ لم يتم العثور على نتائج، جرب كلمة مختلفة';
+        return;
+    }
+
+    status.innerHTML = `✅ تم العثور على <strong>${allImages.length}</strong> صورة — انقر على الصورة لاختيارها`;
+    
+    allImages.forEach(imgData => {
+        let wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position:relative; cursor:pointer;';
+        
+        let img = document.createElement('img');
+        img.src = imgData.thumb;
+        img.className = 'img-result';
+        img.title = imgData.source;
+        img.onclick = () => selectImage(id, imgData.full);
+        img.onerror = () => wrapper.remove();
+        
+        let badge = document.createElement('span');
+        badge.innerText = imgData.source;
+        badge.style.cssText = 'position:absolute; bottom:3px; right:3px; background:rgba(0,0,0,0.6); color:white; font-size:9px; padding:1px 4px; border-radius:3px; pointer-events:none;';
+        
+        wrapper.appendChild(img);
+        wrapper.appendChild(badge);
+        grid.appendChild(wrapper);
+    });
+}
+
+function selectImage(id, url) {
+    document.getElementById('img-url-' + id).value = url;
+    previewImage(id);
+    toggleImageSearch(id);
+}
+
+function embedImageInQuestion(blockId) {
+    const url = document.getElementById('img-url-' + blockId)?.value?.trim();
+    if (!url) { alert('يرجى إدخال رابط الصورة أولاً!'); return; }
+    const titleInput = document.querySelector('#' + blockId + ' .q-title-input');
+    if (!titleInput) return;
+    const imgTag = '<img src="' + url + '" alt="صورة" style="max-width:100%; border-radius:8px; margin:8px 0;">';
+    titleInput.value = (titleInput.value ? titleInput.value + ' ' : '') + imgTag;
+    document.getElementById('img-url-' + blockId).value = '';
+    document.getElementById('img-preview-container-' + blockId).style.display = 'none';
+    alert('تم تضمين الصورة في نص السؤال!');
+}
+
+function previewImage(id) {
+    let url = document.getElementById('img-url-' + id).value.trim();
+    let c = document.getElementById('img-preview-container-' + id);
+    let imgEl = document.getElementById('img-preview-' + id);
+    if(url) {
+        imgEl.src = url;
+        imgEl.onerror = () => { c.style.display = 'none'; };
+        imgEl.onload = () => { c.style.display = 'block'; };
+    } else {
+        imgEl.src = '';
+        c.style.display = 'none';
+    }
+}
+
+function handleImageFile(id, input) {
+    const file = input.files[0];
+    if (!file) return;
+    // Check size: base64 of >1MB images can be very large for Sheets
+    if (file.size > 1.5 * 1024 * 1024) {
+        alert('⚠️ حجم الصورة كبير جداً (أكثر من 1.5 ميغابايت).\nيرجى استخدام رابط URL أو ضغط الصورة أولاً.');
+        input.value = '';
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('img-url-' + id).value = e.target.result;
+        previewImage(id);
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearImage(id) {
+    document.getElementById('img-url-' + id).value = '';
+    const fileInput = document.getElementById('img-file-' + id);
+    if (fileInput) fileInput.value = '';
+    previewImage(id);
+}
+
+// =====================
+// SCREEN NAVIGATION
+// =====================
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    if(id) {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('active');
+    }
+    window.scrollTo(0, 0);
+}
+
+function showTeacherSection(section) {
+    ['new', 'recover', 'import'].forEach(s => {
+        document.getElementById('section-teacher-' + s).classList.remove('active');
+        const btn = document.getElementById('nav-' + s);
+        if(btn) { btn.style.opacity = '0.6'; btn.style.transform = 'scale(0.97)'; }
+    });
+    document.getElementById('section-teacher-' + section).classList.add('active');
+    const activeBtn = document.getElementById('nav-' + section);
+    if(activeBtn) { activeBtn.style.opacity = '1'; activeBtn.style.transform = 'scale(1)'; }
+}
+
+function openNewQuestions() {
+    document.getElementById('questions-list').innerHTML = '';
+    qBlockCount = 0;
+    addQuestionBlock();
+    showScreen('screen-teacher-setup');
+    showTeacherSection('new');
+}
+
+function openRecoverSection() {
+    showScreen('screen-teacher-setup');
+    showTeacherSection('recover');
+}
+
+function openImportSection() {
+    showScreen('screen-teacher-setup');
+    showTeacherSection('import');
+}
+
+function closeRoom() {
+    if(refreshInterval) clearInterval(refreshInterval);
+    showScreen('screen-home');
+}
+
+// =====================
+// QUESTION BLOCKS
+// =====================
+function addQuestionBlock() {
+    const container = document.getElementById('questions-list');
+    const index = qBlockCount;
+    const blockId = `q-block-${index}`;
+    const html = `
+        <div class="q-block" id="${blockId}" data-type="mc">
+            <h3>
+                <span>السؤال ${index + 1}</span>
+                ${index > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف ✕</button>` : ''}
+            </h3>
+            <div class="type-selector">
+                <button type="button" class="type-btn active" onclick="setQuestionType('${blockId}','mc')">اختيار من متعدد</button>
+                <button type="button" class="type-btn" onclick="setQuestionType('${blockId}','blanks')">إكمال فراغات</button>
+                <button type="button" class="type-btn" onclick="setQuestionType('${blockId}','matching')">توصيل</button>
+                <button type="button" class="type-btn" onclick="setQuestionType('${blockId}','dragdrop')">تصنيف</button>
+            </div>
+            <div class="q-input-row">
+                <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="flex:1; margin-bottom:0;">
+                <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            </div>
+            <div class="q-input-row" style="margin-top:8px;">
+                <label style="font-size:13px; color:#666; white-space:nowrap;">⏱ الوقت (ث):</label>
+                <input type="number" class="q-time-input" value="60" min="5" max="300" title="الوقت بالثواني" style="margin-bottom:0; flex:1;">
+                <label style="font-size:13px; color:#666; white-space:nowrap; margin-right:10px;">🏆 الدرجة:</label>
+                <input type="number" class="q-points-input" value="1000" min="0" max="10000" placeholder="الدرجة" title="الدرجة" style="margin-bottom:0; flex:1;">
+            </div>
+            <div style="margin-bottom:12px; background:#f0f4ff; border:2px solid #c5d5f5; border-radius:10px; padding:12px;">
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+                    <label style="font-size:14px; color:var(--primary); font-weight:bold;">🖼️ صورة السؤال (اختياري):</label>
+                    <button type="button" onclick="toggleImageSearch('${blockId}')" style="background:var(--primary); color:white; border:none; padding:7px 14px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:bold;">🔍 بحث عن صورة</button>
+                </div>
+                <div id="search-box-${blockId}" class="img-search-container">
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="search-input-${blockId}" placeholder="مثال: قلب، خلية، خريطة العالم..." style="flex:1; margin-bottom:0; padding:10px; font-family:'Cairo',sans-serif; font-size:14px;" onkeydown="if(event.key==='Enter') searchImages('${blockId}')">
+                        <button onclick="searchImages('${blockId}')" style="background:var(--primary); color:white; border:none; padding:10px 18px; border-radius:6px; cursor:pointer; font-weight:bold; font-family:'Cairo',sans-serif;">بحث</button>
+                    </div>
+                    <div id="search-status-${blockId}" style="margin-top:8px; font-size:13px; color:#555;"></div>
+                    <div id="img-grid-${blockId}" class="img-grid"></div>
+                </div>
+                <input type="hidden" id="img-url-${blockId}">
+                <div id="img-url-warn-${blockId}" style="display:none;"></div>
+                <div id="img-preview-container-${blockId}" class="img-preview-box" style="margin-top:8px;">
+                    <img id="img-preview-${blockId}" alt="معاينة" style="max-height:160px; border-radius:10px; border:3px solid var(--primary);">
+                    <p style="font-size:12px; color:var(--success); font-weight:bold; margin-top:6px;">✅ ستظهر هذه الصورة للطالب أثناء الإجابة</p>
+                    <button type="button" onclick="clearImage('${blockId}')" style="margin-top:4px; background:#eee; border:1px solid #ccc; padding:5px 12px; border-radius:5px; cursor:pointer; font-size:13px; font-family:'Cairo',sans-serif;">🗑️ إزالة الصورة</button>
+                </div>
+            </div>
+            <div class="q-editor-content" id="editor-${blockId}">
+                ${getMultipleChoiceEditor(index)}
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+    qBlockCount++;
+}
+
+function setQuestionType(blockId, type) {
+    const block = document.getElementById(blockId);
+    block.setAttribute('data-type', type);
+    block.querySelectorAll('.type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${type}'`));
+    });
+    const editor = document.getElementById(`editor-${blockId}`);
+    const index = parseInt(blockId.split('-')[2]);
+    if (type === 'mc') editor.innerHTML = getMultipleChoiceEditor(index);
+    else if (type === 'blanks') editor.innerHTML = getBlanksEditor(index);
+    else if (type === 'matching') editor.innerHTML = getMatchingEditor(index);
+    else if (type === 'dragdrop') editor.innerHTML = getDragDropEditor(index);
+}
+
+function getMultipleChoiceEditor(index) {
+    return `
+        <div id="mc-container-${index}">
+            <div class="opt-row">
+                <input type="radio" name="correct-${index}" value="0" checked>
+                <input type="text" class="q-opt-input" placeholder="الخيار الأول" required style="margin-bottom:0;">
+                <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            </div>
+            <div class="opt-row">
+                <input type="radio" name="correct-${index}" value="1">
+                <input type="text" class="q-opt-input" placeholder="الخيار الثاني" required style="margin-bottom:0;">
+                <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            </div>
+        </div>
+        <button type="button" class="add-btn" onclick="addMCOption(${index})">+ إضافة خيار</button>
+    `;
+}
+
+function addMCOption(index) {
+    const container = document.getElementById(`mc-container-${index}`);
+    const optCount = container.querySelectorAll('.opt-row').length;
+    const html = `
+        <div class="opt-row">
+            <input type="radio" name="correct-${index}" value="${optCount}">
+            <input type="text" class="q-opt-input" placeholder="خيار جديد" required style="margin-bottom:0;">
+            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            <button type="button" onclick="this.parentElement.remove(); updateMCOptionValues(${index});" style="color:red; background:none; border:none; cursor:pointer; font-size:18px;">✕</button>
+        </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function updateMCOptionValues(index) {
+    const container = document.getElementById(`mc-container-${index}`);
+    container.querySelectorAll('input[type="radio"]').forEach((radio, i) => { radio.value = i; });
+}
+
+function getBlanksEditor(index) {
+    return `
+        <p style="font-size:13px; color:#666; margin-bottom:10px; line-height:1.7;">
+            ● استخدم ( .... ) في نص السؤال للإشارة لمكان الفراغ.<br>
+            ● ضع إشارة / بين الإجابات الصحيحة المحتملة لكل فراغ.
+        </p>
+        <div id="blanks-container-${index}">
+            <div class="opt-row">
+                <input type="text" class="q-blank-input" placeholder="إجابة الفراغ الأول" required style="margin-bottom:0; flex:1;">
+                <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            </div>
+        </div>
+        <button type="button" class="add-btn" onclick="addBlankField(${index})">+ إضافة فراغ</button>
+    `;
+}
+
+function addBlankField(index) {
+    const container = document.getElementById(`blanks-container-${index}`);
+    container.insertAdjacentHTML('beforeend', `
+        <div class="opt-row">
+            <input type="text" class="q-blank-input" placeholder="إجابة الفراغ" required style="margin-bottom:0; flex:1;">
+            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer; font-size:18px;">✕</button>
+        </div>`);
+}
+
+function getMatchingEditor(index) {
+    return `
+        <div id="matching-container-${index}">
+            <div class="matching-pair">
+                <input type="text" class="match-left" placeholder="الكلمة" required style="flex:1; margin-bottom:0;">
+                <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                <span>🔗</span>
+                <input type="text" class="match-right" placeholder="المطابق" required style="flex:1; margin-bottom:0;">
+                <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            </div>
+        </div>
+        <button type="button" class="add-btn" onclick="addMatchingPair(${index})">+ إضافة زوج</button>
+    `;
+}
+
+function addMatchingPair(index) {
+    document.getElementById(`matching-container-${index}`).insertAdjacentHTML('beforeend', `
+        <div class="matching-pair">
+            <input type="text" class="match-left" placeholder="الكلمة" required style="flex:1; margin-bottom:0;">
+            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            <span>🔗</span>
+            <input type="text" class="match-right" placeholder="المطابق" required style="flex:1; margin-bottom:0;">
+            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer; font-size:18px;">✕</button>
+        </div>`);
+}
+
+function getDragDropEditor(index) {
+    return `
+        <div id="zones-container-${index}" style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:120px;">
+                <input type="text" class="zone-name" placeholder="المجموعة 1" required style="width:100%; margin-bottom:0;" oninput="updateDragZoneOptions(${index})">
+            </div>
+            <div style="flex:1; min-width:120px;">
+                <input type="text" class="zone-name" placeholder="المجموعة 2" required style="width:100%; margin-bottom:0;" oninput="updateDragZoneOptions(${index})">
+            </div>
+        </div>
+        <button type="button" class="add-btn" onclick="addDragZone(${index})" style="margin-bottom:12px;">+ إضافة مجموعة</button>
+        <div id="drag-container-${index}">
+            <div class="drag-item">
+                <input type="text" class="drag-text" placeholder="الكلمة" required style="flex:1; margin-bottom:0;">
+                <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                <select class="drag-zone">${getDragZoneOptions(index)}</select>
+            </div>
+        </div>
+        <button type="button" class="add-btn" onclick="addDragItem(${index})">+ إضافة كلمة</button>
+    `;
+}
+
+function addDragZone(index) {
+    const container = document.getElementById(`zones-container-${index}`);
+    const zoneCount = container.querySelectorAll('.zone-name').length;
+    container.insertAdjacentHTML('beforeend', `
+        <div style="flex:1; min-width:120px; display:flex; align-items:center; gap:5px;">
+            <input type="text" class="zone-name" placeholder="المجموعة ${zoneCount+1}" required style="width:100%; margin-bottom:0;" oninput="updateDragZoneOptions(${index})">
+            <button type="button" onclick="this.parentElement.remove(); updateDragZoneOptions(${index});" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">✕</button>
+        </div>`);
+    updateDragZoneOptions(index);
+}
+
+function getDragZoneOptions(index) {
+    const zonesContainer = document.getElementById(`zones-container-${index}`);
+    if (!zonesContainer) return '<option value="0">المجموعة 1</option><option value="1">المجموعة 2</option>';
+    const zones = zonesContainer.querySelectorAll('.zone-name');
+    let options = '';
+    zones.forEach((zone, i) => {
+        const name = zone.value.trim() || `المجموعة ${i+1}`;
+        options += `<option value="${i}">${name}</option>`;
+    });
+    return options;
+}
+
+function updateDragZoneOptions(index) {
+    const options = getDragZoneOptions(index);
+    document.querySelectorAll(`#drag-container-${index} .drag-zone`).forEach(select => {
+        const currentVal = select.value;
+        select.innerHTML = options;
+        const maxZone = document.getElementById(`zones-container-${index}`).querySelectorAll('.zone-name').length;
+        if (currentVal < maxZone) select.value = currentVal;
+    });
+}
+
+function addDragItem(index) {
+    document.getElementById(`drag-container-${index}`).insertAdjacentHTML('beforeend', `
+        <div class="drag-item">
+            <input type="text" class="drag-text" placeholder="الكلمة" required style="flex:1; margin-bottom:0;">
+            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            <select class="drag-zone">${getDragZoneOptions(index)}</select>
+            <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer; font-size:18px;">✕</button>
+        </div>`);
+}
+
+// =====================
+// SAVE & FORM SUBMIT
+// =====================
+function handleQuestionsLoad() {
+    const status = document.getElementById('saving-status');
+    if(status) {
+        status.innerText = "✅ تم حفظ الأسئلة بنجاح! يمكن للطلاب الدخول الآن.";
+        status.style.color = "var(--success)";
+    }
+}
+
+function saveQuestionsToSheet() {
+    const blocks = document.querySelectorAll('.q-block');
+    let customQuestions = [];
+    let isValid = true;
+
+    blocks.forEach(block => {
+        const title = block.querySelector('.q-title-input').value.trim();
+        const timeVal = block.querySelector('.q-time-input')?.value;
+        const pointsVal = block.querySelector('.q-points-input')?.value;
+        const type = block.getAttribute('data-type') || 'mc';
+        const imgUrl = block.querySelector('[id^="img-url-"]')?.value?.trim() || '';
+
+        let qData = { q: title, time: parseInt(timeVal)||60, points: parseInt(pointsVal)||1000, type };
+        if(imgUrl) qData.img = imgUrl;
+
+        if (type === 'mc') {
+            const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(i => i.value.trim());
+            const correctRadio = block.querySelector('input[type="radio"]:checked');
+            if (!title || opts.length < 2 || opts.some(o => !o) || !correctRadio) { isValid = false; return; }
+            qData.opts = opts; qData.ans = parseInt(correctRadio.value);
+        } else if (type === 'blanks') {
+            const blanks = Array.from(block.querySelectorAll('.q-blank-input')).map(i => i.value.trim());
+            if (!title || blanks.some(b => !b)) { isValid = false; return; }
+            qData.blanks = blanks;
+        } else if (type === 'matching') {
+            const pairs = Array.from(block.querySelectorAll('.matching-pair')).map(pair => ({
+                left: pair.querySelector('.match-left').value.trim(),
+                right: pair.querySelector('.match-right').value.trim()
+            }));
+            if (!title || pairs.some(p => !p.left || !p.right)) { isValid = false; return; }
+            qData.pairs = pairs;
+        } else if (type === 'dragdrop') {
+            const zones = Array.from(block.querySelectorAll('.zone-name')).map(i => i.value.trim());
+            const items = Array.from(block.querySelectorAll('.drag-item')).map(item => ({
+                text: item.querySelector('.drag-text').value.trim(),
+                zoneIndex: parseInt(item.querySelector('.drag-zone').value)
+            }));
+            if (!title || zones.some(z => !z) || items.some(i => !i.text)) { isValid = false; return; }
+            qData.zones = zones; qData.items = items;
+        }
+        customQuestions.push(qData);
+    });
+
+    if (!isValid || customQuestions.length === 0) {
+        alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!");
+        return;
+    }
+
+    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+    const teacherName = document.getElementById('teacher-name-input')?.value.trim() || '';
+    const schoolName = document.getElementById('school-name-input')?.value.trim() || '';
+    const jsonQuestions = JSON.stringify(customQuestions);
+
+    // سطر معلومات المعلم
+    document.getElementById('tform-school').value = `${currentRoomPIN}&${teacherName}&${schoolName}`;
+    document.getElementById('teacherInfoForm').submit();
+
+    // سطر الأسئلة
+    document.getElementById('qform-name').value = currentRoomPIN;
+    document.getElementById('qform-school').value = jsonQuestions;
+    document.getElementById('qform-score').value = 'QUESTIONS';
+
+    document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
+    document.getElementById('saving-status').style.color = "var(--primary)";
+    document.getElementById('questionsForm').submit();
+
+    finishRoomSetup(teacherName, schoolName);
+}
+
+function finishRoomSetup(teacherName, schoolName) {
+    if (teacherName || schoolName) {
+        document.getElementById('teacher-info-name').innerText = teacherName || '—';
+        document.getElementById('teacher-info-school').innerText = schoolName || '—';
+        document.getElementById('teacher-info-display').style.display = 'flex';
+    } else {
+        document.getElementById('teacher-info-display').style.display = 'none';
+    }
+
+    document.getElementById('display-room-pin').innerText = currentRoomPIN;
+    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+    document.getElementById('game-url-input').value = gameUrl;
+
+    const qrImg = document.getElementById('room-qr-code');
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+    qrImg.style.display = 'block';
+
+    showScreen('screen-teacher');
+    if(refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setInterval(fetchLeaderboard, 4000);
+    fetchLeaderboard();
+}
+
+// =====================
+// RECOVER ROOM
+// =====================
+async function loadExistingRoom() {
+    const pin = document.getElementById('existing-room-pin').value.trim();
+    if (!pin) { alert("يرجى إدخال رقم الغرفة!"); return; }
+
+    showLoading("جاري البحث عن الغرفة واستنساخ الأسئلة...");
+    try {
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+        const rows = json.table.rows;
+        let roomFound = false, copiedQuestions = "";
+
+        for(let i = rows.length - 1; i >= 0; i--) {
+            if(rows[i]?.c[0]?.v?.toString() === pin) {
+                if(rows[i].c[1]?.v?.toString().trim().startsWith('[')) {
+                    roomFound = true;
+                    copiedQuestions = rows[i].c[1].v.toString();
+                    break;
+                }
+            }
+        }
+
+        hideLoading();
+        if (roomFound) {
+            currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('qform-name').value = currentRoomPIN;
+            document.getElementById('qform-school').value = copiedQuestions;
+            document.getElementById('qform-score').value = 'QUESTIONS';
+            document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة...";
+            document.getElementById('saving-status').style.color = "var(--primary)";
+            document.getElementById('questionsForm').submit();
+            finishRoomSetup('', '');
+        } else {
+            alert("عذراً! لم يتم العثور على أسئلة محفوظة لرمز الغرفة هذا.");
+        }
+    } catch(err) {
+        hideLoading();
+        alert("حدث خطأ أثناء الاتصال بقاعدة البيانات. تأكد من اتصالك بالإنترنت.");
+    }
+}
+
+// =====================
+// IMPORT JSON
+// =====================
+function importQuestionsFromJSON() {
+    const jsonText = document.getElementById('json-import-area').value.trim();
+    const errorMsg = document.getElementById('json-error-msg');
+    errorMsg.style.display = 'none';
+
+    if (!jsonText) {
+        errorMsg.innerText = "يرجى لصق كود الأسئلة أولاً!";
+        errorMsg.style.display = 'block'; return;
+    }
+
+    try {
+        const parsedQuestions = JSON.parse(jsonText);
+        if (!Array.isArray(parsedQuestions) || parsedQuestions.length === 0)
+            throw new Error("يجب أن يكون الكود عبارة عن مصفوفة أسئلة [...] غير فارغة.");
+
+        currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+        document.getElementById('qform-name').value = currentRoomPIN;
+        document.getElementById('qform-school').value = JSON.stringify(parsedQuestions);
+        document.getElementById('qform-score').value = 'QUESTIONS';
+        document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة من الكود...";
+        document.getElementById('saving-status').style.color = "var(--primary)";
+        document.getElementById('questionsForm').submit();
+        document.getElementById('json-import-area').value = '';
+        finishRoomSetup('', '');
+    } catch (err) {
+        errorMsg.innerText = "❌ خطأ في الكود: " + err.message;
+        errorMsg.style.display = 'block';
+    }
+}
+
+// =====================
+// LEADERBOARD
+// =====================
+async function fetchLeaderboard() {
+    try {
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+        let players = json.table.rows.filter(r => r.c[1]?.v?.toString() === currentRoomPIN && !r.c[2]?.v?.toString().startsWith('QUESTIONS'));
+        players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+
+        const tbody = document.getElementById('leaderboard-body');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        players.forEach((p, i) => {
+            let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+            tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight:bold;">${p.c[0].v}</td><td style="color:var(--primary);font-weight:900;font-size:22px;">${p.c[2].v}</td></tr>`;
+        });
+
+        const loadingBoard = document.getElementById('loading-board');
+        const leaderboard = document.getElementById('leaderboard');
+        if(loadingBoard) loadingBoard.style.display = players.length ? 'none' : 'block';
+        if(leaderboard) leaderboard.style.display = players.length ? 'table' : 'none';
+    } catch(e) {}
+}
+
+// =====================
+// COPY LINK
+// =====================
+function copyGameLink() {
+    const input = document.getElementById('game-url-input');
+    input.select();
+    document.execCommand('copy');
+    const btn = document.getElementById('copy-btn');
+    btn.innerText = "تم النسخ! ✔️"; btn.style.backgroundColor = "var(--success)";
+    setTimeout(() => { btn.innerText = "نسخ الرابط"; btn.style.backgroundColor = "var(--primary)"; }, 2000);
+}
+
+// =====================
+// LOADING HELPERS
+// =====================
+function showLoading(msg) {
+    document.getElementById('loading-text').innerText = msg || "جاري المعالجة...";
+    document.getElementById('loading-overlay').style.display = 'flex';
+}
+function hideLoading() {
+    document.getElementById('loading-overlay').style.display = 'none';
+}
+
+// =====================
+// INIT
+// =====================
+window.onload = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new') {
+        openNewQuestions();
+    }
+};
+</script>
+</body>
+</html>
