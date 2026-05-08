@@ -361,6 +361,54 @@
         font-size: 22px; font-weight: bold; color: var(--primary); margin-top: 15px;
     }
 
+    /* ===== STANDALONE LEADERBOARD SCREEN ===== */
+    #screen-standalone-leaderboard .card {
+        max-width: 800px; width: 100%;
+    }
+
+    /* ===== TEXT QUESTION TYPE ===== */
+    .text-editor-container {
+        background: #fff; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;
+    }
+    .text-toolbar {
+        background: #f0f4ff; border-bottom: 2px solid #dde4f5; padding: 8px 10px;
+        display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    }
+    .text-toolbar-group {
+        display: flex; gap: 4px; align-items: center;
+        padding-left: 8px; border-left: 2px solid #c5d0e8;
+    }
+    .text-toolbar-group:first-child { border-left: none; padding-left: 0; }
+    .tb-btn {
+        background: white; border: 1.5px solid #ccd3e8; border-radius: 5px;
+        padding: 5px 9px; cursor: pointer; font-size: 14px; font-weight: bold;
+        transition: all 0.15s; color: #333; min-width: 32px; text-align: center;
+        font-family: 'Cairo', sans-serif;
+    }
+    .tb-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+    .tb-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .tb-select {
+        border: 1.5px solid #ccd3e8; border-radius: 5px; padding: 5px 8px;
+        font-size: 13px; background: white; cursor: pointer; font-family: 'Cairo', sans-serif;
+        color: #333;
+    }
+    .tb-color-btn {
+        width: 28px; height: 28px; border-radius: 5px; cursor: pointer;
+        border: 2px solid #ccc; transition: transform 0.15s;
+    }
+    .tb-color-btn:hover { transform: scale(1.2); }
+    .text-content-area {
+        min-height: 120px; padding: 14px; font-size: 16px;
+        outline: none; font-family: 'Cairo', sans-serif;
+        line-height: 1.7; text-align: right; direction: rtl;
+        border: none;
+    }
+    .text-content-area:focus { outline: none; }
+    .text-content-area[placeholder]:empty::before {
+        content: attr(placeholder); color: #aaa; pointer-events: none;
+    }
+
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 600px) {
         .room-pin { font-size: 52px; }
@@ -461,6 +509,7 @@
         <button class="btn btn-primary" onclick="openNewQuestions()">✨ إنشاء أسئلة جديدة</button>
         <button class="btn btn-green" onclick="openRecoverSection()">🔄 استرداد غرفة سابقة</button>
         <button class="btn btn-blue" onclick="openImportSection()">⚡ استيراد أسئلة (JSON)</button>
+        <button class="btn" onclick="showScreen('screen-standalone-leaderboard')" style="background:var(--k-green); box-shadow:0 6px 0 var(--k-green-dark); margin-top:5px;">🏆 البحث عن لوحة صدارة</button>
     </div>
 </div>
 
@@ -575,6 +624,26 @@
     <button class="btn btn-back" onclick="closeRoom()" style="margin-top:25px; max-width:260px;">إغلاق الغرفة</button>
 </div>
 
+<!-- ============================= -->
+<!-- SCREEN: STANDALONE LEADERBOARD -->
+<!-- ============================= -->
+<div class="screen" id="screen-standalone-leaderboard">
+    <div class="card" style="max-width:800px; width:100%;">
+        <h2>🏆 لوحة الصدارة</h2>
+        <p style="margin-bottom:20px; color:#666;">أدخل رقم الغرفة (PIN) لعرض ترتيب الأبطال</p>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="number" id="search-leaderboard-pin" placeholder="أدخل رقم الغرفة..." style="margin-bottom:0; flex:2;">
+            <button class="btn btn-action" onclick="searchStandaloneLeaderboard()" style="margin-bottom:0; flex:1; padding:14px;">🔍 بحث</button>
+        </div>
+        <div id="standalone-loading-board" style="display:none; font-size:18px; font-weight:bold; color:var(--primary); padding:20px; text-align:center;"></div>
+        <table id="standalone-leaderboard-table" style="display:none;">
+            <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+            <tbody id="standalone-leaderboard-body"></tbody>
+        </table>
+        <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top:25px;">العودة للرئيسية</button>
+    </div>
+</div>
+
 <script>
 // =====================
 // CONSTANTS
@@ -611,8 +680,11 @@ function showMathTab(tabId, event) {
     if(event) event.currentTarget.classList.add('active');
 }
 
+let textMathTargetIndex = null;
+
 function openMathModal(inputElement) {
     targetInputField = inputElement;
+    textMathTargetIndex = null;
     document.getElementById('math-modal-overlay').style.display = 'flex';
     mf.value = '';
     setTimeout(() => mf.focus(), 100);
@@ -620,7 +692,16 @@ function openMathModal(inputElement) {
 
 function closeMathModal() {
     document.getElementById('math-modal-overlay').style.display = 'none';
-    if (targetInputField) {
+    if (textMathTargetIndex !== null) {
+        // إدراج المعادلة داخل منطقة النص contenteditable
+        const area = document.getElementById(`text-area-${textMathTargetIndex}`);
+        if (area && mf.value) {
+            area.focus();
+            const latex = " \\(" + mf.value + "\\) ";
+            document.execCommand('insertText', false, latex);
+        }
+        textMathTargetIndex = null;
+    } else if (targetInputField) {
         targetInputField.value += " \\(" + mf.value + "\\) ";
         targetInputField = null;
     }
@@ -881,6 +962,7 @@ function addQuestionBlock() {
                 <button type="button" class="type-btn" onclick="setQuestionType('${blockId}','blanks')">إكمال فراغات</button>
                 <button type="button" class="type-btn" onclick="setQuestionType('${blockId}','matching')">توصيل</button>
                 <button type="button" class="type-btn" onclick="setQuestionType('${blockId}','dragdrop')">تصنيف</button>
+                <button type="button" class="type-btn" onclick="setQuestionType('${blockId}','textslide')">📝 نص</button>
             </div>
             <div class="q-input-row">
                 <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="flex:1; margin-bottom:0;">
@@ -934,6 +1016,7 @@ function setQuestionType(blockId, type) {
     else if (type === 'blanks') editor.innerHTML = getBlanksEditor(index);
     else if (type === 'matching') editor.innerHTML = getMatchingEditor(index);
     else if (type === 'dragdrop') editor.innerHTML = getDragDropEditor(index);
+    else if (type === 'textslide') editor.innerHTML = getTextSlideEditor(index);
 }
 
 function getMultipleChoiceEditor(index) {
@@ -1091,6 +1174,79 @@ function addDragItem(index) {
 }
 
 // =====================
+// TEXT SLIDE EDITOR
+// =====================
+function getTextSlideEditor(index) {
+    return `
+        <p style="font-size:13px; color:var(--primary); font-weight:bold; margin-bottom:10px;">
+            📝 محتوى النص (يظهر للطلاب كشريحة عرض - لا يتطلب إجابة)
+        </p>
+        <div class="text-editor-container" id="text-editor-container-${index}">
+            <div class="text-toolbar">
+                <div class="text-toolbar-group">
+                    <select class="tb-select" onchange="execTextCmd(${index},'fontSize',this.value)" title="حجم الخط">
+                        <option value="">حجم</option>
+                        <option value="1">صغير جداً</option>
+                        <option value="2">صغير</option>
+                        <option value="3" selected>عادي</option>
+                        <option value="4">كبير</option>
+                        <option value="5">كبير جداً</option>
+                        <option value="6">ضخم</option>
+                        <option value="7">ضخم جداً</option>
+                    </select>
+                </div>
+                <div class="text-toolbar-group">
+                    <button class="tb-btn" title="عريض" onmousedown="event.preventDefault(); execTextCmd(${index},'bold')"><b>B</b></button>
+                    <button class="tb-btn" title="مائل" onmousedown="event.preventDefault(); execTextCmd(${index},'italic')"><i>I</i></button>
+                    <button class="tb-btn" title="تحت خط" onmousedown="event.preventDefault(); execTextCmd(${index},'underline')"><u>U</u></button>
+                    <button class="tb-btn" title="يتوسطه خط" onmousedown="event.preventDefault(); execTextCmd(${index},'strikeThrough')"><s>S</s></button>
+                </div>
+                <div class="text-toolbar-group">
+                    <button class="tb-btn" title="محاذاة يمين" onmousedown="event.preventDefault(); execTextCmd(${index},'justifyRight')">⬅️</button>
+                    <button class="tb-btn" title="محاذاة وسط" onmousedown="event.preventDefault(); execTextCmd(${index},'justifyCenter')">↔️</button>
+                    <button class="tb-btn" title="محاذاة يسار" onmousedown="event.preventDefault(); execTextCmd(${index},'justifyLeft')">➡️</button>
+                </div>
+                <div class="text-toolbar-group">
+                    <label style="font-size:12px; color:#555; white-space:nowrap;">🎨 لون الخط:</label>
+                    <input type="color" class="tb-color-btn" value="#222222" title="لون الخط" onchange="execTextCmd(${index},'foreColor',this.value)">
+                    <label style="font-size:12px; color:#555; white-space:nowrap;">لون الخلفية:</label>
+                    <input type="color" class="tb-color-btn" value="#ffffff" title="لون الخلفية" onchange="setTextBg(${index},this.value)">
+                </div>
+                <div class="text-toolbar-group">
+                    <button class="math-trigger-btn" title="إدراج معادلة رياضية" onclick="openMathModalForText(${index})">🧮</button>
+                </div>
+            </div>
+            <div class="text-content-area" id="text-area-${index}" contenteditable="true" placeholder="اكتب محتوى النص هنا..."></div>
+        </div>
+        <input type="hidden" id="text-content-${index}" value="">
+        <p style="font-size:12px; color:#888; margin-top:8px;">💡 سيُعرض هذا النص كشريحة بدون أسئلة أو خيارات. استخدم 🧮 لإدراج معادلات رياضية.</p>
+    `;
+}
+
+function execTextCmd(index, cmd, val) {
+    const area = document.getElementById(`text-area-${index}`);
+    area.focus();
+    document.execCommand(cmd, false, val || null);
+}
+
+function setTextBg(index, color) {
+    const area = document.getElementById(`text-area-${index}`);
+    area.style.backgroundColor = color;
+    area.style.setProperty('--bg-color', color);
+}
+
+function openMathModalForText(index) {
+    // نفتح نافذة MathLive ولكن نضع النتيجة داخل منطقة النص بدلاً من حقل نصي عادي
+    const area = document.getElementById(`text-area-${index}`);
+    // نحفظ آخر تحديد داخل المنطقة
+    area.focus();
+    textMathTargetIndex = index;
+    document.getElementById('math-modal-overlay').style.display = 'flex';
+    mf.value = '';
+    setTimeout(() => mf.focus(), 100);
+}
+
+// =====================
 // SAVE & FORM SUBMIT
 // =====================
 function handleQuestionsLoad() {
@@ -1115,6 +1271,18 @@ function saveQuestionsToSheet() {
 
         let qData = { q: title, time: parseInt(timeVal)||60, points: parseInt(pointsVal)||1000, type };
         if(imgUrl) qData.img = imgUrl;
+
+        if (type === 'textslide') {
+            const index = parseInt(blockId.split('-')[2]);
+            const area = document.getElementById(`text-area-${index}`);
+            const bgColor = area ? area.style.backgroundColor || '#ffffff' : '#ffffff';
+            const htmlContent = area ? area.innerHTML : '';
+            qData.q = title || 'نص';
+            qData.textContent = htmlContent;
+            qData.textBg = bgColor;
+            customQuestions.push(qData);
+            return;
+        }
 
         if (type === 'mc') {
             const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(i => i.value.trim());
@@ -1267,6 +1435,53 @@ function importQuestionsFromJSON() {
     } catch (err) {
         errorMsg.innerText = "❌ خطأ في الكود: " + err.message;
         errorMsg.style.display = 'block';
+    }
+}
+
+// =====================
+// STANDALONE LEADERBOARD
+// =====================
+async function searchStandaloneLeaderboard() {
+    const pin = document.getElementById('search-leaderboard-pin').value.trim();
+    if (!pin) { alert('يرجى إدخال رقم الغرفة للبحث!'); return; }
+
+    const tbody = document.getElementById('standalone-leaderboard-body');
+    const table = document.getElementById('standalone-leaderboard-table');
+    const loading = document.getElementById('standalone-loading-board');
+
+    table.style.display = 'none';
+    loading.style.display = 'block';
+    loading.innerText = '⏳ جاري جلب البيانات من النظام...';
+    tbody.innerHTML = '';
+
+    try {
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+
+        let players = json.table.rows.filter(r =>
+            r.c[1]?.v?.toString() === pin &&
+            !r.c[2]?.v?.toString().startsWith('QUESTIONS')
+        );
+        players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+
+        if (players.length === 0) {
+            loading.innerText = 'لا توجد نتائج مسجلة لهذه الغرفة حتى الآن.';
+            return;
+        }
+
+        players.forEach((p, i) => {
+            let medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : '🏅'));
+            tbody.innerHTML += `<tr>
+                <td>${i+1} ${medal}</td>
+                <td style="font-weight:bold;">${p.c[0].v}</td>
+                <td style="color:var(--primary);font-weight:900;font-size:22px;">${p.c[2].v}</td>
+            </tr>`;
+        });
+        loading.style.display = 'none';
+        table.style.display = 'table';
+    } catch(e) {
+        loading.innerText = '❌ حدث خطأ أثناء جلب البيانات. تأكد من اتصالك بالإنترنت.';
     }
 }
 
