@@ -253,6 +253,24 @@ function copyGameLink() {
         tbody tr { box-shadow: 0 3px 10px rgba(0,0,0,0.08); transition: transform 0.2s; }
         tbody tr:hover { transform: scale(1.02); }
 
+        /* تنسيقات الصور في الأسئلة */
+        #mathQuestionText img {
+            max-width: 100%;
+            max-height: 250px;
+            height: auto;
+            border-radius: 12px;
+            margin: 10px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .math-btn img {
+            max-width: 120px;
+            height: auto;
+            border-radius: 8px;
+            margin: 5px auto;
+            display: block;
+        }
+
         #screen-loading-sheet {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
             background: rgba(70, 23, 143, 0.95); display: none; flex-direction: column; 
@@ -389,65 +407,13 @@ function copyGameLink() {
         <div style="font-size: 28px; font-weight: bold; margin-top: 20px;" id="loading-text">جاري جلب بيانات التحدي...</div>
     </div>
 
-    <div class="screen active" id="screen-home">
-        <div class="card">
-            <h1>🎮 التحدي الأكبر: Red & Blue</h1>
-            <p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
-            <button class="sys-btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
-            <button class="sys-btn btn-student" onclick="showSystemScreen('screen-student-login')">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
-            <button class="sys-btn btn-action" onclick="showSystemScreen('screen-standalone-leaderboard')" style="margin-top: 15px; background-color: var(--success); color: white; box-shadow: 0 6px 0 var(--k-green-dark);">🏆 البحث عن لوحة صدارة سابقة</button>
-        </div>
-    </div>
+    
 
-    <div class="screen" id="screen-teacher-setup">
-        <div class="q-builder-container">
-            <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة اللعبة</h2>
-            <div style="background: #f3f2f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed #ccc;">
-                <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استرداد غرفة سابقة</h3>
-                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                    <input type="number" id="existing-room-pin" class="sys-input" placeholder="أدخل رقم الغرفة المحفوظة (PIN)" style="margin-bottom: 0; flex: 2; min-width: 200px;">
-                    <button class="sys-btn btn-action" onclick="loadExistingRoom()" style="margin-bottom: 0; flex: 1; padding: 18px; min-width: 150px;">فتح الغرفة</button>
-                </div>
-            </div>
-            <hr style="border: 1px solid #ddd; margin-bottom: 25px;">
-            <h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ أو إنشاء أسئلة جديدة</h3>
-            <p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
-            <div id="questions-list"></div>
-            <button class="sys-btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
-            <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <button class="sys-btn btn-primary" onclick="saveQuestionsToSheet()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
-                <button class="sys-btn btn-back" onclick="showSystemScreen('screen-home')" style="flex: 1;">إلغاء</button>
-            </div>
-        </div>
-    </div>
+    
 
-    <div class="screen" id="screen-teacher">
-        <div style="width: 100%; text-align: center;">
-            <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
-                <h2>انضموا الآن! رمز الغرفة:</h2>
-                <div class="room-pin" id="display-room-pin">000000</div>
-                <p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام...</p>
-                <div id="qr-container" style="margin: 20px 0;">
-                    <img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
-                    <p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز للمشاركة</p>
-                </div>
-                <div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
-                    <input id="game-url-input" class="sys-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
-                    <button class="sys-btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ</button>
-                </div>
-            </div>
-            <table id="leaderboard" style="display: none;">
-                <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
-                <tbody id="leaderboard-body"></tbody>
-            </table>
-            <div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
-                ⏳ بانتظار دخول الأبطال وحل الأسئلة...
-            </div>
-            <button class="sys-btn btn-back" onclick="showSystemScreen('screen-home')" style="max-width: 250px;">إغلاق الغرفة</button>
-        </div>
-    </div>
+    
 
-    <div class="screen" id="screen-student-login">
+    <div class="screen active" id="screen-student-login">
         <div class="card">
             <h2>أدخل بياناتك للانطلاق 🚀</h2>
             <input class="sys-input" id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
@@ -455,7 +421,7 @@ function copyGameLink() {
             <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
             <div class="avatar-grid" id="avatar-container"></div>
             <button class="sys-btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
-            <button class="sys-btn btn-back" onclick="showSystemScreen('screen-home')">رجوع</button>
+            <!-- Back button removed - student login is now the entry point -->
         </div>
     </div>
 
@@ -474,7 +440,7 @@ function copyGameLink() {
             <div id="standalone-loading-board" style="display:none; font-size: 18px; font-weight: bold; color: var(--primary);">
                 ⏳ جاري البحث عن البيانات...
             </div>
-            <button class="sys-btn btn-back" onclick="showSystemScreen('screen-home')" style="margin-top: 25px;">العودة للرئيسية</button>
+            <!-- Back button removed - student login is now the entry point -->
         </div>
     </div>
 
@@ -686,89 +652,13 @@ function copyGameLink() {
         if(id) document.getElementById(id).classList.add('active');
     }
 
-    function openTeacherSetup() {
-        document.getElementById('questions-list').innerHTML = '';
-        qBlockCount = 0;
-        addQuestionBlock();
-        showSystemScreen('screen-teacher-setup');
-    }
+    
 
-    function addQuestionBlock() {
-        const container = document.getElementById('questions-list');
-        const blockId = `q-block-${qBlockCount}`;
-        const html = `
-            <div class="q-block" id="${blockId}">
-                <h3><span>السؤال ${qBlockCount + 1}</span> ${qBlockCount > 0 ? `<button class="remove-q-btn" onclick="document.getElementById('${blockId}').remove()">حذف</button>` : ''}</h3>
-                <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                    <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="margin-bottom: 0;">
-                    <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)" title="إضافة رياضيات">🧮</button>
-                </div>
-                <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="0" checked><input type="text" class="q-opt-input" placeholder="الخيار الأول" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
-                <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="1"><input type="text" class="q-opt-input" placeholder="الخيار الثاني" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
-                <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="2"><input type="text" class="q-opt-input" placeholder="الخيار الثالث" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
-                <div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="3"><input type="text" class="q-opt-input" placeholder="الخيار الرابع" required><button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>
-            </div>`;
-        container.insertAdjacentHTML('beforeend', html);
-        qBlockCount++;
-    }
+    
 
-    function saveQuestionsToSheet() {
-        const blocks = document.querySelectorAll('.q-block');
-        let customQuestions = [];
-        blocks.forEach((block) => {
-            const title = block.querySelector('.q-title-input').value.trim();
-            const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
-            const correctRadio = block.querySelector('input[type="radio"]:checked');
-            if (title && !opts.some(opt => !opt) && correctRadio) {
-                customQuestions.push({ q: title, opts: opts, ans: parseInt(correctRadio.value) });
-            }
-        });
-        if (customQuestions.length === 0) return alert("يرجى تعبئة جميع الحقول!");
+    // Teacher functions removed - student-only mode
 
-        currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
-        document.getElementById('qform-name').value = currentRoomPIN; 
-        document.getElementById('qform-school').value = JSON.stringify(customQuestions); 
-        document.getElementById('saving-status').style.display = 'block';
-        document.getElementById('questionsForm').submit();
-
-        document.getElementById('display-room-pin').innerText = currentRoomPIN;
-generateRoomLinkAndQR();
-        showSystemScreen('screen-teacher');
-        if(refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(fetchLeaderboard, 4000);
-    }
-
-    async function loadExistingRoom() {
-        const pin = document.getElementById('existing-room-pin').value.trim();
-        if (!pin) return alert("يرجى إدخال رقم الغرفة!");
-        document.getElementById('screen-loading-sheet').style.display = 'flex';
-        try {
-            const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-            const text = await res.text();
-            const rows = JSON.parse(text.substring(47, text.length - 2)).table.rows;
-            let copiedQuestions = "";
-            for(let i = rows.length - 1; i >= 0; i--) {
-                if(rows[i] && rows[i].c[0]?.v?.toString() === pin && rows[i].c[1]?.v?.toString().trim().startsWith('[')) {
-                    copiedQuestions = rows[i].c[1].v.toString(); break;
-                }
-            }
-            if (copiedQuestions) {
-                currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
-                document.getElementById('qform-name').value = currentRoomPIN;
-                document.getElementById('qform-school').value = copiedQuestions;
-                document.getElementById('questionsForm').submit();
-                document.getElementById('display-room-pin').innerText = currentRoomPIN;
-generateRoomLinkAndQR();
-                document.getElementById('screen-loading-sheet').style.display = 'none';
-                showSystemScreen('screen-teacher');
-                if(refreshInterval) clearInterval(refreshInterval);
-                refreshInterval = setInterval(fetchLeaderboard, 4000);
-            } else {
-                document.getElementById('screen-loading-sheet').style.display = 'none';
-                alert("لم يتم العثور على أسئلة لرمز الغرفة هذا.");
-            }
-        } catch(e) { document.getElementById('screen-loading-sheet').style.display = 'none'; alert("خطأ بالاتصال"); }
-    }
+    
 
     async function startStudentFlow() {
         const name = document.getElementById('input-student-name').value.trim();
@@ -900,7 +790,6 @@ generateRoomLinkAndQR();
     const urlParams = new URLSearchParams(window.location.search);
     const pinParam = urlParams.get('pin');
     if(pinParam){
-        showSystemScreen('screen-student-login');
         document.getElementById('input-room-pin').value = pinParam;
     }
 };
