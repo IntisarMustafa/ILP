@@ -155,6 +155,7 @@
         .game-card:nth-child(7) { animation-delay: 0.7s; } 
         .game-card:nth-child(8) { animation-delay: 0.8s; }
         .game-card:nth-child(9) { animation-delay: 0.9s; } /* توقيت للبطاقة التاسعة الجديدة */
+        .game-card:nth-child(10) { animation-delay: 1.0s; }
 
         .game-card:hover {
             transform: translateY(-12px) scale(1.02);
@@ -327,6 +328,28 @@
 
         <div class="games-grid">
             
+            <!-- بطاقة لوحة المعلم -->
+            <a href="Teacher.html" class="game-card" style="
+                --theme-color: #7c3aed;
+                --theme-color-hover: #6d28d9;
+                --theme-color-shadow: rgba(124, 58, 237, 0.45);
+                --theme-color-light: rgba(124, 58, 237, 0.18);
+                --theme-bg-1: #faf5ff;
+                --theme-bg-2: #ede9fe;">
+                <div class="icon-wrapper">
+                    <div class="icon-box" style="font-size: 58px; line-height: 1;">
+                        👩‍🏫
+                    </div>
+                </div>
+                <h2 class="game-title">لوحة المعلم</h2>
+                <p class="game-desc">أنشئ مسابقتك التفاعلية وأدر غرفة الأسئلة ومتابعة نتائج الطلاب لحظة بلحظة.</p>
+                <div class="action-btn">
+                    <span>فتح اللوحة</span>
+                    <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
+                </div>
+            </a>
+            <!-- نهاية بطاقة لوحة المعلم -->
+
             <a href="A.html" class="game-card" style="
                 --theme-color: #7c3aed; 
                 --theme-color-hover: #6d28d9;
@@ -685,4 +708,3 @@
 
 </body>
 </html>
-
