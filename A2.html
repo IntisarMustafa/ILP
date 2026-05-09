@@ -100,18 +100,7 @@
         
         .btn-primary { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
         .btn-teacher { background-color: var(--info); box-shadow: 0 6px 0 var(--k-blue-dark); }
-        .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 var(--k-red-dark); }
-        .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; margin-top: 10px; } 
-        .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark); }
-
-        input[type="text"], input[type="number"] {
-            width: 100%; padding: 18px; margin-bottom: 20px;
-            border: 3px solid #ddd; border-radius: 8px;
-            font-size: 18px; font-weight: bold; text-align: center;
-            transition: border-color 0.3s;
-        }
-        input:focus { outline: none; border-color: var(--primary); }
-
+        
         /* Teacher Setup UI */
         .q-builder-container {
             width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.95);
@@ -130,6 +119,19 @@
         .remove-q-btn { background: var(--k-red); color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .math-trigger-btn { background: #46178f; color: white; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 0 #321067;}
         .math-trigger-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #321067; }
+        .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
+        
+        .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 var(--k-red-dark); }
+        .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; margin-top: 10px; } 
+        .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark); }
+
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 18px; margin-bottom: 20px;
+            border: 3px solid #ddd; border-radius: 8px;
+            font-size: 18px; font-weight: bold; text-align: center;
+            transition: border-color 0.3s;
+        }
+        input:focus { outline: none; border-color: var(--primary); }
         
         .avatar-grid {
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
@@ -406,6 +408,7 @@
 <div id="countdown-text">استعد!</div>
 <div id="countdown-number">3</div>
 </div>
+
 <div class="screen active" id="screen-home">
 <div class="card">
 <h1>🎮 التحدي الأكبر</h1>
@@ -415,6 +418,7 @@
 <button class="btn btn-action" onclick="showScreen('screen-standalone-leaderboard')" style="margin-top: 15px; background-color: var(--success); color: white; box-shadow: 0 6px 0 var(--k-green-dark);">🏆 البحث عن لوحة صدارة سابقة</button>
 </div>
 </div>
+
 <div class="screen" id="screen-teacher-setup">
 <div class="q-builder-container">
 <h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
@@ -427,23 +431,12 @@
     </div>
 </div>
 
-<hr style="border: 1px solid #ddd; margin-bottom: 25px;">
-<h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ أو إنشاء أسئلة جديدة</h3>
-
-<p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
-<div class="input-group" style="margin-bottom:20px;">
-<label style="font-weight:bold; color:var(--primary);">عنوان الاختبار:</label>
-<input type="text" id="customTitle" placeholder="مثلاً: مراجعة الوحدة الأولى"
-style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margin-top:8px;">
-</div>
-<div id="questions-list"></div>
-<button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
 <div style="margin-top: 30px; display: flex; gap: 10px;">
-<button class="btn btn-primary" onclick="saveQuestionsToSheet()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
 <button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">إلغاء</button>
 </div>
 </div>
 </div>
+
 <div class="screen" id="screen-teacher">
 <div style="width: 100%; text-align: center;">
 <div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
@@ -472,6 +465,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 <button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
 </div>
 </div>
+
 <div class="screen" id="screen-student-login">
 <div class="card">
 <h2>أدخل بياناتك للانطلاق 🚀</h2>
@@ -480,7 +474,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
 <div class="avatar-grid" id="avatar-container"></div>
 <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
-<button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
+
 </div>
 </div>
 <div class="screen" id="screen-student-game" style="max-width: 1000px;">
@@ -533,7 +527,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
 <button class="btn btn-action" onclick="toggleReview()">📝 مراجعة إجاباتي</button>
 <button class="btn btn-action" onclick="viewCurrentRoomLeaderboard()" style="font-size: 22px; margin-top:15px; background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark);">🏆 عرض لوحة الصدارة</button>
 <div id="review-container"></div>
-<button class="btn btn-primary" onclick="window.location.href = window.location.href.split('?')[0]" style="font-size: 22px; margin-top:15px;">العب مرة أخرى</button>
+<button class="btn btn-primary" onclick="showScreen('screen-student-login'); setupAvatars();" style="font-size: 22px; margin-top:15px;">العب مرة أخرى</button>
 </div>
 </div>
 <div class="screen" id="screen-standalone-leaderboard">
@@ -555,7 +549,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
             ⏳ جاري البحث عن البيانات...
         </div>
 
-        <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top: 25px;">العودة للرئيسية</button>
+        <button class="btn btn-back" onclick="showScreen('screen-student-login')" style="margin-top: 25px;">العودة للرئيسية</button>
     </div>
 </div>
 <div id="math-modal-overlay">
@@ -872,42 +866,8 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
         const matchingColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#46178f', '#ff8c00', '#00c2e0', '#ff477e'];
 
         function openTeacherSetup() {
-            document.getElementById('questions-list').innerHTML = '';
-            qBlockCount = 0;
-            addQuestionBlock();
             showScreen('screen-teacher-setup');
         }
-
-        function addQuestionBlock() {
-    const container = document.getElementById('questions-list');
-    const count = container.children.length + 1;
-    const blockId = `q-block-${Date.now()}`;
-
-    const html = `
-    <div class="q-block" id="${blockId}">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h3 style="margin:0; color:var(--primary);">
-                السؤال <span class="q-num">${count}</span>
-            </h3>
-            <button class="remove-q-btn" onclick="removeQuestion('${blockId}')">حذف</button>
-        </div>
-
-        <div style="display:flex; gap:10px; margin-bottom: 15px;">
-            <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="flex:1;">
-            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-            <input type="number" class="q-time-input" value="15" min="5" max="300" style="width:70px; text-align:center;">
-        </div>
-
-        ${[0,1,2,3].map(i => `
-        <div class="opt-row">
-            <input type="radio" name="correct-${blockId}" value="${i}" ${i===0?'checked':''}>
-            <input type="text" class="q-opt-input" placeholder="خيار ${i+1}" required>
-            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
-        </div>
-        `).join('')}
-    </div>`;
-    container.insertAdjacentHTML('beforeend', html);
-}
 
         async function loadExistingRoom() {
             const pin = document.getElementById('existing-room-pin').value.trim();
@@ -938,7 +898,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
                 }
 
                 if (roomFound) {
-                    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+                    currentRoomPIN = pin;
                     document.getElementById('qform-name').value = currentRoomPIN; 
                     document.getElementById('qform-school').value = copiedQuestions; 
                     document.getElementById('saving-status').style.display = 'block';
@@ -952,7 +912,7 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
                     const qrImg = document.getElementById('room-qr-code');
                     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
                     qrImg.style.display = 'block';
-                    document.getElementById('btn-next-question').style.display = 'inline-block'; // إظهار زر التحكم
+                    document.getElementById('btn-next-question').style.display = 'inline-block'; 
                     
                     loadingScreen.style.display = 'none';
                     playBGM('lobby'); showScreen('screen-teacher');
@@ -969,65 +929,8 @@ style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margi
             loadingText.innerText = "جاري جلب أسئلة التحدي من المعلم...";
         }
 
-        function updateQuestionNumbers() {
-    const nums = document.querySelectorAll('.q-num');
-    nums.forEach((el, i) => el.innerText = i + 1);
-}
-function removeQuestion(id){
-    document.getElementById(id).remove();
-    updateQuestionNumbers();
-}
 
-function saveQuestionsToSheet() {
-            const blocks = document.querySelectorAll('.q-block');
-            let customQuestions = [];
-            let isValid = true;
 
-            blocks.forEach((block) => {
-                const title = block.querySelector('.q-title-input').value.trim();
-                const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
-                const correctRadio = block.querySelector('input[type="radio"]:checked');
-                if (!title || opts.some(opt => !opt)) isValid = false;
-                const qTime = parseInt(block.querySelector('.q-time-input').value) || 15;
-                if (correctRadio) { 
-                    customQuestions.push({ 
-                        q: title, 
-                        opts: opts, 
-                        ans: parseInt(correctRadio.value),
-                        time: qTime 
-                    }); 
-                }
-            });
-
-            if (!isValid || customQuestions.length === 0) { alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!"); return; }
-            totalRoomQuestions = customQuestions.length;
-
-            playBGM('lobby');
-            currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            document.getElementById('qform-name').value = currentRoomPIN; 
-            document.getElementById('qform-school').value = JSON.stringify(customQuestions); 
-            document.getElementById('saving-status').style.display = 'block';
-            document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
-            document.getElementById('questionsForm').submit();
-
-            document.getElementById('display-room-pin').innerText = currentRoomPIN;
-            const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
-            document.getElementById('game-url-input').value = gameUrl;
-            
-            const qrImg = document.getElementById('room-qr-code');
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
-            qrImg.style.display = 'block';
-            document.getElementById('btn-next-question').style.display = 'inline-block'; // إظهار زر التحكم
-            teacherQCount = 0;
-
-            showScreen('screen-teacher');
-            refreshInterval = setInterval(fetchLeaderboard, 4000);
-        }
-
-        // ========================================== //
-        // زر إرسال الأمر من المعلم (انتقال للسؤال التالي) //
-        // ========================================== //
         function sendNextQuestionCommand() {
             teacherQCount++;
             document.getElementById('form-name').value = "TEACHER_CMD";
@@ -1059,6 +962,8 @@ function saveQuestionsToSheet() {
                 const pinInput = document.getElementById('input-room-pin');
                 if(pinInput) pinInput.value = urlParams.get('pin');
                 showScreen('screen-student-login');
+            } else {
+                showScreen('screen-home'); // هذه هي الإضافة لفتح الصفحة الرئيسية أولاً
             }
         };
 
@@ -1132,8 +1037,35 @@ function saveQuestionsToSheet() {
             playBGM('game');
             const q = gameQuestions[currentQIndex];
 
-            // 1) ضع السؤال
-            document.getElementById('question-text').textContent = q.q;
+            // 1) ضع السؤال - دعم النص المنسق والصور ومعادلات الرياضيات
+            const questionTextEl = document.getElementById('question-text');
+            const type = q.type || 'mc'; // الافتراضي اختيار من متعدد - يجب تعريفه أولاً
+
+            // 1) بناء محتوى السؤال
+            let questionHTML = '';
+            
+            // إذا كان السؤال يحتوي على صورة
+            if (q.img) {
+                questionHTML += `<div style="margin-bottom:15px; text-align:center;"><img src="${q.img}" alt="صورة السؤال" style="max-width:100%; max-height:300px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.15);"></div>`;
+            }
+            
+            // نص السؤال - دعم HTML والنص العادي
+            if (q.textContent) {
+                questionHTML += q.textContent;
+            } else if (q.q && q.q.includes('<') && q.q.includes('>')) {
+                questionHTML += q.q;
+            } else {
+                questionHTML += q.q || '';
+            }
+            
+            questionTextEl.innerHTML = questionHTML;
+            
+            // تطبيق لون خلفية خاص بنوع textslide
+            if (type === 'textslide' && q.textBg) {
+                questionTextEl.style.backgroundColor = q.textBg;
+            } else {
+                questionTextEl.style.backgroundColor = '';
+            }
             
             // تحديث الترقيم
             const counterEl = document.getElementById('question-counter');
@@ -1147,9 +1079,7 @@ function saveQuestionsToSheet() {
 
             // 2) بناء منطقة الإجابات بناءً على نوع السؤال
             const ansGrid = document.querySelector('.answers-grid');
-            ansGrid.innerHTML = ''; 
-
-            const type = q.type || 'mc'; // الافتراضي اختيار من متعدد
+            ansGrid.innerHTML = '';
 
             if (type === 'mc' || type === 'tf') {
                 const opts = q.opts || [];
@@ -1225,6 +1155,14 @@ function saveQuestionsToSheet() {
                     </div>`;
                 ansGrid.innerHTML = dragHtml;
                 renderDragItems();
+            } else if (type === 'textslide') {
+                // شريحة نص - تعرض فقط زر متابعة، لا تتطلب إجابة
+                ansGrid.innerHTML = `
+                    <div style="grid-column:1/-1; display:flex; justify-content:center; margin-top:20px;">
+                        <button class="btn btn-primary" onclick="advanceTextSlide()" style="max-width:300px; font-size:22px;">
+                            متابعة ←
+                        </button>
+                    </div>`;
             }
 
             // 3) تشغيل MathLive
@@ -1234,16 +1172,32 @@ function saveQuestionsToSheet() {
             }
 
             // 4) تشغيل المؤقت (باستخدام توقيت السؤال أو التوقيت الافتراضي 15 ثانية الخاص بملف A2)
+
             currentQuestionTime = q.time || 15; 
             timeLeft = currentQuestionTime;
             updateTimerBar();
 
             clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timeLeft -= 0.1;
-                updateTimerBar();
-                if (timeLeft <= 0) { clearInterval(timerInterval); submitAnswer(-1); }
-            }, 100);
+            // شريحة النص لا تحتاج مؤقتاً إلزامياً - الطالب يضغط متابعة
+            if (type !== 'textslide') {
+                timerInterval = setInterval(() => {
+                    timeLeft -= 0.1;
+                    updateTimerBar();
+                    if (timeLeft <= 0) { clearInterval(timerInterval); submitAnswer(-1); }
+                }, 100);
+            }
+        }
+
+        // دالة المتابعة لشريحة النص (بدون تسجيل إجابة)
+        function advanceTextSlide() {
+            clearInterval(timerInterval);
+            currentQIndex++;
+            userAnswersHistory.push({ question: gameQuestions[currentQIndex - 1].q, userAnswer: 'شريحة نص', correctAnswer: '', isCorrect: true });
+            if (currentQIndex < gameQuestions.length) {
+                startCountdown();
+            } else {
+                endGame();
+            }
         }
 
         function updateTimerBar() {
