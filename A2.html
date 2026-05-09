@@ -99,6 +99,7 @@
         .btn:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0.2); }
         
         .btn-primary { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
+        .btn-teacher { background-color: var(--info); box-shadow: 0 6px 0 var(--k-blue-dark); }
         .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 var(--k-red-dark); }
         .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; margin-top: 10px; } 
         .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark); }
@@ -387,7 +388,14 @@
         }
 
         function handleQuestionsLoad() {
-            // لا شيء - هذا خاص بالمعلم فقط
+            const screen = document.getElementById('screen-teacher');
+            if (screen && screen.classList.contains('active')) {
+                const status = document.getElementById('saving-status');
+                if (status) {
+                    status.innerText = "✅ تم حفظ الأسئلة بنجاح! يمكن للطلاب الدخول الآن.";
+                    status.style.color = "var(--success)";
+                }
+            }
         }
     </script>
 <div id="screen-loading-sheet">
@@ -398,8 +406,73 @@
 <div id="countdown-text">استعد!</div>
 <div id="countdown-number">3</div>
 </div>
+<div class="screen active" id="screen-home">
+<div class="card">
+<h1>🎮 التحدي الأكبر</h1>
+<p style="margin-bottom: 25px; font-size: 18px; color: #555;">هل أنت مستعد لاختبار معلوماتك وتجاوز التحديات؟</p>
+<button class="btn btn-teacher" onclick="openTeacherSetup()">👨‍🏫 إنشاء مسابقة (للمعلم)</button>
+<button class="btn btn-student" onclick="goToStudentLogin()">🧑‍🎓 الانضمام لتحدي (للطالب)</button>
+<button class="btn btn-action" onclick="showScreen('screen-standalone-leaderboard')" style="margin-top: 15px; background-color: var(--success); color: white; box-shadow: 0 6px 0 var(--k-green-dark);">🏆 البحث عن لوحة صدارة سابقة</button>
+</div>
+</div>
+<div class="screen" id="screen-teacher-setup">
+<div class="q-builder-container">
+<h2 style="text-align: center; color: var(--primary);">📝 إعداد أسئلة التحدي</h2>
 
-<div class="screen active" id="screen-student-login">
+<div style="background: #f3f2f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 2px dashed #ccc;">
+    <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 20px;">🔄 استرداد غرفة سابقة</h3>
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <input type="number" id="existing-room-pin" placeholder="أدخل رقم الغرفة المحفوظة (PIN)" style="margin-bottom: 0; flex: 2; min-width: 200px;">
+        <button class="btn btn-action" onclick="loadExistingRoom()" style="margin-bottom: 0; flex: 1; padding: 18px; min-width: 150px;">فتح الغرفة</button>
+    </div>
+</div>
+
+<hr style="border: 1px solid #ddd; margin-bottom: 25px;">
+<h3 style="color: var(--primary); margin-bottom: 20px; font-size: 20px;">✨ أو إنشاء أسئلة جديدة</h3>
+
+<p style="text-align: center; margin-bottom: 20px; color: #666;">قم بإدخال أسئلتك، حدد الخيارات، واختر الإجابة الصحيحة لكل سؤال. (استخدم زر 🧮 لكتابة المعادلات)</p>
+<div class="input-group" style="margin-bottom:20px;">
+<label style="font-weight:bold; color:var(--primary);">عنوان الاختبار:</label>
+<input type="text" id="customTitle" placeholder="مثلاً: مراجعة الوحدة الأولى"
+style="width:100%; padding:12px; border-radius:8px; border:2px solid #ddd; margin-top:8px;">
+</div>
+<div id="questions-list"></div>
+<button class="btn btn-action" onclick="addQuestionBlock()">+ إضافة سؤال جديد</button>
+<div style="margin-top: 30px; display: flex; gap: 10px;">
+<button class="btn btn-primary" onclick="saveQuestionsToSheet()" style="flex: 2;">💾 حفظ وإنشاء الغرفة</button>
+<button class="btn btn-back" onclick="showScreen('screen-home')" style="flex: 1;">إلغاء</button>
+</div>
+</div>
+</div>
+<div class="screen" id="screen-teacher">
+<div style="width: 100%; text-align: center;">
+<div class="card" style="max-width: 100%; margin-bottom: 20px; background: white;">
+<h2>انضموا الآن! رمز الغرفة:</h2>
+<div class="room-pin" id="display-room-pin">000000</div>
+<p id="saving-status" style="color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px;">⏳ جاري تخزين الأسئلة في النظام الموحد...</p>
+<div id="qr-container" style="margin: 20px 0;">
+<img alt="QR Code للغرفة" id="room-qr-code" src="" style="width: 220px; height: 220px; border-radius: 12px; border: 6px solid var(--primary); display: none; margin: 0 auto;"/>
+<p style="margin-top: 15px; font-size: 20px; font-weight: bold; color: var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
+</div>
+<div class="share-link-box" style="margin-top: 25px; display: flex; gap: 10px;">
+<input id="game-url-input" readonly="" style="margin-bottom:0; flex: 1; font-size: 14px;" type="text"/>
+<button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; width: auto; padding: 0 30px;">نسخ الرابط</button>
+</div>
+</div>
+<table id="leaderboard" style="display: none;">
+<thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+<tbody id="leaderboard-body"></tbody>
+</table>
+<div id="loading-board" style="background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; font-size: 24px; font-weight: bold; color: var(--primary);">
+                ⏳ بانتظار دخول الأبطال وحل الأسئلة...
+            </div>
+            
+<button class="btn btn-action" id="btn-next-question" onclick="sendNextQuestionCommand()" style="margin-top: 15px; display: none; background-color: var(--warning); color: black;">⏩ إرسال السؤال التالي للطلاب</button>
+
+<button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
+</div>
+</div>
+<div class="screen" id="screen-student-login">
 <div class="card">
 <h2>أدخل بياناتك للانطلاق 🚀</h2>
 <input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
@@ -407,7 +480,7 @@
 <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
 <div class="avatar-grid" id="avatar-container"></div>
 <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
-
+<button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
 </div>
 </div>
 <div class="screen" id="screen-student-game" style="max-width: 1000px;">
@@ -460,7 +533,7 @@
 <button class="btn btn-action" onclick="toggleReview()">📝 مراجعة إجاباتي</button>
 <button class="btn btn-action" onclick="viewCurrentRoomLeaderboard()" style="font-size: 22px; margin-top:15px; background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark);">🏆 عرض لوحة الصدارة</button>
 <div id="review-container"></div>
-<button class="btn btn-primary" onclick="showScreen('screen-student-login'); setupAvatars();" style="font-size: 22px; margin-top:15px;">العب مرة أخرى</button>
+<button class="btn btn-primary" onclick="window.location.href = window.location.href.split('?')[0]" style="font-size: 22px; margin-top:15px;">العب مرة أخرى</button>
 </div>
 </div>
 <div class="screen" id="screen-standalone-leaderboard">
@@ -482,7 +555,7 @@
             ⏳ جاري البحث عن البيانات...
         </div>
 
-        <button class="btn btn-back" onclick="showScreen('screen-student-login')" style="margin-top: 25px;">العودة للرئيسية</button>
+        <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top: 25px;">العودة للرئيسية</button>
     </div>
 </div>
 <div id="math-modal-overlay">
@@ -798,14 +871,195 @@
         let currentDragState = { items: [], selectedWordId: null, elementsCreated: false };
         const matchingColors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#46178f', '#ff8c00', '#00c2e0', '#ff477e'];
 
+        function openTeacherSetup() {
+            document.getElementById('questions-list').innerHTML = '';
+            qBlockCount = 0;
+            addQuestionBlock();
+            showScreen('screen-teacher-setup');
+        }
+
+        function addQuestionBlock() {
+    const container = document.getElementById('questions-list');
+    const count = container.children.length + 1;
+    const blockId = `q-block-${Date.now()}`;
+
+    const html = `
+    <div class="q-block" id="${blockId}">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; color:var(--primary);">
+                السؤال <span class="q-num">${count}</span>
+            </h3>
+            <button class="remove-q-btn" onclick="removeQuestion('${blockId}')">حذف</button>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom: 15px;">
+            <input type="text" class="q-title-input" placeholder="اكتب السؤال هنا..." required style="flex:1;">
+            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+            <input type="number" class="q-time-input" value="15" min="5" max="300" style="width:70px; text-align:center;">
+        </div>
+
+        ${[0,1,2,3].map(i => `
+        <div class="opt-row">
+            <input type="radio" name="correct-${blockId}" value="${i}" ${i===0?'checked':''}>
+            <input type="text" class="q-opt-input" placeholder="خيار ${i+1}" required>
+            <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+        </div>
+        `).join('')}
+    </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+        async function loadExistingRoom() {
+            const pin = document.getElementById('existing-room-pin').value.trim();
+            if (!pin) { alert("يرجى إدخال رقم الغرفة!"); return; }
+
+            const loadingScreen = document.getElementById('screen-loading-sheet');
+            const loadingText = document.getElementById('loading-text');
+            loadingScreen.style.display = 'flex';
+            loadingText.innerText = "جاري البحث عن الغرفة واستنساخ الأسئلة...";
+
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                
+                let roomFound = false, copiedQuestions = ""; 
+
+                for(let i = rows.length - 1; i >= 0; i--) {
+                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
+                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
+                            roomFound = true; 
+                            copiedQuestions = rows[i].c[1].v.toString(); 
+                            totalRoomQuestions = JSON.parse(copiedQuestions).length;
+                            break;
+                        }
+                    }
+                }
+
+                if (roomFound) {
+                    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+                    document.getElementById('qform-name').value = currentRoomPIN; 
+                    document.getElementById('qform-school').value = copiedQuestions; 
+                    document.getElementById('saving-status').style.display = 'block';
+                    document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة في النظام...";
+                    document.getElementById('questionsForm').submit(); 
+
+                    document.getElementById('display-room-pin').innerText = currentRoomPIN;
+                    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+                    document.getElementById('game-url-input').value = gameUrl;
+                    
+                    const qrImg = document.getElementById('room-qr-code');
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+                    qrImg.style.display = 'block';
+                    document.getElementById('btn-next-question').style.display = 'inline-block'; // إظهار زر التحكم
+                    
+                    loadingScreen.style.display = 'none';
+                    playBGM('lobby'); showScreen('screen-teacher');
+                    teacherQCount = 0;
+                    
+                    if (refreshInterval) clearInterval(refreshInterval);
+                    refreshInterval = setInterval(fetchLeaderboard, 4000);
+                    fetchLeaderboard(); 
+                } else {
+                    loadingScreen.style.display = 'none';
+                    alert("عذراً! لم يتم العثور على أسئلة محفوظة.");
+                }
+            } catch (err) { loadingScreen.style.display = 'none'; alert("حدث خطأ."); }
+            loadingText.innerText = "جاري جلب أسئلة التحدي من المعلم...";
+        }
+
+        function updateQuestionNumbers() {
+    const nums = document.querySelectorAll('.q-num');
+    nums.forEach((el, i) => el.innerText = i + 1);
+}
+function removeQuestion(id){
+    document.getElementById(id).remove();
+    updateQuestionNumbers();
+}
+
+function saveQuestionsToSheet() {
+            const blocks = document.querySelectorAll('.q-block');
+            let customQuestions = [];
+            let isValid = true;
+
+            blocks.forEach((block) => {
+                const title = block.querySelector('.q-title-input').value.trim();
+                const opts = Array.from(block.querySelectorAll('.q-opt-input')).map(input => input.value.trim());
+                const correctRadio = block.querySelector('input[type="radio"]:checked');
+                if (!title || opts.some(opt => !opt)) isValid = false;
+                const qTime = parseInt(block.querySelector('.q-time-input').value) || 15;
+                if (correctRadio) { 
+                    customQuestions.push({ 
+                        q: title, 
+                        opts: opts, 
+                        ans: parseInt(correctRadio.value),
+                        time: qTime 
+                    }); 
+                }
+            });
+
+            if (!isValid || customQuestions.length === 0) { alert("يرجى تعبئة جميع الحقول والخيارات لكل الأسئلة!"); return; }
+            totalRoomQuestions = customQuestions.length;
+
+            playBGM('lobby');
+            currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            document.getElementById('qform-name').value = currentRoomPIN; 
+            document.getElementById('qform-school').value = JSON.stringify(customQuestions); 
+            document.getElementById('saving-status').style.display = 'block';
+            document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
+            document.getElementById('questionsForm').submit();
+
+            document.getElementById('display-room-pin').innerText = currentRoomPIN;
+            const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+            document.getElementById('game-url-input').value = gameUrl;
+            
+            const qrImg = document.getElementById('room-qr-code');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
+            qrImg.style.display = 'block';
+            document.getElementById('btn-next-question').style.display = 'inline-block'; // إظهار زر التحكم
+            teacherQCount = 0;
+
+            showScreen('screen-teacher');
+            refreshInterval = setInterval(fetchLeaderboard, 4000);
+        }
+
+        // ========================================== //
+        // زر إرسال الأمر من المعلم (انتقال للسؤال التالي) //
+        // ========================================== //
+        function sendNextQuestionCommand() {
+            teacherQCount++;
+            document.getElementById('form-name').value = "TEACHER_CMD";
+            document.getElementById('form-school').value = currentRoomPIN;
+            document.getElementById('form-score').value = "NEXT_" + teacherQCount;
+            document.getElementById('scoreForm').submit();
+            
+            const btn = document.getElementById('btn-next-question');
+            btn.innerText = "⏳ تم الإرسال... انتظر قليلاً";
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                if (teacherQCount >= totalRoomQuestions) {
+                    btn.innerText = "🏆 انتهت المسابقة! (الفائزون موضحون بلوحة الصدارة)";
+                    btn.style.backgroundColor = "var(--success)";
+                    btn.style.color = "white";
+                    btn.disabled = true;
+                } else {
+                    btn.innerText = "⏩ إرسال السؤال التالي للطلاب";
+                    btn.disabled = false;
+                }
+            }, 3000);
+        }
+
         window.onload = () => {
             setupAvatars();
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('pin')) {
                 const pinInput = document.getElementById('input-room-pin');
                 if(pinInput) pinInput.value = urlParams.get('pin');
+                showScreen('screen-student-login');
             }
-            showScreen('screen-student-login');
         };
 
         function showScreen(id) {
@@ -878,35 +1132,8 @@
             playBGM('game');
             const q = gameQuestions[currentQIndex];
 
-            // 1) ضع السؤال - دعم النص المنسق والصور ومعادلات الرياضيات
-            const questionTextEl = document.getElementById('question-text');
-            const type = q.type || 'mc'; // الافتراضي اختيار من متعدد - يجب تعريفه أولاً
-
-            // 1) بناء محتوى السؤال
-            let questionHTML = '';
-            
-            // إذا كان السؤال يحتوي على صورة
-            if (q.img) {
-                questionHTML += `<div style="margin-bottom:15px; text-align:center;"><img src="${q.img}" alt="صورة السؤال" style="max-width:100%; max-height:300px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.15);"></div>`;
-            }
-            
-            // نص السؤال - دعم HTML والنص العادي
-            if (q.textContent) {
-                questionHTML += q.textContent;
-            } else if (q.q && q.q.includes('<') && q.q.includes('>')) {
-                questionHTML += q.q;
-            } else {
-                questionHTML += q.q || '';
-            }
-            
-            questionTextEl.innerHTML = questionHTML;
-            
-            // تطبيق لون خلفية خاص بنوع textslide
-            if (type === 'textslide' && q.textBg) {
-                questionTextEl.style.backgroundColor = q.textBg;
-            } else {
-                questionTextEl.style.backgroundColor = '';
-            }
+            // 1) ضع السؤال
+            document.getElementById('question-text').textContent = q.q;
             
             // تحديث الترقيم
             const counterEl = document.getElementById('question-counter');
@@ -920,7 +1147,9 @@
 
             // 2) بناء منطقة الإجابات بناءً على نوع السؤال
             const ansGrid = document.querySelector('.answers-grid');
-            ansGrid.innerHTML = '';
+            ansGrid.innerHTML = ''; 
+
+            const type = q.type || 'mc'; // الافتراضي اختيار من متعدد
 
             if (type === 'mc' || type === 'tf') {
                 const opts = q.opts || [];
@@ -996,14 +1225,6 @@
                     </div>`;
                 ansGrid.innerHTML = dragHtml;
                 renderDragItems();
-            } else if (type === 'textslide') {
-                // شريحة نص - تعرض فقط زر متابعة، لا تتطلب إجابة
-                ansGrid.innerHTML = `
-                    <div style="grid-column:1/-1; display:flex; justify-content:center; margin-top:20px;">
-                        <button class="btn btn-primary" onclick="advanceTextSlide()" style="max-width:300px; font-size:22px;">
-                            متابعة ←
-                        </button>
-                    </div>`;
             }
 
             // 3) تشغيل MathLive
@@ -1013,32 +1234,16 @@
             }
 
             // 4) تشغيل المؤقت (باستخدام توقيت السؤال أو التوقيت الافتراضي 15 ثانية الخاص بملف A2)
-
             currentQuestionTime = q.time || 15; 
             timeLeft = currentQuestionTime;
             updateTimerBar();
 
             clearInterval(timerInterval);
-            // شريحة النص لا تحتاج مؤقتاً إلزامياً - الطالب يضغط متابعة
-            if (type !== 'textslide') {
-                timerInterval = setInterval(() => {
-                    timeLeft -= 0.1;
-                    updateTimerBar();
-                    if (timeLeft <= 0) { clearInterval(timerInterval); submitAnswer(-1); }
-                }, 100);
-            }
-        }
-
-        // دالة المتابعة لشريحة النص (بدون تسجيل إجابة)
-        function advanceTextSlide() {
-            clearInterval(timerInterval);
-            currentQIndex++;
-            userAnswersHistory.push({ question: gameQuestions[currentQIndex - 1].q, userAnswer: 'شريحة نص', correctAnswer: '', isCorrect: true });
-            if (currentQIndex < gameQuestions.length) {
-                startCountdown();
-            } else {
-                endGame();
-            }
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                updateTimerBar();
+                if (timeLeft <= 0) { clearInterval(timerInterval); submitAnswer(-1); }
+            }, 100);
         }
 
         function updateTimerBar() {
