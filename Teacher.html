@@ -6,111 +6,7 @@
 <title>📝 لوحة المعلم - إنشاء الأسئلة</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/mathlive"></script>
-<script>
-function addExactPoint() {
-    const x = parseFloat(document.getElementById('exact-x').value);
-    const y = parseFloat(document.getElementById('exact-y').value);
 
-    if (isNaN(x) || isNaN(y)) {
-        alert('الرجاء إدخال إحداثيات (X و Y) صحيحة!');
-        return;
-    }
-
-    graphState.elements.push({
-        type: 'point',
-        x: x,
-        y: y,
-        color: getGraphColor(),
-        size: getGraphWidth() + 3
-    });
-
-    renderGraph();
-    renderElementsList();
-
-    document.getElementById('exact-x').value = '';
-    document.getElementById('exact-y').value = '';
-}
-
-
-function updateExactInputs() {
-    const type = document.getElementById('exactElementType').value;
-    const container = document.getElementById('exactInputsContainer');
-    let html = '';
-
-    const makeCoord = (lbl, idPre) => `
-        <div style="display:flex; gap:2px; align-items:center; background:#16213e; padding:4px 6px; border-radius:6px; border:1px solid #1368ce;" dir="ltr">
-            <span style="color:#aaa;font-size:11px; font-family:monospace;">${lbl}</span>
-            <input type="number" id="${idPre}x" class="graph-func-input" placeholder="X" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
-            <input type="number" id="${idPre}y" class="graph-func-input" placeholder="Y" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
-        </div>`;
-
-    if (type === 'point') {
-        html = makeCoord('P', 'p1_') + `
-        <input type="text" id="p1_name" class="graph-func-input" placeholder="تسمية (اختياري)" style="min-width:100px; padding:4px; font-size:12px; margin:0;" dir="rtl">`;
-    } else if (type === 'segment') {
-        html = makeCoord('P1', 'p1_') + makeCoord('P2', 'p2_');
-    } else if (type === 'triangle') {
-        html = makeCoord('P1', 'p1_') + makeCoord('P2', 'p2_') + makeCoord('P3', 'p3_');
-    } else if (type === 'quadrilateral') {
-        html = makeCoord('P1', 'p1_') + makeCoord('P2', 'p2_') + makeCoord('P3', 'p3_') + makeCoord('P4', 'p4_');
-    } else if (type === 'circle') {
-        html = makeCoord('المركز', 'p1_') + `
-        <div style="display:flex; gap:2px; align-items:center; background:#16213e; padding:4px 6px; border-radius:6px; border:1px solid #1368ce;">
-            <span style="color:#aaa;font-size:11px;">نق(r)</span>
-            <input type="number" id="circ_r" class="graph-func-input" placeholder="R" style="min-width:50px; max-width:60px; padding:4px; font-size:12px; margin:0;" dir="ltr" min="0.1">
-        </div>`;
-    } else if (type === 'function') {
-        html = `<input type="text" class="graph-func-input" id="func_expr" placeholder="مثال: x^2 أو sin(x)" style="min-width: 160px; margin:0;" dir="ltr">`;
-    }
-    container.innerHTML = html;
-}
-
-function addExactElement() {
-    const type = document.getElementById('exactElementType').value;
-    const color = document.getElementById('exactColor').value;
-    const width = typeof getGraphWidth === 'function' ? getGraphWidth() : 2;
-
-    const getV = (id) => parseFloat(document.getElementById(id)?.value);
-    const checkNaN = (...vals) => vals.some(v => isNaN(v));
-
-    let el = null;
-
-    if (type === 'point') {
-        const x = getV('p1_x'), y = getV('p1_y');
-        const name = document.getElementById('p1_name')?.value.trim() || '';
-        if (checkNaN(x, y)) return alert('الرجاء إدخال الإحداثيات.');
-        el = { type: 'point', x, y, color, size: width + 3, name: name };
-    } else if (type === 'segment') {
-        const x1 = getV('p1_x'), y1 = getV('p1_y'), x2 = getV('p2_x'), y2 = getV('p2_y');
-        if (checkNaN(x1, y1, x2, y2)) return alert('الرجاء إدخال إحداثيات النقطتين.');
-        el = { type: 'segment', x1, y1, x2, y2, color, width };
-    } else if (type === 'triangle') {
-        const x1 = getV('p1_x'), y1 = getV('p1_y'), x2 = getV('p2_x'), y2 = getV('p2_y'), x3 = getV('p3_x'), y3 = getV('p3_y');
-        if (checkNaN(x1, y1, x2, y2, x3, y3)) return alert('الرجاء إدخال إحداثيات النقاط الثلاث.');
-        el = { type: 'triangle', x1, y1, x2, y2, x3, y3, color, width };
-    } else if (type === 'quadrilateral') {
-        const x1 = getV('p1_x'), y1 = getV('p1_y'), x2 = getV('p2_x'), y2 = getV('p2_y'), x3 = getV('p3_x'), y3 = getV('p3_y'), x4 = getV('p4_x'), y4 = getV('p4_y');
-        if (checkNaN(x1, y1, x2, y2, x3, y3, x4, y4)) return alert('الرجاء إدخال إحداثيات النقاط الأربع.');
-        el = { type: 'quadrilateral', x1, y1, x2, y2, x3, y3, x4, y4, color, width };
-    } else if (type === 'circle') {
-        const cx = getV('p1_x'), cy = getV('p1_y'), r = getV('circ_r');
-        if (checkNaN(cx, cy, r) || r <= 0) return alert('الرجاء إدخال إحداثيات المركز ونصف قطر صحيح.');
-        el = { type: 'circle', cx, cy, r, color, width };
-    } else if (type === 'function') {
-        const expr = document.getElementById('func_expr').value.trim();
-        if (!expr) return alert('الرجاء إدخال الاقتران.');
-        el = { type: 'function', expr, color, label: `f(x) = ${expr}` };
-    }
-
-    if (el && typeof graphState !== 'undefined' && graphState.elements) {
-        graphState.elements.push(el);
-        if (typeof renderGraph === 'function') renderGraph();
-        if (typeof renderElementsList === 'function') renderElementsList();
-        document.querySelectorAll('#exactInputsContainer input[type="number"]').forEach(inp => inp.value = '');
-    }
-}
-
-</script>
 <style>
     :root {
         --primary: #46178f;
@@ -1055,7 +951,7 @@ function addExactElement() {
 // =====================
 // CONSTANTS
 // =====================
-const SHEET_ID = "1BDRGA-F7LuQcv_aXYjnGJBFxBkFGPbxECsHqM2dshZs";
+const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
 let currentRoomPIN = "";
 let refreshInterval = null;
 let qBlockCount = 0;
@@ -2357,6 +2253,84 @@ function deleteGraphElement(index) {
 }
 
 // =====================
+// EXACT ELEMENT INPUTS
+// =====================
+function updateExactInputs() {
+    const typeEl = document.getElementById('exactElementType');
+    const container = document.getElementById('exactInputsContainer');
+    if (!typeEl || !container) return;
+    const type = typeEl.value;
+    let html = '';
+    const makeCoord = (lbl, idPre) => `
+        <div style="display:flex; gap:2px; align-items:center; background:#16213e; padding:4px 6px; border-radius:6px; border:1px solid #1368ce;" dir="ltr">
+            <span style="color:#aaa;font-size:11px; font-family:monospace;">${lbl}</span>
+            <input type="number" id="${idPre}x" class="graph-func-input" placeholder="X" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
+            <input type="number" id="${idPre}y" class="graph-func-input" placeholder="Y" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
+        </div>`;
+    if (type === 'point') {
+        html = makeCoord('P', 'p1_') + `<input type="text" id="p1_name" class="graph-func-input" placeholder="تسمية (اختياري)" style="min-width:100px; padding:4px; font-size:12px; margin:0;" dir="rtl">`;
+    } else if (type === 'segment') {
+        html = makeCoord('P1', 'p1_') + makeCoord('P2', 'p2_');
+    } else if (type === 'triangle') {
+        html = makeCoord('P1', 'p1_') + makeCoord('P2', 'p2_') + makeCoord('P3', 'p3_');
+    } else if (type === 'quadrilateral') {
+        html = makeCoord('P1', 'p1_') + makeCoord('P2', 'p2_') + makeCoord('P3', 'p3_') + makeCoord('P4', 'p4_');
+    } else if (type === 'circle') {
+        html = makeCoord('المركز', 'p1_') + `
+        <div style="display:flex; gap:2px; align-items:center; background:#16213e; padding:4px 6px; border-radius:6px; border:1px solid #1368ce;">
+            <span style="color:#aaa;font-size:11px;">نق(r)</span>
+            <input type="number" id="circ_r" class="graph-func-input" placeholder="R" style="min-width:50px; max-width:60px; padding:4px; font-size:12px; margin:0;" dir="ltr" min="0.1">
+        </div>`;
+    } else if (type === 'function') {
+        html = `<input type="text" class="graph-func-input" id="func_expr" placeholder="مثال: x^2 أو sin(x)" style="min-width: 160px; margin:0;" dir="ltr">`;
+    }
+    container.innerHTML = html;
+}
+
+function addExactElement() {
+    const typeEl = document.getElementById('exactElementType');
+    if (!typeEl) return;
+    const type = typeEl.value;
+    const color = document.getElementById('exactColor').value;
+    const width = getGraphWidth();
+    const getV = (id) => parseFloat(document.getElementById(id)?.value);
+    const checkNaN = (...vals) => vals.some(v => isNaN(v));
+    let el = null;
+    if (type === 'point') {
+        const x = getV('p1_x'), y = getV('p1_y');
+        const name = document.getElementById('p1_name')?.value.trim() || '';
+        if (checkNaN(x, y)) return alert('الرجاء إدخال الإحداثيات.');
+        el = { type: 'point', x, y, color, size: width + 3, name };
+    } else if (type === 'segment') {
+        const x1 = getV('p1_x'), y1 = getV('p1_y'), x2 = getV('p2_x'), y2 = getV('p2_y');
+        if (checkNaN(x1, y1, x2, y2)) return alert('الرجاء إدخال إحداثيات النقطتين.');
+        el = { type: 'segment', x1, y1, x2, y2, color, width };
+    } else if (type === 'triangle') {
+        const x1 = getV('p1_x'), y1 = getV('p1_y'), x2 = getV('p2_x'), y2 = getV('p2_y'), x3 = getV('p3_x'), y3 = getV('p3_y');
+        if (checkNaN(x1, y1, x2, y2, x3, y3)) return alert('الرجاء إدخال إحداثيات النقاط الثلاث.');
+        el = { type: 'triangle', x1, y1, x2, y2, x3, y3, color, width };
+    } else if (type === 'quadrilateral') {
+        const x1 = getV('p1_x'), y1 = getV('p1_y'), x2 = getV('p2_x'), y2 = getV('p2_y'), x3 = getV('p3_x'), y3 = getV('p3_y'), x4 = getV('p4_x'), y4 = getV('p4_y');
+        if (checkNaN(x1, y1, x2, y2, x3, y3, x4, y4)) return alert('الرجاء إدخال إحداثيات النقاط الأربع.');
+        el = { type: 'quadrilateral', x1, y1, x2, y2, x3, y3, x4, y4, color, width };
+    } else if (type === 'circle') {
+        const cx = getV('p1_x'), cy = getV('p1_y'), r = getV('circ_r');
+        if (checkNaN(cx, cy, r) || r <= 0) return alert('الرجاء إدخال إحداثيات المركز ونصف قطر صحيح.');
+        el = { type: 'circle', cx, cy, r, color, width };
+    } else if (type === 'function') {
+        const expr = document.getElementById('func_expr')?.value.trim();
+        if (!expr) return alert('الرجاء إدخال الاقتران.');
+        el = { type: 'function', expr, color, label: `f(x) = ${expr}` };
+    }
+    if (el) {
+        graphState.elements.push(el);
+        renderGraph();
+        renderElementsList();
+        document.querySelectorAll('#exactInputsContainer input[type="number"]').forEach(inp => inp.value = '');
+    }
+}
+
+// =====================
 // GEOMETRY ENGINE
 // =====================
 let geoCanvasEl = null;
@@ -2870,7 +2844,7 @@ function geoRenderAll() {
 // INIT
 // =====================
 window.onload = () => {
-    updateExactInputs();
+    try { updateExactInputs(); } catch(e) {}
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('action') === 'new') {
         openNewQuestions();
