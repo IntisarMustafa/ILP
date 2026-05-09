@@ -896,8 +896,9 @@
                     <label style="display:flex; gap:8px; font-size:12px; margin-bottom:5px;"><input type="checkbox" id="geoShowAngles" checked onchange="geoRenderAll()"> إظهار الزوايا</label>
                     <label style="display:flex; gap:8px; font-size:12px; margin-bottom:5px;"><input type="checkbox" id="geoShowLabels" checked onchange="geoRenderAll()"> إظهار التسميات</label>
                     <label style="display:flex; gap:8px; font-size:12px; margin-bottom:10px;"><input type="checkbox" id="geoShowGrid" onchange="geoRenderAll()"> شبكة مربعات</label>
-                    <label style="display:flex; gap:8px; font-size:12px; color:#ffeb3b; margin-bottom:10px;"><input type="checkbox" id="geoInteractiveMode" onchange="geoToggleInteractiveMode()"> تفعيل الرسم المباشر</label>
-                    <div id="geoDrawingTools" style="display:none; flex-direction:column; gap:5px; margin-bottom:10px;">
+                    <label style="display:flex; gap:8px; font-size:12px; color:#ffeb3b; margin-bottom:10px;"><input type="checkbox" id="geoInteractiveMode" checked onchange="geoToggleInteractiveMode()"> تفعيل الرسم المباشر</label>
+                    <div id="geoDrawingTools" style="display:flex; flex-direction:column; gap:5px; margin-bottom:10px;">
+                        <label><input type="radio" name="geoDrawType" value="point" onchange="geoUpdateDrawType()"> نقطة •</label>
                         <label><input type="radio" name="geoDrawType" value="freehand" checked onchange="geoUpdateDrawType()"> خط حر</label>
                         <label><input type="radio" name="geoDrawType" value="line" onchange="geoUpdateDrawType()"> مستقيم ↔</label>
                         <label><input type="radio" name="geoDrawType" value="ray" onchange="geoUpdateDrawType()"> شعاع →</label>
@@ -911,14 +912,28 @@
                         <label><input type="radio" name="geoDrawType" value="trapezoid" onchange="geoUpdateDrawType()"> شبه منحرف</label>
                         <label><input type="radio" name="geoDrawType" value="parallel_lines" onchange="geoUpdateDrawType()"> مستقيمان متوازيان</label>
                         <label><input type="radio" name="geoDrawType" value="perpendicular_lines" onchange="geoUpdateDrawType()"> مستقيمان متعامدان</label>
+                        <label><input type="radio" name="geoDrawType" value="text" onchange="geoUpdateDrawType()"> ✏️ رمز / نص</label>
+                    </div>
+                    <!-- حقل إدخال الرمز يظهر عند اختيار أداة النص -->
+                    <div id="geoTextSymbolContainer" style="display:none; margin-top:10px; background:rgba(15,52,96,0.5); border:1px solid #1368ce; border-radius:8px; padding:10px;">
+                        <div style="color:#00d4ff; font-size:12px; margin-bottom:6px; font-weight:bold;">✏️ اكتب الرمز أو النص ثم انقر على اللوحة لتحديد موقعه:</div>
+                        <input type="text" id="geoTextSymbol" class="geo-input" placeholder="مثال: A أو س أو ∞ أو أي نص..." style="width:100%; margin-bottom:6px; direction:rtl; text-align:right;">
+                        <div style="display:flex; gap:8px; align-items:center; margin-top:4px;">
+                            <label style="color:#aaa; font-size:11px; flex:1;">اللون:</label>
+                            <input type="color" id="geoTextColor" value="#e74c3c" style="height:28px; width:40px; border:none; background:none; cursor:pointer; border-radius:4px;">
+                            <label style="color:#aaa; font-size:11px;">الحجم:</label>
+                            <input type="number" id="geoTextSize" value="20" min="8" max="72" class="geo-input" style="width:55px; padding:4px; text-align:center;" placeholder="20">
+                        </div>
                     </div>
                 </div>
                 <div class="geo-control-group">
                     <h4>➕ إدراج بالإحداثيات</h4>
                     <select id="geoShapeSelector" class="geo-input" style="margin-bottom:10px;" onchange="geoUpdateFormUI()">
+                        <option value="point">• نقطة</option>
                         <option value="angle">∠ زاوية</option>
                         <option value="parallel">⏸️ مستقيمين متوازيين</option>
                         <option value="perpendicular">⊥ مستقيمين متعامدين</option>
+                        <option value="ray">→ شعاع</option>
                         <option value="triangle">🔺 مثلث</option>
                         <option value="parallelogram">▱ متوازي أضلاع</option>
                         <option value="trapezoid">⏢ شبه منحرف</option>
@@ -2264,8 +2279,8 @@ function updateExactInputs() {
     const makeCoord = (lbl, idPre) => `
         <div style="display:flex; gap:2px; align-items:center; background:#16213e; padding:4px 6px; border-radius:6px; border:1px solid #1368ce;" dir="ltr">
             <span style="color:#aaa;font-size:11px; font-family:monospace;">${lbl}</span>
-            <input type="number" id="${idPre}x" class="graph-func-input" placeholder="X" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
-            <input type="number" id="${idPre}y" class="graph-func-input" placeholder="Y" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
+            <input type="text" id="${idPre}x" class="graph-func-input" placeholder="X" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
+            <input type="text" id="${idPre}y" class="graph-func-input" placeholder="Y" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
         </div>`;
     if (type === 'point') {
         html = makeCoord('P', 'p1_') + `<input type="text" id="p1_name" class="graph-func-input" placeholder="تسمية (اختياري)" style="min-width:100px; padding:4px; font-size:12px; margin:0;" dir="rtl">`;
@@ -2279,7 +2294,7 @@ function updateExactInputs() {
         html = makeCoord('المركز', 'p1_') + `
         <div style="display:flex; gap:2px; align-items:center; background:#16213e; padding:4px 6px; border-radius:6px; border:1px solid #1368ce;">
             <span style="color:#aaa;font-size:11px;">نق(r)</span>
-            <input type="number" id="circ_r" class="graph-func-input" placeholder="R" style="min-width:50px; max-width:60px; padding:4px; font-size:12px; margin:0;" dir="ltr" min="0.1">
+            <input type="text" id="circ_r" class="graph-func-input" placeholder="R" style="min-width:50px; max-width:60px; padding:4px; font-size:12px; margin:0;" dir="ltr">
         </div>`;
     } else if (type === 'function') {
         html = `<input type="text" class="graph-func-input" id="func_expr" placeholder="مثال: x^2 أو sin(x)" style="min-width: 160px; margin:0;" dir="ltr">`;
@@ -2326,7 +2341,7 @@ function addExactElement() {
         graphState.elements.push(el);
         renderGraph();
         renderElementsList();
-        document.querySelectorAll('#exactInputsContainer input[type="number"]').forEach(inp => inp.value = '');
+        document.querySelectorAll('#exactInputsContainer input[type="text"], #exactInputsContainer input[type="number"]').forEach(inp => { if(inp.id !== 'p1_name') inp.value = ''; });
     }
 }
 
@@ -2339,7 +2354,7 @@ let currentGeoBlockIndex = null;
 let geoElements = [];
 let geoScale = 40;
 let geoOriginX = 0; let geoOriginY = 0;
-let geoIsInteractiveMode = false;
+let geoIsInteractiveMode = true;
 let geoCurrentDrawType = 'freehand';
 let geoIsDrawing = false;
 let geoCurrentPath = null;
@@ -2386,6 +2401,7 @@ function initGeometryCanvas() {
     geoCanvasEl = document.getElementById('geoCanvas');
     geoCtx = geoCanvasEl.getContext('2d');
     resizeGeometryCanvas();
+    geoCanvasEl.style.cursor = 'crosshair';
     geoCanvasEl.addEventListener('wheel', (e) => { e.preventDefault(); e.deltaY < 0 ? geoZoomIn() : geoZoomOut(); });
     geoCanvasEl.addEventListener('mousedown', geoStartInteractive);
     geoCanvasEl.addEventListener('mousemove', geoMoveInteractive);
@@ -2417,47 +2433,57 @@ function geoUpdateFormUI() {
     const type = document.getElementById('geoShapeSelector').value;
     const cont = document.getElementById('geoDynamicFormContainer');
     let html = '';
-    if (type === 'angle') {
+    if (type === 'point') {
+        html = `<div class="geo-form-row"><label>الموضع(X,Y):</label><input type="text" class="geo-input" id="gPtX" value="0"><input type="text" class="geo-input" id="gPtY" value="0"></div>
+                <div class="geo-form-row"><label>التسمية:</label><input type="text" class="geo-input" id="gPtName" value="A" placeholder="مثال: A"></div>`;
+    } else if (type === 'angle') {
         html = `<div class="geo-form-row"><label>الاسم:</label><input type="text" class="geo-input" id="gAngName" value="ABC"></div>
-                <div class="geo-form-row"><label>الرأس(X,Y):</label><input type="number" class="geo-input" id="gAngVX" value="0"><input type="number" class="geo-input" id="gAngVY" value="0"></div>
-                <div class="geo-form-row"><label>القياس:</label><input type="number" class="geo-input" id="gAngDeg" value="60"></div>
-                <div class="geo-form-row"><label>طول الضلع:</label><input type="number" class="geo-input" id="gAngLen" value="4"></div>`;
+                <div class="geo-form-row"><label>الرأس(X,Y):</label><input type="text" class="geo-input" id="gAngVX" value="0"><input type="text" class="geo-input" id="gAngVY" value="0"></div>
+                <div class="geo-form-row"><label>القياس:</label><input type="text" class="geo-input" id="gAngDeg" value="60"></div>
+                <div class="geo-form-row"><label>طول الضلع:</label><input type="text" class="geo-input" id="gAngLen" value="4"></div>`;
     } else if (type === 'parallel') {
-        html = `<div class="geo-form-row"><label>البداية(X,Y):</label><input type="number" class="geo-input" id="gParX" value="-3"><input type="number" class="geo-input" id="gParY" value="2"></div>
-                <div class="geo-form-row"><label>الميل:</label><input type="number" class="geo-input" id="gParAng" value="0"></div>
-                <div class="geo-form-row"><label>المسافة:</label><input type="number" class="geo-input" id="gParDist" value="3"></div>
-                <div class="geo-form-row"><label>الطول:</label><input type="number" class="geo-input" id="gParLen" value="6"></div>`;
+        html = `<div class="geo-form-row"><label>البداية(X,Y):</label><input type="text" class="geo-input" id="gParX" value="-3"><input type="text" class="geo-input" id="gParY" value="2"></div>
+                <div class="geo-form-row"><label>الميل:</label><input type="text" class="geo-input" id="gParAng" value="0"></div>
+                <div class="geo-form-row"><label>المسافة:</label><input type="text" class="geo-input" id="gParDist" value="3"></div>
+                <div class="geo-form-row"><label>الطول:</label><input type="text" class="geo-input" id="gParLen" value="6"></div>`;
     } else if (type === 'triangle') {
-        html = `<div class="geo-form-row"><label>الرأس1(X,Y):</label><input type="number" class="geo-input" id="gTriX1" value="0"><input type="number" class="geo-input" id="gTriY1" value="4"></div>
-                <div class="geo-form-row"><label>الرأس2(X,Y):</label><input type="number" class="geo-input" id="gTriX2" value="-3"><input type="number" class="geo-input" id="gTriY2" value="-2"></div>
-                <div class="geo-form-row"><label>الرأس3(X,Y):</label><input type="number" class="geo-input" id="gTriX3" value="3"><input type="number" class="geo-input" id="gTriY3" value="-2"></div>`;
+        html = `<div class="geo-form-row"><label>الرأس1(X,Y):</label><input type="text" class="geo-input" id="gTriX1" value="0"><input type="text" class="geo-input" id="gTriY1" value="4"></div>
+                <div class="geo-form-row"><label>الرأس2(X,Y):</label><input type="text" class="geo-input" id="gTriX2" value="-3"><input type="text" class="geo-input" id="gTriY2" value="-2"></div>
+                <div class="geo-form-row"><label>الرأس3(X,Y):</label><input type="text" class="geo-input" id="gTriX3" value="3"><input type="text" class="geo-input" id="gTriY3" value="-2"></div>
+                <div class="geo-form-row"><label>التسمية:</label><input type="text" class="geo-input" id="gTriName" value="ABC" placeholder="3 حروف مثل ABC"></div>`;
     } else if (type === 'circle') {
-        html = `<div class="geo-form-row"><label>المركز(X,Y):</label><input type="number" class="geo-input" id="gCircX" value="0"><input type="number" class="geo-input" id="gCircY" value="0"></div>
-                <div class="geo-form-row"><label>نق (r):</label><input type="number" class="geo-input" id="gCircR" value="3"></div>`;
+        html = `<div class="geo-form-row"><label>المركز(X,Y):</label><input type="text" class="geo-input" id="gCircX" value="0"><input type="text" class="geo-input" id="gCircY" value="0"></div>
+                <div class="geo-form-row"><label>نق (r):</label><input type="text" class="geo-input" id="gCircR" value="3"></div>
+                <div class="geo-form-row"><label>التسمية:</label><input type="text" class="geo-input" id="gCircName" value="M" placeholder="مثال: M"></div>`;
     } else if (type === 'perpendicular') {
-        html = `<div class="geo-form-row"><label>نقطة التقاطع(X,Y):</label><input type="number" class="geo-input" id="gPerpX" value="0"><input type="number" class="geo-input" id="gPerpY" value="0"></div>
-                <div class="geo-form-row"><label>الطول:</label><input type="number" class="geo-input" id="gPerpLen" value="4"></div>`;
+        html = `<div class="geo-form-row"><label>نقطة التقاطع(X,Y):</label><input type="text" class="geo-input" id="gPerpX" value="0"><input type="text" class="geo-input" id="gPerpY" value="0"></div>
+                <div class="geo-form-row"><label>الطول:</label><input type="text" class="geo-input" id="gPerpLen" value="4"></div>`;
     } else if (type === 'parallelogram') {
-        html = `<div class="geo-form-row"><label>المركز(X,Y):</label><input type="number" class="geo-input" id="gParaX" value="0"><input type="number" class="geo-input" id="gParaY" value="0"></div>
-                <div class="geo-form-row"><label>العرض:</label><input type="number" class="geo-input" id="gParaW" value="4"></div>
-                <div class="geo-form-row"><label>الارتفاع:</label><input type="number" class="geo-input" id="gParaH" value="2"></div>
-                <div class="geo-form-row"><label>الميل:</label><input type="number" class="geo-input" id="gParaSkew" value="1"></div>`;
+        html = `<div class="geo-form-row"><label>المركز(X,Y):</label><input type="text" class="geo-input" id="gParaX" value="0"><input type="text" class="geo-input" id="gParaY" value="0"></div>
+                <div class="geo-form-row"><label>العرض:</label><input type="text" class="geo-input" id="gParaW" value="4"></div>
+                <div class="geo-form-row"><label>الارتفاع:</label><input type="text" class="geo-input" id="gParaH" value="2"></div>
+                <div class="geo-form-row"><label>الميل:</label><input type="text" class="geo-input" id="gParaSkew" value="1"></div>`;
     } else if (type === 'trapezoid') {
-        html = `<div class="geo-form-row"><label>المركز(X,Y):</label><input type="number" class="geo-input" id="gTrapX" value="0"><input type="number" class="geo-input" id="gTrapY" value="0"></div>
-                <div class="geo-form-row"><label>القاعدة السفلى:</label><input type="number" class="geo-input" id="gTrapB1" value="5"></div>
-                <div class="geo-form-row"><label>القاعدة العليا:</label><input type="number" class="geo-input" id="gTrapB2" value="3"></div>
-                <div class="geo-form-row"><label>الارتفاع:</label><input type="number" class="geo-input" id="gTrapH" value="2"></div>`;
+        html = `<div class="geo-form-row"><label>المركز(X,Y):</label><input type="text" class="geo-input" id="gTrapX" value="0"><input type="text" class="geo-input" id="gTrapY" value="0"></div>
+                <div class="geo-form-row"><label>القاعدة السفلى:</label><input type="text" class="geo-input" id="gTrapB1" value="5"></div>
+                <div class="geo-form-row"><label>القاعدة العليا:</label><input type="text" class="geo-input" id="gTrapB2" value="3"></div>
+                <div class="geo-form-row"><label>الارتفاع:</label><input type="text" class="geo-input" id="gTrapH" value="2"></div>`;
     } else if (type === 'cylinder') {
-        html = `<div class="geo-form-row"><label>المركز(X,Y):</label><input type="number" class="geo-input" id="gCylX" value="0"><input type="number" class="geo-input" id="gCylY" value="0"></div>
-                <div class="geo-form-row"><label>نق القاعدة(r):</label><input type="number" class="geo-input" id="gCylR" value="2"></div>
-                <div class="geo-form-row"><label>الارتفاع(h):</label><input type="number" class="geo-input" id="gCylH" value="4"></div>`;
+        html = `<div class="geo-form-row"><label>المركز(X,Y):</label><input type="text" class="geo-input" id="gCylX" value="0"><input type="text" class="geo-input" id="gCylY" value="0"></div>
+                <div class="geo-form-row"><label>نق القاعدة(r):</label><input type="text" class="geo-input" id="gCylR" value="2"></div>
+                <div class="geo-form-row"><label>الارتفاع(h):</label><input type="text" class="geo-input" id="gCylH" value="4"></div>`;
     } else if (type === 'cone') {
-        html = `<div class="geo-form-row"><label>المركز القاعدة(X,Y):</label><input type="number" class="geo-input" id="gConeX" value="0"><input type="number" class="geo-input" id="gConeY" value="0"></div>
-                <div class="geo-form-row"><label>نق القاعدة(r):</label><input type="number" class="geo-input" id="gConeR" value="2"></div>
-                <div class="geo-form-row"><label>الارتفاع(h):</label><input type="number" class="geo-input" id="gConeH" value="4"></div>`;
+        html = `<div class="geo-form-row"><label>المركز القاعدة(X,Y):</label><input type="text" class="geo-input" id="gConeX" value="0"><input type="text" class="geo-input" id="gConeY" value="0"></div>
+                <div class="geo-form-row"><label>نق القاعدة(r):</label><input type="text" class="geo-input" id="gConeR" value="2"></div>
+                <div class="geo-form-row"><label>الارتفاع(h):</label><input type="text" class="geo-input" id="gConeH" value="4"></div>`;
     } else if (type === 'segment') {
-        html = `<div class="geo-form-row"><label>البداية(X,Y):</label><input type="number" class="geo-input" id="gSegX1" value="-2"><input type="number" class="geo-input" id="gSegY1" value="0"></div>
-                <div class="geo-form-row"><label>النهاية(X,Y):</label><input type="number" class="geo-input" id="gSegX2" value="2"><input type="number" class="geo-input" id="gSegY2" value="2"></div>`;
+        html = `<div class="geo-form-row"><label>البداية(X,Y):</label><input type="text" class="geo-input" id="gSegX1" value="-2"><input type="text" class="geo-input" id="gSegY1" value="0"></div>
+                <div class="geo-form-row"><label>النهاية(X,Y):</label><input type="text" class="geo-input" id="gSegX2" value="2"><input type="text" class="geo-input" id="gSegY2" value="2"></div>
+                <div class="geo-form-row"><label>التسمية:</label><input type="text" class="geo-input" id="gSegName" value="AB" placeholder="مثال: AB"></div>`;
+    } else if (type === 'ray') {
+        html = `<div class="geo-form-row"><label>نقطة البداية(X,Y):</label><input type="text" class="geo-input" id="gRayX1" value="0"><input type="text" class="geo-input" id="gRayY1" value="0"></div>
+                <div class="geo-form-row"><label>نقطة الاتجاه(X,Y):</label><input type="text" class="geo-input" id="gRayX2" value="3"><input type="text" class="geo-input" id="gRayY2" value="0"></div>
+                <div class="geo-form-row"><label>التسمية:</label><input type="text" class="geo-input" id="gRayName" value="A" placeholder="مثال: A"></div>`;
     }
     cont.innerHTML = html;
 }
@@ -2467,7 +2493,10 @@ function geoAddShape() {
     const color = document.getElementById('geoShapeColor').value;
     let el = { id: Date.now(), type: type, color: color };
     const getVal = (id) => parseFloat(document.getElementById(id)?.value) || 0;
-    if (type === 'angle') {
+    if (type === 'point') {
+        el.x = getVal('gPtX'); el.y = getVal('gPtY');
+        el.name = document.getElementById('gPtName')?.value || ''; el.size = 5; el.label = `نقطة${el.name ? ' ' + el.name : ''}`;
+    } else if (type === 'angle') {
         const name = document.getElementById('gAngName').value || 'ABC';
         const vx = getVal('gAngVX'), vy = getVal('gAngVY'), deg = getVal('gAngDeg'), len = getVal('gAngLen');
         el.name = name; el.v = {x: vx, y: vy}; el.p1 = {x: vx + len, y: vy};
@@ -2485,10 +2514,10 @@ function geoAddShape() {
         el.p1 = {x: getVal('gTriX1'), y: getVal('gTriY1')};
         el.p2 = {x: getVal('gTriX2'), y: getVal('gTriY2')};
         el.p3 = {x: getVal('gTriX3'), y: getVal('gTriY3')};
-        el.name = "ABC"; el.label = `مثلث`;
+        el.name = document.getElementById('gTriName')?.value || "ABC"; el.label = `مثلث`;
     } else if (type === 'circle') {
         el.c = {x: getVal('gCircX'), y: getVal('gCircY')};
-        el.r = getVal('gCircR'); el.name = "M"; el.label = `دائرة`;
+        el.r = getVal('gCircR'); el.name = document.getElementById('gCircName')?.value || "M"; el.label = `دائرة`;
     } else if (type === 'perpendicular') {
         const px = getVal('gPerpX'), py = getVal('gPerpY'), plen = getVal('gPerpLen');
         el.c = {x: px, y: py}; el.len = plen; el.label = `مستقيمان متعامدان`;
@@ -2515,7 +2544,11 @@ function geoAddShape() {
     } else if (type === 'segment') {
         el.p1 = {x: getVal('gSegX1'), y: getVal('gSegY1')};
         el.p2 = {x: getVal('gSegX2'), y: getVal('gSegY2')};
-        el.name = "AB"; el.label = `قطعة مستقيمة`;
+        el.name = document.getElementById('gSegName')?.value || "AB"; el.label = `قطعة مستقيمة`;
+    } else if (type === 'ray') {
+        el.p1 = {x: getVal('gRayX1'), y: getVal('gRayY1')};
+        el.p2 = {x: getVal('gRayX2'), y: getVal('gRayY2')};
+        el.name = document.getElementById('gRayName')?.value || "A"; el.label = `شعاع`;
     }
     geoElements.push(el);
     geoUpdateElementsList(); geoRenderAll();
@@ -2536,13 +2569,27 @@ function geoUpdateElementsList() {
 function geoDeleteShape(id) { geoElements = geoElements.filter(el => el.id !== id); geoUpdateElementsList(); geoRenderAll(); }
 function geoExecuteClear() { geoElements = []; geoUpdateElementsList(); geoRenderAll(); document.getElementById('geoConfirmModal').style.display='none'; }
 function geoToggleInteractiveMode() { geoIsInteractiveMode = document.getElementById('geoInteractiveMode').checked; document.getElementById('geoDrawingTools').style.display = geoIsInteractiveMode ? 'flex' : 'none'; geoCanvasEl.style.cursor = geoIsInteractiveMode ? 'crosshair' : 'default'; }
-function geoUpdateDrawType() { geoCurrentDrawType = document.querySelector('input[name="geoDrawType"]:checked').value; }
+function geoUpdateDrawType() {
+    geoCurrentDrawType = document.querySelector('input[name="geoDrawType"]:checked').value;
+    const txtBox = document.getElementById('geoTextSymbolContainer');
+    if (txtBox) txtBox.style.display = (geoCurrentDrawType === 'text') ? 'block' : 'none';
+}
 function geoGetMousePos(e) { const rect = geoCanvasEl.getBoundingClientRect(); let cx = e.clientX, cy = e.clientY; if (e.touches && e.touches.length > 0) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; } return { x: cx - rect.left, y: cy - rect.top }; }
 
 function geoStartInteractive(e) {
     if (!geoIsInteractiveMode) return;
     geoIsDrawing = true; const pos = geoGetMousePos(e); const color = "#f39c12"; const width = 3;
-    if (geoCurrentDrawType === 'freehand') {
+    if (geoCurrentDrawType === 'text') {
+        const symbol = (document.getElementById('geoTextSymbol')?.value || '').trim();
+        if (!symbol) { alert('يرجى كتابة الرمز أو النص في الحقل أولاً!'); geoIsDrawing = false; return; }
+        const textColor = document.getElementById('geoTextColor')?.value || '#e74c3c';
+        const textSize = parseInt(document.getElementById('geoTextSize')?.value) || 20;
+        const el = { id: Date.now(), type: 'textlabel', x: geoToGraphX(pos.x), y: geoToGraphY(pos.y), text: symbol, color: textColor, size: textSize, label: `نص: ${symbol}` };
+        geoElements.push(el); geoUpdateElementsList(); geoRenderAll(); geoIsDrawing = false; return;
+    } else if (geoCurrentDrawType === 'point') {
+        const el = { id: Date.now(), type: 'point', x: geoToGraphX(pos.x), y: geoToGraphY(pos.y), color: color, size: 5, name: '', label: 'نقطة حرة' };
+        geoElements.push(el); geoUpdateElementsList(); geoRenderAll(); geoIsDrawing = false; return;
+    } else if (geoCurrentDrawType === 'freehand') {
         geoCurrentPath = { id: Date.now(), type: 'freehand', color: color, width: width, label: 'رسم حر', points: [{ gx: geoToGraphX(pos.x), gy: geoToGraphY(pos.y) }] };
         geoElements.push(geoCurrentPath); geoUpdateElementsList();
     } else {
@@ -2557,6 +2604,7 @@ function geoMoveInteractive(e) {
 }
 function geoStopInteractive(e) {
     if (!geoIsDrawing) return; geoIsDrawing = false;
+    if (geoCurrentDrawType === 'point') { geoCurrentPath = null; return; }
     if (geoCurrentDrawType !== 'freehand' && geoTempStart && geoTempCurrent) {
         const newShape = geoCreateInteractiveShape(geoCurrentDrawType, geoTempStart, geoTempCurrent, "#f39c12");
         if (newShape) { geoElements.push(newShape); geoUpdateElementsList(); }
@@ -2662,62 +2710,83 @@ function geoRenderAll() {
 
     geoElements.forEach(el => {
         geoCtx.save(); geoCtx.strokeStyle = el.color; geoCtx.fillStyle = el.color; geoCtx.lineWidth = el.width || 2.5;
-        if (el.type === 'line') {
-            // مستقيم: يمتد من حافة لحافة اللوحة مع سهمين
+        // إعداد الخط للتسميات
+        geoCtx.font = 'bold 13px Cairo, sans-serif';
+        if (el.type === 'point') {
+            const cx = geoToCanvasX(el.x), cy = geoToCanvasY(el.y);
+            geoCtx.beginPath(); geoCtx.arc(cx, cy, el.size || 5, 0, Math.PI*2); geoCtx.fill();
+            if(showLbl && el.name) { geoCtx.fillStyle = el.color; geoCtx.fillText(el.name, cx + 8, cy - 8); }
+        } else if (el.type === 'line') {
+            // مستقيم: يُرسم بين P1 وP2 مع سهم في كل طرف للدلالة على أنه غير منتهٍ
             const p1 = {x: geoToCanvasX(el.p1.x), y: geoToCanvasY(el.p1.y)};
             const p2 = {x: geoToCanvasX(el.p2.x), y: geoToCanvasY(el.p2.y)};
-            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-            const W = geoCanvasEl.width, H = geoCanvasEl.height;
-            const bigLen = Math.sqrt(W*W + H*H);
-            const ex1 = p1.x - bigLen * Math.cos(angle);
-            const ey1 = p1.y - bigLen * Math.sin(angle);
-            const ex2 = p1.x + bigLen * Math.cos(angle);
-            const ey2 = p1.y + bigLen * Math.sin(angle);
-            geoCtx.beginPath(); geoCtx.moveTo(ex1, ey1); geoCtx.lineTo(ex2, ey2); geoCtx.stroke();
-            drawArrowHead(geoCtx, p1.x, p1.y, ex2, ey2);
-            drawArrowHead(geoCtx, p2.x, p2.y, ex1, ey1);
-            // نقطة على المستقيم
-            geoCtx.beginPath(); geoCtx.arc(p1.x, p1.y, 3, 0, Math.PI*2); geoCtx.fill();
+            geoCtx.beginPath(); geoCtx.moveTo(p1.x, p1.y); geoCtx.lineTo(p2.x, p2.y); geoCtx.stroke();
+            drawArrowHead(geoCtx, p1.x, p1.y, p2.x, p2.y);
+            drawArrowHead(geoCtx, p2.x, p2.y, p1.x, p1.y);
+            // تسمية
+            if(showLbl && el.name) { geoCtx.fillStyle = el.color; geoCtx.fillText(el.name, p1.x + 8, p1.y - 8); }
         } else if (el.type === 'ray') {
-            // شعاع: ينطلق من نقطة ويمتد للحافة مع سهم واحد، ونقطة عند البداية
+            // شعاع: من نقطة P1 إلى P2 مع سهم عند P2 ونقطة عند P1
             const p1 = {x: geoToCanvasX(el.p1.x), y: geoToCanvasY(el.p1.y)};
             const p2 = {x: geoToCanvasX(el.p2.x), y: geoToCanvasY(el.p2.y)};
-            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-            const bigLen = Math.sqrt(geoCanvasEl.width**2 + geoCanvasEl.height**2);
-            const ex = p1.x + bigLen * Math.cos(angle);
-            const ey = p1.y + bigLen * Math.sin(angle);
-            geoCtx.beginPath(); geoCtx.moveTo(p1.x, p1.y); geoCtx.lineTo(ex, ey); geoCtx.stroke();
-            drawArrowHead(geoCtx, p2.x, p2.y, ex, ey);
+            geoCtx.beginPath(); geoCtx.moveTo(p1.x, p1.y); geoCtx.lineTo(p2.x, p2.y); geoCtx.stroke();
+            drawArrowHead(geoCtx, p1.x, p1.y, p2.x, p2.y);
             // نقطة عند البداية
             geoCtx.beginPath(); geoCtx.arc(p1.x, p1.y, 4, 0, Math.PI*2); geoCtx.fill();
+            if(showLbl && el.name) { geoCtx.fillStyle = el.color; geoCtx.fillText(el.name, p1.x - 14, p1.y - 8); }
         } else if (el.type === 'angle') {
             const v = {x: geoToCanvasX(el.v.x), y: geoToCanvasY(el.v.y)}, p1 = {x: geoToCanvasX(el.p1.x), y: geoToCanvasY(el.p1.y)}, p2 = {x: geoToCanvasX(el.p2.x), y: geoToCanvasY(el.p2.y)};
             geoCtx.beginPath(); geoCtx.moveTo(v.x, v.y); geoCtx.lineTo(p1.x, p1.y); geoCtx.stroke(); geoCtx.beginPath(); geoCtx.moveTo(v.x, v.y); geoCtx.lineTo(p2.x, p2.y); geoCtx.stroke();
             const r = 30, sA = Math.atan2(p1.y - v.y, p1.x - v.x), eA = Math.atan2(p2.y - v.y, p2.x - v.x);
             geoCtx.beginPath(); geoCtx.arc(v.x, v.y, r, sA, eA, eA < sA); geoCtx.stroke();
             if(showAng) { const mA = sA + (eA - sA) / 2; geoCtx.fillText(`${el.measure}°`, v.x + (r + 15) * Math.cos(mA), v.y + (r + 15) * Math.sin(mA)); }
+            if(showLbl && el.name) {
+                geoCtx.fillText(el.name[0]||'A', p1.x + 5, p1.y - 5);
+                geoCtx.fillText(el.name[1]||'B', v.x - 14, v.y - 8);
+                geoCtx.fillText(el.name[2]||'C', p2.x + 5, p2.y - 5);
+            }
         } else if (el.type === 'parallel') {
             const l1p1 = {x: geoToCanvasX(el.l1.p1.x), y: geoToCanvasY(el.l1.p1.y)}, l1p2 = {x: geoToCanvasX(el.l1.p2.x), y: geoToCanvasY(el.l1.p2.y)};
             const l2p1 = {x: geoToCanvasX(el.l2.p1.x), y: geoToCanvasY(el.l2.p1.y)}, l2p2 = {x: geoToCanvasX(el.l2.p2.x), y: geoToCanvasY(el.l2.p2.y)};
             geoCtx.beginPath(); geoCtx.moveTo(l1p1.x, l1p1.y); geoCtx.lineTo(l1p2.x, l1p2.y); geoCtx.stroke();
             geoCtx.beginPath(); geoCtx.moveTo(l2p1.x, l2p1.y); geoCtx.lineTo(l2p2.x, l2p2.y); geoCtx.stroke();
+            // علامة التوازي (شرطتان صغيرتان على كل مستقيم)
+            const midX1 = (l1p1.x+l1p2.x)/2, midY1 = (l1p1.y+l1p2.y)/2;
+            const midX2 = (l2p1.x+l2p2.x)/2, midY2 = (l2p1.y+l2p2.y)/2;
+            if(showLbl) {
+                geoCtx.fillText('//','م', midX1 + 5, midY1 - 8);
+                geoCtx.fillText('م', midX2 + 5, midY2 - 8);
+            }
         } else if (el.type === 'triangle') {
             const p1 = {x: geoToCanvasX(el.p1.x), y: geoToCanvasY(el.p1.y)}, p2 = {x: geoToCanvasX(el.p2.x), y: geoToCanvasY(el.p2.y)}, p3 = {x: geoToCanvasX(el.p3.x), y: geoToCanvasY(el.p3.y)};
             geoCtx.beginPath(); geoCtx.moveTo(p1.x, p1.y); geoCtx.lineTo(p2.x, p2.y); geoCtx.lineTo(p3.x, p3.y); geoCtx.closePath();
             geoCtx.globalAlpha = 0.15; geoCtx.fill(); geoCtx.globalAlpha = 1.0; geoCtx.stroke();
-            if(showLbl) { geoCtx.fillText(el.name[0]||'A', p1.x+5, p1.y-5); geoCtx.fillText(el.name[1]||'B', p2.x+5, p2.y-5); geoCtx.fillText(el.name[2]||'C', p3.x+5, p3.y-5); }
+            if(showLbl) { geoCtx.fillStyle = el.color; geoCtx.fillText(el.name[0]||'A', p1.x+5, p1.y-5); geoCtx.fillText(el.name[1]||'B', p2.x+5, p2.y-5); geoCtx.fillText(el.name[2]||'C', p3.x+5, p3.y-5); }
         } else if (el.type === 'circle') {
             const c = {x: geoToCanvasX(el.c.x), y: geoToCanvasY(el.c.y)}; const rCanvas = el.r * geoScale;
             geoCtx.beginPath(); geoCtx.arc(c.x, c.y, rCanvas, 0, Math.PI * 2); geoCtx.globalAlpha = 0.1; geoCtx.fill(); geoCtx.globalAlpha = 1.0; geoCtx.stroke();
+            // نقطة المركز والتسمية
+            geoCtx.beginPath(); geoCtx.arc(c.x, c.y, 3, 0, Math.PI*2); geoCtx.fill();
+            if(showLbl && el.name) { geoCtx.fillStyle = el.color; geoCtx.fillText(el.name, c.x + 6, c.y - 6); }
         } else if (el.type === 'segment') {
             const p1 = {x: geoToCanvasX(el.p1.x), y: geoToCanvasY(el.p1.y)}, p2 = {x: geoToCanvasX(el.p2.x), y: geoToCanvasY(el.p2.y)};
             geoCtx.beginPath(); geoCtx.moveTo(p1.x, p1.y); geoCtx.lineTo(p2.x, p2.y); geoCtx.stroke();
             geoCtx.beginPath(); geoCtx.arc(p1.x, p1.y, 4, 0, Math.PI*2); geoCtx.fill(); geoCtx.beginPath(); geoCtx.arc(p2.x, p2.y, 4, 0, Math.PI*2); geoCtx.fill();
+            if(showLbl && el.name) { geoCtx.fillStyle = el.color; geoCtx.fillText(el.name[0]||'A', p1.x - 14, p1.y - 5); geoCtx.fillText(el.name[1]||'B', p2.x + 6, p2.y - 5); }
         } else if (el.type === 'freehand') {
             geoCtx.beginPath(); geoCtx.lineCap = 'round'; geoCtx.lineJoin = 'round';
             geoCtx.moveTo(geoToCanvasX(el.points[0].gx), geoToCanvasY(el.points[0].gy));
             for (let i = 1; i < el.points.length; i++) geoCtx.lineTo(geoToCanvasX(el.points[i].gx), geoToCanvasY(el.points[i].gy));
             geoCtx.stroke();
+        } else if (el.type === 'textlabel') {
+            const cx = geoToCanvasX(el.x), cy = geoToCanvasY(el.y);
+            geoCtx.save();
+            geoCtx.font = `bold ${el.size || 20}px Cairo, sans-serif`;
+            geoCtx.fillStyle = el.color || '#e74c3c';
+            geoCtx.textAlign = 'center';
+            geoCtx.textBaseline = 'middle';
+            geoCtx.fillText(el.text, cx, cy);
+            geoCtx.restore();
         } else if (el.type === 'cuboid') {
             const x1 = geoToCanvasX(el.p1.x), y1 = geoToCanvasY(el.p1.y), x2 = geoToCanvasX(el.p2.x), y2 = geoToCanvasY(el.p2.y);
             const w = x2 - x1, h = y2 - y1, dx = w * 0.3, dy = h * 0.3;
@@ -2742,6 +2811,7 @@ function geoRenderAll() {
             const p4 = {x: geoToCanvasX(el.p4.x), y: geoToCanvasY(el.p4.y)};
             geoCtx.beginPath(); geoCtx.moveTo(p1.x, p1.y); geoCtx.lineTo(p2.x, p2.y); geoCtx.lineTo(p3.x, p3.y); geoCtx.lineTo(p4.x, p4.y); geoCtx.closePath();
             geoCtx.globalAlpha = 0.12; geoCtx.fill(); geoCtx.globalAlpha = 1.0; geoCtx.stroke();
+            if(showLbl) { geoCtx.fillStyle = el.color; geoCtx.fillText('A', p1.x-14, p1.y-4); geoCtx.fillText('B', p2.x+5, p2.y-4); geoCtx.fillText('C', p3.x+5, p3.y+14); geoCtx.fillText('D', p4.x-14, p4.y+14); }
         } else if (el.type === 'trapezoid') {
             const p1 = {x: geoToCanvasX(el.p1.x), y: geoToCanvasY(el.p1.y)};
             const p2 = {x: geoToCanvasX(el.p2.x), y: geoToCanvasY(el.p2.y)};
@@ -2749,6 +2819,7 @@ function geoRenderAll() {
             const p4 = {x: geoToCanvasX(el.p4.x), y: geoToCanvasY(el.p4.y)};
             geoCtx.beginPath(); geoCtx.moveTo(p1.x, p1.y); geoCtx.lineTo(p2.x, p2.y); geoCtx.lineTo(p3.x, p3.y); geoCtx.lineTo(p4.x, p4.y); geoCtx.closePath();
             geoCtx.globalAlpha = 0.12; geoCtx.fill(); geoCtx.globalAlpha = 1.0; geoCtx.stroke();
+            if(showLbl) { geoCtx.fillStyle = el.color; geoCtx.fillText('A', p1.x-14, p1.y+14); geoCtx.fillText('B', p2.x+5, p2.y+14); geoCtx.fillText('C', p3.x+5, p3.y-4); geoCtx.fillText('D', p4.x-14, p4.y-4); }
         } else if (el.type === 'cylinder') {
             const cx = geoToCanvasX(el.c.x), cy = geoToCanvasY(el.c.y);
             const rC = el.r * geoScale, hC = el.h * geoScale, ry = rC * 0.35;
@@ -2760,6 +2831,7 @@ function geoRenderAll() {
             geoCtx.beginPath(); geoCtx.ellipse(cx, cy, rC, ry, 0, 0, Math.PI * 2); geoCtx.globalAlpha = 0.15; geoCtx.fill(); geoCtx.globalAlpha = 1.0; geoCtx.stroke();
             // القاعدة العلوية (بيضاوي)
             geoCtx.beginPath(); geoCtx.ellipse(cx, cy - hC, rC, ry, 0, 0, Math.PI * 2); geoCtx.globalAlpha = 0.2; geoCtx.fill(); geoCtx.globalAlpha = 1.0; geoCtx.stroke();
+            if(showLbl) { geoCtx.fillStyle = el.color; geoCtx.fillText('r', cx + rC + 5, cy - hC/2); geoCtx.fillText('h', cx - rC - 20, cy - hC/2); }
         } else if (el.type === 'cone') {
             const cx = geoToCanvasX(el.c.x), cy = geoToCanvasY(el.c.y);
             const rC = el.r * geoScale, hC = el.h * geoScale, ry = rC * 0.35;
@@ -2771,6 +2843,7 @@ function geoRenderAll() {
             geoCtx.save(); geoCtx.setLineDash([4, 4]); geoCtx.globalAlpha = 0.5;
             geoCtx.beginPath(); geoCtx.moveTo(cx, cy); geoCtx.lineTo(cx, cy - hC); geoCtx.stroke();
             geoCtx.restore();
+            if(showLbl) { geoCtx.fillStyle = el.color; geoCtx.fillText('r', cx + rC/2 + 5, cy + 14); geoCtx.fillText('h', cx + 6, cy - hC/2); }
         }
         geoCtx.restore();
     });
@@ -2780,21 +2853,18 @@ function geoRenderAll() {
         if(geoCurrentDrawType === 'segment') { geoCtx.beginPath(); geoCtx.moveTo(geoTempStart.x, geoTempStart.y); geoCtx.lineTo(geoTempCurrent.x, geoTempCurrent.y); geoCtx.stroke(); }
         else if(geoCurrentDrawType === 'line') {
             const ang = Math.atan2(dy, dx);
-            const bigLen = Math.sqrt(geoCanvasEl.width**2 + geoCanvasEl.height**2);
-            const ex1 = geoTempStart.x - bigLen * Math.cos(ang), ey1 = geoTempStart.y - bigLen * Math.sin(ang);
-            const ex2 = geoTempStart.x + bigLen * Math.cos(ang), ey2 = geoTempStart.y + bigLen * Math.sin(ang);
-            geoCtx.beginPath(); geoCtx.moveTo(ex1, ey1); geoCtx.lineTo(ex2, ey2); geoCtx.stroke();
             const sz = 12;
-            geoCtx.beginPath(); geoCtx.moveTo(ex2, ey2); geoCtx.lineTo(ex2 - sz*Math.cos(ang-Math.PI/6), ey2 - sz*Math.sin(ang-Math.PI/6)); geoCtx.lineTo(ex2 - sz*Math.cos(ang+Math.PI/6), ey2 - sz*Math.sin(ang+Math.PI/6)); geoCtx.closePath(); geoCtx.fill();
-            geoCtx.beginPath(); geoCtx.moveTo(ex1, ey1); geoCtx.lineTo(ex1 - sz*Math.cos(ang+Math.PI-Math.PI/6), ey1 - sz*Math.sin(ang+Math.PI-Math.PI/6)); geoCtx.lineTo(ex1 - sz*Math.cos(ang+Math.PI+Math.PI/6), ey1 - sz*Math.sin(ang+Math.PI+Math.PI/6)); geoCtx.closePath(); geoCtx.fill();
+            geoCtx.beginPath(); geoCtx.moveTo(geoTempStart.x, geoTempStart.y); geoCtx.lineTo(geoTempCurrent.x, geoTempCurrent.y); geoCtx.stroke();
+            // سهم عند geoTempCurrent
+            geoCtx.beginPath(); geoCtx.moveTo(geoTempCurrent.x, geoTempCurrent.y); geoCtx.lineTo(geoTempCurrent.x - sz*Math.cos(ang-Math.PI/6), geoTempCurrent.y - sz*Math.sin(ang-Math.PI/6)); geoCtx.lineTo(geoTempCurrent.x - sz*Math.cos(ang+Math.PI/6), geoTempCurrent.y - sz*Math.sin(ang+Math.PI/6)); geoCtx.closePath(); geoCtx.fill();
+            // سهم عند geoTempStart (عكسي)
+            geoCtx.beginPath(); geoCtx.moveTo(geoTempStart.x, geoTempStart.y); geoCtx.lineTo(geoTempStart.x - sz*Math.cos(ang+Math.PI-Math.PI/6), geoTempStart.y - sz*Math.sin(ang+Math.PI-Math.PI/6)); geoCtx.lineTo(geoTempStart.x - sz*Math.cos(ang+Math.PI+Math.PI/6), geoTempStart.y - sz*Math.sin(ang+Math.PI+Math.PI/6)); geoCtx.closePath(); geoCtx.fill();
         }
         else if(geoCurrentDrawType === 'ray') {
             const ang = Math.atan2(dy, dx);
-            const bigLen = Math.sqrt(geoCanvasEl.width**2 + geoCanvasEl.height**2);
-            const ex = geoTempStart.x + bigLen * Math.cos(ang), ey = geoTempStart.y + bigLen * Math.sin(ang);
-            geoCtx.beginPath(); geoCtx.moveTo(geoTempStart.x, geoTempStart.y); geoCtx.lineTo(ex, ey); geoCtx.stroke();
+            geoCtx.beginPath(); geoCtx.moveTo(geoTempStart.x, geoTempStart.y); geoCtx.lineTo(geoTempCurrent.x, geoTempCurrent.y); geoCtx.stroke();
             const sz = 12;
-            geoCtx.beginPath(); geoCtx.moveTo(ex, ey); geoCtx.lineTo(ex - sz*Math.cos(ang-Math.PI/6), ey - sz*Math.sin(ang-Math.PI/6)); geoCtx.lineTo(ex - sz*Math.cos(ang+Math.PI/6), ey - sz*Math.sin(ang+Math.PI/6)); geoCtx.closePath(); geoCtx.fill();
+            geoCtx.beginPath(); geoCtx.moveTo(geoTempCurrent.x, geoTempCurrent.y); geoCtx.lineTo(geoTempCurrent.x - sz*Math.cos(ang-Math.PI/6), geoTempCurrent.y - sz*Math.sin(ang-Math.PI/6)); geoCtx.lineTo(geoTempCurrent.x - sz*Math.cos(ang+Math.PI/6), geoTempCurrent.y - sz*Math.sin(ang+Math.PI/6)); geoCtx.closePath(); geoCtx.fill();
             geoCtx.beginPath(); geoCtx.arc(geoTempStart.x, geoTempStart.y, 4, 0, Math.PI*2); geoCtx.fill();
         }
         else if(geoCurrentDrawType === 'circle') { geoCtx.beginPath(); geoCtx.arc(geoTempStart.x, geoTempStart.y, Math.sqrt(dx*dx+dy*dy), 0, Math.PI*2); geoCtx.stroke(); }
