@@ -898,7 +898,8 @@
                 }
 
                 if (roomFound) {
-                    currentRoomPIN = pin;
+                    // ✅ إنشاء رقم غرفة جديد بدلاً من إعادة استخدام القديم
+                    currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
                     document.getElementById('qform-name').value = currentRoomPIN; 
                     document.getElementById('qform-school').value = copiedQuestions; 
                     document.getElementById('saving-status').style.display = 'block';
