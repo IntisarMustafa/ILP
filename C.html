@@ -1369,10 +1369,10 @@
                     <div style="font-weight:bold; color:var(--primary); text-align:center; padding:5px; border-bottom:2px solid var(--primary);">العمود الأول</div>
                     <div style="font-weight:bold; color:var(--primary); text-align:center; padding:5px; border-bottom:2px solid var(--primary);">العمود الثاني</div>`;
                 pairs.forEach((pair, i) => {
-                    matchHTML += `<div style="padding:8px; background:#f0f4ff; border-radius:8px; text-align:center; font-size:15px;">${pair.left}</div>
-                    <select id="match-select-${i}" style="padding:8px; border:2px solid #ccc; border-radius:8px; font-size:14px; font-family:'Cairo',sans-serif; width:100%;">
-                        <option value="">اختر...</option>
-                        ${shuffledRight.map((r,ri) => `<option value="${r}">${r}</option>`).join('')}
+                    matchHTML += `<div style="padding:8px; background:#f0f4ff; border-radius:8px; text-align:center; font-size:15px; color:#333333; font-weight:bold;">${pair.left}</div>
+                    <select id="match-select-${i}" style="padding:8px; border:2px solid #ccc; border-radius:8px; font-size:14px; font-family:'Cairo',sans-serif; width:100%; color:#333333; background:#ffffff;">
+                        <option value="" style="color:#333333;">اختر...</option>
+                        ${shuffledRight.map((r,ri) => `<option value="${r}" style="color:#333333;">${r}</option>`).join('')}
                     </select>`;
                 });
                 matchHTML += `</div>
