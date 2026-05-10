@@ -557,6 +557,16 @@
             display: none;
         }
 
+        /* إصلاح لون الخط لأسئلة التوصيل والخلفيات البيضاء */
+        .match-item, 
+        .matching-container, 
+        .match-option, 
+        .draggable, 
+        .droppable,
+        .question-text {
+            color: #333333 !important; /* فرض اللون الرمادي الداكن */
+        }
+
     </style>
 </head>
 <body>
@@ -566,6 +576,7 @@
         <div id="loading-text" style="font-size: 28px; font-weight: bold; margin-top: 20px; font-family: 'Cairo', sans-serif;">جاري تجهيز بيانات التحدي...</div>
     </div>
 
+    <h2 id="game-main-title" style="text-align: center; color: #4fc3f7; margin-top: 20px; position: relative; z-index: 2001;"></h2>
     <div class="screen" id="screen-home">
         <div class="card">
             <h1>🎮 Space Waves Challenge</h1>
@@ -1981,10 +1992,19 @@ function loadExistingRoom() {
         setupAvatars();
         const params = new URLSearchParams(window.location.search);
         const pin = params.get('pin');
+        const titleFromUrl = params.get('title'); // جلب العنوان من الرابط
+        
         if (pin) {
             const pinInput = document.getElementById('room-pin-input');
             if (pinInput) pinInput.value = pin;
         }
+        
+        // إذا كان الرابط يحتوي على عنوان، قم بعرضه
+        if (titleFromUrl) {
+            const titleElement = document.getElementById('game-main-title');
+            if (titleElement) titleElement.textContent = decodeURIComponent(titleFromUrl);
+        }
+        
         showScreen('screen-student-login');
     });
 })();
