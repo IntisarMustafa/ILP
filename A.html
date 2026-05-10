@@ -985,13 +985,20 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                 qBox.insertBefore(imgEl, qContainer);
             }
 
-            qContainer.textContent = q.q;
+            const type = q.type || 'mc';
 
             // 2. تهيئة منطقة الإجابات بناءً على نوع السؤال
             const ansGrid = document.querySelector('.answers-grid');
             ansGrid.innerHTML = ''; // مسح المحتوى القديم
 
-            const type = q.type || 'mc';
+            // التعديل هنا: إذا كان شريحة نصية، نستخدم innerHTML لعرض التنسيق والخلفية، وإلا نستخدم textContent
+            if (type === 'textslide') {
+                qContainer.innerHTML = q.textContent || q.q || '';
+                qBox.style.backgroundColor = q.textBg || '#ffffff';
+            } else {
+                qContainer.textContent = q.q;
+                qBox.style.backgroundColor = '#ffffff'; // إعادة لون الخلفية للوضع الافتراضي
+            }
 
             if (type === 'mc' || type === 'tf') {
                 const opts = q.opts || [];
@@ -1066,6 +1073,13 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
                     </div>`;
                 ansGrid.innerHTML = dragHtml;
                 renderDragItems();
+            } else if (type === 'textslide') {
+                // إضافة زر للمتابعة بما أنه لا يوجد خيارات إجابة
+                let slideHtml = `
+                    <div style="grid-column: 1/-1; width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="continueFromTextSlide()" style="font-size: 24px; padding: 15px 40px; border-radius: 30px; box-shadow: 0 6px 0 var(--primary-dark);">متابعة للتالي ⏭️</button>
+                    </div>`;
+                ansGrid.innerHTML = slideHtml;
             }
 
             // 3. الآن نقوم بتشغيل مكتبة MathLive
@@ -1102,6 +1116,19 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             el.innerText = `+${points}`;
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 1500);
+        }
+
+        function continueFromTextSlide() {
+            clearInterval(timerInterval);
+            stopBGM();
+            
+            // الانتقال للسؤال التالي مباشرة بدون حساب نقاط أو عرض شاشة التغذية الراجعة
+            currentQIndex++; 
+            if(currentQIndex < gameQuestions.length) {
+                startCountdown();
+            } else {
+                endGame();
+            }
         }
 
         function submitAnswer(idx) {
