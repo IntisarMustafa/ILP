@@ -1406,6 +1406,14 @@ function setQuestionType(blockId, type) {
     else if (type === 'matching') editor.innerHTML = getMatchingEditor(index);
     else if (type === 'dragdrop') editor.innerHTML = getDragDropEditor(index);
     else if (type === 'textslide') editor.innerHTML = getTextSlideEditor(index);
+
+    // إخفاء/إظهار مربع نص السؤال بناءً على النوع
+    const titleRows = block.querySelectorAll('.q-input-row');
+    titleRows.forEach(row => {
+        if (row.querySelector('.q-title-input')) {
+            row.style.display = (type === 'textslide') ? 'none' : '';
+        }
+    });
 }
 
 function getMultipleChoiceEditor(index) {
@@ -1771,8 +1779,10 @@ function saveQuestionsToSheet() {
 
     document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
     document.getElementById('saving-status').style.color = "var(--primary)";
+
     document.getElementById('questionsForm').submit();
 
+    // الحل: استدعاء دالة بناء الغرفة فوراً بعد الإرسال
     finishRoomSetup(teacherName, schoolName);
 }
 
@@ -2088,6 +2098,8 @@ async function loadExistingRoom(mode) {
                 document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة...";
                 document.getElementById('saving-status').style.color = "var(--primary)";
                 document.getElementById('questionsForm').submit();
+
+                // الحل: استدعاء دالة بناء الغرفة فوراً
                 finishRoomSetup('', '');
             }
         } else {
@@ -2252,6 +2264,8 @@ function importQuestionsFromJSON() {
         document.getElementById('saving-status').style.color = "var(--primary)";
         document.getElementById('questionsForm').submit();
         document.getElementById('json-import-area').value = '';
+
+        // الحل: استدعاء دالة بناء الغرفة فوراً
         finishRoomSetup('', '');
     } catch (err) {
         errorMsg.innerText = "❌ خطأ في الكود: " + err.message;
