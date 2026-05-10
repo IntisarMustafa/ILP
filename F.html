@@ -249,6 +249,159 @@
         #continue-btn:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.7; box-shadow: none; }
         #play-again-btn { background: #e67e22; margin-right: 15px; }
 
+        /* ========== أنماط أنواع الأسئلة التفاعلية ========== */
+        /* إكمال الفراغات */
+        .blanks-question-area {
+            direction: rtl;
+            text-align: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            line-height: 2.8;
+            padding: 10px;
+            word-spacing: 0.1em;
+        }
+        .blank-input {
+            background: #ffffff;
+            border: 2px solid #f6d365;
+            color: #1a1a2e;
+            text-align: center;
+            border-radius: 10px;
+            padding: 6px 12px;
+            margin: 0 6px;
+            width: 130px;
+            outline: none;
+            transition: 0.2s;
+            font-size: 1rem;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 3px 10px rgba(246,211,101,0.3);
+            font-family: 'Cairo', sans-serif;
+        }
+        .blank-input:focus {
+            border-color: #43e97b;
+            background: #f0fff4;
+            box-shadow: 0 0 0 3px rgba(67,233,123,0.3);
+            width: 150px;
+        }
+        .blanks-check-btn {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(67,233,123,0.4);
+            transition: 0.3s;
+            font-family: 'Cairo', sans-serif;
+        }
+        .blanks-check-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        /* التوصيل */
+        .matching-area {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            width: 100%;
+            margin: 15px 0;
+            position: relative;
+        }
+        .match-col { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+        .match-item {
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 12px 16px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .match-item:hover { background: rgba(255,255,255,0.25); transform: scale(1.03); }
+        .match-item.selected { background: rgba(70,23,143,0.8); border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.5); }
+        .match-item.matched { background: rgba(46,204,113,0.6); border-color: #2ecc71; cursor: default; }
+        .match-item.wrong { background: rgba(231,76,60,0.6); border-color: #e74c3c; animation: shake 0.4s; }
+        .matching-check-btn {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: #1a1a2e; border: none; border-radius: 50px;
+            padding: 14px 40px; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(67,233,123,0.4);
+            transition: 0.3s; font-family: 'Cairo', sans-serif;
+        }
+
+        /* السحب والإفلات */
+        .drag-pool {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            justify-content: center; padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 20px; min-height: 70px;
+            margin-bottom: 15px;
+        }
+        .drag-word-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 12px; padding: 10px 20px;
+            font-size: 1.1rem; font-weight: bold;
+            color: white; cursor: pointer;
+            transition: 0.2s; font-family: 'Cairo', sans-serif;
+        }
+        .drag-word-btn.selected {
+            background: rgba(70,23,143,0.8);
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255,215,0,0.5);
+            transform: scale(1.1) translateY(-3px);
+        }
+        .drag-zone-box {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 18px; padding: 12px;
+            min-height: 100px; cursor: pointer;
+            transition: 0.2s; text-align: center;
+        }
+        .drag-zone-box:hover { background: rgba(255,255,255,0.2); }
+        .drag-zone-title {
+            font-size: 1rem; font-weight: 900;
+            color: #f6d365; margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 5px;
+        }
+        .drag-zone-items { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+        .drag-zones-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; width: 100%; }
+        .drag-check-btn {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: #1a1a2e; border: none; border-radius: 50px;
+            padding: 14px 40px; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(67,233,123,0.4);
+            transition: 0.3s; font-family: 'Cairo', sans-serif;
+        }
+
+        /* شريحة نصية */
+        .text-slide-box {
+            background: white; color: #222;
+            border-radius: 20px; padding: 25px;
+            font-size: 1.3rem; line-height: 1.8;
+            text-align: right; direction: rtl;
+            margin: 15px 0;
+        }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
         @media (max-width: 850px) { 
             .levels-grid { grid-template-columns: repeat(3,1fr); } 
             .game-board { gap: 4px; padding: 10px; max-width: 95vw; }
@@ -361,7 +514,8 @@
 
 <div class="question-modal" id="question-modal">
     <div class="question-content">
-        <h2>📚 سؤال تعليمي</h2>
+        <h2 id="question-modal-title">📚 سؤال تعليمي</h2>
+        <p id="question-header-msg" style="color: #f6d365; font-size: 1rem; font-weight: bold; margin-bottom: 10px; min-height: 20px;"></p>
         <p id="question-text" class="display-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></p>
         <div class="answers-container" id="answers-container"></div>
         <div class="feedback" id="feedback" style="font-size: 1.3rem; font-weight: bold; margin-top: 15px; min-height: 30px;"></div>
@@ -489,10 +643,15 @@
     const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
     let teacherQuestionsList = [];      
     let currentRoomPIN = "";
+    let quizTitle = "🎮 التحدي الأكبر";
     let studentName = "", studentAvatar = "🧑‍🎓";
     let finalGameScore = 0;
     let isTeacherMode = false;          
     let refreshInterval;
+    // حالة التوصيل التفاعلي
+    let activeMatchState = { left: null, right: null, matchedCount: 0 };
+    // حالة السحب والإفلات
+    let activeDragState = { items: [], selectedId: null };
     
     let currentLevel = 1, moves = 20, score = 0, board = [], selectedCandy = null;
     let questionsAskedCount = 0, isPaused = false, soundEnabled = true;
@@ -706,8 +865,14 @@
                     break;
                 }
             }
-            if(found && found.length) teacherQuestionsList=found;
-            else teacherQuestionsList=defaultQuestions;
+            if(found && found.length) {
+                // استخراج العنوان من عنصر config إن وُجد
+                const configItem = found.find(q => q.type === 'config');
+                if (configItem && configItem.title) quizTitle = configItem.title;
+                // تجاهل config وتحميل الأسئلة فقط
+                teacherQuestionsList = found.filter(q => q.type !== 'config');
+                if (teacherQuestionsList.length === 0) teacherQuestionsList = defaultQuestions;
+            } else teacherQuestionsList=defaultQuestions;
         }catch(e){ teacherQuestionsList=defaultQuestions; }
         isTeacherMode=true;
         showScreen(null);
@@ -722,51 +887,257 @@
         if(teacherQuestionsList.length===0) teacherQuestionsList=defaultQuestions;
         let qData = teacherQuestionsList[Math.floor(Math.random()*teacherQuestionsList.length)];
         let modal=document.getElementById('question-modal');
-        document.getElementById('question-text').innerHTML=qData.q;
+        let qType = qData.type || 'mc';
+
+        // تحديث عنوان الاختبار
+        const titleEl = document.getElementById('question-modal-title');
+        if (titleEl) titleEl.innerText = quizTitle;
+
+        // تحديث رسالة رأس السؤال حسب النوع
+        const headerMsg = document.getElementById('question-header-msg');
+        const headerMessages = {
+            mc:        'اختر الإجابة الصحيحة 🎯',
+            tf:        'صح أم خطأ؟ 🤔',
+            blanks:    'أكمل الفراغات ✍️',
+            matching:  'صل الكلمة بما يطابقها 🔗',
+            dragdrop:  'صنّف العناصر 📥',
+            textslide: 'شريحة تعليمية 💡'
+        };
+        if (headerMsg) headerMsg.innerText = headerMessages[qType] || '';
+
+        // نص السؤال
+        document.getElementById('question-text').innerHTML = qData.q || '';
+
         let answersDiv=document.getElementById('answers-container');
         answersDiv.innerHTML='';
-        qData.opts.forEach((opt,idx)=>{
-            let btn=document.createElement('button');
-            btn.className='answer-btn';
-            btn.innerHTML=`<div class="math-container display-text" style="direction: rtl;">${opt}</div>`;
-            btn.onclick=()=>{
-                if(idx===qData.ans){
-                    document.getElementById('feedback').innerHTML='✅ إجابة صحيحة! +5 حركات 🚀';
-                    document.getElementById('feedback').className='feedback correct';
-                    moves+=5; document.getElementById('moves').innerText=moves;
-                    playTone(900,'sine',0.2,0.3); // صوت الإجابة الصحيحة
-                }else{
-                    document.getElementById('feedback').innerHTML='❌ إجابة خاطئة';
-                    document.getElementById('feedback').className='feedback incorrect';
-                    playTone(80,'sawtooth',0.2,0.2); // صوت الإجابة الخاطئة
-                }
-                document.getElementById('continue-btn').disabled = false;
-                Array.from(answersDiv.children).forEach(b => b.disabled = true);
+        answersDiv.style.gridTemplateColumns = '1fr 1fr'; // الوضع الافتراضي
 
-                window.autoCloseTimeout = setTimeout(() => {
-                    document.getElementById('continue-btn').click();
-                }, 2000);
-            };
-            answersDiv.appendChild(btn);
-        });
         document.getElementById('feedback').innerHTML='';
         document.getElementById('continue-btn').disabled=true;
+
+        if (qType === 'textslide') {
+            // شريحة نصية: لا توجد إجابات، زر متابعة فقط
+            answersDiv.style.gridTemplateColumns = '1fr';
+            const bg = qData.textBg || '#fff';
+            answersDiv.innerHTML = `
+                <div class="text-slide-box" style="background:${bg};">
+                    ${qData.textContent || qData.q || ''}
+                </div>`;
+            document.getElementById('continue-btn').disabled = false;
+
+        } else if (qType === 'mc' || qType === 'tf') {
+            // اختيار متعدد أو صح/خطأ
+            (qData.opts || []).forEach((opt, idx) => {
+                let btn=document.createElement('button');
+                btn.className='answer-btn';
+                btn.innerHTML=`<div class="math-container display-text" style="direction:rtl;">${opt}</div>`;
+                btn.onclick=()=>{
+                    if(idx===qData.ans){
+                        document.getElementById('feedback').innerHTML='✅ إجابة صحيحة! +5 حركات 🚀';
+                        document.getElementById('feedback').className='feedback correct';
+                        moves+=5; document.getElementById('moves').innerText=moves;
+                        playTone(900,'sine',0.2,0.3);
+                    }else{
+                        document.getElementById('feedback').innerHTML='❌ إجابة خاطئة';
+                        document.getElementById('feedback').className='feedback incorrect';
+                        playTone(80,'sawtooth',0.2,0.2);
+                    }
+                    document.getElementById('continue-btn').disabled=false;
+                    Array.from(answersDiv.children).forEach(b=>b.disabled=true);
+                    window.autoCloseTimeout=setTimeout(()=>document.getElementById('continue-btn').click(),2000);
+                };
+                answersDiv.appendChild(btn);
+            });
+
+        } else if (qType === 'blanks') {
+            // إكمال الفراغات
+            answersDiv.style.gridTemplateColumns = '1fr';
+            let qWithInputs = (qData.q || '').replace(/\( \.\.\.\.?\s*\)/g,
+                '<input type="text" class="blank-input" dir="rtl" autocomplete="off">');
+            document.getElementById('question-text').innerHTML = `<div class="blanks-question-area">${qWithInputs}</div>`;
+            answersDiv.innerHTML = `<button class="blanks-check-btn" onclick="checkBlanksAnswer(${JSON.stringify(qData.blanks || []).replace(/"/g,'&quot;')})">✔️ تحقق من الإجابة</button>`;
+
+        } else if (qType === 'matching') {
+            // توصيل
+            answersDiv.style.gridTemplateColumns = '1fr';
+            activeMatchState = { left: null, right: null, matchedCount: 0 };
+            let pairs = qData.pairs || [];
+            let leftItems = pairs.map((p,i) => ({text: p.left, id: i}));
+            let rightItems = pairs.map((p,i) => ({text: p.right, id: i})).sort(()=>Math.random()-0.5);
+            let leftHtml = leftItems.map(item =>
+                `<div class="match-item match-left" data-id="${item.id}" onclick="handleMatchItemClick(this,'left')">${item.text}</div>`).join('');
+            let rightHtml = rightItems.map(item =>
+                `<div class="match-item match-right" data-id="${item.id}" onclick="handleMatchItemClick(this,'right')">${item.text}</div>`).join('');
+            answersDiv.innerHTML = `
+                <div class="matching-area">
+                    <div class="match-col" id="match-left-col">${leftHtml}</div>
+                    <div class="match-col" id="match-right-col">${rightHtml}</div>
+                </div>
+                <button class="matching-check-btn" onclick="checkMatchingAnswer(${pairs.length})">✔️ تأكيد التوصيل</button>`;
+
+        } else if (qType === 'dragdrop') {
+            // سحب وإفلات
+            answersDiv.style.gridTemplateColumns = '1fr';
+            activeDragState = {
+                items: (qData.items || []).map((it,i) => ({id:i, text:it.text, targetZone:it.zoneIndex, currentZone:'pool'})),
+                selectedId: null
+            };
+            let zonesHtml = (qData.zones || []).map((zone,zi) =>
+                `<div class="drag-zone-box" onclick="moveDragItemToZone(${zi})">
+                    <div class="drag-zone-title">${zone}</div>
+                    <div class="drag-zone-items" id="drag-zone-${zi}"></div>
+                </div>`).join('');
+            answersDiv.innerHTML = `
+                <div class="drag-pool" id="drag-pool"></div>
+                <div class="drag-zones-grid">${zonesHtml}</div>
+                <button class="drag-check-btn" onclick="checkDragDropAnswer(${JSON.stringify(qData.zones||[]).replace(/"/g,'&quot;')})">✔️ تأكيد التصنيف</button>`;
+            renderDragPool();
+        }
+
         modal.style.display='flex';
         isPaused=true;
         if (window.MathJax && MathJax.typesetPromise) {
-    MathJax.typesetPromise([
-        document.getElementById('question-text'),
-        answersDiv
-    ]).catch(err => console.log(err));
-}
+            MathJax.typesetPromise([document.getElementById('question-text'), answersDiv]).catch(()=>{});
+        }
     }
 
+    // ----- دوال دعم الفراغات -----
+    function checkBlanksAnswer(blanks) {
+        const inputs = document.querySelectorAll('.blank-input');
+        let allCorrect = true;
+        inputs.forEach((input, i) => {
+            const userAns = input.value.trim().toLowerCase();
+            const correctOpts = (blanks[i] || '').toLowerCase().split('/').map(s=>s.trim());
+            if (!correctOpts.includes(userAns)) {
+                allCorrect = false;
+                input.style.borderColor = '#e74c3c';
+                input.style.background = 'rgba(231,76,60,0.15)';
+            } else {
+                input.style.borderColor = '#2ecc71';
+                input.style.background = 'rgba(46,204,113,0.15)';
+            }
+        });
+        if (allCorrect) {
+            document.getElementById('feedback').innerHTML='✅ إجابة صحيحة! +5 حركات 🚀';
+            document.getElementById('feedback').className='feedback correct';
+            moves+=5; document.getElementById('moves').innerText=moves;
+            playTone(900,'sine',0.2,0.3);
+        } else {
+            document.getElementById('feedback').innerHTML='❌ إجابة خاطئة';
+            document.getElementById('feedback').className='feedback incorrect';
+            playTone(80,'sawtooth',0.2,0.2);
+        }
+        document.getElementById('continue-btn').disabled = false;
+        window.autoCloseTimeout = setTimeout(()=>document.getElementById('continue-btn').click(), 2500);
+    }
+
+    // ----- دوال دعم التوصيل -----
+    function handleMatchItemClick(el, side) {
+        document.querySelectorAll(`.match-${side}`).forEach(e=>e.classList.remove('selected'));
+        if (!el.classList.contains('matched')) {
+            el.classList.add('selected');
+            activeMatchState[side] = el;
+        }
+        if (activeMatchState.left && activeMatchState.right) {
+            const idL = activeMatchState.left.getAttribute('data-id');
+            const idR = activeMatchState.right.getAttribute('data-id');
+            if (idL === idR) {
+                activeMatchState.left.classList.replace('selected','matched');
+                activeMatchState.right.classList.replace('selected','matched');
+                activeMatchState.matchedCount++;
+                playTone(700,'sine',0.1,0.2);
+            } else {
+                activeMatchState.left.classList.add('wrong');
+                activeMatchState.right.classList.add('wrong');
+                playTone(120,'sawtooth',0.1,0.2);
+                setTimeout(()=>{
+                    document.querySelectorAll('.match-item').forEach(e=>e.classList.remove('selected','wrong'));
+                }, 500);
+            }
+            activeMatchState.left = null; activeMatchState.right = null;
+        }
+    }
+
+    function checkMatchingAnswer(totalPairs) {
+        if (activeMatchState.matchedCount === totalPairs) {
+            document.getElementById('feedback').innerHTML='✅ توصيل صحيح! +5 حركات 🚀';
+            document.getElementById('feedback').className='feedback correct';
+            moves+=5; document.getElementById('moves').innerText=moves;
+            playTone(900,'sine',0.2,0.3);
+        } else {
+            document.getElementById('feedback').innerHTML=`❌ لم تكتمل جميع التوصيلات (${activeMatchState.matchedCount}/${totalPairs})`;
+            document.getElementById('feedback').className='feedback incorrect';
+            playTone(80,'sawtooth',0.2,0.2);
+        }
+        document.getElementById('continue-btn').disabled = false;
+        window.autoCloseTimeout = setTimeout(()=>document.getElementById('continue-btn').click(), 2500);
+    }
+
+    // ----- دوال دعم السحب والإفلات -----
+    function renderDragPool() {
+        const pool = document.getElementById('drag-pool');
+        if (!pool) return;
+        pool.innerHTML = '';
+        // أعد رسم كل عنصر في مكانه الحالي
+        activeDragState.items.forEach(item => {
+            let btn = document.createElement('button');
+            btn.className = 'drag-word-btn' + (activeDragState.selectedId === item.id ? ' selected' : '');
+            btn.innerHTML = item.text;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                activeDragState.selectedId = (activeDragState.selectedId === item.id) ? null : item.id;
+                renderDragPool();
+                playTone(600,'sine',0.05,0.1);
+            };
+            if (item.currentZone === 'pool') {
+                pool.appendChild(btn);
+            } else {
+                const zoneEl = document.getElementById(`drag-zone-${item.currentZone}`);
+                if (zoneEl) zoneEl.appendChild(btn);
+            }
+        });
+    }
+
+    function moveDragItemToZone(zoneIdx) {
+        if (activeDragState.selectedId === null) return;
+        const item = activeDragState.items.find(i => i.id === activeDragState.selectedId);
+        if (item) { item.currentZone = zoneIdx; }
+        activeDragState.selectedId = null;
+        // مسح العناصر القديمة من الزون
+        document.querySelectorAll('.drag-zone-items').forEach(el => el.innerHTML = '');
+        renderDragPool();
+        playTone(800,'sine',0.05,0.1);
+    }
+
+    function checkDragDropAnswer(zones) {
+        let allCorrect = activeDragState.items.every(item => item.currentZone === item.targetZone);
+        if (allCorrect) {
+            document.getElementById('feedback').innerHTML='✅ تصنيف صحيح! +5 حركات 🚀';
+            document.getElementById('feedback').className='feedback correct';
+            moves+=5; document.getElementById('moves').innerText=moves;
+            playTone(900,'sine',0.2,0.3);
+        } else {
+            document.getElementById('feedback').innerHTML='❌ بعض العناصر في المكان الخطأ';
+            document.getElementById('feedback').className='feedback incorrect';
+            playTone(80,'sawtooth',0.2,0.2);
+        }
+        document.getElementById('continue-btn').disabled = false;
+        window.autoCloseTimeout = setTimeout(()=>document.getElementById('continue-btn').click(), 2500);
+    }
+
+    // تصدير الدوال الجديدة للنطاق العام
+    window.checkBlanksAnswer = checkBlanksAnswer;
+    window.handleMatchItemClick = handleMatchItemClick;
+    window.checkMatchingAnswer = checkMatchingAnswer;
+    window.moveDragItemToZone = moveDragItemToZone;
+    window.checkDragDropAnswer = checkDragDropAnswer;
+
     document.getElementById('continue-btn').onclick = () => {
-    if (window.autoCloseTimeout) clearTimeout(window.autoCloseTimeout);
-    document.getElementById('question-modal').style.display = 'none';
-    isPaused = false;
-    checkGameEnd();
-};
+        if (window.autoCloseTimeout) clearTimeout(window.autoCloseTimeout);
+        document.getElementById('question-modal').style.display = 'none';
+        isPaused = false;
+        checkGameEnd();
+    };
     
     // --------------------------------------------------------------
     // 4. منطق لعبة كاندي كرش (Candy Crush Logic)
