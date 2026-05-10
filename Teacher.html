@@ -2120,6 +2120,16 @@ function populateQuestionsFromData(questions) {
     qBlockCount = 0;
 
     questions.forEach((q, idx) => {
+        // --- التعديل هنا: معالجة عنصر الإعدادات (config) وتخطيه ---
+        if (q.type === 'config') {
+            const titleInput = document.getElementById('quiz-title-input');
+            if (titleInput && q.title) {
+                titleInput.value = q.title;
+            }
+            return; // إنهاء الدورة الحالية وتخطي إنشاء سؤال فارغ
+        }
+        // ----------------------------------------------------
+
         // إضافة بلوك فارغ أولاً
         addQuestionBlock();
         const blockIndex = qBlockCount - 1;
