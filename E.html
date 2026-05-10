@@ -1207,33 +1207,68 @@
             }
 
             function showQuestion(question) {
-                questionTextElement.innerHTML = question.question;
+                questionTextElement.innerHTML = '';
                 answerOptionsContainer.innerHTML = '';
                 feedbackMessageElement.textContent = '';
-                
+
+                // شريحة نصية: عرض المحتوى مع خلفية مخصصة
+                if (question.isTextSlide) {
+                    const slideDiv = document.createElement('div');
+                    slideDiv.style.cssText = `background:${question.textBg||'#fff'};color:#222;padding:16px;border-radius:10px;margin-bottom:12px;font-size:clamp(0.9rem,2.5vw,1.1rem);line-height:1.7;direction:rtl;text-align:right;max-height:50vh;overflow-y:auto;`;
+                    slideDiv.innerHTML = question.textContent || question.question;
+                    questionTextElement.appendChild(slideDiv);
+                    currentCorrectIndex = 0;
+                    const btn = document.createElement('button');
+                    btn.classList.add('answer-btn');
+                    btn.innerHTML = '▶ متابعة';
+                    btn.style.background = 'linear-gradient(to right, #1a2980, #26d0ce)';
+                    btn.style.color = 'white';
+                    btn.addEventListener('click', () => resumeAfterTextSlide());
+                    answerOptionsContainer.appendChild(btn);
+                    questionOverlay.classList.remove('hidden');
+                    return;
+                }
+
+                // سؤال عادي (mc / blanks / matching / dragdrop)
+                questionTextElement.innerHTML = question.question;
+
                 const correctAnswerText = question.options[question.correctAnswerIndex];
-                const shuffledOptions = shuffleArray([...question.options]);
+                // لا نخلط خيارات نوع blanks أو matching (الإجابة الصحيحة دائماً index 0 بعد التحويل)
+                const shouldShuffle = !question._noShuffle;
+                const shuffledOptions = shouldShuffle ? shuffleArray([...question.options]) : [...question.options];
                 currentCorrectIndex = shuffledOptions.findIndex(option => option === correctAnswerText);
-                
+
                 shuffledOptions.forEach((option, index) => {
                     const button = document.createElement('button');
-                    button.classList.add('answer-btn'); button.innerHTML = option;
+                    button.classList.add('answer-btn');
+                    button.innerHTML = option;
                     button.addEventListener('click', () => handleAnswer(index));
                     answerOptionsContainer.appendChild(button);
                 });
-                
+
                 questionOverlay.classList.remove('hidden');
                 setTimeout(() => {
-                     if (window.MathJax) {
+                    if (window.MathJax) {
                         window.MathJax.typesetPromise([questionTextElement, answerOptionsContainer]).catch((err) => console.error('MathJax failed:', err));
                     }
-                }, 100); 
+                }, 100);
+            }
+
+            function resumeAfterTextSlide() {
+                questionOverlay.classList.add('hidden');
+                gameState.isQuestionActive = false;
+                initializePath();
+                gameState.obstacles = [];
+                gameState.pathSpeed = 1 + (gameState.level - 1) * 0.4;
+                positionShipOnPath();
+                gameState.paused = false;
+                startBackgroundMelody(); startThrusterSound();
             }
 
             function handleAnswer(selectedIndex) {
                 const isCorrect = (selectedIndex === currentCorrectIndex);
                 const buttons = answerOptionsContainer.querySelectorAll('.answer-btn');
-                
+
                 buttons.forEach((btn, index) => {
                     btn.disabled = true;
                     if (index === currentCorrectIndex) btn.classList.add('correct');
@@ -1244,8 +1279,8 @@
                     playCorrectSound();
                     feedbackMessageElement.textContent = "إجابة صحيحة! استمر في اللعب.";
                     feedbackMessageElement.style.color = "#00b09b";
-                    
-                    gameState.currentLevelScore += 50; 
+
+                    gameState.currentLevelScore += 50;
                     scoreElement.textContent = gameState.totalScore + Math.floor(gameState.currentLevelScore);
 
                     setTimeout(() => {
@@ -1264,7 +1299,7 @@
                     feedbackMessageElement.style.color = "#c04848";
                     setTimeout(() => {
                         questionOverlay.classList.add('hidden');
-                        gameState.gameOver = true; 
+                        gameState.gameOver = true;
                     }, 1500);
                 }
             }
@@ -1854,6 +1889,103 @@ function loadExistingRoom() {
         }
     };
 
+    // =====================================================
+    // دالة تحميل الأسئلة من Google Sheets (نفس طريقة ملف المعلم)
+    // =====================================================
+    async function fetchQuestionsFromSheet(pin) {
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+        const rows = json.table.rows;
+        for (let i = rows.length - 1; i >= 0; i--) {
+            const rowPin = rows[i]?.c[0]?.v?.toString().trim();
+            const rowData = rows[i]?.c[1]?.v?.toString().trim();
+            if (rowPin === pin && rowData && rowData.startsWith('[')) {
+                return JSON.parse(rowData);
+            }
+        }
+        return null;
+    }
+
+    // =====================================================
+    // تحويل أي نوع سؤال إلى تنسيق اللعبة
+    // =====================================================
+    function convertQuestionForGame(q) {
+        const type = q.type || 'mc';
+        const imgHtml = q.img ? `<img src="${q.img}" style="max-width:100%;max-height:180px;border-radius:8px;margin:8px auto;display:block;">` : '';
+
+        if (type === 'textslide') {
+            // شريحة نصية: تُعرض كسؤال بدون خيارات (زر "متابعة" فقط)
+            return {
+                question: (q.q || 'نص') + imgHtml,
+                options: ['متابعة ▶'],
+                correctAnswerIndex: 0,
+                isTextSlide: true,
+                textContent: q.textContent || '',
+                textBg: q.textBg || '#ffffff'
+            };
+        }
+
+        if (type === 'mc') {
+            const opts = Array.isArray(q.opts) ? q.opts : (Array.isArray(q.options) ? q.options : []);
+            const ans = q.ans ?? q.correct ?? q.correctAnswerIndex ?? 0;
+            return {
+                question: (q.q || q.question || '') + imgHtml,
+                options: opts.map(String),
+                correctAnswerIndex: Number(ans)
+            };
+        }
+
+        if (type === 'blanks') {
+            // إكمال الفراغات: يُعرض كاختيار من متعدد
+            const blanks = Array.isArray(q.blanks) ? q.blanks : [];
+            const correct = blanks[0] || '';
+            // توليد خيارات خاطئة بسيطة
+            const wrongs = blanks.length > 1 ? blanks.slice(1) : ['خطأ 1', 'خطأ 2', 'خطأ 3'];
+            const allOpts = [correct, ...wrongs.slice(0, 3)];
+            return {
+                question: (q.q || '') + (imgHtml || ''),
+                options: allOpts,
+                correctAnswerIndex: 0
+            };
+        }
+
+        if (type === 'matching') {
+            // توصيل: يُعرض كاختيار من متعدد - اختر المقابل الصحيح للعنصر الأول
+            const pairs = Array.isArray(q.pairs) ? q.pairs : [];
+            if (pairs.length === 0) return null;
+            const shuffled = [...pairs].sort(() => Math.random() - 0.5);
+            const target = shuffled[0];
+            const wrongOptions = shuffled.slice(1, 4).map(p => p.right);
+            const allOpts = [target.right, ...wrongOptions];
+            return {
+                question: `${q.q || ''}<br><br>🔗 ما المقابل الصحيح لـ: <strong>${target.left}</strong>?` + imgHtml,
+                options: allOpts,
+                correctAnswerIndex: 0
+            };
+        }
+
+        if (type === 'dragdrop') {
+            // تصنيف: يُعرض كاختيار - أي مجموعة تنتمي إليها هذه الكلمة؟
+            const zones = Array.isArray(q.zones) ? q.zones : [];
+            const items = Array.isArray(q.items) ? q.items : [];
+            if (items.length === 0 || zones.length === 0) return null;
+            const item = items[Math.floor(Math.random() * items.length)];
+            return {
+                question: `${q.q || ''}<br><br>📦 إلى أي مجموعة تنتمي: <strong>${item.text}</strong>?` + imgHtml,
+                options: zones,
+                correctAnswerIndex: item.zoneIndex ?? 0
+            };
+        }
+
+        // fallback
+        return {
+            question: (q.q || q.question || 'سؤال') + imgHtml,
+            options: Array.isArray(q.opts) ? q.opts : ['✓ صحيح', '✗ خطأ'],
+            correctAnswerIndex: q.ans ?? 0
+        };
+    }
+
     window.startStudentFlow = async function startStudentFlow() {
         const pin = document.getElementById('room-pin-input')?.value.trim();
         const name = document.getElementById('student-name-input')?.value.trim();
@@ -1873,23 +2005,54 @@ function loadExistingRoom() {
         if (loadingText) loadingText.innerText = 'جاري تجهيز الأسئلة...';
 
         try {
-            const payload = getQuestionPayloadFromStorage(pin);
-            if (payload && Array.isArray(payload.questions) && payload.questions.length > 0) {
-                questions = normalizeStoredQuestions(payload.questions).map(q => ({
-                    question: q.q,
-                    options: q.opts,
-                    correctAnswerIndex: q.ans
-                }));
+            let rawQuestions = null;
+
+            // 1) أولاً: حاول جلب الأسئلة من Google Sheets (كما يفعل ملف المعلم)
+            try {
+                if (loadingText) loadingText.innerText = '🔍 جاري البحث في قاعدة البيانات...';
+                rawQuestions = await fetchQuestionsFromSheet(pin);
+            } catch (sheetErr) {
+                console.warn('Sheet fetch failed, trying localStorage:', sheetErr);
             }
 
+            // 2) إذا لم تُوجد في Sheets، جرب localStorage
+            if (!rawQuestions) {
+                const payload = getQuestionPayloadFromStorage(pin);
+                if (payload && Array.isArray(payload.questions) && payload.questions.length > 0) {
+                    rawQuestions = payload.questions.map(q => ({
+                        q: q.q ?? q.question ?? '',
+                        opts: Array.isArray(q.opts) ? q.opts : (Array.isArray(q.options) ? q.options : []),
+                        ans: q.ans ?? q.correct ?? q.correctAnswerIndex ?? 0,
+                        type: q.type || 'mc',
+                        img: q.img || '',
+                        blanks: q.blanks,
+                        pairs: q.pairs,
+                        zones: q.zones,
+                        items: q.items,
+                        textContent: q.textContent,
+                        textBg: q.textBg
+                    }));
+                }
+            }
+
+            // 3) تحويل الأسئلة لتنسيق اللعبة
+            if (rawQuestions && rawQuestions.length > 0) {
+                // تجاهل عنصر config إذا وُجد
+                const filteredRaw = rawQuestions.filter(q => q.type !== 'config');
+                const converted = filteredRaw
+                    .map(q => convertQuestionForGame(q))
+                    .filter(q => q !== null && q.options && q.options.length > 0);
+
+                if (converted.length > 0) {
+                    questions = converted;
+                }
+            }
+
+            // 4) لا توجد أسئلة - أظهر خطأ واضح
             if (!questions || questions.length === 0) {
-                questions = [
-                    {
-                        question: "اكتب العدد النسبي \\(0.5\\) على صورة كسر عادي \\( \\frac{a}{b} \\).",
-                        options: ["\\( \\frac{1}{2} \\)", "\\( \\frac{5}{100} \\)", "\\( \\frac{5}{1} \\)", "\\( \\frac{2}{1} \\)"],
-                        correctAnswerIndex: 0
-                    }
-                ];
+                if (loadingScreen) loadingScreen.style.display = 'none';
+                alert(`⚠️ لم يتم العثور على أسئلة لرقم الغرفة: ${pin}\nتأكد من صحة الرقم وأن المعلم قام بحفظ الأسئلة.`);
+                return;
             }
 
             if (loadingScreen) loadingScreen.style.display = 'none';
@@ -1908,7 +2071,7 @@ function loadExistingRoom() {
             console.error('Error:', error);
             if (loadingScreen) loadingScreen.style.display = 'none';
             if (loadingText) loadingText.innerText = originalText;
-            alert('حدث خطأ أثناء تحميل الغرفة.');
+            alert('حدث خطأ أثناء تحميل الغرفة: ' + error.message);
         }
     };
 
