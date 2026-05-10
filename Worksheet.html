@@ -324,6 +324,7 @@ input[type="text"]:focus, input[type="number"]:focus {
         .timer-bar.danger { background: var(--k-red); animation: pulse 0.5s infinite alternate; }
 
         @keyframes pulse { from { opacity: 1; transform: scale(1); } to { opacity: 0.8; transform: scale(1.05); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
 
 
@@ -601,8 +602,11 @@ opacity:.85;
             <span id="player-name-display" style="font-size: 20px; font-weight: bold;"></span>
         </div>
         <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-            <div id="timer-badge" style="font-size: 18px; font-weight: 900; color: #fff; background: var(--k-red); padding: 5px 20px; border-radius: 30px; box-shadow: 0 4px 0 var(--k-red-dark);">
-                الوقت المتبقي: <span id="global-timer-display">00:00</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="encouragement-msg" style="color: #fff; font-weight: bold; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 10px; font-size: 14px; display: none; animation: fadeIn 0.5s;">أنت تبلي حسناً! ✨</span>
+                <div id="timer-badge" style="font-size: 18px; font-weight: 900; color: #fff; background: var(--success); padding: 5px 20px; border-radius: 30px; box-shadow: 0 4px 0 var(--k-green-dark);">
+                    الوقت المتبقي: <span id="global-timer-display">00:00</span>
+                </div>
             </div>
             <div class="timer-container" style="margin-bottom: 0; max-width: 300px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); background: rgba(255,255,255,0.5);">
                 <div class="timer-bar" id="global-timer-bar" style="background: var(--success);"></div>
@@ -1076,25 +1080,32 @@ let quizTitle = "ورقة عمل";
             let seconds = globalTimeLeft % 60;
             const display = document.getElementById('global-timer-display');
             const bar = document.getElementById('global-timer-bar');
+            const encouragementMsg = document.getElementById('encouragement-msg');
 
-            // تحديث الأرقام
             if (display) {
                 display.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-                if (globalTimeLeft <= 10) display.parentElement.style.animation = 'pulse 0.5s infinite';
+                // الإبقاء على حركة النبض اللطيفة للتنبيه في آخر 10 ثوانٍ (بدون تغيير اللون)
+                if (globalTimeLeft <= 10) {
+                    display.parentElement.style.animation = 'pulse 0.5s infinite';
+                } else {
+                    display.parentElement.style.animation = 'none';
+                }
             }
             
-            // تحديث شريط الوقت (النسبة المئوية)
             if (bar && totalGlobalTime > 0) {
                 let percentage = (globalTimeLeft / totalGlobalTime) * 100;
                 bar.style.width = `${percentage}%`;
+                // إجبار الشريط على البقاء باللون الأخضر دائمًا
+                bar.style.background = 'var(--success)';
+                bar.classList.remove('danger'); 
                 
-                // تغيير لون الشريط حسب الوقت المتبقي
-                if (percentage <= 20) {
-                    bar.classList.add('danger'); // يتحول للأحمر الوامض
-                } else if (percentage <= 50) {
-                    bar.style.background = 'var(--warning)'; // يتحول للبرتقالي/الأصفر
-                } else {
-                    bar.style.background = 'var(--success)'; // أخضر في البداية
+                // إظهار الرسالة التشجيعية عند انتصاف الوقت (بين 40% و 60%)
+                if (encouragementMsg) {
+                    if (percentage <= 60 && percentage >= 40) {
+                        encouragementMsg.style.display = 'inline-block';
+                    } else {
+                        encouragementMsg.style.display = 'none';
+                    }
                 }
             }
         }
