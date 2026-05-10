@@ -907,7 +907,14 @@ let quizTitle = "🎮 التحدي الأكبر";
                 }
 
                 if (foundQuestions && foundQuestions.length > 0) {
-                    gameQuestions = foundQuestions;
+                    // استخراج العنوان من عنصر config إن وُجد
+                    const configItem = foundQuestions.find(q => q.type === 'config');
+                    if (configItem && configItem.title) {
+                        quizTitle = configItem.title;
+                    }
+                    // تجاهل عنصر config وتحميل الأسئلة فقط
+                    gameQuestions = foundQuestions.filter(q => q.type !== 'config');
+                    if (gameQuestions.length === 0) gameQuestions = defaultQuestions;
                 } else {
                     gameQuestions = defaultQuestions;
                 }
