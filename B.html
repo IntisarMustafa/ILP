@@ -849,7 +849,16 @@ document.addEventListener('click', () => {
                             found = JSON.parse(cellData);
                             break; 
                         } else if (cellData.startsWith('[')) {
-                            found = { title: "تحدي بدون عنوان", questions: JSON.parse(cellData) };
+                            let parsedArray = JSON.parse(cellData);
+                            let extractedTitle = "الطيور الذكية";
+
+                            // التحقق إذا كان العنصر الأول هو إعدادات العنوان
+                            if (parsedArray.length > 0 && parsedArray[0].type === 'config') {
+                                extractedTitle = parsedArray[0].title;
+                                parsedArray.shift();
+                            }
+
+                            found = { title: extractedTitle, questions: parsedArray };
                             break;
                         }
                     } 
@@ -864,6 +873,11 @@ document.addEventListener('click', () => {
                 }
 
                 document.getElementById('lesson-title-display').innerText = "درس: " + gameLessonTitle; 
+
+                // تحديث العنوان الرئيسي للعبة في الأعلى
+                const mainHeader = document.querySelector('.header h1');
+                if (mainHeader) mainHeader.innerText = gameLessonTitle;
+
                 document.getElementById('form-name').value = `${selectedAvatar} ${name}`; 
                 document.getElementById('form-school').value = pin; 
                 answerHistory = [];
