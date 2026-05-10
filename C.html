@@ -54,6 +54,16 @@
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
         } 
+
+        /* إصلاح لون الخط لأسئلة التوصيل والخلفيات البيضاء */
+        .match-item, 
+        .matching-container, 
+        .match-option, 
+        .draggable, 
+        .droppable,
+        .question-text {
+            color: #333333 !important; /* فرض اللون الرمادي الداكن */
+        }
         
         /* تغيير الخلفية عند بدء اللعبة */
         body.mario-mode {
@@ -442,28 +452,6 @@
     }
 }
 
-
-/* تنسيق خاص لحل مشكلة وضوح نصوص أسئلة التوصيل */
-.match-item {
-    background-color: #f8f9fa !important;
-    color: #333 !important;
-    border: 2px solid #dee2e6 !important;
-    padding: 10px !important;
-    border-radius: 8px !important;
-    margin: 5px 0 !important;
-    font-weight: bold !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-}
-
-/* لضمان وضوح النص داخل العناصر المسحوبة أيضاً */
-.matching-column div {
-    color: #333 !important;
-}
-
-/* تنسيق النص عند وجود معادلات رياضية داخل التوصيل */
-.match-item math-field, .match-item .math-content {
-    color: #000 !important;
-}
 </style>
 </head>
 <body>
@@ -486,6 +474,7 @@
     </div>
 
     <div id="ui-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <h2 id="game-main-title" style="text-align: center; color: #46178f; margin-bottom: 20px;"></h2>
         
         <div class="screen active" id="screen-student-login">
             <div class="card">
@@ -1691,13 +1680,21 @@
             showScreen('screen-student-login');
         });
 
-        // ملء رقم الغرفة تلقائياً من رابط URL
+        // ملء رقم الغرفة تلقائياً والعنوان من رابط URL
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const pinFromUrl = urlParams.get('pin');
+            const titleFromUrl = urlParams.get('title'); // جلب العنوان من الرابط
+            
             if (pinFromUrl) {
                 const pinInput = document.getElementById('input-room-pin');
                 if (pinInput) pinInput.value = pinFromUrl;
+            }
+            
+            // إذا كان الرابط يحتوي على عنوان، قم بعرضه
+            if (titleFromUrl) {
+                const titleElement = document.getElementById('game-main-title');
+                if (titleElement) titleElement.textContent = decodeURIComponent(titleFromUrl);
             }
         })();
         
