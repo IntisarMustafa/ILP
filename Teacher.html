@@ -733,7 +733,7 @@
         <h1>لوحة المعلم</h1>
         <p style="color:#666; font-size:17px; margin-bottom:30px;">أنشئ مسابقتك التفاعلية وشارك الأسئلة مع طلابك</p>
         <button class="btn btn-primary" onclick="openNewQuestions()">✨ إنشاء أسئلة جديدة</button>
-        <button class="btn btn-green" onclick="openRecoverSection()">🔄 استرداد غرفة سابقة</button>
+        <button class="btn btn-green" onclick="openRecoverSection()">🔄 استرداد / تعديل غرفة سابقة</button>
         <button class="btn btn-blue" onclick="openImportSection()">⚡ استيراد أسئلة (JSON)</button>
         <button class="btn" onclick="showScreen('screen-standalone-leaderboard')" style="background:var(--k-green); box-shadow:0 6px 0 var(--k-green-dark); margin-top:5px;">🏆 البحث عن لوحة صدارة</button>
     </div>
@@ -780,13 +780,16 @@
         <div id="section-teacher-recover" class="section-panel">
             <div class="recover-box">
                 <h3 style="color:var(--primary); margin-bottom:15px;">🔄 استرداد غرفة سابقة</h3>
-                <p style="color:#666; margin-bottom:15px; font-size:14px;">أدخل رقم الغرفة القديمة لاستنساخ أسئلتها في غرفة جديدة.</p>
+                <p style="color:#666; margin-bottom:15px; font-size:14px;">أدخل رقم الغرفة القديمة لاستنساخ أسئلتها في غرفة جديدة أو تعديلها.</p>
                 <div class="recover-row">
-                    <input type="number" id="existing-room-pin" placeholder="أدخل رقم الغرفة المحفوظة (PIN)" style="margin-bottom:0;">
-                    <button class="btn btn-action" onclick="loadExistingRoom()" style="margin-bottom:0;">فتح الغرفة</button>
+                    <input type="number" id="existing-room-pin" placeholder="أدخل رقم الغرفة المحفوظة (PIN)" style="margin-bottom:10px;">
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-action" onclick="loadExistingRoom('direct')" style="margin-bottom:0; flex:1;">🚀 فتح الغرفة مباشرة</button>
+                    <button class="btn btn-blue" onclick="loadExistingRoom('edit')" style="margin-bottom:0; flex:1;">✏️ تعديل الأسئلة أولاً</button>
                 </div>
             </div>
-            <button class="btn btn-back" onclick="showScreen('screen-home')">إلغاء</button>
+            <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-top:15px;">إلغاء</button>
         </div>
 
         <!-- SECTION: IMPORT -->
@@ -1735,11 +1738,13 @@ function finishRoomSetup(teacherName, schoolName) {
 // =====================
 // RECOVER ROOM
 // =====================
-async function loadExistingRoom() {
+async function loadExistingRoom(mode) {
+    // mode: 'direct' = إنشاء غرفة جديدة مباشرة | 'edit' = فتح المحرر للتعديل
+    mode = mode || 'direct';
     const pin = document.getElementById('existing-room-pin').value.trim();
     if (!pin) { alert("يرجى إدخال رقم الغرفة!"); return; }
 
-    showLoading("جاري البحث عن الغرفة واستنساخ الأسئلة...");
+    showLoading("جاري البحث عن الغرفة واسترداد الأسئلة...");
     try {
         const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
         const text = await res.text();
@@ -1759,14 +1764,24 @@ async function loadExistingRoom() {
 
         hideLoading();
         if (roomFound) {
-            currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
-            document.getElementById('qform-name').value = currentRoomPIN;
-            document.getElementById('qform-school').value = copiedQuestions;
-            document.getElementById('qform-score').value = 'QUESTIONS';
-            document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة...";
-            document.getElementById('saving-status').style.color = "var(--primary)";
-            document.getElementById('questionsForm').submit();
-            finishRoomSetup('', '');
+            if (mode === 'edit') {
+                // فتح المحرر مع تعبئة الأسئلة
+                const parsed = JSON.parse(copiedQuestions);
+                populateQuestionsFromData(parsed);
+                showTeacherSection('new');
+                // تمرير للأعلى
+                window.scrollTo(0, 0);
+            } else {
+                // إنشاء غرفة جديدة مباشرة (السلوك القديم)
+                currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
+                document.getElementById('qform-name').value = currentRoomPIN;
+                document.getElementById('qform-school').value = copiedQuestions;
+                document.getElementById('qform-score').value = 'QUESTIONS';
+                document.getElementById('saving-status').innerText = "⏳ جاري إنشاء الغرفة الجديدة...";
+                document.getElementById('saving-status').style.color = "var(--primary)";
+                document.getElementById('questionsForm').submit();
+                finishRoomSetup('', '');
+            }
         } else {
             alert("عذراً! لم يتم العثور على أسئلة محفوظة لرمز الغرفة هذا.");
         }
@@ -1774,6 +1789,133 @@ async function loadExistingRoom() {
         hideLoading();
         alert("حدث خطأ أثناء الاتصال بقاعدة البيانات. تأكد من اتصالك بالإنترنت.");
     }
+}
+
+// =====================
+// POPULATE QUESTIONS FROM DATA (للتعديل)
+// =====================
+function populateQuestionsFromData(questions) {
+    // مسح القائمة الحالية وإعادة البناء
+    document.getElementById('questions-list').innerHTML = '';
+    qBlockCount = 0;
+
+    questions.forEach((q, idx) => {
+        // إضافة بلوك فارغ أولاً
+        addQuestionBlock();
+        const blockIndex = qBlockCount - 1;
+        const blockId = `q-block-${blockIndex}`;
+        const block = document.getElementById(blockId);
+
+        // تعيين نص السؤال
+        block.querySelector('.q-title-input').value = q.q || '';
+
+        // الوقت والدرجة
+        const timeInput = block.querySelector('.q-time-input');
+        const pointsInput = block.querySelector('.q-points-input');
+        if (timeInput) timeInput.value = q.time || 60;
+        if (pointsInput) pointsInput.value = q.points || 1000;
+
+        // تعيين نوع السؤال وتعبئة المحرر
+        const type = q.type || 'mc';
+        setQuestionType(blockId, type);
+
+        if (type === 'mc' && q.opts) {
+            const container = document.getElementById(`mc-container-${blockIndex}`);
+            // إزالة الخيارات الافتراضية
+            container.innerHTML = '';
+            q.opts.forEach((opt, optIdx) => {
+                const isChecked = optIdx === q.ans ? 'checked' : '';
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="opt-row">
+                        <input type="radio" name="correct-${blockIndex}" value="${optIdx}" ${isChecked}>
+                        <input type="text" class="q-opt-input" placeholder="خيار" required style="margin-bottom:0;" value="${escapeHtmlAttr(opt)}">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                        ${optIdx >= 2 ? `<button type="button" onclick="this.parentElement.remove(); updateMCOptionValues(${blockIndex});" style="color:red; background:none; border:none; cursor:pointer; font-size:18px;">✕</button>` : ''}
+                    </div>`);
+            });
+
+        } else if (type === 'blanks' && q.blanks) {
+            const container = document.getElementById(`blanks-container-${blockIndex}`);
+            container.innerHTML = '';
+            q.blanks.forEach((blank, bi) => {
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="opt-row">
+                        <input type="text" class="q-blank-input" placeholder="إجابة الفراغ" required style="margin-bottom:0; flex:1;" value="${escapeHtmlAttr(blank)}">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                        ${bi > 0 ? `<button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer; font-size:18px;">✕</button>` : ''}
+                    </div>`);
+            });
+
+        } else if (type === 'matching' && q.pairs) {
+            const container = document.getElementById(`matching-container-${blockIndex}`);
+            container.innerHTML = '';
+            q.pairs.forEach((pair, pi) => {
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="matching-pair">
+                        <input type="text" class="match-left" placeholder="الكلمة" required style="flex:1; margin-bottom:0;" value="${escapeHtmlAttr(pair.left)}">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                        <span>🔗</span>
+                        <input type="text" class="match-right" placeholder="المطابق" required style="flex:1; margin-bottom:0;" value="${escapeHtmlAttr(pair.right)}">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                        ${pi > 0 ? `<button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer; font-size:18px;">✕</button>` : ''}
+                    </div>`);
+            });
+
+        } else if (type === 'dragdrop' && q.zones && q.items) {
+            const zonesContainer = document.getElementById(`zones-container-${blockIndex}`);
+            zonesContainer.innerHTML = '';
+            q.zones.forEach((zone, zi) => {
+                zonesContainer.insertAdjacentHTML('beforeend', `
+                    <div class="drag-item" style="margin-bottom:6px;">
+                        <input type="text" class="zone-name" placeholder="اسم المجموعة" required style="flex:1; margin-bottom:0;" value="${escapeHtmlAttr(zone)}">
+                        ${zi > 0 ? `<button type="button" onclick="this.parentElement.remove(); updateDragZoneOptions(${blockIndex});" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">✕</button>` : ''}
+                    </div>`);
+            });
+            updateDragZoneOptions(blockIndex);
+
+            const dragContainer = document.getElementById(`drag-container-${blockIndex}`);
+            dragContainer.innerHTML = '';
+            q.items.forEach(item => {
+                dragContainer.insertAdjacentHTML('beforeend', `
+                    <div class="drag-item">
+                        <input type="text" class="drag-text" placeholder="الكلمة" required style="flex:1; margin-bottom:0;" value="${escapeHtmlAttr(item.text)}">
+                        <button type="button" class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button>
+                        <select class="drag-zone">${getDragZoneOptions(blockIndex)}</select>
+                        <button type="button" onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer; font-size:18px;">✕</button>
+                    </div>`);
+                // تحديد المجموعة الصحيحة
+                const selects = dragContainer.querySelectorAll('.drag-zone');
+                const lastSelect = selects[selects.length - 1];
+                if (lastSelect) lastSelect.value = item.zoneIndex || 0;
+            });
+
+        } else if (type === 'textslide') {
+            const area = document.getElementById(`text-area-${blockIndex}`);
+            if (area) {
+                area.innerHTML = q.textContent || '';
+                if (q.textBg) area.style.backgroundColor = q.textBg;
+            }
+        }
+
+        // تحميل الصورة إن وجدت
+        if (q.img) {
+            const imgInput = document.getElementById(`img-url-${blockId}`);
+            if (imgInput) {
+                imgInput.value = q.img;
+                previewImage(blockId);
+            }
+        }
+    });
+}
+
+function escapeHtmlAttr(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 // =====================
