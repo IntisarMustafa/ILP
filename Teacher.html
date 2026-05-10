@@ -819,7 +819,7 @@
 <!-- ============================= -->
 <div class="screen" id="screen-teacher">
     <div class="room-card">
-        <h2>انضموا الآن! رمز الغرفة:</h2>
+        <h2>🎉 رمز الغرفة للجميع:</h2>
         <div class="room-pin" id="display-room-pin">000000</div>
 
         <div id="teacher-info-display" style="display:none;" class="teacher-badge">
@@ -832,14 +832,28 @@
 
         <p id="saving-status" class="saving-status">⏳ جاري تخزين الأسئلة في النظام...</p>
 
-        <div id="qr-container" style="margin:20px 0; text-align:center;">
-            <img alt="QR Code" id="room-qr-code" src=""/>
-            <p style="margin-top:12px; font-size:18px; font-weight:bold; color:var(--primary);">امسح الرمز عبر كاميرا الهاتف</p>
+        <div style="background:#f0f4ff; border-radius:14px; padding:16px 20px; margin:10px 0 18px 0; text-align:right;">
+            <p style="font-size:15px; color:#444; font-weight:bold; margin-bottom:6px;">💡 هذا الرقم يُستخدم في جميع الألعاب أدناه</p>
+            <p style="font-size:13px; color:#888;">شارك رقم الغرفة مع الطلاب، أو اختر لعبة واضغط على زر QR أو الرابط المباشر</p>
         </div>
 
-        <div class="share-row">
-            <input id="game-url-input" readonly type="text" placeholder="رابط اللعبة سيظهر هنا..."/>
-            <button class="btn btn-primary" id="copy-btn" onclick="copyGameLink()" style="margin-bottom:0; white-space:nowrap;">نسخ الرابط</button>
+        <!-- قائمة الألعاب -->
+        <div style="text-align:right; margin-bottom:10px;">
+            <h3 style="color:var(--primary); font-size:20px; margin-bottom:14px;">🎮 اختر لعبة وشارك رابطها:</h3>
+            <div id="games-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+    </div>
+
+    <!-- QR Modal للألعاب -->
+    <div id="game-qr-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; flex-direction:column;" onclick="closeGameQR()">
+        <div style="background:white; border-radius:20px; padding:30px; text-align:center; max-width:340px; width:90%;" onclick="event.stopPropagation()">
+            <div id="game-qr-title" style="font-size:22px; font-weight:900; color:var(--primary); margin-bottom:15px;"></div>
+            <img id="game-qr-img" src="" alt="QR" style="width:220px; height:220px; border-radius:12px; border:5px solid var(--primary); display:block; margin:0 auto 15px auto;"/>
+            <div style="display:flex; gap:8px; margin-top:5px;">
+                <input id="game-qr-url" readonly type="text" style="flex:1; padding:10px; border:2px solid #ddd; border-radius:8px; font-size:12px; direction:ltr; margin-bottom:0;"/>
+                <button onclick="copyQRLink()" style="padding:10px 16px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; white-space:nowrap; font-family:'Cairo',sans-serif;">نسخ</button>
+            </div>
+            <button onclick="closeGameQR()" style="margin-top:15px; width:100%; padding:12px; background:#e0e0e0; border:none; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; font-family:'Cairo',sans-serif;">إغلاق</button>
         </div>
     </div>
 
@@ -1717,6 +1731,70 @@ function saveQuestionsToSheet() {
     finishRoomSetup(teacherName, schoolName);
 }
 
+// =====================
+// GAMES LIST
+// =====================
+const GAMES_LIST = [
+    { name: 'ورقة عمل', emoji: '📄', file: 'Worksheet.html' },
+    { name: 'لعبة المسابقة', emoji: '🏆', file: 'A.html' },
+    { name: 'لعبة الطيور الذكية', emoji: '🐦', file: 'B.html' },
+    { name: 'لعبة القط والهدف', emoji: '🐱', file: 'C.html' },
+    { name: 'لعبة الطائر الفهمان', emoji: '🦅', file: 'D.html' },
+    { name: 'لعبة مركبة الفضاء', emoji: '🚀', file: 'E.html' },
+    { name: 'لعبة المكعب', emoji: '🧊', file: 'G.html' },
+    { name: 'لعبة الكرة الزرقاء والحمراء', emoji: '🎯', file: 'H.html' },
+];
+
+function buildGamesList(pin) {
+    const baseUrl = window.location.href.split('/').slice(0, -1).join('/') + '/';
+    const container = document.getElementById('games-list');
+    container.innerHTML = '';
+
+    GAMES_LIST.forEach(game => {
+        const gameUrl = `${baseUrl}${game.file}?pin=${pin}`;
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; align-items:center; gap:10px; background:#f8f9ff; border:2px solid #e0e6ff; border-radius:12px; padding:12px 14px;';
+
+        row.innerHTML = `
+            <span style="font-size:26px; flex-shrink:0;">${game.emoji}</span>
+            <span style="flex:1; font-size:16px; font-weight:700; color:#333; text-align:right;">${game.name}</span>
+            <button onclick="openGameQR('${game.name}', '${gameUrl}')"
+                style="padding:9px 14px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:13px; white-space:nowrap; font-family:'Cairo',sans-serif; box-shadow:0 4px 0 var(--primary-dark);">
+                📷 QR
+            </button>
+            <a href="${gameUrl}" target="_blank"
+                style="padding:9px 14px; background:var(--k-green); color:white; border-radius:8px; font-weight:bold; font-size:13px; text-decoration:none; white-space:nowrap; font-family:'Cairo',sans-serif; box-shadow:0 4px 0 var(--k-green-dark); display:inline-block;">
+                🔗 فتح
+            </a>
+        `;
+        container.appendChild(row);
+    });
+}
+
+function openGameQR(gameName, url) {
+    document.getElementById('game-qr-title').innerText = gameName;
+    document.getElementById('game-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&color=46178f`;
+    document.getElementById('game-qr-url').value = url;
+    document.getElementById('game-qr-modal').style.display = 'flex';
+}
+
+function closeGameQR() {
+    document.getElementById('game-qr-modal').style.display = 'none';
+}
+
+function copyQRLink() {
+    const input = document.getElementById('game-qr-url');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+        const btn = input.nextElementSibling;
+        const orig = btn.innerText;
+        btn.innerText = '✅ تم!';
+        setTimeout(() => btn.innerText = orig, 1500);
+    }).catch(() => {
+        document.execCommand('copy');
+    });
+}
+
 function finishRoomSetup(teacherName, schoolName) {
     if (teacherName || schoolName) {
         document.getElementById('teacher-info-name').innerText = teacherName || '—';
@@ -1727,12 +1805,9 @@ function finishRoomSetup(teacherName, schoolName) {
     }
 
     document.getElementById('display-room-pin').innerText = currentRoomPIN;
-    const gameUrl = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
-    document.getElementById('game-url-input').value = gameUrl;
 
-    const qrImg = document.getElementById('room-qr-code');
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
-    qrImg.style.display = 'block';
+    // بناء قائمة الألعاب مع الرقم الجديد
+    buildGamesList(currentRoomPIN);
 
     showScreen('screen-teacher');
     if(refreshInterval) clearInterval(refreshInterval);
@@ -2030,17 +2105,6 @@ async function fetchLeaderboard() {
 }
 
 // =====================
-// COPY LINK
-// =====================
-function copyGameLink() {
-    const input = document.getElementById('game-url-input');
-    input.select();
-    document.execCommand('copy');
-    const btn = document.getElementById('copy-btn');
-    btn.innerText = "تم النسخ! ✔️"; btn.style.backgroundColor = "var(--success)";
-    setTimeout(() => { btn.innerText = "نسخ الرابط"; btn.style.backgroundColor = "var(--primary)"; }, 2000);
-}
-
 // =====================
 // LOADING HELPERS
 // =====================
