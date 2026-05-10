@@ -442,6 +442,28 @@
     }
 }
 
+
+/* تنسيق خاص لحل مشكلة وضوح نصوص أسئلة التوصيل */
+.match-item {
+    background-color: #f8f9fa !important;
+    color: #333 !important;
+    border: 2px solid #dee2e6 !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    margin: 5px 0 !important;
+    font-weight: bold !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* لضمان وضوح النص داخل العناصر المسحوبة أيضاً */
+.matching-column div {
+    color: #333 !important;
+}
+
+/* تنسيق النص عند وجود معادلات رياضية داخل التوصيل */
+.match-item math-field, .match-item .math-content {
+    color: #000 !important;
+}
 </style>
 </head>
 <body>
