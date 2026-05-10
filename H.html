@@ -420,22 +420,26 @@ function copyGameLink() {
         
         /* إكمال الفراغات */
         .blank-input {
-            background: rgba(255,255,255,0.1);
-            border: 2px dashed rgba(255,255,255,0.5);
-            color: white;
+            background: #ffffff;
+            border: 2px solid #6366f1;
+            color: #1e1b4b;
             text-align: center;
-            border-radius: 6px;
-            padding: 4px 8px;
-            margin: 0 4px;
-            width: 100px;
+            border-radius: 8px;
+            padding: 6px 12px;
+            margin: 0 6px;
+            width: 130px;
             outline: none;
             transition: 0.2s;
             font-size: 1rem;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.25);
         }
         .blank-input:focus { 
             border-color: #4ade80; 
-            background: rgba(255,255,255,0.2); 
-            width: 120px; 
+            background: #f0fdf4;
+            box-shadow: 0 0 0 3px rgba(74,222,128,0.3);
+            width: 150px; 
         }
         
         /* التوصيل والتصنيف (اللمس بدلاً من السحب) */
@@ -705,7 +709,7 @@ function copyGameLink() {
 
     <div id="questionScreen" class="overlay">
         <div class="glass-ui p-6 md:p-10 text-center border border-indigo-400/50 rounded-[2rem] bg-slate-900/95 shadow-2xl backdrop-blur-xl w-[95%] max-w-3xl q-modal-content" dir="rtl">
-            <h2 class="text-2xl md:text-4xl font-black text-indigo-400 mb-2 drop-shadow-md">حارس الباب 🚺</h2>
+            <h2 class="text-2xl md:text-4xl font-black text-indigo-400 mb-2 drop-shadow-md" id="quizTitleDisplay">حارس الباب 🚺</h2>
             <p class="text-indigo-200 font-bold mb-4 text-sm md:text-lg" id="questionHeaderMsg">أجب على السؤال لفتح الباب!</p>
             
             <div id="mathQuestionText" class="text-lg md:text-2xl text-white mb-4 bg-slate-800 p-4 md:p-6 rounded-xl border border-slate-600 min-h-[80px] flex flex-col items-center justify-center overflow-x-auto" dir="ltr"></div>
@@ -750,6 +754,7 @@ function copyGameLink() {
     let selectedAvatar = avatars[0];
     const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
     let gameQuestions = [];
+    let quizTitle = "🎮 التحدي الأكبر";
     let currentRoomPIN = "";
     let qBlockCount = 0;
     let refreshInterval;
@@ -807,7 +812,18 @@ function copyGameLink() {
                     foundQuestions = JSON.parse(rows[i].c[1].v.toString()); break;
                 }
             }
-            gameQuestions = (foundQuestions && foundQuestions.length > 0) ? foundQuestions : defaultQuestions;
+            if (foundQuestions && foundQuestions.length > 0) {
+                // استخراج العنوان من عنصر config إن وُجد
+                const configItem = foundQuestions.find(q => q.type === 'config');
+                if (configItem && configItem.title) {
+                    quizTitle = configItem.title;
+                }
+                // تجاهل عنصر config وتحميل الأسئلة فقط
+                gameQuestions = foundQuestions.filter(q => q.type !== 'config');
+                if (gameQuestions.length === 0) gameQuestions = defaultQuestions;
+            } else {
+                gameQuestions = defaultQuestions;
+            }
         } catch (err) { gameQuestions = defaultQuestions; }
         
         document.getElementById('screen-loading-sheet').style.display = 'none';
@@ -1209,6 +1225,10 @@ function copyGameLink() {
         currentQuestionObj = gameQuestions[currentLevelIdx % gameQuestions.length];
         if(!currentQuestionObj) currentQuestionObj = defaultQuestions[0];
         
+        // تحديث عنوان الاختبار
+        const titleEl = document.getElementById('quizTitleDisplay');
+        if (titleEl) titleEl.innerText = quizTitle;
+
         const qType = currentQuestionObj.type || 'mc';
         const qTextContainer = document.getElementById('mathQuestionText');
         const interactiveArea = document.getElementById('interactiveArea');
@@ -1240,9 +1260,12 @@ function copyGameLink() {
             
         } else if (qType === 'blanks') {
             headerMsg.innerText = "أكمل الفراغات التالية ✍️";
-            let qWithInputs = contentHtml.replace(/\( \.\.\.\.\s*\)/g, '<input type="text" class="blank-input" dir="rtl">');
+            let qWithInputs = contentHtml.replace(/\( \.\.\.\.\s*\)/g, '<input type="text" class="blank-input" dir="rtl" autocomplete="off">');
             qTextContainer.innerHTML = qWithInputs;
-            interactiveArea.innerHTML = `<button class="math-btn w-full bg-green-600 hover:bg-green-500" onclick="checkBlanks()">تحقق من الإجابة ✔️</button>`;
+            qTextContainer.setAttribute('dir', 'rtl');
+            qTextContainer.style.textAlign = 'right';
+            qTextContainer.style.lineHeight = '2.5';
+            interactiveArea.innerHTML = `<button class="math-btn w-full bg-green-600 hover:bg-green-500" onclick="checkBlanks()" style="font-size:1.2rem; padding: 14px; margin-top: 10px;">✔️ تحقق من الإجابة</button>`;
             
         } else if (qType === 'matching') {
             headerMsg.innerText = "صل الكلمة بما يطابقها (انقر هنا ثم هناك) 🔗";
