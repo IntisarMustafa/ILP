@@ -600,9 +600,14 @@ opacity:.85;
             <span id="player-avatar-display" style="font-size: 35px;"></span>
             <span id="player-name-display" style="font-size: 20px; font-weight: bold;"></span>
         </div>
-        <div id="timer-container" style="display:none; font-size: 22px; font-weight: 900; color: #fff; background: var(--k-red); padding: 5px 20px; border-radius: 30px; box-shadow: 0 4px 0 var(--k-red-dark);">
-الوقت المتبقي: <span id="global-timer-display">00:00</span>
-</div>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+            <div id="timer-badge" style="font-size: 18px; font-weight: 900; color: #fff; background: var(--k-red); padding: 5px 20px; border-radius: 30px; box-shadow: 0 4px 0 var(--k-red-dark);">
+                الوقت المتبقي: <span id="global-timer-display">00:00</span>
+            </div>
+            <div class="timer-container" style="margin-bottom: 0; max-width: 300px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); background: rgba(255,255,255,0.5);">
+                <div class="timer-bar" id="global-timer-bar" style="background: var(--success);"></div>
+            </div>
+        </div>
     </div>
     
     
@@ -1038,6 +1043,7 @@ let quizTitle = "ورقة عمل";
         }
 
         let globalTimeLeft = 0;
+        let totalGlobalTime = 0; // متغير جديد لحفظ الوقت الكلي
         let globalTimerInterval;
         let worksheetState = {
             matching: {}, // Stores state for each matching question
@@ -1045,8 +1051,13 @@ let quizTitle = "ورقة عمل";
         };
 
         function startGlobalTimer() {
-            // حساب الوقت الكلي بناءً على مجموع أوقات الأسئلة
-            globalTimeLeft = gameQuestions.reduce((total, q) => total + (q.time || 60), 0);
+            // حساب الوقت الكلي بناءً على مجموع أوقات الأسئلة (وتجاهل الشرائح النصية إن وُجدت)
+            globalTimeLeft = gameQuestions.reduce((total, q) => {
+                if (q.type === 'textslide') return total;
+                return total + (q.time || 60); // 60 ثانية افتراضية لكل سؤال إذا لم يحدد المعلم وقتاً
+            }, 0);
+            
+            totalGlobalTime = globalTimeLeft; // حفظ الوقت الكلي لحساب نسبة الشريط
             
             updateTimerDisplay();
             globalTimerInterval = setInterval(() => {
@@ -1055,7 +1066,7 @@ let quizTitle = "ورقة عمل";
                 
                 if (globalTimeLeft <= 0) {
                     clearInterval(globalTimerInterval);
-                    submitWorksheet(); 
+                    submitWorksheet(); // تسليم الورقة تلقائياً عند انتهاء الوقت
                 }
             }, 1000);
         }
@@ -1064,9 +1075,27 @@ let quizTitle = "ورقة عمل";
             let minutes = Math.floor(globalTimeLeft / 60);
             let seconds = globalTimeLeft % 60;
             const display = document.getElementById('global-timer-display');
+            const bar = document.getElementById('global-timer-bar');
+
+            // تحديث الأرقام
             if (display) {
                 display.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
                 if (globalTimeLeft <= 10) display.parentElement.style.animation = 'pulse 0.5s infinite';
+            }
+            
+            // تحديث شريط الوقت (النسبة المئوية)
+            if (bar && totalGlobalTime > 0) {
+                let percentage = (globalTimeLeft / totalGlobalTime) * 100;
+                bar.style.width = `${percentage}%`;
+                
+                // تغيير لون الشريط حسب الوقت المتبقي
+                if (percentage <= 20) {
+                    bar.classList.add('danger'); // يتحول للأحمر الوامض
+                } else if (percentage <= 50) {
+                    bar.style.background = 'var(--warning)'; // يتحول للبرتقالي/الأصفر
+                } else {
+                    bar.style.background = 'var(--success)'; // أخضر في البداية
+                }
             }
         }
 
@@ -1097,16 +1126,29 @@ let quizTitle = "ورقة عمل";
             playBGM('game');
             
             worksheetState = { matching: {}, dragdrop: {} };
+            
+            let actualQNumber = 1; // عداد للأسئلة الفعلية فقط (يتجاهل الشرائح النصية)
 
             gameQuestions.forEach((q, qIndex) => {
-                let questionHtml = `<div class="question-box" style="padding: 25px; text-align: right; border-right: 8px solid var(--primary); background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 10px;">`;
-                questionHtml += `<h3 style="margin-bottom: 20px; font-size: 24px; color: var(--primary);">السؤال ${qIndex + 1}: <span class="display-text">${q.q}</span></h3>`;
+                const type = q.type || 'mc';
+
+                // --- معالجة الشريحة النصية ---
+                if (type === 'textslide') {
+                    let textHtml = `<div class="question-box" style="padding: 25px; text-align: right; background: ${q.textBg || '#ffffff'}; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px;">`;
+                    textHtml += `<div class="display-text" style="font-size: 24px; color: #333;">${q.textContent || q.q || ''}</div>`;
+                    textHtml += `</div>`;
+                    container.innerHTML += textHtml;
+                    return; // إنهاء الدورة هنا لهذا العنصر (لا يحسب كسؤال)
+                }
+
+                let questionHtml = `<div class="question-box" style="padding: 25px; text-align: right; border-right: 8px solid var(--primary); background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px;">`;
+                questionHtml += `<h3 style="margin-bottom: 20px; font-size: 24px; color: var(--primary);">السؤال ${actualQNumber}: <span class="display-text">${q.q}</span></h3>`;
+                actualQNumber++; // زيادة العداد للأسئلة الحقيقية فقط
                 
                 if (q.img) {
                     questionHtml += `<img src="${q.img}" style="max-width:100%; max-height:250px; border-radius:12px; margin-bottom:20px; display:block; border: 2px solid #eee;">`;
                 }
                 
-                const type = q.type || 'mc';
                 questionHtml += `<div class="answers-area" id="answers-q-${qIndex}">`;
 
                 if (type === 'mc' || type === 'tf') {
@@ -1188,7 +1230,7 @@ let quizTitle = "ورقة عمل";
                 MathLive.renderMathInElement(container);
             }
             
-            // startGlobalTimer();
+            startGlobalTimer();
         }
 
         // Worksheet versions of interactive functions
@@ -1320,7 +1362,6 @@ let quizTitle = "ورقة عمل";
         
 
 function submitWorksheet() {
-    // إيقاف أي مؤقت إن وجد
     if (globalTimerInterval) clearInterval(globalTimerInterval);
 
     let totalScore = 0;
@@ -1328,69 +1369,147 @@ function submitWorksheet() {
 
     gameQuestions.forEach((q, qIndex) => {
         const type = q.type || 'mc';
+        
+        // تجاوز الشرائح النصية، لا تدخل في حساب النقاط
+        if (type === 'textslide') return; 
+
         totalMaxPoints += (q.points || 1);
 
         if (type === 'mc' || type === 'tf') {
             const inputs = document.querySelectorAll(`input[name="q_${qIndex}"]`);
-
             inputs.forEach((input, i) => {
                 input.disabled = true;
-
                 const label = input.parentElement;
-
-                // التحقق فقط من الخيار الذي قام الطالب بتحديده
                 if (input.checked) {
                     if (i === q.ans) {
-                        // إجابة الطالب صحيحة (لون أخضر)
                         totalScore += (q.points || 1);
-                        label.style.background = "#d4edda";
-                        label.style.borderColor = "#28a745";
+                        label.style.background = "#d4edda"; label.style.borderColor = "#28a745";
                     } else {
-                        // إجابة الطالب خاطئة (لون أحمر)
-                        label.style.background = "#f8d7da";
-                        label.style.borderColor = "#dc3545";
+                        label.style.background = "#f8d7da"; label.style.borderColor = "#dc3545";
                     }
                 }
             });
         }
-
         else if (type === 'blanks') {
             let allCorrect = true;
-
             q.blanks.forEach((blank, i) => {
                 const input = document.getElementById(`ws-blank-${qIndex}-${i}`);
                 if (!input) return;
-
                 input.disabled = true;
-
                 let val = input.value.trim().toLowerCase();
                 let correctOptions = blank.split('/').map(x => x.trim().toLowerCase());
 
                 if (correctOptions.includes(val)) {
-                    // إجابة صحيحة (لون أخضر)
-                    input.style.background = "#d4edda";
-                    input.style.borderColor = "#28a745";
+                    input.style.background = "#d4edda"; input.style.borderColor = "#28a745";
                 } else {
-                    // إجابة خاطئة (لون أحمر فقط بدون عرض الإجابة الصحيحة)
                     allCorrect = false;
-                    input.style.background = "#f8d7da";
-                    input.style.borderColor = "#dc3545";
+                    input.style.background = "#f8d7da"; input.style.borderColor = "#dc3545";
+                }
+            });
+            if (allCorrect) totalScore += (q.points || 1);
+        }
+        // --- إضافة تصحيح سؤال التوصيل ---
+        else if (type === 'matching') {
+            let allCorrect = true;
+            let state = worksheetState.matching[qIndex];
+            
+            // تعطيل الأزرار
+            const wrapper = document.getElementById(`matching-wrapper-${qIndex}`);
+            if (wrapper) wrapper.querySelectorAll('.match-btn').forEach(b => { b.disabled = true; b.style.pointerEvents = 'none'; });
+
+            q.pairs.forEach((pair, i) => {
+                let leftEl = document.getElementById(`left-item-${qIndex}-${i}`);
+                let rightEl = document.getElementById(`right-item-${qIndex}-${i}`);
+                let rightMatchedToThisLeft = state.matches[i];
+                
+                if (rightMatchedToThisLeft === i) {
+                    if(leftEl) { leftEl.style.backgroundColor = "#d4edda"; leftEl.style.borderColor = "#28a745"; leftEl.style.color = "#155724"; }
+                    if(rightEl) { rightEl.style.backgroundColor = "#d4edda"; rightEl.style.borderColor = "#28a745"; rightEl.style.color = "#155724"; }
+                } else {
+                    allCorrect = false;
+                    if(leftEl) { leftEl.style.backgroundColor = "#f8d7da"; leftEl.style.borderColor = "#dc3545"; leftEl.style.color = "#721c24"; }
+                    if (rightMatchedToThisLeft !== undefined) {
+                        let wrongRightEl = document.getElementById(`right-item-${qIndex}-${rightMatchedToThisLeft}`);
+                        if(wrongRightEl) { wrongRightEl.style.backgroundColor = "#f8d7da"; wrongRightEl.style.borderColor = "#dc3545"; wrongRightEl.style.color = "#721c24"; }
+                    }
+                }
+            });
+            
+            // تلوين الأزرار التي لم يتم توصيلها إطلاقاً بالأحمر
+            q.pairs.forEach((pair, i) => {
+                let rightEl = document.getElementById(`right-item-${qIndex}-${i}`);
+                let isMatched = Object.values(state.matches).includes(i);
+                if (!isMatched && rightEl) { rightEl.style.backgroundColor = "#f8d7da"; rightEl.style.borderColor = "#dc3545"; rightEl.style.color = "#721c24"; }
+            });
+
+            if (allCorrect) totalScore += (q.points || 1);
+            
+            // إعادة رسم خطوط التوصيل (أخضر للصح وأحمر للخطأ)
+            const canvas = document.getElementById(`matching-canvas-${qIndex}`);
+            if (canvas && wrapper) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let lid in state.matches) {
+                    let rid = state.matches[lid];
+                    let lEl = document.getElementById(`left-item-${qIndex}-${lid}`);
+                    let rEl = document.getElementById(`right-item-${qIndex}-${rid}`);
+                    if (lEl && rEl) {
+                        let l = lEl.getBoundingClientRect(), r = rEl.getBoundingClientRect(), p = wrapper.getBoundingClientRect();
+                        let sx = (document.dir === 'rtl') ? (l.left - p.left) : (l.right - p.left);
+                        let sy = (l.top + l.height / 2) - p.top;
+                        let ex = (document.dir === 'rtl') ? (r.right - p.left) : (r.left - p.left);
+                        let ey = (r.top + r.height / 2) - p.top;
+                        ctx.beginPath();
+                        ctx.moveTo(sx, sy);
+                        ctx.bezierCurveTo(sx + (document.dir === 'rtl' ? -30 : 30), sy, ex + (document.dir === 'rtl' ? 30 : -30), ey, ex, ey);
+                        ctx.strokeStyle = (parseInt(lid) === parseInt(rid)) ? "#28a745" : "#dc3545"; 
+                        ctx.lineWidth = 4;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        // --- إضافة تصحيح سؤال السحب والإفلات (تصنيف) للاحتياط ---
+        else if (type === 'dragdrop') {
+            let allCorrect = true;
+            let state = worksheetState.dragdrop[qIndex];
+            
+            let poolEl = document.getElementById(`ws-drag-pool-${qIndex}`);
+            if (poolEl) poolEl.style.pointerEvents = 'none';
+            q.zones.forEach((_, zi) => {
+                let zoneEl = document.getElementById(`ws-drag-zone-items-${qIndex}-${zi}`);
+                if(zoneEl) zoneEl.parentElement.style.pointerEvents = 'none';
+            });
+
+            state.items.forEach(item => { if (item.currentZone !== item.targetZone) allCorrect = false; });
+            
+            q.zones.forEach((_, zi) => {
+                let zoneEl = document.getElementById(`ws-drag-zone-items-${qIndex}-${zi}`);
+                if(zoneEl) {
+                    Array.from(zoneEl.children).forEach(btn => {
+                        let textSpan = btn.querySelector('.display-text');
+                        if(textSpan) {
+                            let item = state.items.find(i => i.text === textSpan.innerText);
+                            if (item && item.targetZone === zi) {
+                                btn.style.backgroundColor = "#d4edda"; btn.style.borderColor = "#28a745"; btn.style.color = "#155724";
+                            } else {
+                                btn.style.backgroundColor = "#f8d7da"; btn.style.borderColor = "#dc3545"; btn.style.color = "#721c24";
+                            }
+                        }
+                    });
                 }
             });
 
-            if (allCorrect) {
-                totalScore += (q.points || 1);
+            if(poolEl) {
+                Array.from(poolEl.children).forEach(btn => { btn.style.backgroundColor = "#f8d7da"; btn.style.borderColor = "#dc3545"; btn.style.color = "#721c24"; });
             }
+
+            if (allCorrect) totalScore += (q.points || 1);
         }
     });
 
-    // عرض النتيجة أعلى الورقة
     showResultBanner(totalScore, totalMaxPoints);
-
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 
