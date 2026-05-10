@@ -397,6 +397,131 @@ function copyGameLink() {
         .math-btn { background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 15px; font-size: 1.25rem; color: white; transition: all 0.2s; cursor: pointer; font-family: inherit; }
         .math-btn:hover:not(:disabled) { background: rgba(59, 130, 246, 0.4); border-color: rgba(96, 165, 250, 0.8); transform: translateY(-2px); }
         .math-btn:disabled { opacity: 0.8; cursor: not-allowed; }
+        
+        /* ========================================= */
+        /* تنسيقات الأنواع الجديدة للأسئلة والتجاوب مع الموبايل */
+        /* ========================================= */
+        .q-modal-content {
+            max-height: 85vh;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+        
+        /* الصور والأشكال البيانية */
+        .q-media-img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin: 10px auto;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        /* إكمال الفراغات */
+        .blank-input {
+            background: rgba(255,255,255,0.1);
+            border: 2px dashed rgba(255,255,255,0.5);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin: 0 4px;
+            width: 100px;
+            outline: none;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        .blank-input:focus { 
+            border-color: #4ade80; 
+            background: rgba(255,255,255,0.2); 
+            width: 120px; 
+        }
+        
+        /* التوصيل والتصنيف (اللمس بدلاً من السحب) */
+        .match-col { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            flex: 1; 
+        }
+        .match-item {
+            background: rgba(255,255,255,0.1); 
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.2s;
+            font-weight: bold; 
+            font-size: 1rem;
+            text-align: center;
+        }
+        .match-item.selected { 
+            background: rgba(59, 130, 246, 0.5); 
+            border-color: #60a5fa; 
+            transform: scale(1.05); 
+        }
+        .match-item.matched { 
+            background: rgba(34, 197, 94, 0.4); 
+            border-color: #4ade80; 
+            opacity: 0.7; 
+            pointer-events: none; 
+        }
+        .match-item.wrong { 
+            background: rgba(239, 68, 68, 0.4); 
+            border-color: #f87171; 
+            animation: shake 0.3s; 
+        }
+        
+        /* مناطق التصنيف */
+        .drop-zone {
+            border: 2px dashed #60a5fa; 
+            border-radius: 12px; 
+            padding: 15px;
+            min-height: 80px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 8px;
+            background: rgba(0,0,0,0.2); 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        .drop-zone.active { 
+            background: rgba(59, 130, 246, 0.2); 
+            border-color: #93c5fd; 
+        }
+        .drag-item {
+            background: #3b82f6; 
+            padding: 8px 12px; 
+            border-radius: 20px;
+            font-size: 0.9rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.2s;
+            color: white;
+        }
+        .drag-item.selected { 
+            box-shadow: 0 0 0 4px white; 
+            transform: scale(1.1); 
+        }
+        
+        /* الشريحة النصية */
+        .text-slide-content {
+            background: white; 
+            color: black; 
+            padding: 20px; 
+            border-radius: 12px;
+            text-align: right; 
+            line-height: 1.8; 
+            margin-bottom: 20px; 
+            overflow-x: auto;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
     </style>
 </head>
 <body>
@@ -579,13 +704,15 @@ function copyGameLink() {
     </div>
 
     <div id="questionScreen" class="overlay">
-        <div class="glass-ui p-8 md:p-10 text-center border border-indigo-400/50 rounded-[2rem] bg-slate-900/95 shadow-2xl backdrop-blur-xl w-[90%] max-w-2xl" dir="rtl">
-            <h2 class="text-3xl md:text-4xl font-black text-indigo-400 mb-2 drop-shadow-md">حارس الباب 🚪</h2>
-            <p class="text-indigo-200 font-bold mb-6 text-lg">أجب على السؤال لفتح الباب والحصول على مكافأة!</p>
+        <div class="glass-ui p-6 md:p-10 text-center border border-indigo-400/50 rounded-[2rem] bg-slate-900/95 shadow-2xl backdrop-blur-xl w-[95%] max-w-3xl q-modal-content" dir="rtl">
+            <h2 class="text-2xl md:text-4xl font-black text-indigo-400 mb-2 drop-shadow-md">حارس الباب 🚺</h2>
+            <p class="text-indigo-200 font-bold mb-4 text-sm md:text-lg" id="questionHeaderMsg">أجب على السؤال لفتح الباب!</p>
             
-            <div id="mathQuestionText" class="text-xl md:text-2xl text-white mb-6 bg-slate-800 p-6 rounded-xl border border-slate-600 min-h-[100px] flex items-center justify-center overflow-x-auto" dir="ltr"></div>
-            <div id="mathOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4" dir="ltr"></div>
-            <p id="questionFeedback" class="text-xl font-bold mt-6 h-8 opacity-0 transition-opacity duration-300"></p>
+            <div id="mathQuestionText" class="text-lg md:text-2xl text-white mb-4 bg-slate-800 p-4 md:p-6 rounded-xl border border-slate-600 min-h-[80px] flex flex-col items-center justify-center overflow-x-auto" dir="ltr"></div>
+            
+            <div id="interactiveArea" class="w-full mb-4"></div>
+            
+            <p id="questionFeedback" class="text-lg md:text-xl font-bold mt-4 h-8 opacity-0 transition-opacity duration-300"></p>
         </div>
     </div>
 
@@ -834,6 +961,8 @@ function copyGameLink() {
     };
 
     let currentQuestionObj = null;
+    let activeMatchingPair = { left: null, right: null, matchedCount: 0 };
+    let activeDragItem = null;
     let gameState = 'MENU';
     let score = 0; let currentLevelIdx = 0; let playerHealth = 5; const maxHealth = 5;
     let particles = []; let switchRings = []; let playerTrail = []; let floatingTexts = []; let screenShake = 0;
@@ -1062,31 +1191,231 @@ function copyGameLink() {
     function retryLevel() { enterFullscreen(); currentLevelIdx = 0; score = 0; updateScore(); loadLevel(currentLevelIdx); setScreen(null); gameState = 'PLAYING'; }
     function completeLevel() { if(gameState === 'LEVELCLEAR' || gameState === 'QUESTION') return; gameState = 'QUESTION'; spawnParticles(player.x, player.y, '#4ade80', 50, 8); setTimeout(() => { showQuestionScreen(); }, 800); }
 
-    function showQuestionScreen() {
-        // سحب سؤال من النظام التفاعلي المخصص للمعلم
-        currentQuestionObj = gameQuestions[currentLevelIdx % gameQuestions.length];
-        if(!currentQuestionObj) currentQuestionObj = defaultQuestions[0]; // احتياطي
-        
-        document.getElementById('mathQuestionText').innerHTML = currentQuestionObj.q;
-        const optsContainer = document.getElementById('mathOptions'); optsContainer.innerHTML = '';
-        currentQuestionObj.opts.forEach((opt, idx) => {
-            const btn = document.createElement('button'); btn.className = 'math-btn'; btn.innerHTML = opt;
-            btn.onclick = () => checkAnswer(idx, btn); optsContainer.appendChild(btn);
-        });
-        const feedback = document.getElementById('questionFeedback'); feedback.style.opacity = '0'; feedback.className = 'text-xl font-bold mt-6 h-8 transition-opacity duration-300';
-        setScreen('questionScreen');
-        if(window.renderMathInElement) { renderMathInElement(document.getElementById('questionScreen'), { delimiters: [ {left: "\\(", right: "\\)", display: false}, {left: "\\[", right: "\\]", display: true} ] }); }
+    function handleFeedback(isCorrect) {
+        const feedback = document.getElementById('questionFeedback');
+        feedback.style.opacity = '1';
+        if(isCorrect) {
+            feedback.innerText = 'إجابة صحيحة! +500 نقطة 🎉';
+            feedback.className = 'text-lg md:text-xl font-bold mt-4 h-8 text-green-400 transition-opacity duration-300';
+            score += 500; updateScore(); AudioSys.coin();
+        } else {
+            feedback.innerText = 'إجابة خاطئة! ❌';
+            feedback.className = 'text-lg md:text-xl font-bold mt-4 h-8 text-red-400 transition-opacity duration-300';
+            AudioSys.bump();
+        }
     }
 
-    function checkAnswer(idx, btnClicked) {
-        const buttons = document.querySelectorAll('.math-btn'); buttons.forEach(b => b.disabled = true);
-        const feedback = document.getElementById('questionFeedback'); feedback.style.opacity = '1';
-        if(idx === currentQuestionObj.ans) {
-            btnClicked.style.background = 'rgba(34, 197, 94, 0.4)'; btnClicked.style.borderColor = '#4ade80'; feedback.innerText = 'إجابة صحيحة! +500 نقطة 🎉'; feedback.classList.add('text-green-400'); score += 500; updateScore(); AudioSys.coin();
-        } else {
-            btnClicked.style.background = 'rgba(239, 68, 68, 0.4)'; btnClicked.style.borderColor = '#f87171'; buttons[currentQuestionObj.ans].style.background = 'rgba(34, 197, 94, 0.4)'; buttons[currentQuestionObj.ans].style.borderColor = '#4ade80'; feedback.innerText = 'إجابة خاطئة! ❌'; feedback.classList.add('text-red-400'); AudioSys.bump();
+    function showQuestionScreen() {
+        currentQuestionObj = gameQuestions[currentLevelIdx % gameQuestions.length];
+        if(!currentQuestionObj) currentQuestionObj = defaultQuestions[0];
+        
+        const qType = currentQuestionObj.type || 'mc';
+        const qTextContainer = document.getElementById('mathQuestionText');
+        const interactiveArea = document.getElementById('interactiveArea');
+        const feedback = document.getElementById('questionFeedback');
+        const headerMsg = document.getElementById('questionHeaderMsg');
+        
+        // إعادة ضبط الواجهة
+        interactiveArea.innerHTML = '';
+        feedback.style.opacity = '0';
+        feedback.className = 'text-lg md:text-xl font-bold mt-4 h-8 transition-opacity duration-300';
+        
+        // عرض النص والصورة
+        let contentHtml = currentQuestionObj.q;
+        if (currentQuestionObj.img) {
+            contentHtml += `<br><img src="${currentQuestionObj.img}" class="q-media-img" />`;
         }
-        setTimeout(() => { finishLevelPhase(); }, 2000);
+        
+        // بناء الواجهة بناءً على نوع السؤال
+        if (qType === 'textslide') {
+            headerMsg.innerText = "شريحة تعليمية 💡";
+            qTextContainer.innerHTML = contentHtml;
+            const bg = currentQuestionObj.textBg || '#ffffff';
+            interactiveArea.innerHTML = `
+                <div class="text-slide-content" style="background-color: ${bg};" dir="rtl">
+                    ${currentQuestionObj.textContent || ''}
+                </div>
+                <button class="math-btn w-full bg-blue-600 hover:bg-blue-500" onclick="finishLevelPhase()">متابعة ➔</button>
+            `;
+            
+        } else if (qType === 'blanks') {
+            headerMsg.innerText = "أكمل الفراغات التالية ✍️";
+            let qWithInputs = contentHtml.replace(/\( \.\.\.\.\s*\)/g, '<input type="text" class="blank-input" dir="rtl">');
+            qTextContainer.innerHTML = qWithInputs;
+            interactiveArea.innerHTML = `<button class="math-btn w-full bg-green-600 hover:bg-green-500" onclick="checkBlanks()">تحقق من الإجابة ✔️</button>`;
+            
+        } else if (qType === 'matching') {
+            headerMsg.innerText = "صل الكلمة بما يطابقها (انقر هنا ثم هناك) 🔗";
+            qTextContainer.innerHTML = contentHtml;
+            
+            let lefts = currentQuestionObj.pairs.map((p, i) => ({text: p.left, id: i})).sort(() => Math.random() - 0.5);
+            let rights = currentQuestionObj.pairs.map((p, i) => ({text: p.right, id: i})).sort(() => Math.random() - 0.5);
+            
+            let leftHtml = lefts.map(item => `<div class="match-item match-left" data-id="${item.id}" onclick="handleMatchClick(this, 'left')">${item.text}</div>`).join('');
+            let rightHtml = rights.map(item => `<div class="match-item match-right" data-id="${item.id}" onclick="handleMatchClick(this, 'right')">${item.text}</div>`).join('');
+            
+            interactiveArea.innerHTML = `
+                <div class="flex gap-4" dir="ltr">
+                    <div class="match-col">${leftHtml}</div>
+                    <div class="match-col">${rightHtml}</div>
+                </div>
+            `;
+            activeMatchingPair = { left: null, right: null, matchedCount: 0 };
+            
+        } else if (qType === 'dragdrop') {
+            headerMsg.innerText = "صنف العناصر (انقر على العنصر ثم انقر على الصندوق) 📥";
+            qTextContainer.innerHTML = contentHtml;
+            
+            let zonesHtml = currentQuestionObj.zones.map((zone, i) => `
+                <div class="w-full text-right mb-2 text-blue-200 font-bold">${zone}</div>
+                <div class="drop-zone mb-4" data-zone-idx="${i}" onclick="handleZoneClick(${i}, this)"></div>
+            `).join('');
+            
+            let itemsHtml = currentQuestionObj.items.map((item, i) => `
+                <div class="drag-item" data-item-idx="${i}" data-correct-zone="${item.zoneIndex}" onclick="handleDragItemClick(this)">${item.text}</div>
+            `).sort(() => Math.random() - 0.5).join('');
+            
+            interactiveArea.innerHTML = `
+                <div id="unassignedItems" class="flex flex-wrap gap-2 mb-6 justify-center p-4 bg-white/10 rounded-xl">${itemsHtml}</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${zonesHtml}</div>
+                <button class="math-btn w-full bg-green-600 hover:bg-green-500 mt-4" onclick="checkDragDrop()">تحقق من التصنيف ✔️</button>
+            `;
+            activeDragItem = null;
+            
+        } else {
+            // النوع الافتراضي (اختيار من متعدد mc)
+            headerMsg.innerText = "اختر الإجابة الصحيحة لتمر! 🎯";
+            qTextContainer.innerHTML = contentHtml;
+            interactiveArea.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4" dir="ltr"></div>`;
+            const optsContainer = interactiveArea.querySelector('.grid');
+            
+            currentQuestionObj.opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'math-btn';
+                btn.innerHTML = opt;
+                btn.onclick = () => checkMCAnswer(idx, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+        
+        setScreen('questionScreen');
+        if(window.renderMathInElement) {
+            renderMathInElement(document.getElementById('questionScreen'), {
+                delimiters: [
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ]
+            });
+        }
+    }
+
+    function checkMCAnswer(idx, btnClicked) {
+        const buttons = document.querySelectorAll('.math-btn');
+        buttons.forEach(b => b.disabled = true);
+        
+        if(idx === currentQuestionObj.ans) {
+            btnClicked.style.background = 'rgba(34, 197, 94, 0.4)';
+            btnClicked.style.borderColor = '#4ade80';
+            handleFeedback(true);
+        } else {
+            btnClicked.style.background = 'rgba(239, 68, 68, 0.4)';
+            btnClicked.style.borderColor = '#f87171';
+            if(buttons[currentQuestionObj.ans]) {
+                buttons[currentQuestionObj.ans].style.background = 'rgba(34, 197, 94, 0.4)';
+                buttons[currentQuestionObj.ans].style.borderColor = '#4ade80';
+            }
+            handleFeedback(false);
+        }
+        setTimeout(() => finishLevelPhase(), 2000);
+    }
+
+    function checkBlanks() {
+        const inputs = document.querySelectorAll('.blank-input');
+        let allCorrect = true;
+        inputs.forEach((input, i) => {
+            const userAns = input.value.trim().toLowerCase();
+            const correctAnswers = currentQuestionObj.blanks[i].toLowerCase().split('/').map(s => s.trim());
+            if(!correctAnswers.includes(userAns)) {
+                allCorrect = false;
+                input.style.borderColor = '#ef4444';
+                input.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+            } else {
+                input.style.borderColor = '#4ade80';
+                input.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+            }
+        });
+        handleFeedback(allCorrect);
+        if(!allCorrect) setTimeout(() => finishLevelPhase(), 2000);
+    }
+
+    function handleMatchClick(element, side) {
+        document.querySelectorAll(`.match-${side}`).forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        activeMatchingPair[side] = element;
+        if(activeMatchingPair.left && activeMatchingPair.right) {
+            const idLeft = activeMatchingPair.left.getAttribute('data-id');
+            const idRight = activeMatchingPair.right.getAttribute('data-id');
+            
+            if(idLeft === idRight) {
+                activeMatchingPair.left.classList.replace('selected', 'matched');
+                activeMatchingPair.right.classList.replace('selected', 'matched');
+                activeMatchingPair.matchedCount++;
+                AudioSys.coin();
+                
+                if(activeMatchingPair.matchedCount === currentQuestionObj.pairs.length) {
+                    handleFeedback(true);
+                    setTimeout(() => finishLevelPhase(), 1500);
+                }
+            } else {
+                activeMatchingPair.left.classList.add('wrong');
+                activeMatchingPair.right.classList.add('wrong');
+                AudioSys.bump();
+                setTimeout(() => {
+                    document.querySelectorAll('.match-item').forEach(el => {
+                        el.classList.remove('selected', 'wrong');
+                    });
+                }, 500);
+            }
+            activeMatchingPair.left = null;
+            activeMatchingPair.right = null;
+        }
+    }
+
+    function handleDragItemClick(element) {
+        document.querySelectorAll('.drag-item').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        activeDragItem = element;
+    }
+
+    function handleZoneClick(zoneIdx, zoneElement) {
+        if(!activeDragItem) return;
+        zoneElement.appendChild(activeDragItem);
+        activeDragItem.classList.remove('selected');
+        activeDragItem = null;
+    }
+
+    function checkDragDrop() {
+        const items = document.querySelectorAll('.drag-item');
+        let allCorrect = true;
+        
+        const unassigned = document.getElementById('unassignedItems').children.length;
+        if(unassigned > 0) {
+            document.getElementById('questionFeedback').innerText = 'الرجاء تصنيف جميع العناصر أولاً! ⚠️';
+            document.getElementById('questionFeedback').style.opacity = '1';
+            return;
+        }
+        items.forEach(item => {
+            const correctZone = item.getAttribute('data-correct-zone');
+            const currentZone = item.parentElement.getAttribute('data-zone-idx');
+            if(correctZone !== currentZone) {
+                allCorrect = false;
+                item.style.backgroundColor = '#ef4444';
+            } else {
+                item.style.backgroundColor = '#22c55e';
+            }
+        });
+        handleFeedback(allCorrect);
+        if(!allCorrect) setTimeout(() => finishLevelPhase(), 2500);
     }
 
     function finishLevelPhase() {
