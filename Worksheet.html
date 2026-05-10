@@ -1029,8 +1029,19 @@ let quizTitle = "ورقة عمل";
                 }
 
                 if (foundQuestions && foundQuestions.length > 0) {
+
+                    // --- قراءة عنوان ورقة العمل الديناميكي ---
+                    if (foundQuestions[0].type === 'config') {
+                        quizTitle = foundQuestions[0].title || "ورقة عمل";
+                        foundQuestions.shift(); // إزالة عنصر الإعدادات حتى لا يظهر كسؤال
+                    } else {
+                        // توافق مع الغرف القديمة
+                        quizTitle = "ورقة عمل";
+                    }
+
                     gameQuestions = foundQuestions;
                 } else {
+                    quizTitle = "ورقة عمل";
                     gameQuestions = defaultQuestions;
                 }
             } catch (err) {
@@ -1129,6 +1140,9 @@ let quizTitle = "ورقة عمل";
 
             gameQuestions.forEach((q, qIndex) => {
                 const type = q.type || 'mc';
+
+                // --- حماية إضافية: تخطي عنصر العنوان أو أي سؤال فارغ إذا وصل هنا بالخطأ ---
+                if (type === 'config' || q.q === undefined) return;
 
                 // --- معالجة الشريحة النصية ---
                 if (type === 'textslide') {
