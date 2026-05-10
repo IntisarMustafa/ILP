@@ -1691,6 +1691,11 @@ function saveQuestionsToSheet() {
         return;
     }
 
+    // --- التعديل هنا: جلب العنوان وإضافته كأول عنصر في المصفوفة ---
+    const quizTitleInput = document.getElementById('quiz-title-input')?.value.trim() || 'ورقة عمل';
+    customQuestions.unshift({ type: 'config', title: quizTitleInput });
+    // ------------------------------------------------
+
     currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
     const teacherName = document.getElementById('teacher-name-input')?.value.trim() || '';
     const schoolName = document.getElementById('school-name-input')?.value.trim() || '';
