@@ -1189,16 +1189,17 @@
             }
         }
 
-        // دالة المتابعة لشريحة النص (بدون تسجيل إجابة)
+        // دالة المتابعة لشريحة النص المعدلة لتتوافق مع نظام المعلم
         function advanceTextSlide() {
             clearInterval(timerInterval);
-            currentQIndex++;
-            userAnswersHistory.push({ question: gameQuestions[currentQIndex - 1].q, userAnswer: 'شريحة نص', correctAnswer: '', isCorrect: true });
-            if (currentQIndex < gameQuestions.length) {
-                startCountdown();
-            } else {
-                endGame();
-            }
+            
+            // حفظها في السجل حتى لا تحدث مشكلة في ترتيب الإجابات عند المراجعة
+            const q = gameQuestions[currentQIndex];
+            userAnswersHistory.push({ question: q.q || "شريحة نصية", userAnswer: 'تمت القراءة', correctAnswer: '', isCorrect: true });
+            
+            // التعديل هنا: بدلاً من الانتقال للسؤال التالي، نوجه الطالب لشاشة الانتظار
+            // ليبقى متزامناً مع المعلم وبقية الطلاب
+            showInterimLeaderboard(); 
         }
 
         function updateTimerBar() {
