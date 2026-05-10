@@ -1732,17 +1732,174 @@ function saveQuestionsToSheet() {
 }
 
 // =====================
-// GAMES LIST
+// GAMES LIST - SVG ICONS
 // =====================
 const GAMES_LIST = [
-    { name: 'ورقة عمل', emoji: '📄', file: 'Worksheet.html' },
-    { name: 'لعبة المسابقة', emoji: '🏆', file: 'A.html' },
-    { name: 'لعبة الطيور الذكية', emoji: '🐦', file: 'B.html' },
-    { name: 'لعبة القط والهدف', emoji: '🐱', file: 'C.html' },
-    { name: 'لعبة الطائر الفهمان', emoji: '🦅', file: 'D.html' },
-    { name: 'لعبة مركبة الفضاء', emoji: '🚀', file: 'E.html' },
-    { name: 'لعبة المكعب', emoji: '🧊', file: 'G.html' },
-    { name: 'لعبة الكرة الزرقاء والحمراء', emoji: '🎯', file: 'H.html' },
+    {
+        name: 'ورقة عمل', file: 'Worksheet.html',
+        color: '#d97706', colorDark: '#b45309', colorShadow: 'rgba(217,119,6,0.35)',
+        bg1: '#fef3c7', bg2: '#fde68a',
+        svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+            <defs>
+                <linearGradient id="g_sheetGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#f1f5f9"/></linearGradient>
+                <linearGradient id="g_checkGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#059669"/></linearGradient>
+                <linearGradient id="g_clipGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#475569"/></linearGradient>
+            </defs>
+            <rect x="25" y="20" width="50" height="65" rx="6" fill="url(#g_sheetGrad)" stroke="#cbd5e1" stroke-width="2.5"/>
+            <line x1="35" y1="40" x2="65" y2="40" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+            <line x1="35" y1="52" x2="65" y2="52" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+            <line x1="35" y1="64" x2="55" y2="64" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 45 70 L 55 80 L 75 55" fill="none" stroke="url(#g_checkGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="40" y="12" width="20" height="12" rx="4" fill="url(#g_clipGrad)" stroke="#334155" stroke-width="2"/>
+            <circle cx="50" cy="18" r="2.5" fill="#1e293b"/>
+        </svg>`
+    },
+    {
+        name: 'مسابقة مباشرة', file: 'A.html',
+        color: '#7c3aed', colorDark: '#6d28d9', colorShadow: 'rgba(124,58,237,0.35)',
+        bg1: '#f5f3ff', bg2: '#ddd6fe',
+        svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+            <defs>
+                <linearGradient id="g_cupGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient>
+                <linearGradient id="g_baseGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#334155"/><stop offset="100%" stop-color="#0f172a"/></linearGradient>
+                <linearGradient id="g_accentGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0891b2"/><stop offset="100%" stop-color="#155e75"/></linearGradient>
+            </defs>
+            <path d="M 35 85 L 65 85 L 70 95 L 30 95 Z" fill="url(#g_baseGrad)"/>
+            <rect x="42" y="70" width="16" height="15" fill="url(#g_baseGrad)"/>
+            <path d="M 30 35 C 15 35 15 55 35 55" fill="none" stroke="url(#g_cupGrad)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M 70 35 C 85 35 85 55 65 55" fill="none" stroke="url(#g_cupGrad)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M 25 20 L 75 20 C 75 55 65 70 50 70 C 35 70 25 55 25 20 Z" fill="url(#g_cupGrad)" stroke="#ffffff" stroke-width="2"/>
+            <path d="M 50 35 L 53 42 L 60 42 L 54 47 L 56 54 L 50 50 L 44 54 L 46 47 L 40 42 L 47 42 Z" fill="#ffffff"/>
+            <ellipse cx="50" cy="20" rx="25" ry="6" fill="url(#g_accentGrad)" stroke="#ffffff" stroke-width="2"/>
+        </svg>`
+    },
+    {
+        name: 'الطيور الذكية', file: 'B.html',
+        color: '#e11d48', colorDark: '#be123c', colorShadow: 'rgba(225,29,72,0.35)',
+        bg1: '#fff1f2', bg2: '#fecdd3',
+        svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+            <defs>
+                <linearGradient id="g_birdGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
+            </defs>
+            <path d="M 45 15 C 35 0 60 -5 55 15 Z" fill="url(#g_birdGrad)"/>
+            <circle cx="50" cy="52" r="35" fill="url(#g_birdGrad)"/>
+            <rect x="23" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(16 35 35)"/>
+            <rect x="52" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(-16 65 35)"/>
+            <circle cx="38" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1"/>
+            <circle cx="62" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1"/>
+            <circle cx="42" cy="48" r="3.5" fill="#0f172a"/>
+            <circle cx="58" cy="48" r="3.5" fill="#0f172a"/>
+            <path d="M 43 60 L 50 72 L 57 60 Z" fill="#d97706"/>
+            <path d="M 36 57 L 50 67 L 64 57 L 50 49 Z" fill="#fbbf24" stroke="#b45309" stroke-width="1" stroke-linejoin="round"/>
+        </svg>`
+    },
+    {
+        name: 'القط والهدف', file: 'C.html',
+        color: '#ea580c', colorDark: '#c2410c', colorShadow: 'rgba(234,88,12,0.35)',
+        bg1: '#fff7ed', bg2: '#fed7aa',
+        svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+            <defs>
+                <linearGradient id="g_boxGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+                <linearGradient id="g_tomGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#64748b"/><stop offset="100%" stop-color="#334155"/></linearGradient>
+                <linearGradient id="g_muzzleGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient>
+            </defs>
+            <rect x="25" y="10" width="50" height="50" rx="6" fill="url(#g_boxGrad)" stroke="#b45309" stroke-width="2"/>
+            <text x="50" y="47" font-family="Arial" font-size="38" font-weight="900" fill="#ffffff" text-anchor="middle">?</text>
+            <path d="M 37 62 L 25 45 L 48 55 Z" fill="url(#g_tomGrad)"/>
+            <path d="M 63 62 L 75 45 L 52 55 Z" fill="url(#g_tomGrad)"/>
+            <circle cx="50" cy="73" r="19" fill="url(#g_tomGrad)"/>
+            <path d="M 37 77 Q 50 68 63 77 Q 67 88 50 90 Q 33 88 37 77 Z" fill="url(#g_muzzleGrad)"/>
+            <ellipse cx="43" cy="67" rx="4.5" ry="7" fill="#fde047" stroke="#1e293b" stroke-width="0.5"/>
+            <ellipse cx="57" cy="67" rx="4.5" ry="7" fill="#fde047" stroke="#1e293b" stroke-width="0.5"/>
+            <circle cx="44" cy="68" r="2.5" fill="#15803d"/>
+            <circle cx="56" cy="68" r="2.5" fill="#15803d"/>
+        </svg>`
+    },
+    {
+        name: 'الطائر الفهمان', file: 'D.html',
+        color: '#059669', colorDark: '#047857', colorShadow: 'rgba(5,150,105,0.35)',
+        bg1: '#ecfdf5', bg2: '#a7f3d0',
+        svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+            <defs>
+                <linearGradient id="g_pipeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4ade80"/><stop offset="30%" stop-color="#22c55e"/><stop offset="100%" stop-color="#14532d"/></linearGradient>
+                <linearGradient id="g_flappyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#eab308"/></linearGradient>
+                <linearGradient id="g_wingGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient>
+            </defs>
+            <rect x="70" y="55" width="20" height="45" fill="url(#g_pipeGrad)" stroke="#064e3b" stroke-width="2"/>
+            <rect x="66" y="47" width="28" height="12" fill="url(#g_pipeGrad)" stroke="#064e3b" stroke-width="2" rx="3"/>
+            <rect x="10" y="10" width="20" height="35" fill="url(#g_pipeGrad)" stroke="#064e3b" stroke-width="2"/>
+            <rect x="6" y="41" width="28" height="12" fill="url(#g_pipeGrad)" stroke="#064e3b" stroke-width="2" rx="3"/>
+            <circle cx="35" cy="45" r="16" fill="url(#g_flappyGrad)" stroke="#ca8a04" stroke-width="2"/>
+            <path d="M 20 45 Q 12 40 25 55 Q 30 50 20 45 Z" fill="url(#g_wingGrad)" stroke="#94a3b8" stroke-width="1.5"/>
+            <circle cx="43" cy="40" r="5" fill="#ffffff" stroke="#ca8a04" stroke-width="1"/>
+            <circle cx="45" cy="40" r="2" fill="#0f172a"/>
+            <path d="M 46 48 Q 62 43 64 50 Q 62 57 46 52 Z" fill="#ea580c" stroke="#c2410c" stroke-width="1.5"/>
+        </svg>`
+    },
+    {
+        name: 'مركبة الفضاء', file: 'E.html',
+        color: '#2563eb', colorDark: '#1d4ed8', colorShadow: 'rgba(37,99,235,0.35)',
+        bg1: '#eff6ff', bg2: '#bfdbfe',
+        svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+            <defs>
+                <linearGradient id="g_rocketBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#94a3b8"/></linearGradient>
+                <linearGradient id="g_rocketFin" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
+                <linearGradient id="g_flameGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#ef4444"/></linearGradient>
+                <linearGradient id="g_windowGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
+            </defs>
+            <path d="M 40 70 Q 50 100 60 70 Q 50 80 40 70 Z" fill="url(#g_flameGrad)"/>
+            <path d="M 35 50 L 18 75 L 35 70 Z" fill="url(#g_rocketFin)" stroke="#1e3a8a" stroke-width="1"/>
+            <path d="M 65 50 L 82 75 L 65 70 Z" fill="url(#g_rocketFin)" stroke="#1e3a8a" stroke-width="1"/>
+            <path d="M 50 12 C 70 35 65 75 50 75 C 35 75 30 35 50 12 Z" fill="url(#g_rocketBody)" stroke="#64748b" stroke-width="1.5"/>
+            <path d="M 50 12 C 57 19 59.5 27 60 30 L 40 30 C 40.5 27 43 19 50 12 Z" fill="url(#g_rocketFin)"/>
+            <circle cx="50" cy="45" r="9" fill="url(#g_windowGrad)" stroke="#cbd5e1" stroke-width="2"/>
+            <path d="M 46 41 A 5 5 0 0 1 52 40" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>`
+    },
+    {
+        name: 'لعبة المكعب', file: 'G.html',
+        color: '#0d9488', colorDark: '#0f766e', colorShadow: 'rgba(13,148,136,0.35)',
+        bg1: '#f0fdfa', bg2: '#ccfbf1',
+        svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+            <defs>
+                <linearGradient id="g_cubeTop" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2dd4bf"/></linearGradient>
+                <linearGradient id="g_cubeLeft" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#14b8a6"/><stop offset="100%" stop-color="#0d9488"/></linearGradient>
+                <linearGradient id="g_cubeRight" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0f766e"/><stop offset="100%" stop-color="#115e59"/></linearGradient>
+            </defs>
+            <ellipse cx="50" cy="85" rx="28" ry="7" fill="#94a3b8" opacity="0.5"/>
+            <path d="M 50 20 L 76 35 L 50 50 L 24 35 Z" fill="url(#g_cubeTop)" stroke="#99f6e4" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M 24 35 L 50 50 L 50 80 L 24 65 Z" fill="url(#g_cubeLeft)" stroke="#5eead4" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M 50 50 L 76 35 L 76 65 L 50 80 Z" fill="url(#g_cubeRight)" stroke="#2dd4bf" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M 50 28 L 65 36 L 50 44 L 35 36 Z" fill="#ffffff" opacity="0.3"/>
+            <circle cx="50" cy="50" r="3.5" fill="#fef08a"/>
+        </svg>`
+    },
+    {
+        name: 'الكرة الحمراء والزرقاء', file: 'H.html',
+        color: '#6366f1', colorDark: '#4f46e5', colorShadow: 'rgba(99,102,241,0.35)',
+        bg1: '#e0e7ff', bg2: '#c7d2fe',
+        svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+            <defs>
+                <radialGradient id="g_redBall" cx="30%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#fca5a5"/>
+                    <stop offset="50%" stop-color="#ef4444"/>
+                    <stop offset="100%" stop-color="#7f1d1d"/>
+                </radialGradient>
+                <radialGradient id="g_blueBall" cx="30%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#93c5fd"/>
+                    <stop offset="50%" stop-color="#3b82f6"/>
+                    <stop offset="100%" stop-color="#1e3a8a"/>
+                </radialGradient>
+            </defs>
+            <ellipse cx="32" cy="78" rx="16" ry="5" fill="#94a3b8" opacity="0.6"/>
+            <ellipse cx="68" cy="62" rx="14" ry="4" fill="#94a3b8" opacity="0.6"/>
+            <circle cx="32" cy="60" r="18" fill="url(#g_redBall)" stroke="#b91c1c" stroke-width="1.5"/>
+            <circle cx="68" cy="46" r="16" fill="url(#g_blueBall)" stroke="#1d4ed8" stroke-width="1.5"/>
+            <path d="M 22 52 A 10 10 0 0 1 36 46" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+            <path d="M 59 39 A 9 9 0 0 1 71 33" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+            <path d="M 45 42 Q 50 35 55 45" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/>
+        </svg>`
+    },
 ];
 
 function buildGamesList(pin) {
@@ -1752,28 +1909,54 @@ function buildGamesList(pin) {
 
     GAMES_LIST.forEach(game => {
         const gameUrl = `${baseUrl}${game.file}?pin=${pin}`;
-        const row = document.createElement('div');
-        row.style.cssText = 'display:flex; align-items:center; gap:10px; background:#f8f9ff; border:2px solid #e0e6ff; border-radius:12px; padding:12px 14px;';
+        const card = document.createElement('div');
+        card.style.cssText = `
+            display:flex; align-items:center; gap:14px;
+            background:linear-gradient(135deg, ${game.bg1}, ${game.bg2});
+            border:2px solid rgba(255,255,255,0.8);
+            border-radius:16px; padding:14px 16px;
+            box-shadow: 0 4px 12px ${game.colorShadow};
+            transition: transform 0.2s, box-shadow 0.2s;
+        `;
+        card.onmouseover = () => { card.style.transform='translateY(-2px)'; card.style.boxShadow=`0 8px 20px ${game.colorShadow}`; };
+        card.onmouseleave = () => { card.style.transform=''; card.style.boxShadow=`0 4px 12px ${game.colorShadow}`; };
 
-        row.innerHTML = `
-            <span style="font-size:26px; flex-shrink:0;">${game.emoji}</span>
-            <span style="flex:1; font-size:16px; font-weight:700; color:#333; text-align:right;">${game.name}</span>
+        card.innerHTML = `
+            <div style="width:56px; height:56px; border-radius:14px; background:rgba(255,255,255,0.85);
+                box-shadow:inset 0 2px 6px rgba(255,255,255,0.9), 0 4px 10px ${game.colorShadow};
+                display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1.5px solid rgba(255,255,255,0.7);">
+                ${game.svg}
+            </div>
+            <span style="flex:1; font-size:15px; font-weight:800; color:#1e293b; text-align:right;">${game.name}</span>
             <button onclick="openGameQR('${game.name}', '${gameUrl}')"
-                style="padding:9px 14px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:13px; white-space:nowrap; font-family:'Cairo',sans-serif; box-shadow:0 4px 0 var(--primary-dark);">
+                style="padding:9px 13px; background:${game.color}; color:white; border:none; border-radius:10px;
+                    font-weight:bold; cursor:pointer; font-size:12px; white-space:nowrap;
+                    font-family:'Cairo',sans-serif; box-shadow:0 4px 0 ${game.colorDark}; transition:0.1s;">
                 📷 QR
             </button>
             <a href="${gameUrl}" target="_blank"
-                style="padding:9px 14px; background:var(--k-green); color:white; border-radius:8px; font-weight:bold; font-size:13px; text-decoration:none; white-space:nowrap; font-family:'Cairo',sans-serif; box-shadow:0 4px 0 var(--k-green-dark); display:inline-block;">
+                style="padding:9px 13px; background:#16a34a; color:white; border-radius:10px;
+                    font-weight:bold; font-size:12px; text-decoration:none; white-space:nowrap;
+                    font-family:'Cairo',sans-serif; box-shadow:0 4px 0 #15803d; display:inline-block;">
                 🔗 فتح
             </a>
         `;
-        container.appendChild(row);
+        container.appendChild(card);
     });
 }
 
 function openGameQR(gameName, url) {
-    document.getElementById('game-qr-title').innerText = gameName;
-    document.getElementById('game-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&color=46178f`;
+    const game = GAMES_LIST.find(g => g.name === gameName);
+    const titleEl = document.getElementById('game-qr-title');
+    titleEl.innerHTML = game
+        ? `<div style="display:inline-flex;align-items:center;gap:10px;justify-content:center;">
+            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,${game.bg1},${game.bg2});display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px ${game.colorShadow};">${game.svg}</div>
+            <span>${gameName}</span>
+           </div>`
+        : gameName;
+
+    const qrColor = game ? game.color.replace('#','') : '46178f';
+    document.getElementById('game-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&color=${qrColor}`;
     document.getElementById('game-qr-url').value = url;
     document.getElementById('game-qr-modal').style.display = 'flex';
 }
