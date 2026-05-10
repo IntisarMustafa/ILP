@@ -657,6 +657,7 @@
         
         <div id="questionOverlay" class="question-overlay hidden">
             <div class="question-content">
+                <h2 id="lesson-title-display" style="color:#4fc3f7; font-size:clamp(0.85rem,2.5vw,1.05rem); margin-bottom:10px; border-bottom:2px solid rgba(79,195,247,0.3); padding-bottom:8px; text-align:center; font-weight:bold;"></h2>
                 <h2 id="questionText"></h2>
                 <div id="answerOptions" class="answer-options">
                     </div>
@@ -1211,29 +1212,40 @@
                 showQuestion(currentQuestion);
             }
 
+            // متغيرات الأسئلة التفاعلية (blanks / matching / dragdrop)
+            let currentMatchingState = { selectedLeft: null, matches: {} };
+            let currentDragState = { items: [], selectedWordId: null, elementsCreated: false };
+            const matchingColors = ['#e21b3c','#1368ce','#d89e00','#26890c','#46178f','#ff8c00','#00c2e0','#ff477e'];
+
             function showQuestion(question) {
                 questionTextElement.innerHTML = '';
                 answerOptionsContainer.innerHTML = '';
                 feedbackMessageElement.textContent = '';
 
-                // شريحة نصية: عرض المحتوى الكامل مع خلفية مخصصة
-                if (question.isTextSlide) {
+                // عرض عنوان الدرس (كما في ملف B)
+                const lessonTitleEl = document.getElementById('lesson-title-display');
+                if (lessonTitleEl && window._gameLessonTitle) {
+                    lessonTitleEl.textContent = 'درس: ' + window._gameLessonTitle;
+                }
+
+                const type = question._type || (question.isTextSlide ? 'textslide' : 'mc');
+
+                // ─── شريحة نصية ───────────────────────────────────────────────
+                if (type === 'textslide' || question.isTextSlide) {
                     const hasContent = question.textContent && question.textContent.trim();
                     const slideDiv = document.createElement('div');
                     slideDiv.style.cssText = [
                         `background:${question.textBg || '#1a1a2e'}`,
-                        'color:#222', 'padding:14px 16px', 'border-radius:10px',
-                        'margin-bottom:10px', 'font-size:clamp(0.88rem,2.5vw,1.05rem)',
-                        'line-height:1.75', 'direction:rtl', 'text-align:right',
-                        'max-height:55vh', 'overflow-y:auto',
-                        'box-shadow:0 2px 8px rgba(0,0,0,0.3)'
+                        'color:#222','padding:14px 16px','border-radius:10px',
+                        'margin-bottom:10px','font-size:clamp(0.88rem,2.5vw,1.05rem)',
+                        'line-height:1.75','direction:rtl','text-align:right',
+                        'max-height:55vh','overflow-y:auto','box-shadow:0 2px 8px rgba(0,0,0,0.3)'
                     ].join(';');
                     slideDiv.innerHTML = hasContent ? question.textContent : (question.question || '');
-                    // عنوان الشريحة إن وُجد
                     if (question.question && question.question.trim()) {
                         const titleDiv = document.createElement('div');
                         titleDiv.style.cssText = 'color:#4fc3f7;font-weight:bold;font-size:1em;margin-bottom:8px;border-bottom:1px solid rgba(79,195,247,0.3);padding-bottom:6px;';
-                        titleDiv.innerHTML = question.question.replace(/<img[^>]*>/g, '');
+                        titleDiv.innerHTML = question.question.replace(/<img[^>]*>/g,'');
                         if (titleDiv.textContent.trim()) questionTextElement.appendChild(titleDiv);
                     }
                     questionTextElement.appendChild(slideDiv);
@@ -1248,11 +1260,74 @@
                     return;
                 }
 
-                // سؤال عادي (mc / blanks / matching / dragdrop)
-                questionTextElement.innerHTML = question.question;
+                // ─── إملأ الفراغات (blanks) ────────────────────────────────
+                if (type === 'blanks') {
+                    questionTextElement.innerHTML = question.question;
+                    let blanksHtml = `<div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;">`;
+                    const blanksData = question._blanks || [];
+                    blanksData.forEach((blank, i) => {
+                        blanksHtml += `<input type="text" id="e-blank-${i}" placeholder="الفراغ ${i+1}" style="font-size:clamp(1rem,3vw,1.2rem);padding:12px;border-radius:10px;border:3px solid #4fc3f7;text-align:center;width:100%;max-width:400px;font-weight:bold;background:#0f2027;color:#fff;">`;
+                    });
+                    blanksHtml += `<button class="answer-btn" onclick="submitBlanksAnswer_E()" style="background:linear-gradient(to right,#1a2980,#26d0ce);color:white;font-size:1.1em;padding:14px;margin-top:5px;">تأكيد الإجابة ✔️</button></div>`;
+                    answerOptionsContainer.innerHTML = blanksHtml;
+                    questionOverlay.classList.remove('hidden');
+                    setTimeout(() => { if (window.MathJax) window.MathJax.typesetPromise([questionTextElement]).catch(()=>{}); }, 100);
+                    return;
+                }
 
+                // ─── توصيل (matching) ──────────────────────────────────────
+                if (type === 'matching') {
+                    questionTextElement.innerHTML = question.question || '';
+                    currentMatchingState = { selectedLeft: null, matches: {} };
+                    const pairs = question._pairs || [];
+                    const leftItems = pairs.map((p,i) => ({ id:i, text:p.left }));
+                    const rightItems = pairs.map((p,i) => ({ id:i, text:p.right })).sort(() => Math.random()-0.5);
+                    let html = `<div id="e-matching-wrapper" style="width:100%;display:flex;flex-direction:column;gap:15px;position:relative;padding:5px;">
+                        <canvas id="e-matching-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
+                        <div style="display:flex;gap:15px;justify-content:space-between;position:relative;z-index:2;">
+                            <div id="e-match-left" style="flex:1;display:flex;flex-direction:column;gap:8px;">
+                                ${leftItems.map(item=>`<button id="e-left-${item.id}" onclick="eSelectLeft(${item.id})" style="padding:10px;border:2px solid #4fc3f7;border-radius:10px;background:#0f2027;color:#fff;font-weight:bold;font-size:clamp(0.85rem,2.5vw,1rem);cursor:pointer;min-height:44px;">${item.text}</button>`).join('')}
+                            </div>
+                            <div id="e-match-right" style="flex:1;display:flex;flex-direction:column;gap:8px;">
+                                ${rightItems.map(item=>`<button id="e-right-${item.id}" onclick="eSelectRight(${item.id})" style="padding:10px;border:2px solid #4fc3f7;border-radius:10px;background:#0f2027;color:#fff;font-weight:bold;font-size:clamp(0.85rem,2.5vw,1rem);cursor:pointer;min-height:44px;">${item.text}</button>`).join('')}
+                            </div>
+                        </div>
+                        <button class="answer-btn" onclick="submitMatchingAnswer_E()" style="background:linear-gradient(to right,#1a2980,#26d0ce);color:white;padding:12px;position:relative;z-index:2;">تأكيد التوصيل ✔️</button>
+                    </div>`;
+                    answerOptionsContainer.innerHTML = html;
+                    questionOverlay.classList.remove('hidden');
+                    setTimeout(() => eDrawConnections(), 100);
+                    return;
+                }
+
+                // ─── تصنيف سحب وإفلات (dragdrop) ─────────────────────────
+                if (type === 'dragdrop') {
+                    questionTextElement.innerHTML = question.question || '';
+                    const zones = question._zones || [];
+                    const items = question._items || [];
+                    currentDragState = {
+                        items: items.map((it,i) => ({ id:i, text:it.text, targetZone:it.zoneIndex||0, currentZone:'pool' })),
+                        selectedWordId: null, elementsCreated: false
+                    };
+                    let html = `<div style="width:100%;display:flex;flex-direction:column;gap:15px;">
+                        <div id="e-drag-pool" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:12px;background:rgba(255,255,255,0.08);border-radius:12px;border:2px dashed #4fc3f7;min-height:50px;"></div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
+                            ${zones.map((zone,zi)=>`<div onclick="eMoveToZone(${zi})" style="background:rgba(15,32,39,0.9);border:2px solid #4fc3f7;border-radius:12px;padding:12px;min-height:90px;display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+                                <div style="font-weight:900;font-size:clamp(0.8rem,2vw,1rem);color:#4fc3f7;margin-bottom:8px;border-bottom:1px solid rgba(79,195,247,0.3);width:100%;text-align:center;padding-bottom:5px;">${zone}</div>
+                                <div id="e-zone-${zi}" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;"></div>
+                            </div>`).join('')}
+                        </div>
+                        <button class="answer-btn" onclick="submitDragDrop_E()" style="background:linear-gradient(to right,#1a2980,#26d0ce);color:white;padding:12px;">تأكيد التصنيف ✔️</button>
+                    </div>`;
+                    answerOptionsContainer.innerHTML = html;
+                    eRenderDragItems();
+                    questionOverlay.classList.remove('hidden');
+                    return;
+                }
+
+                // ─── اختيار من متعدد (mc) ─────────────────────────────────
+                questionTextElement.innerHTML = question.question;
                 const correctAnswerText = question.options[question.correctAnswerIndex];
-                // لا نخلط خيارات نوع blanks أو matching (الإجابة الصحيحة دائماً index 0 بعد التحويل)
                 const shouldShuffle = !question._noShuffle;
                 const shuffledOptions = shouldShuffle ? shuffleArray([...question.options]) : [...question.options];
                 currentCorrectIndex = shuffledOptions.findIndex(option => option === correctAnswerText);
@@ -1271,6 +1346,145 @@
                         window.MathJax.typesetPromise([questionTextElement, answerOptionsContainer]).catch((err) => console.error('MathJax failed:', err));
                     }
                 }, 100);
+            }
+
+            // ── دوال blanks ────────────────────────────────────────────────
+            window.submitBlanksAnswer_E = function() {
+                const q = currentQuestion;
+                const blanks = q._blanks || [];
+                let allCorrect = true;
+                let studentAnswers = [], correctAnswers = [];
+                blanks.forEach((blank, i) => {
+                    const val = (document.getElementById(`e-blank-${i}`)?.value || '').trim();
+                    studentAnswers.push(val);
+                    const opts = blank.split('/').map(o => o.trim().toLowerCase());
+                    correctAnswers.push(blank);
+                    if (!opts.includes(val.toLowerCase())) allCorrect = false;
+                });
+                handleAnswerResult(allCorrect);
+            };
+
+            // ── دوال matching ──────────────────────────────────────────────
+            window.eSelectLeft = function(leftId) {
+                if (currentMatchingState.selectedLeft === leftId) { currentMatchingState.selectedLeft = null; }
+                else if (currentMatchingState.matches[leftId] !== undefined) { delete currentMatchingState.matches[leftId]; currentMatchingState.selectedLeft = leftId; }
+                else { currentMatchingState.selectedLeft = leftId; }
+                eUpdateMatchingUI();
+            };
+            window.eSelectRight = function(rightId) {
+                for (let lid in currentMatchingState.matches) { if (currentMatchingState.matches[lid] === rightId) { delete currentMatchingState.matches[lid]; break; } }
+                if (currentMatchingState.selectedLeft !== null) { currentMatchingState.matches[currentMatchingState.selectedLeft] = rightId; currentMatchingState.selectedLeft = null; }
+                eUpdateMatchingUI();
+            };
+            function eUpdateMatchingUI() {
+                document.querySelectorAll('#e-match-left button, #e-match-right button').forEach(el => { el.style.backgroundColor='#0f2027'; el.style.color='#fff'; el.style.borderColor='#4fc3f7'; });
+                let i = 0;
+                for (let lid in currentMatchingState.matches) {
+                    const rid = currentMatchingState.matches[lid]; const col = matchingColors[i % matchingColors.length];
+                    const lEl = document.getElementById(`e-left-${lid}`); const rEl = document.getElementById(`e-right-${rid}`);
+                    if (lEl) { lEl.style.backgroundColor=col; lEl.style.borderColor=col; }
+                    if (rEl) { rEl.style.backgroundColor=col; rEl.style.borderColor=col; }
+                    i++;
+                }
+                if (currentMatchingState.selectedLeft !== null) {
+                    const sel = document.getElementById(`e-left-${currentMatchingState.selectedLeft}`);
+                    if (sel) { sel.style.backgroundColor='#46178f'; sel.style.borderColor='#46178f'; }
+                }
+                eDrawConnections();
+            }
+            function eDrawConnections() {
+                const cvs = document.getElementById('e-matching-canvas'); if (!cvs) return;
+                const wrapper = document.getElementById('e-matching-wrapper'); if (!wrapper) return;
+                const c = cvs.getContext('2d');
+                cvs.width = wrapper.offsetWidth; cvs.height = wrapper.offsetHeight;
+                c.clearRect(0, 0, cvs.width, cvs.height);
+                let i = 0;
+                for (let lid in currentMatchingState.matches) {
+                    const rid = currentMatchingState.matches[lid];
+                    const lEl = document.getElementById(`e-left-${lid}`); const rEl = document.getElementById(`e-right-${rid}`);
+                    if (!lEl || !rEl) continue;
+                    const wr = wrapper.getBoundingClientRect();
+                    const lr = lEl.getBoundingClientRect(); const rr = rEl.getBoundingClientRect();
+                    const sx = lr.right - wr.left; const sy = (lr.top + lr.height/2) - wr.top;
+                    const ex = rr.left - wr.left; const ey = (rr.top + rr.height/2) - wr.top;
+                    c.beginPath(); c.moveTo(sx, sy);
+                    c.bezierCurveTo(sx+30, sy, ex-30, ey, ex, ey);
+                    c.strokeStyle = matchingColors[i % matchingColors.length]; c.lineWidth = 3; c.lineCap = 'round'; c.stroke();
+                    i++;
+                }
+            }
+            window.submitMatchingAnswer_E = function() {
+                const q = currentQuestion;
+                const pairs = q._pairs || [];
+                let allCorrect = true;
+                pairs.forEach((pair, i) => { if (currentMatchingState.matches[i] !== i) allCorrect = false; });
+                handleAnswerResult(allCorrect);
+            };
+
+            // ── دوال dragdrop ──────────────────────────────────────────────
+            function eRenderDragItems() {
+                const pool = document.getElementById('e-drag-pool'); if (!pool) return;
+                if (!currentDragState.elementsCreated) {
+                    currentDragState.items.forEach(item => {
+                        const btn = document.createElement('button');
+                        btn.style.cssText = 'padding:8px 16px;border-radius:8px;border:2px solid #4fc3f7;background:#0f2027;color:#fff;font-weight:bold;font-size:clamp(0.85rem,2.5vw,1rem);cursor:pointer;transition:all 0.2s;';
+                        btn.textContent = item.text;
+                        btn.onclick = (e) => { e.stopPropagation(); currentDragState.selectedWordId = (currentDragState.selectedWordId === item.id) ? null : item.id; eRenderDragItems(); };
+                        item.element = btn;
+                    });
+                    currentDragState.elementsCreated = true;
+                }
+                currentDragState.items.forEach(item => {
+                    const btn = item.element;
+                    const isSel = currentDragState.selectedWordId === item.id;
+                    btn.style.borderColor = isSel ? '#FFD700' : '#4fc3f7';
+                    btn.style.background = isSel ? '#FFD700' : '#0f2027';
+                    btn.style.color = isSel ? '#333' : '#fff';
+                    btn.style.transform = isSel ? 'scale(1.08)' : 'scale(1)';
+                    if (item.currentZone === 'pool') { pool.appendChild(btn); }
+                    else { const z = document.getElementById(`e-zone-${item.currentZone}`); if (z) z.appendChild(btn); }
+                });
+            }
+            window.eMoveToZone = function(zi) {
+                if (currentDragState.selectedWordId !== null) {
+                    const item = currentDragState.items.find(i => i.id === currentDragState.selectedWordId);
+                    if (item) item.currentZone = zi;
+                    currentDragState.selectedWordId = null; eRenderDragItems();
+                }
+            };
+            window.submitDragDrop_E = function() {
+                let allCorrect = true;
+                currentDragState.items.forEach(item => { if (item.currentZone !== item.targetZone) allCorrect = false; });
+                handleAnswerResult(allCorrect);
+            };
+
+            // ── دالة مشتركة للنتيجة الصحيحة/الخاطئة ──────────────────────
+            function handleAnswerResult(isCorrect) {
+                if (isCorrect) {
+                    playCorrectSound();
+                    feedbackMessageElement.textContent = 'إجابة صحيحة! استمر في اللعب.';
+                    feedbackMessageElement.style.color = '#00b09b';
+                    gameState.currentLevelScore += 50;
+                    if (typeof scoreElement !== 'undefined') scoreElement.textContent = gameState.totalScore + Math.floor(gameState.currentLevelScore);
+                    setTimeout(() => {
+                        questionOverlay.classList.add('hidden');
+                        gameState.isQuestionActive = false;
+                        initializePath();
+                        gameState.obstacles = [];
+                        gameState.pathSpeed = 1 + (gameState.level - 1) * 0.4;
+                        positionShipOnPath();
+                        gameState.paused = false;
+                        startBackgroundMelody(); startThrusterSound();
+                    }, 1500);
+                } else {
+                    playIncorrectSound();
+                    feedbackMessageElement.textContent = 'إجابة خاطئة. انتهت اللعبة!';
+                    feedbackMessageElement.style.color = '#c04848';
+                    setTimeout(() => {
+                        questionOverlay.classList.add('hidden');
+                        gameState.gameOver = true;
+                    }, 1500);
+                }
             }
 
             function resumeAfterTextSlide() {
@@ -1942,12 +2156,13 @@ function loadExistingRoom() {
                 options: ['▶ متابعة'],
                 correctAnswerIndex: 0,
                 isTextSlide: true,
+                _type: 'textslide',
                 textContent: q.textContent || '',
                 textBg: q.textBg || '#ffffff'
             }];
         }
 
-        // ─── اختيار من متعدد ───────────────────────────────────────────
+        // ─── اختيار من متعدد (mc) ─────────────────────────────────────
         if (type === 'mc') {
             const opts = Array.isArray(q.opts) ? q.opts : (Array.isArray(q.options) ? q.options : []);
             const ans = q.ans ?? q.correct ?? q.correctAnswerIndex ?? 0;
@@ -1955,97 +2170,58 @@ function loadExistingRoom() {
             return [{
                 question: qTitle + imgHtml,
                 options: opts.map(String),
-                correctAnswerIndex: Number(ans)
+                correctAnswerIndex: Number(ans),
+                _type: 'mc'
             }];
         }
 
-        // ─── إملأ الفراغات: كل فراغ = سؤال مستقل ────────────────────
+        // ─── إملأ الفراغات (blanks) — سؤال تفاعلي واحد كما في ملف B ──
         if (type === 'blanks') {
             const blanks = Array.isArray(q.blanks) ? q.blanks.filter(b => String(b).trim()) : [];
             if (blanks.length === 0) return [];
-            const total = blanks.length;
-
-            return blanks.map((correct, idx) => {
-                // الخيارات الخاطئة من باقي الفراغات
-                const wrongs = blanks.filter((_, i) => i !== idx).slice(0, 3);
-                const allOpts = [String(correct), ...wrongs.map(String)];
-
-                // إبراز الفراغ المطلوب في النص
-                let filled = 0;
-                let questionText = qTitle.replace(/\.{3,}/g, () => {
-                    filled++;
-                    if (filled === idx + 1) {
-                        return '<span style="background:#ffd700;color:#000;padding:1px 10px;border-radius:4px;font-weight:bold;"> ؟ </span>';
-                    }
-                    return '<span style="background:rgba(255,255,255,0.2);padding:1px 10px;border-radius:4px;">___</span>';
-                });
-                // إذا لم يجد .... في النص، أضف السؤال مباشرة
-                if (filled === 0) questionText = qTitle;
-
-                return {
-                    question: `<div style="font-size:0.8em;color:#4fc3f7;margin-bottom:6px;letter-spacing:0.5px;">✏️ الفراغ ${idx + 1} / ${total}</div>` +
-                              questionText + imgHtml +
-                              `<div style="font-size:0.85em;color:#ccc;margin-top:6px;">اختر الإجابة الصحيحة لهذا الفراغ:</div>`,
-                    options: allOpts,
-                    correctAnswerIndex: 0,
-                    _type: 'blanks'
-                };
-            });
+            return [{
+                question: qTitle + imgHtml,
+                options: [],
+                correctAnswerIndex: 0,
+                _type: 'blanks',
+                _blanks: blanks
+            }];
         }
 
-        // ─── توصيل: كل زوج = سؤال مستقل ─────────────────────────────
+        // ─── توصيل (matching) — سؤال تفاعلي واحد كما في ملف B ─────────
         if (type === 'matching') {
             const pairs = Array.isArray(q.pairs) ? q.pairs.filter(p => p.left && p.right) : [];
             if (pairs.length === 0) return [];
-            const total = pairs.length;
-
-            return pairs.map((pair, idx) => {
-                // الخيارات الخاطئة: right من الأزواج الأخرى
-                const wrongRights = pairs.filter((_, i) => i !== idx).map(p => String(p.right)).slice(0, 3);
-                const allOpts = [String(pair.right), ...wrongRights];
-
-                return {
-                    question: `<div style="font-size:0.8em;color:#4fc3f7;margin-bottom:6px;">🔗 توصيل ${idx + 1} / ${total}</div>` +
-                              (qTitle ? `<div style="margin-bottom:8px;font-size:0.9em;color:#ddd;">${qTitle}</div>` : '') +
-                              `<div style="background:rgba(255,255,255,0.12);border:2px solid rgba(79,195,247,0.4);padding:10px 14px;border-radius:10px;font-size:1.05em;font-weight:bold;direction:rtl;">` +
-                              `<span style="color:#ffd700;">${pair.left}</span> &nbsp;←&nbsp; ؟</div>` + imgHtml +
-                              `<div style="font-size:0.82em;color:#ccc;margin-top:6px;">اختر المقابل الصحيح:</div>`,
-                    options: allOpts,
-                    correctAnswerIndex: 0,
-                    _type: 'matching'
-                };
-            });
+            return [{
+                question: qTitle + imgHtml,
+                options: [],
+                correctAnswerIndex: 0,
+                _type: 'matching',
+                _pairs: pairs
+            }];
         }
 
-        // ─── تصنيف: كل عنصر = سؤال مستقل ────────────────────────────
+        // ─── تصنيف / سحب وإفلات (dragdrop) — كما في ملف B ───────────
         if (type === 'dragdrop') {
             const zones = Array.isArray(q.zones) ? q.zones.filter(z => String(z).trim()) : [];
             const items = Array.isArray(q.items) ? q.items.filter(i => i.text) : [];
             if (zones.length === 0 || items.length === 0) return [];
-            const total = items.length;
-
-            return items.map((item, idx) => {
-                const zoneIdx = item.zoneIndex ?? 0;
-                const correctZone = zones[zoneIdx] || zones[0];
-
-                return {
-                    question: `<div style="font-size:0.8em;color:#4fc3f7;margin-bottom:6px;">📦 تصنيف ${idx + 1} / ${total}</div>` +
-                              (qTitle ? `<div style="margin-bottom:8px;font-size:0.9em;color:#ddd;">${qTitle}</div>` : '') +
-                              `<div style="background:rgba(255,255,255,0.12);border:2px solid rgba(79,195,247,0.4);padding:10px 14px;border-radius:10px;font-size:1.1em;font-weight:bold;">` +
-                              `${item.text}</div>` + imgHtml +
-                              `<div style="font-size:0.82em;color:#ccc;margin-top:6px;">إلى أي مجموعة ينتمي؟</div>`,
-                    options: zones.map(String),
-                    correctAnswerIndex: zones.indexOf(correctZone),
-                    _type: 'dragdrop'
-                };
-            });
+            return [{
+                question: qTitle + imgHtml,
+                options: [],
+                correctAnswerIndex: 0,
+                _type: 'dragdrop',
+                _zones: zones,
+                _items: items
+            }];
         }
 
         // ─── fallback ──────────────────────────────────────────────────
         return [{
             question: qTitle + imgHtml,
             options: Array.isArray(q.opts) ? q.opts.map(String) : ['✓ صحيح', '✗ خطأ'],
-            correctAnswerIndex: q.ans ?? 0
+            correctAnswerIndex: q.ans ?? 0,
+            _type: 'mc'
         }];
     }
 
@@ -2105,13 +2281,16 @@ function loadExistingRoom() {
                 if (configItem && configItem.title) {
                     const titleEl = document.getElementById('game-main-title');
                     if (titleEl) titleEl.textContent = configItem.title;
+                    // حفظ العنوان لعرضه داخل واجهة السؤال (كما في ملف B)
+                    window._gameLessonTitle = configItem.title;
                 }
 
-                // تجاهل عنصر config، ثم تحويل كل سؤال إلى مصفوفة (flatMap للأنواع المركبة)
+                // تجاهل عنصر config، ثم تحويل كل سؤال إلى مصفوفة
                 const filteredRaw = rawQuestions.filter(q => q.type !== 'config');
                 const converted = filteredRaw
-                    .flatMap(q => convertQuestionForGame(q))   // flatMap لدعم matching/blanks/dragdrop
-                    .filter(q => q && Array.isArray(q.options) && q.options.length > 0);
+                    .flatMap(q => convertQuestionForGame(q))
+                    // السماح بالأسئلة التفاعلية التي لا تحتاج options (blanks/matching/dragdrop)
+                    .filter(q => q && (Array.isArray(q.options) || q._type === 'blanks' || q._type === 'matching' || q._type === 'dragdrop'));
 
                 if (converted.length > 0) {
                     questions = converted;
