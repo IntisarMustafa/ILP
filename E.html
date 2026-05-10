@@ -849,8 +849,12 @@
                 return newArray;
             }
             
+            let questionIndex = 0; // مؤشر السؤال الحالي (بالترتيب)
+
             function setupQuestionPool() {
-                questionPool = shuffleArray(questions);
+                // لا نخلط - نعرض بالترتيب
+                questionPool = [...questions];
+                questionIndex = 0;
             }
 
             function playSound(frequency, type = 'sine', duration = 0.5, volume = 0.5) {
@@ -1201,8 +1205,9 @@
                 gameState.paused = true; gameState.isQuestionActive = true;
                 stopThrusterSound(); stopBackgroundMelody();
                 
-                if (questionPool.length === 0) setupQuestionPool(); 
-                currentQuestion = questionPool.pop();
+                if (questionPool.length === 0 || questionIndex >= questionPool.length) setupQuestionPool();
+                currentQuestion = questionPool[questionIndex];
+                questionIndex++;
                 showQuestion(currentQuestion);
             }
 
@@ -1211,18 +1216,32 @@
                 answerOptionsContainer.innerHTML = '';
                 feedbackMessageElement.textContent = '';
 
-                // شريحة نصية: عرض المحتوى مع خلفية مخصصة
+                // شريحة نصية: عرض المحتوى الكامل مع خلفية مخصصة
                 if (question.isTextSlide) {
+                    const hasContent = question.textContent && question.textContent.trim();
                     const slideDiv = document.createElement('div');
-                    slideDiv.style.cssText = `background:${question.textBg||'#fff'};color:#222;padding:16px;border-radius:10px;margin-bottom:12px;font-size:clamp(0.9rem,2.5vw,1.1rem);line-height:1.7;direction:rtl;text-align:right;max-height:50vh;overflow-y:auto;`;
-                    slideDiv.innerHTML = question.textContent || question.question;
+                    slideDiv.style.cssText = [
+                        `background:${question.textBg || '#1a1a2e'}`,
+                        'color:#222', 'padding:14px 16px', 'border-radius:10px',
+                        'margin-bottom:10px', 'font-size:clamp(0.88rem,2.5vw,1.05rem)',
+                        'line-height:1.75', 'direction:rtl', 'text-align:right',
+                        'max-height:55vh', 'overflow-y:auto',
+                        'box-shadow:0 2px 8px rgba(0,0,0,0.3)'
+                    ].join(';');
+                    slideDiv.innerHTML = hasContent ? question.textContent : (question.question || '');
+                    // عنوان الشريحة إن وُجد
+                    if (question.question && question.question.trim()) {
+                        const titleDiv = document.createElement('div');
+                        titleDiv.style.cssText = 'color:#4fc3f7;font-weight:bold;font-size:1em;margin-bottom:8px;border-bottom:1px solid rgba(79,195,247,0.3);padding-bottom:6px;';
+                        titleDiv.innerHTML = question.question.replace(/<img[^>]*>/g, '');
+                        if (titleDiv.textContent.trim()) questionTextElement.appendChild(titleDiv);
+                    }
                     questionTextElement.appendChild(slideDiv);
                     currentCorrectIndex = 0;
                     const btn = document.createElement('button');
                     btn.classList.add('answer-btn');
                     btn.innerHTML = '▶ متابعة';
-                    btn.style.background = 'linear-gradient(to right, #1a2980, #26d0ce)';
-                    btn.style.color = 'white';
+                    btn.style.cssText = 'background:linear-gradient(to right,#1a2980,#26d0ce);color:white;font-size:1.1em;padding:14px;';
                     btn.addEventListener('click', () => resumeAfterTextSlide());
                     answerOptionsContainer.appendChild(btn);
                     questionOverlay.classList.remove('hidden');
@@ -1910,80 +1929,124 @@ function loadExistingRoom() {
     // =====================================================
     // تحويل أي نوع سؤال إلى تنسيق اللعبة
     // =====================================================
+    // تحويل سؤال واحد إلى مصفوفة أسئلة (قد تكون أكثر من سؤال للأنواع المركبة)
     function convertQuestionForGame(q) {
         const type = q.type || 'mc';
-        const imgHtml = q.img ? `<img src="${q.img}" style="max-width:100%;max-height:180px;border-radius:8px;margin:8px auto;display:block;">` : '';
+        const imgHtml = q.img ? `<img src="${q.img}" style="max-width:100%;max-height:140px;border-radius:8px;margin:6px auto;display:block;object-fit:contain;">` : '';
+        const qTitle = (q.q || q.question || '').trim();
 
+        // ─── شريحة نصية ───────────────────────────────────────────────
         if (type === 'textslide') {
-            // شريحة نصية: تُعرض كسؤال بدون خيارات (زر "متابعة" فقط)
-            return {
-                question: (q.q || 'نص') + imgHtml,
-                options: ['متابعة ▶'],
+            return [{
+                question: qTitle + imgHtml,
+                options: ['▶ متابعة'],
                 correctAnswerIndex: 0,
                 isTextSlide: true,
                 textContent: q.textContent || '',
                 textBg: q.textBg || '#ffffff'
-            };
+            }];
         }
 
+        // ─── اختيار من متعدد ───────────────────────────────────────────
         if (type === 'mc') {
             const opts = Array.isArray(q.opts) ? q.opts : (Array.isArray(q.options) ? q.options : []);
             const ans = q.ans ?? q.correct ?? q.correctAnswerIndex ?? 0;
-            return {
-                question: (q.q || q.question || '') + imgHtml,
+            if (opts.length < 2) return [];
+            return [{
+                question: qTitle + imgHtml,
                 options: opts.map(String),
                 correctAnswerIndex: Number(ans)
-            };
+            }];
         }
 
+        // ─── إملأ الفراغات: كل فراغ = سؤال مستقل ────────────────────
         if (type === 'blanks') {
-            // إكمال الفراغات: يُعرض كاختيار من متعدد
-            const blanks = Array.isArray(q.blanks) ? q.blanks : [];
-            const correct = blanks[0] || '';
-            // توليد خيارات خاطئة بسيطة
-            const wrongs = blanks.length > 1 ? blanks.slice(1) : ['خطأ 1', 'خطأ 2', 'خطأ 3'];
-            const allOpts = [correct, ...wrongs.slice(0, 3)];
-            return {
-                question: (q.q || '') + (imgHtml || ''),
-                options: allOpts,
-                correctAnswerIndex: 0
-            };
+            const blanks = Array.isArray(q.blanks) ? q.blanks.filter(b => String(b).trim()) : [];
+            if (blanks.length === 0) return [];
+            const total = blanks.length;
+
+            return blanks.map((correct, idx) => {
+                // الخيارات الخاطئة من باقي الفراغات
+                const wrongs = blanks.filter((_, i) => i !== idx).slice(0, 3);
+                const allOpts = [String(correct), ...wrongs.map(String)];
+
+                // إبراز الفراغ المطلوب في النص
+                let filled = 0;
+                let questionText = qTitle.replace(/\.{3,}/g, () => {
+                    filled++;
+                    if (filled === idx + 1) {
+                        return '<span style="background:#ffd700;color:#000;padding:1px 10px;border-radius:4px;font-weight:bold;"> ؟ </span>';
+                    }
+                    return '<span style="background:rgba(255,255,255,0.2);padding:1px 10px;border-radius:4px;">___</span>';
+                });
+                // إذا لم يجد .... في النص، أضف السؤال مباشرة
+                if (filled === 0) questionText = qTitle;
+
+                return {
+                    question: `<div style="font-size:0.8em;color:#4fc3f7;margin-bottom:6px;letter-spacing:0.5px;">✏️ الفراغ ${idx + 1} / ${total}</div>` +
+                              questionText + imgHtml +
+                              `<div style="font-size:0.85em;color:#ccc;margin-top:6px;">اختر الإجابة الصحيحة لهذا الفراغ:</div>`,
+                    options: allOpts,
+                    correctAnswerIndex: 0,
+                    _type: 'blanks'
+                };
+            });
         }
 
+        // ─── توصيل: كل زوج = سؤال مستقل ─────────────────────────────
         if (type === 'matching') {
-            // توصيل: يُعرض كاختيار من متعدد - اختر المقابل الصحيح للعنصر الأول
-            const pairs = Array.isArray(q.pairs) ? q.pairs : [];
-            if (pairs.length === 0) return null;
-            const shuffled = [...pairs].sort(() => Math.random() - 0.5);
-            const target = shuffled[0];
-            const wrongOptions = shuffled.slice(1, 4).map(p => p.right);
-            const allOpts = [target.right, ...wrongOptions];
-            return {
-                question: `${q.q || ''}<br><br>🔗 ما المقابل الصحيح لـ: <strong>${target.left}</strong>?` + imgHtml,
-                options: allOpts,
-                correctAnswerIndex: 0
-            };
+            const pairs = Array.isArray(q.pairs) ? q.pairs.filter(p => p.left && p.right) : [];
+            if (pairs.length === 0) return [];
+            const total = pairs.length;
+
+            return pairs.map((pair, idx) => {
+                // الخيارات الخاطئة: right من الأزواج الأخرى
+                const wrongRights = pairs.filter((_, i) => i !== idx).map(p => String(p.right)).slice(0, 3);
+                const allOpts = [String(pair.right), ...wrongRights];
+
+                return {
+                    question: `<div style="font-size:0.8em;color:#4fc3f7;margin-bottom:6px;">🔗 توصيل ${idx + 1} / ${total}</div>` +
+                              (qTitle ? `<div style="margin-bottom:8px;font-size:0.9em;color:#ddd;">${qTitle}</div>` : '') +
+                              `<div style="background:rgba(255,255,255,0.12);border:2px solid rgba(79,195,247,0.4);padding:10px 14px;border-radius:10px;font-size:1.05em;font-weight:bold;direction:rtl;">` +
+                              `<span style="color:#ffd700;">${pair.left}</span> &nbsp;←&nbsp; ؟</div>` + imgHtml +
+                              `<div style="font-size:0.82em;color:#ccc;margin-top:6px;">اختر المقابل الصحيح:</div>`,
+                    options: allOpts,
+                    correctAnswerIndex: 0,
+                    _type: 'matching'
+                };
+            });
         }
 
+        // ─── تصنيف: كل عنصر = سؤال مستقل ────────────────────────────
         if (type === 'dragdrop') {
-            // تصنيف: يُعرض كاختيار - أي مجموعة تنتمي إليها هذه الكلمة؟
-            const zones = Array.isArray(q.zones) ? q.zones : [];
-            const items = Array.isArray(q.items) ? q.items : [];
-            if (items.length === 0 || zones.length === 0) return null;
-            const item = items[Math.floor(Math.random() * items.length)];
-            return {
-                question: `${q.q || ''}<br><br>📦 إلى أي مجموعة تنتمي: <strong>${item.text}</strong>?` + imgHtml,
-                options: zones,
-                correctAnswerIndex: item.zoneIndex ?? 0
-            };
+            const zones = Array.isArray(q.zones) ? q.zones.filter(z => String(z).trim()) : [];
+            const items = Array.isArray(q.items) ? q.items.filter(i => i.text) : [];
+            if (zones.length === 0 || items.length === 0) return [];
+            const total = items.length;
+
+            return items.map((item, idx) => {
+                const zoneIdx = item.zoneIndex ?? 0;
+                const correctZone = zones[zoneIdx] || zones[0];
+
+                return {
+                    question: `<div style="font-size:0.8em;color:#4fc3f7;margin-bottom:6px;">📦 تصنيف ${idx + 1} / ${total}</div>` +
+                              (qTitle ? `<div style="margin-bottom:8px;font-size:0.9em;color:#ddd;">${qTitle}</div>` : '') +
+                              `<div style="background:rgba(255,255,255,0.12);border:2px solid rgba(79,195,247,0.4);padding:10px 14px;border-radius:10px;font-size:1.1em;font-weight:bold;">` +
+                              `${item.text}</div>` + imgHtml +
+                              `<div style="font-size:0.82em;color:#ccc;margin-top:6px;">إلى أي مجموعة ينتمي؟</div>`,
+                    options: zones.map(String),
+                    correctAnswerIndex: zones.indexOf(correctZone),
+                    _type: 'dragdrop'
+                };
+            });
         }
 
-        // fallback
-        return {
-            question: (q.q || q.question || 'سؤال') + imgHtml,
-            options: Array.isArray(q.opts) ? q.opts : ['✓ صحيح', '✗ خطأ'],
+        // ─── fallback ──────────────────────────────────────────────────
+        return [{
+            question: qTitle + imgHtml,
+            options: Array.isArray(q.opts) ? q.opts.map(String) : ['✓ صحيح', '✗ خطأ'],
             correctAnswerIndex: q.ans ?? 0
-        };
+        }];
     }
 
     window.startStudentFlow = async function startStudentFlow() {
@@ -2035,13 +2098,20 @@ function loadExistingRoom() {
                 }
             }
 
-            // 3) تحويل الأسئلة لتنسيق اللعبة
+            // 3) تحويل الأسئلة لتنسيق اللعبة (مع دعم العنوان وجميع الأنواع)
             if (rawQuestions && rawQuestions.length > 0) {
-                // تجاهل عنصر config إذا وُجد
+                // استخراج العنوان من عنصر config إن وُجد
+                const configItem = rawQuestions.find(q => q.type === 'config');
+                if (configItem && configItem.title) {
+                    const titleEl = document.getElementById('game-main-title');
+                    if (titleEl) titleEl.textContent = configItem.title;
+                }
+
+                // تجاهل عنصر config، ثم تحويل كل سؤال إلى مصفوفة (flatMap للأنواع المركبة)
                 const filteredRaw = rawQuestions.filter(q => q.type !== 'config');
                 const converted = filteredRaw
-                    .map(q => convertQuestionForGame(q))
-                    .filter(q => q !== null && q.options && q.options.length > 0);
+                    .flatMap(q => convertQuestionForGame(q))   // flatMap لدعم matching/blanks/dragdrop
+                    .filter(q => q && Array.isArray(q.options) && q.options.length > 0);
 
                 if (converted.length > 0) {
                     questions = converted;
