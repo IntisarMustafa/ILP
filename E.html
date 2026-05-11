@@ -576,7 +576,6 @@
         <div id="loading-text" style="font-size: 28px; font-weight: bold; margin-top: 20px; font-family: 'Cairo', sans-serif;">جاري تجهيز بيانات التحدي...</div>
     </div>
 
-    <!-- العنوان مُنقل داخل game-ui-wrapper أدناه -->
     <div class="screen" id="screen-home">
         <div class="card">
             <h1>🎮 Space Waves Challenge</h1>
@@ -647,7 +646,6 @@
 
     <div id="game-ui-wrapper">
         <canvas id="gameCanvas"></canvas>
-        <h2 id="game-main-title" style="display:none; position:absolute; top:60px; left:50%; transform:translateX(-50%); text-align:center; color:#4fc3f7; font-size:clamp(0.85rem,2.5vw,1.1rem); background:rgba(0,0,0,0.5); padding:4px 16px; border-radius:20px; z-index:20; white-space:nowrap; pointer-events:none;"></h2>
 
         <div id="gameOverlay" class="game-overlay">
             <h1 id="overlayTitle">Space Waves</h1>
@@ -1272,7 +1270,7 @@
                     blanksHtml += `<button class="answer-btn" onclick="submitBlanksAnswer_E()" style="background:linear-gradient(to right,#1a2980,#26d0ce);color:white;font-size:1.1em;padding:14px;margin-top:5px;">تأكيد الإجابة ✔️</button></div>`;
                     answerOptionsContainer.innerHTML = blanksHtml;
                     questionOverlay.classList.remove('hidden');
-                    setTimeout(() => { if (window.MathJax) window.MathJax.typesetPromise([questionTextElement]).catch(()=>{}); }, 100);
+                    setTimeout(() => { if (window.MathJax) window.MathJax.typesetPromise([questionTextElement, answerOptionsContainer]).catch(()=>{}); }, 100);
                     return;
                 }
 
@@ -1326,6 +1324,7 @@
                     answerOptionsContainer.innerHTML = html;
                     eRenderDragItems();
                     questionOverlay.classList.remove('hidden');
+                    setTimeout(() => { if (window.MathJax) window.MathJax.typesetPromise([questionTextElement, answerOptionsContainer]).catch(()=>{}); }, 100);
                     return;
                 }
 
@@ -1409,28 +1408,15 @@
                     if (!lEl || !rEl) continue;
                     const wr = wrapper.getBoundingClientRect();
                     const lr = lEl.getBoundingClientRect(); const rr = rEl.getBoundingClientRect();
-                    let sx, sy, ex, ey;
-                    if (document.dir === 'rtl') {
-                        sx = lr.left - wr.left;
-                        ex = (rr.left + rr.width) - wr.left;
-                    } else {
-                        sx = lr.right - wr.left;
-                        ex = rr.left - wr.left;
-                    }
-                    sy = (lr.top + lr.height/2) - wr.top;
-                    ey = (rr.top + rr.height/2) - wr.top;
+                    const sx = lr.right - wr.left; const sy = (lr.top + lr.height/2) - wr.top;
+                    const ex = rr.left - wr.left; const ey = (rr.top + rr.height/2) - wr.top;
                     c.beginPath(); c.moveTo(sx, sy);
-                    c.bezierCurveTo(
-                        sx + (document.dir === 'rtl' ? -40 : 40), sy,
-                        ex + (document.dir === 'rtl' ? 40 : -40), ey,
-                        ex, ey
-                    );
-                    c.strokeStyle = matchingColors[i % matchingColors.length]; c.lineWidth = 4; c.lineCap = 'round'; c.stroke();
+                    c.bezierCurveTo(sx+30, sy, ex-30, ey, ex, ey);
+                    c.strokeStyle = matchingColors[i % matchingColors.length]; c.lineWidth = 3; c.lineCap = 'round'; c.stroke();
                     i++;
                 }
             }
-            window.eDrawConnections = eDrawConnections;
-            window.addEventListener('resize', () => { if (document.getElementById('e-matching-canvas')) eDrawConnections(); });
+            window.submitMatchingAnswer_E = function() {
                 const q = currentQuestion;
                 const pairs = q._pairs || [];
                 let allCorrect = true;
@@ -2296,8 +2282,7 @@ function loadExistingRoom() {
                 // استخراج العنوان من عنصر config إن وُجد
                 const configItem = rawQuestions.find(q => q.type === 'config');
                 if (configItem && configItem.title) {
-                    const titleEl = document.getElementById('game-main-title');
-                    if (titleEl) { titleEl.textContent = configItem.title; titleEl.style.display = 'block'; }
+                    // حفظ العنوان لعرضه داخل واجهة السؤال
                     window._gameLessonTitle = configItem.title;
                 }
 
@@ -2429,8 +2414,7 @@ function loadExistingRoom() {
         
         // إذا كان الرابط يحتوي على عنوان، قم بعرضه
         if (titleFromUrl) {
-            const titleElement = document.getElementById('game-main-title');
-            if (titleElement) titleElement.textContent = decodeURIComponent(titleFromUrl);
+            window._gameLessonTitle = decodeURIComponent(titleFromUrl);
         }
         
         showScreen('screen-student-login');
