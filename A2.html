@@ -491,6 +491,7 @@
 <div class="streak-badge" id="streak-badge">🔥 <span id="streak-count">2</span> متتالي!</div>
 	<div class="score-badge">النقاط: <span id="score-display">0</span></div>
 	</div>
+<div id="lesson-title-bar" style="display:none; text-align:center; font-weight:bold; margin-bottom:8px; color:#fff; font-size:16px; background:rgba(70,23,143,0.7); padding:6px 14px; border-radius:20px; max-width:100%;"></div>
 	<div id="question-counter" style="text-align: center; font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">السؤال 1 من 1</div>
 <div class="timer-container"><div class="timer-bar" id="timer-bar"></div></div>
 <button class="powerup-btn" id="powerup-5050" onclick="use5050()">💡 مساعدة 50/50 (استخدام واحد)</button>
@@ -895,8 +896,15 @@
                     if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
                         if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
                             roomFound = true; 
-                            copiedQuestions = rows[i].c[1].v.toString(); 
-                            gameQuestions = JSON.parse(copiedQuestions); // حفظ الأسئلة لشاشة المعلم
+                            copiedQuestions = rows[i].c[1].v.toString();
+                            const parsedAll = JSON.parse(copiedQuestions);
+                            // استخراج العنوان من عنصر config إن وُجد
+                            const configItem = parsedAll.find(q => q.type === 'config');
+                            if (configItem && configItem.title) {
+                                window._gameLessonTitle = configItem.title;
+                            }
+                            // تجاهل عنصر config عند تحميل الأسئلة
+                            gameQuestions = parsedAll.filter(q => q.type !== 'config');
                             totalRoomQuestions = gameQuestions.length;
                             break;
                         }
@@ -1013,7 +1021,14 @@
                         }
                     }
                 }
-                gameQuestions = (foundQuestions && foundQuestions.length > 0) ? foundQuestions : defaultQuestions;
+                // تصفية عنصر config (العنوان) من قائمة الأسئلة
+                if (foundQuestions && foundQuestions.length > 0) {
+                    const cfgItem = foundQuestions.find(q => q.type === 'config');
+                    if (cfgItem && cfgItem.title) window._gameLessonTitle = cfgItem.title;
+                    gameQuestions = foundQuestions.filter(q => q.type !== 'config');
+                } else {
+                    gameQuestions = defaultQuestions;
+                }
             } catch (err) { gameQuestions = defaultQuestions; }
 
             document.getElementById('screen-loading-sheet').style.display = 'none';
@@ -1049,6 +1064,17 @@
             // 1) ضع السؤال - دعم النص المنسق والصور ومعادلات الرياضيات
             const questionTextEl = document.getElementById('question-text');
             const type = q.type || 'mc'; // الافتراضي اختيار من متعدد - يجب تعريفه أولاً
+
+            // عرض عنوان الدرس إن وُجد
+            const lessonTitleBar = document.getElementById('lesson-title-bar');
+            if (lessonTitleBar) {
+                if (window._gameLessonTitle) {
+                    lessonTitleBar.textContent = '📚 ' + window._gameLessonTitle;
+                    lessonTitleBar.style.display = 'block';
+                } else {
+                    lessonTitleBar.style.display = 'none';
+                }
+            }
 
             // 1) بناء محتوى السؤال
             let questionHTML = '';
