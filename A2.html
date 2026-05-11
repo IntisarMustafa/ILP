@@ -372,6 +372,67 @@
             .q-builder-container { padding: 15px; }
             .key { height: 45px; font-size: 1rem; }
         }
+
+        /* ===== شاشة المعلم - عرض السؤال ===== */
+        .teacher-q-screen { max-width: 1100px !important; }
+        .teacher-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.97); padding: 14px 24px;
+            border-radius: 14px; margin-bottom: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.18);
+        }
+        .teacher-timer-display {
+            font-size: 52px; font-weight: 900; min-width: 70px; text-align: center;
+            color: var(--primary); transition: color 0.3s;
+        }
+        .teacher-timer-display.danger { color: var(--k-red); animation: pulse 0.5s infinite alternate; }
+        .teacher-ans-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; margin-bottom: 18px;
+        }
+        .teacher-ans-btn {
+            border: none; border-radius: 14px; color: white;
+            font-size: 26px; font-weight: 900; min-height: 120px;
+            display: flex; align-items: center; padding: 18px 22px; gap: 15px;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.25); text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            transition: all 0.4s ease; cursor: default;
+        }
+        .teacher-ans-btn.correct-reveal {
+            box-shadow: 0 0 0 5px white, 0 0 0 9px #26890c, 0 8px 0 rgba(0,0,0,0.25) !important;
+            transform: scale(1.04);
+        }
+        .teacher-ans-btn.wrong-reveal { opacity: 0.3; filter: grayscale(0.5); }
+        .teacher-stats-bar {
+            background: rgba(255,255,255,0.95); border-radius: 12px;
+            padding: 12px 20px; margin-bottom: 16px;
+            display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 34px; font-weight: 900; color: var(--primary); }
+        .stat-num.green { color: var(--success); }
+        .stat-num.red { color: var(--k-red); }
+        .stat-label { font-size: 13px; color: #777; font-weight: bold; }
+        /* منصة الفائزين */
+        .podium-wrap { display: flex; justify-content: center; align-items: flex-end; gap: 12px; margin: 20px 0; min-height: 130px; }
+        .podium-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; border-radius: 12px 12px 0 0; padding: 10px 8px 6px; min-width: 100px; color: #333; }
+        .podium-emoji { font-size: 30px; }
+        .podium-name { font-size: 15px; font-weight: 900; text-align: center; max-width: 100px; word-break: break-word; margin: 4px 0; }
+        .podium-pts { font-size: 13px; font-weight: bold; opacity: 0.8; }
+        /* شاشة انتظار الطالب */
+        .student-waiting-card {
+            background: rgba(255,255,255,0.97); border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%;
+            max-width: 650px; padding: 30px; text-align: center;
+        }
+        .answer-result-banner {
+            display: none; padding: 22px; border-radius: 16px; margin-bottom: 20px;
+            font-size: 28px; font-weight: 900; color: white;
+            animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+        }
+        @media (max-width: 600px) {
+            .teacher-ans-grid { grid-template-columns: 1fr; }
+            .teacher-ans-btn { font-size: 20px; min-height: 80px; }
+        }
     </style>
 </head>
 <body>
@@ -462,7 +523,78 @@
             
 <button class="btn btn-action" id="btn-next-question" onclick="sendNextQuestionCommand()" style="margin-top: 15px; display: none; background-color: var(--warning); color: black;">⏩ إرسال السؤال التالي للطلاب</button>
 
+<button class="btn" id="btn-start-quiz" onclick="teacherStartQuiz()" style="margin-top:15px; display:none; background:var(--success); color:white; font-size:22px; box-shadow:0 6px 0 var(--k-green-dark);">🎮 ابدأ المسابقة</button>
+
 <button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top: 30px; max-width: 250px;">إغلاق الغرفة</button>
+</div>
+</div>
+
+<!-- ======== شاشة المعلم: عرض السؤال (كاهوت) ======== -->
+<div class="screen teacher-q-screen" id="screen-teacher-question">
+<div style="width:100%;">
+  <!-- الرأس: رمز الغرفة + رقم السؤال + المؤقت -->
+  <div class="teacher-header">
+    <div style="font-size:20px; font-weight:900; color:var(--primary);">🎮 <span id="tq-pin"></span></div>
+    <div style="font-size:18px; font-weight:bold; color:#555;" id="tq-counter"></div>
+    <div class="teacher-timer-display" id="tq-timer">--</div>
+  </div>
+  <!-- شريط الوقت -->
+  <div class="timer-container" style="height:14px; margin-bottom:16px;">
+    <div class="timer-bar" id="tq-bar"></div>
+  </div>
+  <!-- السؤال -->
+  <div class="question-box display-text" id="tq-question" style="margin-bottom:18px; font-size:30px;"></div>
+  <!-- صورة إن وجدت -->
+  <div id="tq-img-wrap" style="text-align:center; margin-bottom:16px; display:none;">
+    <img id="tq-img" src="" style="max-height:220px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.2);"/>
+  </div>
+  <!-- خيارات الإجابة -->
+  <div class="teacher-ans-grid" id="tq-opts"></div>
+  <!-- إحصائيات -->
+  <div class="teacher-stats-bar">
+    <div class="stat-item"><div class="stat-num" id="tq-stat-answered">0</div><div class="stat-label">أجابوا</div></div>
+    <div class="stat-item"><div class="stat-num green" id="tq-stat-correct" style="display:none">-</div><div class="stat-label" id="tq-stat-correct-label" style="display:none">✅ صح</div></div>
+    <div class="stat-item"><div class="stat-num red" id="tq-stat-wrong" style="display:none">-</div><div class="stat-label" id="tq-stat-wrong-label" style="display:none">❌ خطأ</div></div>
+  </div>
+  <!-- أزرار التحكم -->
+  <div style="display:flex; gap:12px; flex-wrap:wrap;">
+    <button id="btn-reveal" onclick="teacherRevealAnswer()" class="btn btn-action" style="flex:1; background:var(--warning); color:#333; font-size:20px;">👁 عرض الإجابة الصحيحة</button>
+    <button id="btn-tq-next" onclick="teacherGoNext()" class="btn" style="flex:1; background:var(--success); color:white; font-size:20px; box-shadow:0 6px 0 var(--k-green-dark); display:none;">⏩ السؤال التالي</button>
+    <button id="btn-tq-end" onclick="teacherFinish()" class="btn btn-primary" style="flex:1; font-size:20px; display:none;">🏆 عرض النتائج</button>
+  </div>
+</div>
+</div>
+
+<!-- ======== شاشة المعلم: لوحة الصدارة بين الأسئلة ======== -->
+<div class="screen" id="screen-teacher-lb">
+<div class="card" style="max-width:800px; width:100%;">
+  <h2 style="color:var(--primary); font-size:30px; margin-bottom:5px;">🏆 الترتيب الحالي</h2>
+  <p id="tlb-sub" style="color:#666; font-size:17px; margin-bottom:16px;"></p>
+  <div class="podium-wrap" id="tlb-podium"></div>
+  <div id="tlb-loading" style="color:var(--primary); font-size:18px; font-weight:bold; padding:15px;">⏳ جاري تحميل البيانات...</div>
+  <table id="tlb-table" style="display:none; width:100%;">
+    <thead><tr><th>المركز</th><th>البطل</th><th>النقاط</th></tr></thead>
+    <tbody id="tlb-body"></tbody>
+  </table>
+  <div style="display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;">
+    <button id="btn-tlb-next" onclick="teacherGoNext()" class="btn" style="flex:1; background:var(--success); color:white; font-size:20px; box-shadow:0 6px 0 var(--k-green-dark);">⏩ السؤال التالي</button>
+    <button id="btn-tlb-end" onclick="teacherFinish()" class="btn btn-primary" style="flex:1; font-size:20px; display:none;">🏆 عرض النتائج النهائية</button>
+  </div>
+</div>
+</div>
+
+<!-- ======== شاشة المعلم: النتائج النهائية ======== -->
+<div class="screen" id="screen-teacher-final">
+<div class="card" style="max-width:800px; width:100%;">
+  <h2 style="color:var(--primary); font-size:34px; margin-bottom:8px;">🎉 نهاية المسابقة!</h2>
+  <p style="color:#666; font-size:18px; margin-bottom:10px;">أبطال اليوم 🌟</p>
+  <div class="podium-wrap" id="tfinal-podium"></div>
+  <div id="tfinal-loading" style="color:var(--primary); font-size:18px; font-weight:bold; padding:15px;">⏳ جاري تحميل النتائج...</div>
+  <table id="tfinal-table" style="display:none; width:100%;">
+    <thead><tr><th>المركز</th><th>البطل</th><th>النقاط</th></tr></thead>
+    <tbody id="tfinal-body"></tbody>
+  </table>
+  <button class="btn btn-back" onclick="stopBGM(); showScreen('screen-home')" style="margin-top:20px;">إغلاق الغرفة 🏠</button>
 </div>
 </div>
 
@@ -502,19 +634,19 @@
 </div>
 
 <div class="screen" id="screen-interim-leaderboard">
-    <div class="card" style="max-width: 800px; width: 100%;">
-        <h2>🏆 ترتيب الأبطال (النتيجة الحالية)</h2>
-        <table id="interim-leaderboard-table" style="display: none;">
-            <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
-            <tbody id="interim-leaderboard-body"></tbody>
-        </table>
-        <div id="interim-loading-board" style="font-size: 18px; font-weight: bold; color: var(--primary);">
-            ⏳ جاري تحديث النقاط...
-        </div>
-        <p id="wait-teacher-msg" style="margin-top: 20px; font-weight: bold; color: var(--k-red); font-size: 22px; animation: pulse 1s infinite alternate;">
-            ⏳ بانتظار المعلم للانتقال للسؤال التالي...
-        </p>
-    </div>
+  <div class="student-waiting-card">
+    <!-- بانر نتيجة الطالب (يظهر بعد كشف الإجابة) -->
+    <div class="answer-result-banner" id="student-result-banner"></div>
+    <h2 style="color:var(--primary);">🏆 الترتيب الحالي</h2>
+    <table id="interim-leaderboard-table" style="display:none; width:100%;">
+      <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+      <tbody id="interim-leaderboard-body"></tbody>
+    </table>
+    <div id="interim-loading-board" style="font-size:18px; font-weight:bold; color:var(--primary); padding:20px;">⏳ جاري تحديث النقاط...</div>
+    <p id="wait-teacher-msg" style="margin-top:18px; font-weight:bold; color:var(--k-red); font-size:20px; animation:pulse 1s infinite alternate;">
+      ⏳ بانتظار المعلم للانتقال للسؤال التالي...
+    </p>
+  </div>
 </div>
 
 <div class="screen" id="screen-student-result">
@@ -913,11 +1045,18 @@
                     const qrImg = document.getElementById('room-qr-code');
                     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(gameUrl)}&color=46178f`;
                     qrImg.style.display = 'block';
-                    document.getElementById('btn-next-question').style.display = 'inline-block'; 
+
+                    // حفظ الأسئلة للمعلم (استثناء عنصر config)
+                    gameQuestions = JSON.parse(copiedQuestions).filter(q => q.type !== 'config');
+                    totalRoomQuestions = gameQuestions.length;
+                    teacherQCount = 0; currentQIndex = 0;
+
+                    // إظهار زر البدء بدل الزر القديم
+                    document.getElementById('btn-next-question').style.display = 'none';
+                    document.getElementById('btn-start-quiz').style.display = 'inline-block';
                     
                     loadingScreen.style.display = 'none';
                     playBGM('lobby'); showScreen('screen-teacher');
-                    teacherQCount = 0;
                     
                     if (refreshInterval) clearInterval(refreshInterval);
                     refreshInterval = setInterval(fetchLeaderboard, 4000);
@@ -954,6 +1093,249 @@
                     btn.disabled = false;
                 }
             }, 3000);
+        }
+
+        // =====================================================
+        // === دوال نظام المعلم الجديد (كاهوت) ================
+        // =====================================================
+        let teacherTimerInterval = null;
+        let tqTimeLeft = 0, tqTotalTime = 0;
+        let tqAnswerRevealed = false;
+        let tqStatsInterval = null;
+
+        // بدء المسابقة من شاشة انتظار المعلم
+        function teacherStartQuiz() {
+            if (!gameQuestions || !gameQuestions.length) { alert("لا توجد أسئلة!"); return; }
+            currentQIndex = 0;
+            // إرسال NEXT_1 للطلاب
+            _sendCmd('NEXT_1');
+            clearInterval(refreshInterval);
+            teacherShowQuestion();
+        }
+
+        // عرض السؤال الحالي على شاشة المعلم
+        function teacherShowQuestion() {
+            tqAnswerRevealed = false;
+            clearInterval(teacherTimerInterval);
+            clearInterval(tqStatsInterval);
+            const q = gameQuestions[currentQIndex];
+
+            // رأس الشاشة
+            document.getElementById('tq-pin').innerText = currentRoomPIN;
+            document.getElementById('tq-counter').innerText = `السؤال ${currentQIndex+1} من ${gameQuestions.length}`;
+
+            // نص السؤال
+            let qHTML = '';
+            if (q.img) qHTML += `<div style="margin-bottom:12px;text-align:center;"><img src="${q.img}" style="max-height:180px;border-radius:10px;"></div>`;
+            qHTML += (q.textContent || q.q || '');
+            document.getElementById('tq-question').innerHTML = qHTML;
+
+            // صورة مستقلة (إن كانت المعاينة مستقلة)
+            const imgWrap = document.getElementById('tq-img-wrap');
+            imgWrap.style.display = 'none';
+
+            // إنشاء خيارات الإجابة
+            const grid = document.getElementById('tq-opts');
+            grid.innerHTML = '';
+            const icons = ['▲','◆','●','■'];
+            const bgColors = ['var(--k-red)','var(--k-blue)','var(--k-yellow)','var(--k-green)'];
+            const shadows = ['var(--k-red-dark)','var(--k-blue-dark)','var(--k-yellow-dark)','var(--k-green-dark)'];
+            const txtColors = ['white','white','#333','white'];
+
+            const type = q.type || 'mc';
+            if (type === 'mc' || type === 'tf') {
+                (q.opts||[]).forEach((opt, i) => {
+                    const d = document.createElement('div');
+                    d.className = 'teacher-ans-btn';
+                    d.id = `tq-opt-${i}`;
+                    d.style.background = bgColors[i%4];
+                    d.style.boxShadow = `0 8px 0 ${shadows[i%4]}`;
+                    d.style.color = txtColors[i%4];
+                    d.innerHTML = `<span style="font-size:34px;min-width:44px;">${icons[i%4]}</span><span class="display-text">${opt}</span>`;
+                    grid.appendChild(d);
+                });
+            } else {
+                const typeNames = {blanks:'📝 تعبئة الفراغ', matching:'🔗 مطابقة', dragdrop:'🧩 تصنيف', textslide:'📄 شريحة نصية'};
+                grid.innerHTML = `<div style="grid-column:1/-1;background:rgba(255,255,255,0.9);border-radius:14px;padding:22px;text-align:center;font-size:24px;color:var(--primary);font-weight:bold;">${typeNames[type]||type}</div>`;
+            }
+
+            // إحصائيات - إخفاء صح/خطأ حتى الكشف
+            document.getElementById('tq-stat-answered').innerText = '0';
+            document.getElementById('tq-stat-correct').style.display = 'none';
+            document.getElementById('tq-stat-correct-label').style.display = 'none';
+            document.getElementById('tq-stat-wrong').style.display = 'none';
+            document.getElementById('tq-stat-wrong-label').style.display = 'none';
+
+            // أزرار
+            document.getElementById('btn-reveal').style.display = 'block';
+            document.getElementById('btn-tq-next').style.display = 'none';
+            document.getElementById('btn-tq-end').style.display = 'none';
+
+            // المؤقت
+            tqTotalTime = q.time || 30;
+            tqTimeLeft = tqTotalTime;
+            _updateTqTimer();
+            if (type !== 'textslide') {
+                teacherTimerInterval = setInterval(() => {
+                    tqTimeLeft -= 0.1;
+                    _updateTqTimer();
+                    if (tqTimeLeft <= 0) { clearInterval(teacherTimerInterval); teacherRevealAnswer(); }
+                }, 100);
+            }
+
+            // تحديث عداد الإجابات كل 4 ثواني
+            tqStatsInterval = setInterval(_updateAnsweredCount, 4000);
+
+            // MathLive
+            if (window.MathLive) {
+                MathLive.renderMathInElement(document.getElementById('tq-question'));
+                grid.querySelectorAll('.display-text').forEach(el => MathLive.renderMathInElement(el));
+            }
+
+            showScreen('screen-teacher-question');
+            playBGM('game');
+        }
+
+        function _updateTqTimer() {
+            const timerEl = document.getElementById('tq-timer');
+            const bar = document.getElementById('tq-bar');
+            const secs = Math.max(0, Math.ceil(tqTimeLeft));
+            timerEl.innerText = secs;
+            bar.style.width = Math.max(0, (tqTimeLeft/tqTotalTime)*100) + '%';
+            if (tqTimeLeft <= 5) { timerEl.classList.add('danger'); bar.classList.add('danger'); }
+            else { timerEl.classList.remove('danger'); bar.classList.remove('danger'); }
+        }
+
+        async function _updateAnsweredCount() {
+            if (tqAnswerRevealed) return;
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=` + Date.now();
+                const res = await fetch(url);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length-2));
+                const rows = json.table.rows;
+                let players = rows.filter(r => r.c[1]?.v?.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS" && r.c[0]?.v !== "TEACHER_CMD");
+                let pm = {};
+                players.forEach(p => { let n=p.c[0].v, s=parseInt(p.c[2].v)||0; if(!pm[n]||s>pm[n]) pm[n]=s; });
+                document.getElementById('tq-stat-answered').innerText = Object.keys(pm).length;
+            } catch(e) {}
+        }
+
+        // المعلم يضغط "عرض الإجابة الصحيحة"
+        function teacherRevealAnswer() {
+            if (tqAnswerRevealed) return;
+            tqAnswerRevealed = true;
+            clearInterval(teacherTimerInterval);
+            clearInterval(tqStatsInterval);
+            stopBGM();
+
+            // إرسال أمر REVEAL للطلاب
+            _sendCmd(`REVEAL_${currentQIndex+1}`);
+
+            // تلوين الإجابات
+            const q = gameQuestions[currentQIndex];
+            const type = q.type || 'mc';
+            if ((type === 'mc' || type === 'tf') && q.opts) {
+                q.opts.forEach((_, i) => {
+                    const d = document.getElementById(`tq-opt-${i}`);
+                    if (!d) return;
+                    if (i === q.ans) d.classList.add('correct-reveal');
+                    else d.classList.add('wrong-reveal');
+                });
+            }
+
+            playTone(600,'sine',0.1,0.1); setTimeout(()=>playTone(900,'sine',0.2,0.1),150); setTimeout(()=>playTone(1100,'sine',0.3,0.1),300);
+
+            // إظهار أزرار التالي/إنهاء
+            document.getElementById('btn-reveal').style.display = 'none';
+            const isLast = currentQIndex >= gameQuestions.length - 1;
+            document.getElementById('btn-tq-next').style.display = isLast ? 'none' : 'block';
+            document.getElementById('btn-tq-end').style.display = isLast ? 'block' : 'none';
+
+            // الانتقال للوحة الصدارة بعد 2 ثانية
+            setTimeout(() => teacherShowLeaderboard(), 2000);
+        }
+
+        // المعلم ينتقل للسؤال التالي
+        function teacherGoNext() {
+            if (currentQIndex >= gameQuestions.length - 1) { teacherFinish(); return; }
+            // إرسال NEXT_{n+1} للطلاب
+            _sendCmd(`NEXT_${currentQIndex+2}`);
+            currentQIndex++;
+            teacherShowQuestion();
+        }
+
+        // المعلم ينهي المسابقة
+        function teacherFinish() {
+            _sendCmd('END');
+            showScreen('screen-teacher-final');
+            fireConfetti();
+            playTone(400,'sine',0.1); setTimeout(()=>playTone(600,'sine',0.1),150); setTimeout(()=>playTone(900,'sine',0.4),300);
+            document.getElementById('tfinal-loading').style.display = 'block';
+            document.getElementById('tfinal-table').style.display = 'none';
+            _fetchAndRenderLB('tfinal-body','tfinal-podium','tfinal-loading','tfinal-table');
+        }
+
+        // عرض لوحة الصدارة المؤقتة للمعلم
+        function teacherShowLeaderboard() {
+            showScreen('screen-teacher-lb');
+            const isLast = currentQIndex >= gameQuestions.length - 1;
+            document.getElementById('tlb-sub').innerText = isLast ? '🎉 آخر سؤال - النتيجة النهائية!' : `بعد السؤال ${currentQIndex+1} من ${gameQuestions.length}`;
+            document.getElementById('btn-tlb-next').style.display = isLast ? 'none' : 'block';
+            document.getElementById('btn-tlb-end').style.display = isLast ? 'block' : 'none';
+            document.getElementById('tlb-loading').style.display = 'block';
+            document.getElementById('tlb-table').style.display = 'none';
+            _fetchAndRenderLB('tlb-body','tlb-podium','tlb-loading','tlb-table');
+        }
+
+        async function _fetchAndRenderLB(bodyId, podiumId, loadingId, tableId) {
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=` + Date.now();
+                const res = await fetch(url);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length-2));
+                _renderLB(json.table.rows, bodyId, podiumId, loadingId, tableId);
+            } catch(e) { document.getElementById(loadingId).innerText = '❌ تعذّر تحميل البيانات'; }
+        }
+
+        function _renderLB(rows, bodyId, podiumId, loadingId, tableId) {
+            let players = rows.filter(r => r.c[1]?.v?.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS" && r.c[0]?.v !== "TEACHER_CMD");
+            let pm = {};
+            players.forEach(p => { let n=p.c[0].v, s=parseInt(p.c[2].v)||0; if(!pm[n]||s>pm[n].score) pm[n]={name:n,score:s}; });
+            let sorted = Object.values(pm).sort((a,b)=>b.score-a.score);
+
+            // المنصة
+            const podiumEl = document.getElementById(podiumId);
+            podiumEl.innerHTML = '';
+            const podiumOrder = [{idx:1,h:'85px',bg:'#C0C0C0',em:'🥈'},{idx:0,h:'115px',bg:'#FFD700',em:'🥇'},{idx:2,h:'65px',bg:'#CD7F32',em:'🥉'}];
+            podiumOrder.forEach(pd => {
+                const p = sorted[pd.idx]; if (!p) return;
+                const d = document.createElement('div');
+                d.className = 'podium-col';
+                d.style.cssText = `background:${pd.bg}; height:${pd.h}; min-width:100px;`;
+                d.innerHTML = `<div class="podium-emoji">${pd.em}</div><div class="podium-name">${p.name}</div><div class="podium-pts">${p.score} نقطة</div>`;
+                podiumEl.appendChild(d);
+            });
+
+            // الجدول
+            const tbody = document.getElementById(bodyId);
+            tbody.innerHTML = '';
+            sorted.forEach((p,i) => {
+                const m = i===0?'🥇':i===1?'🥈':i===2?'🥉':'🏅';
+                tbody.innerHTML += `<tr><td>${i+1} ${m}</td><td style="font-weight:bold">${p.name}</td><td style="color:var(--primary);font-weight:900;font-size:24px">${p.score}</td></tr>`;
+            });
+
+            document.getElementById(loadingId).style.display = sorted.length ? 'none' : 'block';
+            if (!sorted.length) document.getElementById(loadingId).innerText = '⏳ لا توجد نتائج بعد...';
+            document.getElementById(tableId).style.display = sorted.length ? 'table' : 'none';
+        }
+
+        // إرسال أمر المعلم للـ Sheet
+        function _sendCmd(value) {
+            document.getElementById('form-name').value = "TEACHER_CMD";
+            document.getElementById('form-school').value = currentRoomPIN;
+            document.getElementById('form-score').value = value;
+            document.getElementById('scoreForm').submit();
         }
 
         window.onload = () => {
@@ -1261,38 +1643,33 @@ function showFloatingPoints(points) {
             studentScore += finalPoints; 
             animateScore(oldScore, studentScore);
             
-            userAnswersHistory.push({ question: q.q, userAnswer: userAnswer, correctAnswer: correctAnswer, isCorrect: correct });
+            userAnswersHistory.push({ question: q.q, userAnswer, correctAnswer, isCorrect: correct, points: finalPoints });
 
             document.getElementById('form-score').value = studentScore;
             document.getElementById('scoreForm').submit();
 
-            const overlay = document.getElementById('feedback-overlay'); overlay.style.display = 'flex';
-            
+            // تحديث الـ streak للحساب (لكن لا نُظهر للطالب الآن)
             if (correct) {
-                currentStreak++; overlay.style.backgroundColor = 'rgba(38,137,12,0.95)';
-                document.getElementById('feedback-icon').innerText = "✔️";
-                document.getElementById('feedback-text').innerText = currentStreak > 2 ? "تتابع أسطوري! 🔥" : "إجابة صحيحة!";
-                document.getElementById('feedback-points').innerText = `+${finalPoints} نقطة`;
-                document.getElementById('feedback-points').style.display = "block";
-                
+                currentStreak++;
                 const streakBadge = document.getElementById('streak-badge');
                 if(currentStreak >= 2) { streakBadge.style.display = 'flex'; document.getElementById('streak-count').innerText = currentStreak; }
-                showFloatingPoints(finalPoints);
-                playTone(600, 'sine', 0.1, 0.1); setTimeout(()=>playTone(800, 'sine', 0.2, 0.1), 100);
             } else {
-                currentStreak = 0; document.getElementById('streak-badge').style.display = 'none';
-                overlay.style.backgroundColor = 'rgba(226,27,60,0.95)';
-                document.getElementById('feedback-icon').innerText = "❌";
-                document.getElementById('feedback-text').innerText = "للأسف، إجابة خاطئة";
-                document.getElementById('feedback-points').style.display = "none";
-                document.body.classList.add('shake-screen'); setTimeout(() => document.body.classList.remove('shake-screen'), 600);
-                playTone(200, 'sawtooth', 0.3, 0.1);
+                currentStreak = 0;
+                document.getElementById('streak-badge').style.display = 'none';
             }
+
+            // إظهار رسالة "تم الإرسال" فقط - لا صح ولا خطأ
+            const overlay = document.getElementById('feedback-overlay');
+            overlay.style.display = 'flex';
+            overlay.style.backgroundColor = 'rgba(70,23,143,0.93)';
+            document.getElementById('feedback-icon').innerText = '⏳';
+            document.getElementById('feedback-text').innerText = 'تم إرسال إجابتك!';
+            document.getElementById('feedback-points').style.display = 'none';
 
             setTimeout(() => {
                 overlay.style.display = 'none';
-                showInterimLeaderboard(); // توجيه الطالب للوحة الانتظار الخاصة بالمعلم!
-            }, 2500);
+                showInterimLeaderboard();
+            }, 1000);
         }
 
         function submitBlanksAnswer() {
@@ -1438,71 +1815,98 @@ function showFloatingPoints(points) {
         // ========================================== //
         async function showInterimLeaderboard() {
             showScreen('screen-interim-leaderboard');
+
+            // إعادة تهيئة الشاشة
+            const banner = document.getElementById('student-result-banner');
+            banner.style.display = 'none';
+            banner.innerHTML = '';
+
             const tbody = document.getElementById('interim-leaderboard-body');
             const table = document.getElementById('interim-leaderboard-table');
             const loading = document.getElementById('interim-loading-board');
-            
             table.style.display = 'none';
             loading.style.display = 'block';
             tbody.innerHTML = '';
 
-            // دالة داخلية لتحديث الجدول
-            const updateTableData = (rows) => {
+            const waitMsg = document.getElementById('wait-teacher-msg');
+            waitMsg.innerHTML = currentQIndex === gameQuestions.length - 1
+                ? '🏆 انتهى التحدي! بانتظار المعلم لإظهار النتيجة النهائية...'
+                : '⏳ بانتظار المعلم للانتقال للسؤال التالي...';
+
+            const myAnswer = userAnswersHistory[userAnswersHistory.length - 1];
+            let revealDone = false;
+
+            const _updateTable = (rows) => {
                 let players = rows.filter(r => r.c[1]?.v?.toString() === currentRoomPIN && r.c[2]?.v !== "QUESTIONS" && r.c[0]?.v !== "TEACHER_CMD");
-                let playerMap = {};
-                players.forEach(p => {
-                    let name = p.c[0].v;
-                    let score = parseInt(p.c[2].v) || 0;
-                    if(!playerMap[name] || score > playerMap[name].score) playerMap[name] = { name: name, score: score };
-                });
-                let uniquePlayers = Object.values(playerMap);
-                uniquePlayers.sort((a,b) => b.score - a.score);
+                let pm = {};
+                players.forEach(p => { let n=p.c[0].v, s=parseInt(p.c[2].v)||0; if(!pm[n]||s>pm[n].score) pm[n]={name:n,score:s}; });
+                let sorted = Object.values(pm).sort((a,b)=>b.score-a.score);
                 tbody.innerHTML = '';
-                uniquePlayers.forEach((p, i) => {
-                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
-                    tbody.innerHTML += `<tr><td>${i+1} ${medal}</td><td style="font-weight: bold;">${p.name}</td><td style="color:var(--primary); font-weight:900; font-size: 24px;">${p.score}</td></tr>`;
+                sorted.forEach((p,i) => {
+                    const m = i===0?'🥇':i===1?'🥈':i===2?'🥉':'🏅';
+                    tbody.innerHTML += `<tr><td>${i+1} ${m}</td><td style="font-weight:bold">${p.name}</td><td style="color:var(--primary);font-weight:900;font-size:24px">${p.score}</td></tr>`;
                 });
-                loading.style.display = 'none';
-                table.style.display = 'table';
+                loading.style.display = sorted.length ? 'none' : 'block';
+                table.style.display = sorted.length ? 'table' : 'none';
             };
 
-	            // إذا كان السؤال الأخير، غير الرسالة
-	            const waitMsg = document.getElementById('wait-teacher-msg');
-	            if (currentQIndex === gameQuestions.length - 1) {
-	                waitMsg.innerHTML = "🏆 انتهى التحدي! بانتظار المعلم لإظهار النتيجة النهائية...";
-	            } else {
-	                waitMsg.innerHTML = "⏳ بانتظار المعلم للانتقال للسؤال التالي...";
-	            }
-	            
-	            // التحقق المستمر كل 3 ثواني
-	            if (studentWaitInterval) clearInterval(studentWaitInterval);
+            if (studentWaitInterval) clearInterval(studentWaitInterval);
             studentWaitInterval = setInterval(async () => {
                 try {
-                    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=` + new Date().getTime();
+                    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_=` + Date.now();
                     const res = await fetch(url);
                     const text = await res.text();
-                    const json = JSON.parse(text.substring(47, text.length - 2));
+                    const json = JSON.parse(text.substring(47, text.length-2));
                     const rows = json.table.rows;
-                    
-                    updateTableData(rows); // تحديث لوحة الصدارة ضمناً
-                    
-                    // التحقق من أوامر المعلم
-                    let teacherCommands = rows.filter(r => r.c[1]?.v?.toString() === currentRoomPIN && r.c[0]?.v === "TEACHER_CMD");
-                    
-                    // إذا كان عدد ضغطات المعلم (أوامر NEXT) أكبر من رقم السؤال الذي انتهينا منه
-                    if (teacherCommands.length > currentQIndex) {
-                        clearInterval(studentWaitInterval); // توقف عن البحث
-                        currentQIndex++; 
-                        if(currentQIndex < gameQuestions.length) {
-                            startCountdown(); // الانطلاق للسؤال التالي
+
+                    _updateTable(rows);
+
+                    const cmds = rows
+                        .filter(r => r.c[1]?.v?.toString() === currentRoomPIN && r.c[0]?.v === "TEACHER_CMD")
+                        .map(r => r.c[2]?.v?.toString() || '');
+
+                    // 1) كشف الإجابة
+                    if (!revealDone && cmds.includes(`REVEAL_${currentQIndex+1}`)) {
+                        revealDone = true;
+                        banner.style.display = 'block';
+                        if (myAnswer && myAnswer.isCorrect) {
+                            banner.style.background = 'linear-gradient(135deg,#26890c,#1e6d0a)';
+                            banner.innerHTML = `✅ إجابة صحيحة!<br><span style="font-size:20px;opacity:0.9;">+${myAnswer.points||0} نقطة 🔥</span>`;
+                            showFloatingPoints(myAnswer.points||0);
+                            playTone(600,'sine',0.1,0.1); setTimeout(()=>playTone(900,'sine',0.2,0.1),100);
                         } else {
-                            endGame(); // أو إنهاء اللعبة إذا انتهت الأسئلة
+                            banner.style.background = 'linear-gradient(135deg,#e21b3c,#b81631)';
+                            const ca = myAnswer ? myAnswer.correctAnswer : '';
+                            banner.innerHTML = `❌ إجابة خاطئة<br><span style="font-size:17px;opacity:0.88;">الإجابة: ${ca}</span>`;
+                            playTone(200,'sawtooth',0.3,0.1);
+                            document.body.classList.add('shake-screen'); setTimeout(()=>document.body.classList.remove('shake-screen'),600);
                         }
                     }
-                } catch (e) {
-                    // تجاهل الأخطاء المؤقتة للشبكة
-                }
-            }, 3000); 
+
+                    // 2) السؤال التالي
+                    if (cmds.includes(`NEXT_${currentQIndex+2}`)) {
+                        clearInterval(studentWaitInterval);
+                        currentQIndex++;
+                        startCountdown(); return;
+                    }
+
+                    // 3) إنهاء المسابقة
+                    if (cmds.includes('END')) {
+                        clearInterval(studentWaitInterval);
+                        endGame(); return;
+                    }
+
+                    // 4) توافق مع الزر القديم (NEXT_n فقط بدون REVEAL)
+                    if (!revealDone) {
+                        const legacyNext = cmds.find(s => s.startsWith('NEXT_') && parseInt(s.split('_')[1]) > currentQIndex+1);
+                        if (legacyNext) {
+                            clearInterval(studentWaitInterval);
+                            currentQIndex++;
+                            if (currentQIndex < gameQuestions.length) startCountdown(); else endGame();
+                        }
+                    }
+                } catch(e) {}
+            }, 3000);
         }
 
         function animateScore(oldScore, newScore) {
