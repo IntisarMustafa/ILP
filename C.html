@@ -474,7 +474,7 @@
     </div>
 
     <div id="ui-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-        <h2 id="game-main-title" style="text-align: center; color: #46178f; margin-bottom: 20px;"></h2>
+        <h2 id="game-main-title" style="text-align: center; color: white; margin-bottom: 20px; font-size: 28px; font-weight: 900; text-shadow: 2px 2px 8px rgba(0,0,0,0.4); background: rgba(70,23,143,0.7); padding: 12px 30px; border-radius: 30px; backdrop-filter: blur(5px); display: none;"></h2>
         
         <div class="screen active" id="screen-student-login">
             <div class="card">
@@ -1000,7 +1000,21 @@
                         }
                     }
                 }
-                gameQuestions = (foundQuestions && foundQuestions.length > 0) ? foundQuestions : defaultQuestions;
+                if (foundQuestions && foundQuestions.length > 0) {
+                    // استخراج العنوان من عنصر config إن وُجد (كما في ملف A)
+                    const configItem = foundQuestions.find(q => q.type === 'config');
+                    if (configItem && configItem.title) {
+                        const titleEl = document.getElementById('game-main-title');
+                        if (titleEl) { titleEl.textContent = configItem.title; titleEl.style.display = 'block'; }
+                        if (levelTitleHUD) levelTitleHUD.textContent = configItem.title;
+                        document.title = configItem.title + ' | القط والهدف';
+                    }
+                    // تجاهل عنصر config وتحميل الأسئلة فقط
+                    gameQuestions = foundQuestions.filter(q => q.type !== 'config');
+                    if (gameQuestions.length === 0) gameQuestions = defaultQuestions;
+                } else {
+                    gameQuestions = defaultQuestions;
+                }
             } catch (err) { gameQuestions = defaultQuestions; }
             
             document.getElementById('screen-loading-sheet').style.display = 'none';
@@ -1316,104 +1330,157 @@
         }
 
         function showQuestion() {
-            gameState.questionActive = true; gameState.running = false; 
-            
+            gameState.questionActive = true; gameState.running = false;
+
             const q = gameQuestions[currentQIndex % gameQuestions.length];
             const qType = q.type || 'mc';
-            
-            // عرض السؤال مع الصورة إن وُجدت
-            let titleHTML = q.q || '';
-            if (q.img) {
-                titleHTML += `<img src="${q.img}" alt="صورة السؤال" referrerpolicy="no-referrer" crossorigin="anonymous" style="max-width:100%; max-height:220px; border-radius:10px; margin-top:4px; object-fit:contain; display:block;" onerror="this.style.display='none'">`;
-            }
-            questionText.innerHTML = titleHTML;
-            resultMessage.textContent = ""; 
-            resultMessage.className = "result";
-            
-            if (window.MathJax) MathJax.typesetPromise([questionText]);
 
-            questionModal.style.display = "flex"; 
-            continueBtn.style.display = "none";
+            resultMessage.textContent = "";
+            resultMessage.className = "result";
             optionsContainer.innerHTML = "";
-            
-            if (qType === 'mc') {
-                // اختيار من متعدد
+
+            // --- عرض نص السؤال والصورة إن وُجدت ---
+            const cont = document.querySelector('.question-content');
+            if (qType === 'textslide') {
+                questionText.innerHTML = q.textContent || q.q || '';
+                if (cont) cont.style.background = (q.textBg && q.textBg !== '#ffffff') ? q.textBg : '';
+            } else {
+                questionText.innerHTML = q.q || '';
+                if (cont) cont.style.background = '';
+            }
+
+            // إضافة الصورة فوق أو تحت نص السؤال
+            if (q.img) {
+                const imgEl = document.createElement('img');
+                imgEl.src = q.img;
+                imgEl.alt = 'صورة السؤال';
+                imgEl.referrerPolicy = 'no-referrer';
+                imgEl.crossOrigin = 'anonymous';
+                imgEl.style.cssText = 'max-width:100%; max-height:220px; border-radius:10px; margin-top:8px; object-fit:contain; display:block; margin-left:auto; margin-right:auto; border:3px solid rgba(56,189,248,0.5);';
+                imgEl.onerror = () => imgEl.remove();
+                questionText.appendChild(imgEl);
+            }
+
+            // --- عرض الرسم البياني إن وُجد ---
+            if (q.chart) {
+                const chartWrapper = document.createElement('div');
+                chartWrapper.style.cssText = 'width:100%; max-width:400px; margin:10px auto; background:white; border-radius:10px; padding:10px;';
+                const chartCanvas = document.createElement('canvas');
+                chartCanvas.id = 'q-chart-canvas';
+                chartWrapper.appendChild(chartCanvas);
+                questionText.appendChild(chartWrapper);
+                // تحميل Chart.js ديناميكياً إن لم تكن محملة
+                function renderChart() {
+                    const c = q.chart;
+                    new Chart(chartCanvas, {
+                        type: c.type || 'bar',
+                        data: {
+                            labels: c.labels || [],
+                            datasets: [{
+                                label: c.datasetLabel || '',
+                                data: c.data || [],
+                                backgroundColor: c.colors || ['#46178f','#1368ce','#e21b3c','#ffa602','#26890c','#eb2730'],
+                                borderColor: 'rgba(0,0,0,0.1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: !!c.datasetLabel }, title: { display: !!c.title, text: c.title || '' } },
+                            scales: (c.type === 'pie' || c.type === 'doughnut') ? {} : { y: { beginAtZero: true } }
+                        }
+                    });
+                }
+                if (window.Chart) {
+                    renderChart();
+                } else {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+                    s.onload = renderChart;
+                    document.head.appendChild(s);
+                }
+            }
+
+            questionModal.style.display = "flex";
+            continueBtn.style.display = "none";
+
+            // تحديث عنوان الأسئلة: عرض رقم السؤال في رأس النافذة
+            const modalH2 = document.querySelector('.question-content h2');
+            const totalQ = gameQuestions.length;
+            const currentNum = (currentQIndex % totalQ) + 1;
+            if (modalH2) modalH2.innerHTML = `<i class="fas fa-puzzle-piece"></i> السؤال ${currentNum} من ${totalQ}`;
+
+            // --- عرض الخيارات حسب نوع السؤال ---
+            if (qType === 'mc' || qType === 'tf') {
                 (q.opts || []).forEach((optionText, idx) => {
-                    const optionElement = document.createElement('div'); 
-                    optionElement.className = 'option'; 
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
                     optionElement.innerHTML = optionText;
                     optionElement.onclick = () => checkMCAnswer(idx, q.ans, q.opts);
                     optionsContainer.appendChild(optionElement);
                 });
-                if (window.MathJax) MathJax.typesetPromise([optionsContainer]);
+                if (window.MathJax) MathJax.typesetPromise([questionText, optionsContainer]);
+                else if (window.MathLive) { MathLive.renderMathInElement(questionText); MathLive.renderMathInElement(optionsContainer); }
 
             } else if (qType === 'blanks') {
-                // إكمال فراغات
                 const blanksCount = (q.blanks || []).length;
                 let blanksHTML = '<div style="display:flex; flex-direction:column; gap:10px; width:100%;">';
                 for (let i = 0; i < blanksCount; i++) {
                     blanksHTML += `<div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-weight:bold; color:var(--primary); min-width:20px;">${i+1}.</span>
-                        <input type="text" id="blank-input-${i}" placeholder="الإجابة ${i+1}" 
-                            style="flex:1; padding:10px; border:2px solid #ccc; border-radius:8px; font-size:16px; font-family:'Cairo',sans-serif; text-align:right;">
+                        <span style="font-weight:bold; color:#38bdf8; min-width:20px;">${i+1}.</span>
+                        <input type="text" id="blank-input-${i}" placeholder="الإجابة ${i+1}"
+                            style="flex:1; padding:10px; border:2px solid #ccc; border-radius:8px; font-size:16px; font-family:'Cairo',sans-serif; text-align:right; background:#1e293b; color:white; border-color:#334155;">
                     </div>`;
                 }
-                blanksHTML += '</div><button onclick="checkBlanksAnswer()" style="margin-top:12px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; font-family:\'Cairo\',sans-serif;">✔ تحقق من الإجابة</button>';
+                blanksHTML += `</div><button onclick="checkBlanksAnswer()" style="margin-top:12px; width:100%; padding:14px; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; font-family:'Cairo',sans-serif;">✔ تحقق من الإجابة</button>`;
                 optionsContainer.innerHTML = blanksHTML;
+                if (window.MathJax) MathJax.typesetPromise([questionText]);
 
             } else if (qType === 'matching') {
-                // توصيل / مطابقة
                 const pairs = q.pairs || [];
                 const shuffledRight = [...pairs.map(p => p.right)].sort(() => Math.random() - 0.5);
                 let matchHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%;">
-                    <div style="font-weight:bold; color:var(--primary); text-align:center; padding:5px; border-bottom:2px solid var(--primary);">العمود الأول</div>
-                    <div style="font-weight:bold; color:var(--primary); text-align:center; padding:5px; border-bottom:2px solid var(--primary);">العمود الثاني</div>`;
+                    <div style="font-weight:bold; color:#38bdf8; text-align:center; padding:5px; border-bottom:2px solid #38bdf8;">العمود الأول</div>
+                    <div style="font-weight:bold; color:#38bdf8; text-align:center; padding:5px; border-bottom:2px solid #38bdf8;">العمود الثاني</div>`;
                 pairs.forEach((pair, i) => {
-                    matchHTML += `<div style="padding:8px; background:#f0f4ff; border-radius:8px; text-align:center; font-size:15px; color:#333333; font-weight:bold;">${pair.left}</div>
-                    <select id="match-select-${i}" style="padding:8px; border:2px solid #ccc; border-radius:8px; font-size:14px; font-family:'Cairo',sans-serif; width:100%; color:#333333; background:#ffffff;">
-                        <option value="" style="color:#333333;">اختر...</option>
-                        ${shuffledRight.map((r,ri) => `<option value="${r}" style="color:#333333;">${r}</option>`).join('')}
+                    matchHTML += `<div style="padding:8px; background:#1e293b; border-radius:8px; text-align:center; font-size:15px; color:#e2e8f0; font-weight:bold; border:1px solid #334155;">${pair.left}</div>
+                    <select id="match-select-${i}" style="padding:8px; border:2px solid #334155; border-radius:8px; font-size:14px; font-family:'Cairo',sans-serif; width:100%; color:#e2e8f0; background:#1e293b;">
+                        <option value="">اختر...</option>
+                        ${shuffledRight.map(r => `<option value="${r}">${r}</option>`).join('')}
                     </select>`;
                 });
                 matchHTML += `</div>
-                    <button onclick="checkMatchingAnswer(${JSON.stringify(pairs).replace(/"/g,'&quot;')})" style="margin-top:12px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; font-family:'Cairo',sans-serif;">✔ تحقق من الإجابة</button>`;
+                    <button onclick="checkMatchingAnswer(${JSON.stringify(pairs).replace(/"/g,'&quot;')})" style="margin-top:12px; width:100%; padding:14px; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; font-family:'Cairo',sans-serif;">✔ تحقق من الإجابة</button>`;
                 optionsContainer.innerHTML = matchHTML;
-                if (window.MathJax) MathJax.typesetPromise([optionsContainer]);
+                if (window.MathJax) MathJax.typesetPromise([questionText, optionsContainer]);
 
             } else if (qType === 'dragdrop') {
-                // تصنيف / سحب وإفلات
                 const zones = q.zones || [];
                 const items = q.items || [];
                 const shuffledItems = [...items].sort(() => Math.random() - 0.5);
                 let ddHTML = `<div style="margin-bottom:12px;">
-                    <p style="font-size:13px; color:#666; margin-bottom:8px;">اسحب كل كلمة إلى مجموعتها الصحيحة:</p>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; padding:10px; background:#f0f4ff; border-radius:10px; min-height:50px;" id="drag-bank">`;
+                    <p style="font-size:13px; color:#94a3b8; margin-bottom:8px;">اختر عنصراً ثم انقر على المجموعة المناسبة:</p>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; padding:10px; background:#1e293b; border-radius:10px; min-height:50px; border:1px dashed #334155;" id="drag-bank">`;
                 shuffledItems.forEach((item, i) => {
                     ddHTML += `<div draggable="true" id="ditem-${i}" data-index="${i}" data-correct-zone="${item.zoneIndex}"
                         ondragstart="dragStart(event)" onclick="mobileSelectItem(this)"
-                        style="padding:8px 14px; background:var(--primary); color:white; border-radius:20px; cursor:grab; font-size:14px; font-weight:bold; user-select:none; touch-action:manipulation;">${item.text}</div>`;
+                        style="padding:8px 14px; background:#38bdf8; color:#0f172a; border-radius:20px; cursor:grab; font-size:14px; font-weight:bold; user-select:none; touch-action:manipulation;">${item.text}</div>`;
                 });
                 ddHTML += `</div></div><div style="display:grid; grid-template-columns:${zones.length > 2 ? 'repeat('+zones.length+',1fr)' : '1fr 1fr'}; gap:10px;">`;
                 zones.forEach((zone, zi) => {
-                    ddHTML += `<div id="dropzone-${zi}" data-zone="${zi}" 
+                    ddHTML += `<div id="dropzone-${zi}" data-zone="${zi}"
                         ondragover="event.preventDefault()" ondrop="dropItem(event,${zi})" onclick="mobileDropItem(this,${zi})"
-                        style="min-height:80px; border:2px dashed #ccc; border-radius:10px; padding:8px; text-align:center; background:#fafafa; transition:background 0.2s;">
-                        <div style="font-weight:bold; color:var(--primary); margin-bottom:6px; font-size:14px;">${zone}</div>
+                        style="min-height:80px; border:2px dashed #334155; border-radius:10px; padding:8px; text-align:center; background:#1e293b; transition:background 0.2s;">
+                        <div style="font-weight:bold; color:#38bdf8; margin-bottom:6px; font-size:14px;">${zone}</div>
                     </div>`;
                 });
                 ddHTML += `</div>
-                    <button onclick="checkDragDropAnswer(${zones.length})" style="margin-top:12px; width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; font-family:'Cairo',sans-serif;">✔ تحقق من الإجابة</button>`;
+                    <button onclick="checkDragDropAnswer(${zones.length})" style="margin-top:12px; width:100%; padding:14px; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; font-family:'Cairo',sans-serif;">✔ تحقق من الإجابة</button>`;
                 optionsContainer.innerHTML = ddHTML;
-                if (window.MathJax) MathJax.typesetPromise([optionsContainer]);
+                if (window.MathJax) MathJax.typesetPromise([questionText, optionsContainer]);
 
             } else if (qType === 'textslide') {
-                // شريحة نص
-                questionText.innerHTML = (q.textContent || q.q || '');
-                const cont = document.querySelector('.question-content');
-                if (cont) cont.style.background = (q.textBg && q.textBg !== '#ffffff') ? q.textBg : '';
-                optionsContainer.innerHTML = '';
                 if (window.MathJax) MathJax.typesetPromise([questionText]);
-                // تخطي مباشرة بعد قراءة النص
                 continueBtn.style.display = "block";
                 continueBtn.innerText = "متابعة ←";
                 currentQIndex++;
@@ -1684,17 +1751,18 @@
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const pinFromUrl = urlParams.get('pin');
-            const titleFromUrl = urlParams.get('title'); // جلب العنوان من الرابط
+            const titleFromUrl = urlParams.get('title');
             
             if (pinFromUrl) {
                 const pinInput = document.getElementById('input-room-pin');
                 if (pinInput) pinInput.value = pinFromUrl;
             }
             
-            // إذا كان الرابط يحتوي على عنوان، قم بعرضه
             if (titleFromUrl) {
+                const decoded = decodeURIComponent(titleFromUrl);
                 const titleElement = document.getElementById('game-main-title');
-                if (titleElement) titleElement.textContent = decodeURIComponent(titleFromUrl);
+                if (titleElement) { titleElement.textContent = decoded; titleElement.style.display = 'block'; }
+                document.title = decoded + ' | القط والهدف';
             }
         })();
         
