@@ -442,8 +442,21 @@
     <button class="btn btn-action" onclick="loadExistingRoom()">♻️ استنساخ غرفة سابقة</button>
 </div>
 
+        <div style="margin-bottom:20px; background:#eef2ff; border-radius:18px; padding:18px; border-right:6px solid #46178f;">
+            <label style="font-weight:900; color:#46178f; font-size:1.1rem;">📌 عنوان المسابقة / الدرس</label>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <input type="text" id="quiz-title-input" placeholder="مثال: الكسور العشرية - الصف السادس" style="margin-bottom:0;">
+            </div>
+        </div>
         <div id="questions-list"></div>
-        <button class="btn btn-action" onclick="addQuestionBlock()"><i class="fas fa-plus-circle"></i> إضافة سؤال جديد</button>
+        <p style="font-weight:900; color:#333; margin-bottom:8px;">➕ أضف سؤالاً بنوعه:</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+            <button class="btn btn-action" style="margin-bottom:0; flex:1; min-width:140px;" onclick="addQuestionBlock('mc')"><i class="fas fa-list"></i> اختيار متعدد</button>
+            <button class="btn btn-action" style="margin-bottom:0; flex:1; min-width:140px; background:linear-gradient(135deg,#11998e,#38ef7d); color:#111;" onclick="addQuestionBlock('blanks')"><i class="fas fa-fill-drip"></i> إملاء الفراغات</button>
+            <button class="btn btn-action" style="margin-bottom:0; flex:1; min-width:140px; background:linear-gradient(135deg,#f093fb,#f5576c); color:white;" onclick="addQuestionBlock('matching')"><i class="fas fa-link"></i> توصيل</button>
+            <button class="btn btn-action" style="margin-bottom:0; flex:1; min-width:140px; background:linear-gradient(135deg,#4facfe,#00f2fe); color:#111;" onclick="addQuestionBlock('dragdrop')"><i class="fas fa-arrows-alt"></i> سحب وإفلات</button>
+            <button class="btn btn-action" style="margin-bottom:0; flex:1; min-width:140px; background:linear-gradient(135deg,#f6d365,#fda085); color:#111;" onclick="addQuestionBlock('textslide')"><i class="fas fa-book-open"></i> شريحة نصية</button>
+        </div>
         <div style="display: flex; gap:15px; margin-top:30px">
             <button class="btn btn-primary" onclick="saveQuestionsToSheet()"><i class="fas fa-save"></i> حفظ وإنشاء الغرفة</button>
             <button class="btn btn-back" onclick="showScreen('screen-home')"><i class="fas fa-times"></i> إلغاء</button>
@@ -718,19 +731,82 @@
     function toggleMute(){ soundEnabled=!soundEnabled; document.getElementById('mute-btn').innerHTML=soundEnabled?"🔊":"🔇"; }
     
     let qBlockCount=0;
-    function openTeacherSetup(){ document.getElementById('questions-list').innerHTML=''; qBlockCount=0; addQuestionBlock(); showScreen('screen-teacher-setup'); }
-    function addQuestionBlock(){
+    function openTeacherSetup(){ document.getElementById('questions-list').innerHTML=''; qBlockCount=0; addQuestionBlock('mc'); showScreen('screen-teacher-setup'); }
+    function addQuestionBlock(type='mc'){
         let container=document.getElementById('questions-list');
         let id=`q-block-${qBlockCount}`;
-        let html=`<div class="q-block" id="${id}"><h3>سؤال ${qBlockCount+1} ${qBlockCount>0?'<button onclick="document.getElementById(\''+id+'\').remove()"><i class="fas fa-trash"></i> حذف</button>':''}</h3>
-        <div style="display:flex;gap:8px"><input type="text" class="q-title-input" placeholder="نص السؤال"><button class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`;
-        for(let i=0;i<4;i++){
-            html+=`<div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="${i}" ${i===0?'checked':''}><input type="text" class="q-opt-input" placeholder="خيار ${i+1}"><button class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`;
+        const deleteBtn = qBlockCount>0 ? `<button onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>` : '';
+        const typeLabel = {mc:'اختيار متعدد',blanks:'إملاء الفراغات',matching:'توصيل',dragdrop:'سحب وإفلات',textslide:'شريحة نصية'}[type]||type;
+
+        let innerHtml = '';
+
+        if(type === 'mc'){
+            innerHtml = `<div style="display:flex;gap:8px"><input type="text" class="q-title-input" placeholder="نص السؤال"><button class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`;
+            for(let i=0;i<4;i++){
+                innerHtml += `<div class="opt-row"><input type="radio" name="correct-${qBlockCount}" value="${i}" ${i===0?'checked':''}><input type="text" class="q-opt-input" placeholder="خيار ${i+1}"><button class="math-trigger-btn" onclick="openMathModal(this.previousElementSibling)">🧮</button></div>`;
+            }
+        } else if(type === 'blanks'){
+            innerHtml = `
+            <p style="color:#555; font-size:0.9rem; margin-bottom:8px;">💡 اكتب النص وضع <b>( .... )</b> مكان الفراغ المطلوب. ثم أدخل الإجابات بالترتيب (افصل البدائل بـ /).</p>
+            <div style="display:flex;gap:8px"><textarea class="q-title-input" rows="3" placeholder="مثال: عاصمة المملكة هي ( .... ) وتقع في ( .... )" style="resize:vertical; padding:10px; font-family:Cairo,sans-serif; font-size:1rem; border:2px solid #e0e0e0; border-radius:10px; width:100%;"></textarea></div>
+            <div id="${id}-blanks-answers" style="margin-top:10px;">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><span style="min-width:80px;font-weight:bold;">فراغ 1:</span><input type="text" class="blank-ans-input" placeholder="الإجابة (بدائل: كلمة1/كلمة2)"></div>
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><span style="min-width:80px;font-weight:bold;">فراغ 2:</span><input type="text" class="blank-ans-input" placeholder="الإجابة (اتركه فارغاً إن لم يكن هناك فراغ ثانٍ)"></div>
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><span style="min-width:80px;font-weight:bold;">فراغ 3:</span><input type="text" class="blank-ans-input" placeholder="الإجابة (اتركه فارغاً إن لم يكن هناك فراغ ثالث)"></div>
+            </div>`;
+        } else if(type === 'matching'){
+            innerHtml = `
+            <p style="color:#555; font-size:0.9rem; margin-bottom:8px;">💡 أدخل أزواج التوصيل (يسار ← يمين). أضف أزواجاً بالزر أدناه.</p>
+            <input type="text" class="q-title-input" placeholder="تعليمات السؤال (مثال: صل الكلمة بمعناها)">
+            <div id="${id}-pairs">
+                <div class="opt-row" style="align-items:center;"><input type="text" class="match-left-input" placeholder="عنصر يسار (1)"><span style="font-size:1.5rem; color:#46178f;">↔</span><input type="text" class="match-right-input" placeholder="عنصر يمين (1)"></div>
+                <div class="opt-row" style="align-items:center;"><input type="text" class="match-left-input" placeholder="عنصر يسار (2)"><span style="font-size:1.5rem; color:#46178f;">↔</span><input type="text" class="match-right-input" placeholder="عنصر يمين (2)"></div>
+                <div class="opt-row" style="align-items:center;"><input type="text" class="match-left-input" placeholder="عنصر يسار (3)"><span style="font-size:1.5rem; color:#46178f;">↔</span><input type="text" class="match-right-input" placeholder="عنصر يمين (3)"></div>
+            </div>
+            <button type="button" onclick="addMatchPair('${id}-pairs')" style="background:#46178f;color:white;border:none;border-radius:10px;padding:8px 18px;cursor:pointer;font-family:Cairo,sans-serif;margin-top:6px;">+ إضافة زوج</button>`;
+        } else if(type === 'dragdrop'){
+            innerHtml = `
+            <p style="color:#555; font-size:0.9rem; margin-bottom:8px;">💡 عرّف الفئات (الزون) ثم أضف العناصر وحدد فئتها.</p>
+            <input type="text" class="q-title-input" placeholder="تعليمات السؤال (مثال: صنّف الكلمات التالية)">
+            <div style="display:flex;gap:8px; margin-bottom:8px;">
+                <input type="text" class="dd-zone-input" placeholder="فئة 1">
+                <input type="text" class="dd-zone-input" placeholder="فئة 2">
+                <input type="text" class="dd-zone-input" placeholder="فئة 3 (اختياري)">
+            </div>
+            <p style="font-weight:bold; color:#333; margin-bottom:6px;">العناصر:</p>
+            <div id="${id}-dd-items">
+                <div class="opt-row" style="align-items:center;"><input type="text" class="dd-item-text" placeholder="نص العنصر"><input type="number" class="dd-item-zone" placeholder="رقم الفئة (0,1,2...)" style="width:80px; min-width:80px;"></div>
+                <div class="opt-row" style="align-items:center;"><input type="text" class="dd-item-text" placeholder="نص العنصر"><input type="number" class="dd-item-zone" placeholder="رقم الفئة (0,1,2...)" style="width:80px; min-width:80px;"></div>
+                <div class="opt-row" style="align-items:center;"><input type="text" class="dd-item-text" placeholder="نص العنصر"><input type="number" class="dd-item-zone" placeholder="رقم الفئة (0,1,2...)" style="width:80px; min-width:80px;"></div>
+                <div class="opt-row" style="align-items:center;"><input type="text" class="dd-item-text" placeholder="نص العنصر"><input type="number" class="dd-item-zone" placeholder="رقم الفئة (0,1,2...)" style="width:80px; min-width:80px;"></div>
+            </div>
+            <button type="button" onclick="addDDItem('${id}-dd-items')" style="background:#4facfe;color:#111;border:none;border-radius:10px;padding:8px 18px;cursor:pointer;font-family:Cairo,sans-serif;margin-top:6px;">+ إضافة عنصر</button>`;
+        } else if(type === 'textslide'){
+            innerHtml = `
+            <p style="color:#555; font-size:0.9rem; margin-bottom:8px;">💡 شريحة نصية تعليمية تُعرض للطالب دون إجابة.</p>
+            <input type="text" class="q-title-input" placeholder="عنوان الشريحة (مثال: تعريف الكسر)">
+            <textarea class="q-slide-content" rows="4" placeholder="محتوى الشريحة..." style="resize:vertical; padding:10px; font-family:Cairo,sans-serif; font-size:1rem; border:2px solid #e0e0e0; border-radius:10px; width:100%; margin-bottom:10px;"></textarea>`;
         }
-        html+=`</div>`;
-        container.insertAdjacentHTML('beforeend',html);
+
+        let html = `<div class="q-block" id="${id}" data-type="${type}">
+            <h3><span>📋 ${typeLabel} — سؤال ${qBlockCount+1}</span>${deleteBtn}</h3>
+            ${innerHtml}
+        </div>`;
+        container.insertAdjacentHTML('beforeend', html);
         qBlockCount++;
     }
+
+    function addMatchPair(containerId) {
+        const n = document.getElementById(containerId).querySelectorAll('.opt-row').length + 1;
+        const row = `<div class="opt-row" style="align-items:center;"><input type="text" class="match-left-input" placeholder="عنصر يسار (${n})"><span style="font-size:1.5rem; color:#46178f;">↔</span><input type="text" class="match-right-input" placeholder="عنصر يمين (${n})"></div>`;
+        document.getElementById(containerId).insertAdjacentHTML('beforeend', row);
+    }
+    function addDDItem(containerId) {
+        const row = `<div class="opt-row" style="align-items:center;"><input type="text" class="dd-item-text" placeholder="نص العنصر"><input type="number" class="dd-item-zone" placeholder="رقم الفئة (0,1,2...)" style="width:80px; min-width:80px;"></div>`;
+        document.getElementById(containerId).insertAdjacentHTML('beforeend', row);
+    }
+    window.addMatchPair = addMatchPair;
+    window.addDDItem = addDDItem;
 
     // --------------------------------------------------------------
     // 3. الاتصال بقاعدة بيانات جوجل (Google Sheets)
@@ -764,6 +840,11 @@
             }
 
             if (found) {
+                // استخراج العنوان من config إن وُجد
+                const cfgItem = found.find(q => q.type === 'config');
+                if (cfgItem && cfgItem.title) {
+                    quizTitle = cfgItem.title;
+                }
                 currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
                 document.getElementById('qform-name').value = currentRoomPIN;
                 document.getElementById('qform-school').value = copiedQuestions;
@@ -794,28 +875,73 @@
     }
 
     function saveQuestionsToSheet(){
-        let blocks=document.querySelectorAll('.q-block');
-        let questions=[];
+        let blocks = document.querySelectorAll('.q-block');
+        let questions = [];
+
+        // حفظ العنوان كـ config
+        const titleInput = document.getElementById('quiz-title-input');
+        const title = titleInput ? titleInput.value.trim() : '';
+        if (title) questions.push({ type:'config', title });
+
         for(let b of blocks){
-            let q=b.querySelector('.q-title-input').value.trim();
-            let opts=Array.from(b.querySelectorAll('.q-opt-input')).map(i=>i.value.trim());
-            let ans=parseInt(b.querySelector('input[type="radio"]:checked').value);
-            if(!q||opts.some(o=>!o)) return alert('يرجى ملء جميع الحقول للأسئلة المضافة.');
-            questions.push({q,opts,ans});
+            const type = b.getAttribute('data-type') || 'mc';
+
+            if(type === 'mc'){
+                let q = b.querySelector('.q-title-input').value.trim();
+                let opts = Array.from(b.querySelectorAll('.q-opt-input')).map(i=>i.value.trim());
+                let ansEl = b.querySelector('input[type="radio"]:checked');
+                let ans = ansEl ? parseInt(ansEl.value) : 0;
+                if(!q || opts.some(o=>!o)) return alert('يرجى ملء جميع حقول سؤال الاختيار المتعدد.');
+                questions.push({type:'mc', q, opts, ans});
+
+            } else if(type === 'blanks'){
+                let q = b.querySelector('.q-title-input').value.trim();
+                if(!q) return alert('يرجى كتابة نص سؤال إملاء الفراغات.');
+                let blanks = Array.from(b.querySelectorAll('.blank-ans-input'))
+                    .map(i=>i.value.trim()).filter(v=>v);
+                if(!blanks.length) return alert('يرجى إدخال إجابة فراغ واحد على الأقل.');
+                questions.push({type:'blanks', q, blanks});
+
+            } else if(type === 'matching'){
+                let q = b.querySelector('.q-title-input').value.trim();
+                let lefts = Array.from(b.querySelectorAll('.match-left-input')).map(i=>i.value.trim());
+                let rights = Array.from(b.querySelectorAll('.match-right-input')).map(i=>i.value.trim());
+                let pairs = lefts.map((l,i)=>({left:l, right:rights[i]})).filter(p=>p.left && p.right);
+                if(!pairs.length) return alert('يرجى إدخال زوجَيْن على الأقل في سؤال التوصيل.');
+                questions.push({type:'matching', q: q||'صل كلاً مما يلي:', pairs});
+
+            } else if(type === 'dragdrop'){
+                let q = b.querySelector('.q-title-input').value.trim();
+                let zones = Array.from(b.querySelectorAll('.dd-zone-input')).map(i=>i.value.trim()).filter(v=>v);
+                let itemTexts = Array.from(b.querySelectorAll('.dd-item-text'));
+                let itemZones = Array.from(b.querySelectorAll('.dd-item-zone'));
+                let items = itemTexts.map((t,i)=>({text:t.value.trim(), zoneIndex:parseInt(itemZones[i].value)||0})).filter(i=>i.text);
+                if(!zones.length || !items.length) return alert('يرجى إدخال فئات وعناصر في سؤال السحب والإفلات.');
+                questions.push({type:'dragdrop', q: q||'صنّف العناصر التالية:', zones, items});
+
+            } else if(type === 'textslide'){
+                let q = b.querySelector('.q-title-input').value.trim() || 'شريحة تعليمية';
+                let textContent = b.querySelector('.q-slide-content') ? b.querySelector('.q-slide-content').value.trim() : '';
+                questions.push({type:'textslide', q, textContent});
+            }
         }
-        if(questions.length===0) return alert('أضف سؤالاً واحداً على الأقل');
-        currentRoomPIN=Math.floor(100000+Math.random()*900000).toString();
-        document.getElementById('qform-name').value=currentRoomPIN;
-        document.getElementById('qform-school').value=JSON.stringify(questions);
+
+        if(questions.filter(q=>q.type!=='config').length === 0) return alert('أضف سؤالاً واحداً على الأقل');
+
+        currentRoomPIN = Math.floor(100000+Math.random()*900000).toString();
+        if (title) quizTitle = title;
+        document.getElementById('qform-name').value = currentRoomPIN;
+        document.getElementById('qform-school').value = JSON.stringify(questions);
         document.getElementById('questionsForm').submit();
-        document.getElementById('display-room-pin').innerText=currentRoomPIN;
-        let url=`${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
-        document.getElementById('game-url-input').value=url;
-        document.getElementById('room-qr-code').src=`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}`;
-        document.getElementById('room-qr-code').style.display='block';
+        document.getElementById('display-room-pin').innerText = currentRoomPIN;
+        let url = `${window.location.href.split('?')[0]}?pin=${currentRoomPIN}`;
+        document.getElementById('game-url-input').value = url;
+        document.getElementById('room-qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}`;
+        document.getElementById('room-qr-code').style.display = 'block';
         showScreen('screen-teacher');
         if(refreshInterval) clearInterval(refreshInterval);
-        refreshInterval=setInterval(fetchLeaderboard,4000);
+        refreshInterval = setInterval(fetchLeaderboard, 4000);
+        fetchLeaderboard();
     }
 
     async function fetchLeaderboard(){
@@ -1005,10 +1131,23 @@
         } else if (qType === 'blanks') {
             // إكمال الفراغات
             answersDiv.style.gridTemplateColumns = '1fr';
-            let qWithInputs = (qData.q || '').replace(/\( \.\.\.\.?\s*\)/g,
-                '<input type="text" class="blank-input" dir="rtl" autocomplete="off">');
-            document.getElementById('question-text').innerHTML = `<div class="blanks-question-area">${qWithInputs}</div>`;
-            answersDiv.innerHTML = `<button class="blanks-check-btn" onclick="checkBlanksAnswer(${JSON.stringify(qData.blanks || []).replace(/"/g,'&quot;')})">✔️ تحقق من الإجابة</button>`;
+            const blanks = qData.blanks || [];
+            const qText = qData.q || '';
+            const hasPattern = /\(\s*\.{2,}\s*\)/.test(qText);
+            if (hasPattern) {
+                let qWithInputs = qText.replace(/\(\s*\.{2,}\s*\)/g,
+                    '<input type="text" class="blank-input" dir="rtl" autocomplete="off">');
+                document.getElementById('question-text').innerHTML = `<div class="blanks-question-area">${qWithInputs}</div>`;
+            } else {
+                let standaloneInputs = blanks.map((b, i) =>
+                    `<div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:8px;">
+                        <label style="font-weight:bold;color:#f6d365;min-width:70px;">فراغ ${i+1}:</label>
+                        <input type="text" class="blank-input" dir="rtl" autocomplete="off" style="width:180px;">
+                    </div>`).join('');
+                document.getElementById('question-text').innerHTML =
+                    `<div class="blanks-question-area">${qText}</div><div style="margin-top:12px;">${standaloneInputs}</div>`;
+            }
+            answersDiv.innerHTML = `<button class="blanks-check-btn" onclick="checkBlanksAnswer(${JSON.stringify(blanks).replace(/"/g,'&quot;')})">✔️ تحقق من الإجابة</button>`;
 
         } else if (qType === 'matching') {
             // توصيل
