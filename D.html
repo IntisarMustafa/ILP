@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة الطائر الفهمان - منصة التعلّم التفاعلية</title>
+    <title>لعبة الطائر والحواجز - منصة التعلّم التفاعلية</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
     
@@ -465,6 +465,7 @@
 
     <div class="screen active" id="screen-student-login">
         <div class="card">
+            <h2 id="quiz-title-display" style="display:none; color:var(--primary); font-size:22px; margin-bottom:10px; font-weight:900;"></h2>
             <h2>أدخل بياناتك للانطلاق 🚀</h2>
             <input id="input-room-pin" placeholder="أدخل رقم الغرفة (PIN)" type="number"/>
             <input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
@@ -500,7 +501,7 @@
             <div class="difficulty-indicator">الصعوبة: <span id="difficulty-level">سهلة</span></div>
 
             <div class="start-screen" id="start-screen">
-                <h2>لعبة الطائر الفهمان</h2>
+                <h2>لعبة الطائر والحواجز</h2>
                 <p>انقر على الشاشة للبدء</p>
                 <div class="tap-to-start-indicator">🫳 انقر أو المس للقفز!</div>
             </div>
@@ -802,7 +803,9 @@
 
         const avatars = ["🦁","🦋","🤖","🥷","👨‍🔬","👩‍🔬","🐺","🦊","🐯","🐼","🐰","🐹","🐻","🐥","🦉","🐧","🫅","👸","🦸‍♂️","🦸‍♀️","🕵️","🧙‍♂️","🧚‍♀️","🚀","🛸","⭐","🔥","⚡"];
         let selectedAvatar = avatars[0];
-        let globalGameQuestions = []; 
+        let globalGameQuestions = [];
+        let quizTitle = 'لعبة الطائر الفهمان';
+        let currentQuestionIndex = 0; // مؤشر الأسئلة بالترتيب
         
         const defaultQuestions = [
             { q: "أي مقدار جبري يمثل العبارة: 'ضعف عدد مضافًا إليه خمسة'؟", opts: ["$x + 5$", "$2x + 5$", "$5x + 2$", "$2x - 5$"], ans: 1 },
@@ -1059,13 +1062,30 @@
                         }
                     }
                 }
-                globalGameQuestions = (foundQuestions && foundQuestions.length > 0) ? foundQuestions : defaultQuestions;
+                if (foundQuestions && foundQuestions.length > 0) {
+                    // استخراج العنوان من عنصر config إن وُجد
+                    const configItem = foundQuestions.find(q => q.type === 'config');
+                    if (configItem && configItem.title) {
+                        quizTitle = configItem.title;
+                        document.title = configItem.title + ' | الطائر الفهمان';
+                        const titleEl = document.getElementById('quiz-title-display');
+                        if (titleEl) { titleEl.textContent = configItem.title; titleEl.style.display = 'block'; }
+                    }
+                    // تجاهل عنصر config وتحميل الأسئلة فقط بترتيبها
+                    globalGameQuestions = foundQuestions.filter(q => q.type !== 'config');
+                    if (globalGameQuestions.length === 0) globalGameQuestions = defaultQuestions;
+                } else {
+                    globalGameQuestions = defaultQuestions;
+                }
             } catch (err) {
                 globalGameQuestions = defaultQuestions;
             }
 
+            // إعادة ترتيب مؤشر الأسئلة من البداية
+            currentQuestionIndex = 0;
+
             document.getElementById('screen-loading-sheet').style.display = 'none';
-            document.querySelector('#start-screen h2').textContent = 'لعبة الطائر الجبري';
+            document.querySelector('#start-screen h2').textContent = quizTitle;
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('game-container-wrapper').classList.add('active');
             
@@ -1131,6 +1151,7 @@
             bird.style.transform = 'rotate(0deg)';
             wingFlapActive = true; pipes = [];
             currentDifficultyIndex = 0;
+            currentQuestionIndex = 0; // إعادة ضبط ترتيب الأسئلة
             updateDifficulty();
 
             if (!isMuted) bgmMusic.play().catch(e=>{});
@@ -1158,6 +1179,12 @@
         function resumeGameAfterQuestion() {
             questionModal.style.display = 'none';
             gamePaused = false; questionActive = false;
+
+            // إذا انتهت كل الأسئلة، أنهِ اللعبة بنجاح
+            if (currentQuestionIndex >= globalGameQuestions.length) {
+                endFlappyGame();
+                return;
+            }
 
             if (!isMuted) bgmMusic.play().catch(e=>{});
 
@@ -1354,33 +1381,61 @@
 
         function displayQuestion() {
             questionActive = true;
-            const randomIndex = Math.floor(Math.random() * globalGameQuestions.length);
-            currentQuestion = globalGameQuestions[randomIndex];
 
+            // إذا استنفدنا كل الأسئلة، أنهِ اللعبة
+            if (currentQuestionIndex >= globalGameQuestions.length) {
+                endFlappyGame();
+                return;
+            }
+
+            currentQuestion = globalGameQuestions[currentQuestionIndex];
             const qType = currentQuestion.type || 'mc';
 
-            // بناء محتوى السؤال مع دعم الصور والنص والرياضيات
-            let questionHTML = '';
+            // تخطي شرائح النص: اعرضها مباشرة ثم أظهر زر المتابعة
+            if (qType === 'textslide') {
+                currentQuestionIndex++;
+                questionText.innerHTML = currentQuestion.textContent || currentQuestion.q || '';
+                if (currentQuestion.img) {
+                    const imgEl = document.createElement('img');
+                    imgEl.src = currentQuestion.img;
+                    imgEl.style.cssText = 'max-width:100%;max-height:180px;border-radius:10px;margin-top:8px;object-fit:contain;display:block;margin-left:auto;margin-right:auto;';
+                    imgEl.onerror = () => imgEl.remove();
+                    questionText.appendChild(imgEl);
+                }
+                if (currentQuestion.textBg) questionText.style.backgroundColor = currentQuestion.textBg;
+                else questionText.style.backgroundColor = '';
+                optionsContainer.innerHTML = '';
+                feedbackMessage.style.display = 'none';
+                continueBtn.style.display = 'block';
+                continueBtn.textContent = 'متابعة 🚀';
+                questionModal.style.display = 'flex';
+                if (typeof MathJax !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub, questionModal]);
+                return;
+            }
+
+            // حساب رقم السؤال الحالي (تجاهل الشرائح النصية من العدد)
+            const realTotal = globalGameQuestions.filter(q => (q.type || 'mc') !== 'textslide').length;
+            const realCurrent = globalGameQuestions.slice(0, currentQuestionIndex + 1).filter(q => (q.type || 'mc') !== 'textslide').length;
+
+            // بناء محتوى السؤال مع رقمه والصورة والرياضيات
+            let questionHTML = `<span style="font-size:0.85em;opacity:0.75;display:block;margin-bottom:6px;">السؤال ${realCurrent} من ${realTotal}</span>`;
             if (currentQuestion.img) {
-                questionHTML += `<div style="margin-bottom:12px; text-align:center;">
+                questionHTML += `<div style="margin-bottom:10px; text-align:center;">
                     <img src="${currentQuestion.img}" alt="صورة السؤال"
                         referrerpolicy="no-referrer" crossorigin="anonymous"
                         onerror="this.style.display='none'"
-                        style="max-width:100%; max-height:220px; border-radius:10px; object-fit:contain; display:block; margin:0 auto;">
+                        style="max-width:100%; max-height:180px; border-radius:10px; object-fit:contain; display:block; margin:0 auto;">
                 </div>`;
             }
-            if (currentQuestion.textContent) {
-                questionHTML += currentQuestion.textContent;
-            } else {
-                questionHTML += currentQuestion.q || '';
-            }
+            questionHTML += currentQuestion.q || '';
             questionText.innerHTML = questionHTML;
+            questionText.style.backgroundColor = '';
 
             optionsContainer.innerHTML = '';
             feedbackMessage.style.display = 'none';
             continueBtn.style.display = 'none';
 
-            if (qType === 'mc') {
+            if (qType === 'mc' || qType === 'tf') {
                 // اختيار من متعدد
                 (currentQuestion.opts || []).forEach((option, index) => {
                     const button = document.createElement('button');
@@ -1459,15 +1514,16 @@
                 optionsContainer.innerHTML = html;
 
             } else if (qType === 'textslide') {
-                // شريحة نص - اعرض مباشرة وأظهر زر المتابعة
-                if (currentQuestion.textBg) questionText.style.backgroundColor = currentQuestion.textBg;
-                else questionText.style.backgroundColor = '';
+                // (معالج في الأعلى، لكن للتأمين)
                 continueBtn.style.display = 'block';
                 continueBtn.textContent = 'متابعة 🚀';
             }
 
             questionModal.style.display = 'flex';
             if (typeof MathJax !== 'undefined') MathJax.Hub.Queue(["Typeset", MathJax.Hub, questionModal]);
+
+            // تقدم المؤشر للسؤال التالي
+            currentQuestionIndex++;
         }
 
         // --- دوال أنواع الأسئلة الإضافية ---
@@ -1596,6 +1652,13 @@
             if (urlParams.get('pin')) {
                 const pinInput = document.getElementById('input-room-pin');
                 if(pinInput) pinInput.value = urlParams.get('pin');
+            }
+            if (urlParams.get('title')) {
+                const decoded = decodeURIComponent(urlParams.get('title'));
+                quizTitle = decoded;
+                const titleEl = document.getElementById('quiz-title-display');
+                if (titleEl) { titleEl.textContent = decoded; titleEl.style.display = 'block'; }
+                document.title = decoded + ' | الطائر الفهمان';
             }
         };
     </script>
