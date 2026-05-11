@@ -576,7 +576,7 @@
         <div id="loading-text" style="font-size: 28px; font-weight: bold; margin-top: 20px; font-family: 'Cairo', sans-serif;">جاري تجهيز بيانات التحدي...</div>
     </div>
 
-    <h2 id="game-main-title" style="text-align: center; color: #4fc3f7; margin-top: 20px; position: relative; z-index: 2001;"></h2>
+    <!-- العنوان مُنقل داخل game-ui-wrapper أدناه -->
     <div class="screen" id="screen-home">
         <div class="card">
             <h1>🎮 Space Waves Challenge</h1>
@@ -647,6 +647,7 @@
 
     <div id="game-ui-wrapper">
         <canvas id="gameCanvas"></canvas>
+        <h2 id="game-main-title" style="display:none; position:absolute; top:60px; left:50%; transform:translateX(-50%); text-align:center; color:#4fc3f7; font-size:clamp(0.85rem,2.5vw,1.1rem); background:rgba(0,0,0,0.5); padding:4px 16px; border-radius:20px; z-index:20; white-space:nowrap; pointer-events:none;"></h2>
 
         <div id="gameOverlay" class="game-overlay">
             <h1 id="overlayTitle">Space Waves</h1>
@@ -1296,7 +1297,10 @@
                     </div>`;
                     answerOptionsContainer.innerHTML = html;
                     questionOverlay.classList.remove('hidden');
-                    setTimeout(() => eDrawConnections(), 100);
+                    setTimeout(() => {
+                        eDrawConnections();
+                        if (window.MathJax) window.MathJax.typesetPromise([questionTextElement, answerOptionsContainer]).catch(()=>{});
+                    }, 100);
                     return;
                 }
 
@@ -1405,15 +1409,28 @@
                     if (!lEl || !rEl) continue;
                     const wr = wrapper.getBoundingClientRect();
                     const lr = lEl.getBoundingClientRect(); const rr = rEl.getBoundingClientRect();
-                    const sx = lr.right - wr.left; const sy = (lr.top + lr.height/2) - wr.top;
-                    const ex = rr.left - wr.left; const ey = (rr.top + rr.height/2) - wr.top;
+                    let sx, sy, ex, ey;
+                    if (document.dir === 'rtl') {
+                        sx = lr.left - wr.left;
+                        ex = (rr.left + rr.width) - wr.left;
+                    } else {
+                        sx = lr.right - wr.left;
+                        ex = rr.left - wr.left;
+                    }
+                    sy = (lr.top + lr.height/2) - wr.top;
+                    ey = (rr.top + rr.height/2) - wr.top;
                     c.beginPath(); c.moveTo(sx, sy);
-                    c.bezierCurveTo(sx+30, sy, ex-30, ey, ex, ey);
-                    c.strokeStyle = matchingColors[i % matchingColors.length]; c.lineWidth = 3; c.lineCap = 'round'; c.stroke();
+                    c.bezierCurveTo(
+                        sx + (document.dir === 'rtl' ? -40 : 40), sy,
+                        ex + (document.dir === 'rtl' ? 40 : -40), ey,
+                        ex, ey
+                    );
+                    c.strokeStyle = matchingColors[i % matchingColors.length]; c.lineWidth = 4; c.lineCap = 'round'; c.stroke();
                     i++;
                 }
             }
-            window.submitMatchingAnswer_E = function() {
+            window.eDrawConnections = eDrawConnections;
+            window.addEventListener('resize', () => { if (document.getElementById('e-matching-canvas')) eDrawConnections(); });
                 const q = currentQuestion;
                 const pairs = q._pairs || [];
                 let allCorrect = true;
@@ -2280,8 +2297,7 @@ function loadExistingRoom() {
                 const configItem = rawQuestions.find(q => q.type === 'config');
                 if (configItem && configItem.title) {
                     const titleEl = document.getElementById('game-main-title');
-                    if (titleEl) titleEl.textContent = configItem.title;
-                    // حفظ العنوان لعرضه داخل واجهة السؤال (كما في ملف B)
+                    if (titleEl) { titleEl.textContent = configItem.title; titleEl.style.display = 'block'; }
                     window._gameLessonTitle = configItem.title;
                 }
 
