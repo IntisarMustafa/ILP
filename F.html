@@ -487,10 +487,12 @@
 
 <div class="level-select-container" id="level-select-container" style="display: flex; flex-direction: column;">
     <h2 style="color:white">🌟 اختر المستوى 🌟</h2>
+    <div id="level-select-title" style="color:#ffd700; font-size:1.3rem; font-weight:900; margin-bottom:15px; background:rgba(0,0,0,0.3); padding:8px 20px; border-radius:20px; display:none;"></div>
     <div class="levels-grid" id="levels-grid"></div>
 </div>
 
 <div class="game-container" id="game-container">
+    <div id="game-quiz-title" style="text-align:center; color:#ffd700; font-size:1rem; font-weight:900; margin-bottom:8px; display:none; background:rgba(0,0,0,0.3); padding:5px 15px; border-radius:15px;"></div>
     <div class="stats">
         <div class="stat">المستوى <div id="current-level" class="stat-value">1</div></div>
         <div class="stat">الحركات <div id="moves" class="stat-value">20</div></div>
@@ -655,6 +657,7 @@
     
     let currentLevel = 1, moves = 20, score = 0, board = [], selectedCandy = null;
     let questionsAskedCount = 0, isPaused = false, soundEnabled = true;
+    let questionIndex = 0; // مؤشر الأسئلة بالترتيب
     let clearedShapes = {};
     let LEVELS = [
         { level:1, targetScore:500, moves:20, unlocked:true, targetShapes:{'square':20,'triangle':20} },
@@ -848,6 +851,43 @@
         });
     }
 
+    // --------------------------------------------------------------
+    // دالة تطبيع أنواع الأسئلة (تدعم جميع الأنواع من مصادر مختلفة)
+    // --------------------------------------------------------------
+    function convertQuestionForGame(q) {
+        if (!q || typeof q !== 'object') return null;
+        const type = q.type || 'mc';
+        const qTitle = (q.q ?? q.question ?? '').toString().trim();
+        const imgHtml = q.img ? `<img src="${q.img}" style="max-width:100%;max-height:140px;border-radius:8px;margin:6px auto;display:block;object-fit:contain;">` : '';
+
+        if (type === 'textslide') {
+            return { type:'textslide', q: qTitle + imgHtml, textContent: q.textContent || '', textBg: q.textBg || '#ffffff' };
+        }
+        if (type === 'mc' || type === 'tf' || !type) {
+            const opts = Array.isArray(q.opts) ? q.opts : (Array.isArray(q.options) ? q.options : []);
+            const ans = q.ans ?? q.correct ?? q.correctAnswerIndex ?? 0;
+            if (opts.length < 2) return null;
+            return { type:'mc', q: qTitle + imgHtml, opts: opts.map(String), ans: Number(ans) };
+        }
+        if (type === 'blanks') {
+            const blanks = Array.isArray(q.blanks) ? q.blanks.filter(b => String(b).trim()) : [];
+            if (!blanks.length) return null;
+            return { type:'blanks', q: qTitle + imgHtml, blanks };
+        }
+        if (type === 'matching') {
+            const pairs = Array.isArray(q.pairs) ? q.pairs.filter(p => p.left && p.right) : [];
+            if (!pairs.length) return null;
+            return { type:'matching', q: qTitle + imgHtml, pairs };
+        }
+        if (type === 'dragdrop') {
+            const zones = Array.isArray(q.zones) ? q.zones.filter(z => String(z).trim()) : [];
+            const items = Array.isArray(q.items) ? q.items.filter(i => i.text) : [];
+            if (!zones.length || !items.length) return null;
+            return { type:'dragdrop', q: qTitle + imgHtml, zones, items };
+        }
+        return null;
+    }
+
     async function startStudentFlow(){
         let pin=document.getElementById('input-room-pin').value.trim();
         let name=document.getElementById('input-student-name').value.trim();
@@ -869,12 +909,23 @@
                 // استخراج العنوان من عنصر config إن وُجد
                 const configItem = found.find(q => q.type === 'config');
                 if (configItem && configItem.title) quizTitle = configItem.title;
-                // تجاهل config وتحميل الأسئلة فقط
-                teacherQuestionsList = found.filter(q => q.type !== 'config');
+                // تطبيع جميع أنواع الأسئلة
+                teacherQuestionsList = found
+                    .filter(q => q.type !== 'config')
+                    .map(convertQuestionForGame)
+                    .filter(q => q !== null);
                 if (teacherQuestionsList.length === 0) teacherQuestionsList = defaultQuestions;
             } else teacherQuestionsList=defaultQuestions;
         }catch(e){ teacherQuestionsList=defaultQuestions; }
         isTeacherMode=true;
+        questionIndex = 0; // إعادة ضبط مؤشر الأسئلة
+        // عرض العنوان في شاشة اختيار المستوى وشريط اللعبة
+        const lvlTitle = document.getElementById('level-select-title');
+        const gameTitle = document.getElementById('game-quiz-title');
+        if (quizTitle && quizTitle !== '🎮 التحدي الأكبر') {
+            if (lvlTitle) { lvlTitle.textContent = '📚 ' + quizTitle; lvlTitle.style.display = 'block'; }
+            if (gameTitle) { gameTitle.textContent = '📚 ' + quizTitle; gameTitle.style.display = 'block'; }
+        }
         showScreen(null);
         document.getElementById('level-select-container').style.display='flex';
         document.getElementById('game-container').style.display='none';
@@ -885,7 +936,9 @@
     function showMathQuestionFromPool(){
         if(isPaused) return;
         if(teacherQuestionsList.length===0) teacherQuestionsList=defaultQuestions;
-        let qData = teacherQuestionsList[Math.floor(Math.random()*teacherQuestionsList.length)];
+        // عرض الأسئلة بالترتيب ثم الدوران من البداية
+        if (questionIndex >= teacherQuestionsList.length) questionIndex = 0;
+        let qData = teacherQuestionsList[questionIndex++];
         let modal=document.getElementById('question-modal');
         let qType = qData.type || 'mc';
 
@@ -964,12 +1017,13 @@
             let pairs = qData.pairs || [];
             let leftItems = pairs.map((p,i) => ({text: p.left, id: i}));
             let rightItems = pairs.map((p,i) => ({text: p.right, id: i})).sort(()=>Math.random()-0.5);
+            // في الاتجاه RTL: العمود "اليسار" يظهر على اليمين - نعكس العرض ليكون المنطق صحيحاً
             let leftHtml = leftItems.map(item =>
-                `<div class="match-item match-left" data-id="${item.id}" onclick="handleMatchItemClick(this,'left')">${item.text}</div>`).join('');
+                `<div class="match-item match-left" data-id="${item.id}" onclick="handleMatchItemClick(this,'left')" style="background:rgba(70,23,143,0.2); border-color:rgba(70,23,143,0.6);">${item.text}</div>`).join('');
             let rightHtml = rightItems.map(item =>
                 `<div class="match-item match-right" data-id="${item.id}" onclick="handleMatchItemClick(this,'right')">${item.text}</div>`).join('');
             answersDiv.innerHTML = `
-                <div class="matching-area">
+                <div class="matching-area" style="flex-direction: row-reverse;">
                     <div class="match-col" id="match-left-col">${leftHtml}</div>
                     <div class="match-col" id="match-right-col">${rightHtml}</div>
                 </div>
@@ -1159,6 +1213,7 @@
         let level=LEVELS.find(l=>l.level===levelNum);
         if(!level.unlocked) return;
         currentLevel=levelNum; moves=level.moves; score=0; clearedShapes={}; questionsAskedCount=0;
+        questionIndex=0; // إعادة ضبط ترتيب الأسئلة
         document.getElementById('moves').innerText=moves; document.getElementById('score').innerText=score;
         document.getElementById('target').innerText=level.targetScore; document.getElementById('current-level').innerText=currentLevel;
         updateProgressBar(); createBoard(); renderBoard(); updateTargetShapesDisplay();
