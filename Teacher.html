@@ -2196,7 +2196,7 @@ function populateQuestionsFromData(questions) {
             zonesContainer.innerHTML = '';
             q.zones.forEach((zone, zi) => {
                 zonesContainer.insertAdjacentHTML('beforeend', `
-                    <div class="drag-item" style="margin-bottom:6px;">
+                    <div style="flex:1; min-width:120px; display:flex; align-items:center; gap:5px; margin-bottom:6px;">
                         <input type="text" class="zone-name" placeholder="اسم المجموعة" required style="flex:1; margin-bottom:0;" value="${escapeHtmlAttr(zone)}">
                         ${zi > 0 ? `<button type="button" onclick="this.parentElement.remove(); updateDragZoneOptions(${blockIndex});" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">✕</button>` : ''}
                     </div>`);
