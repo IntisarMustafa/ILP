@@ -575,23 +575,36 @@
                     <div class="icon-box">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <defs>
-                                <linearGradient id="birdGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
+                                <radialGradient id="catBodyGrad" cx="35%" cy="35%" r="65%">
+                                    <stop offset="0%" stop-color="#FFA726"/>
+                                    <stop offset="100%" stop-color="#E65100"/>
+                                </radialGradient>
                             </defs>
-                            <path d="M 45 15 C 35 0 60 -5 55 15 Z" fill="url(#birdGrad)" />
-                            <circle cx="50" cy="52" r="35" fill="url(#birdGrad)" />
-                            <rect x="23" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(16 35 35)" />
-                            <rect x="52" y="32" width="25" height="7" rx="2" fill="#0f172a" transform="rotate(-16 65 35)" />
-                            <circle cx="38" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1" />
-                            <circle cx="62" cy="48" r="9" fill="#ffffff" stroke="#7f1d1d" stroke-width="1" />
-                            <circle cx="42" cy="48" r="3.5" fill="#0f172a" />
-                            <circle cx="58" cy="48" r="3.5" fill="#0f172a" />
-                            <path d="M 43 60 L 50 72 L 57 60 Z" fill="#d97706" />
-                            <path d="M 36 57 L 50 67 L 64 57 L 50 49 Z" fill="#fbbf24" stroke="#b45309" stroke-width="1" stroke-linejoin="round" />
+                            <path d="M 30 65 Q 10 55 15 35" fill="none" stroke="#E65100" stroke-width="8" stroke-linecap="round" />
+                            
+                            <polygon points="25,35 40,12 50,35" fill="#E65100" />
+                            <polygon points="75,35 60,12 50,35" fill="#E65100" />
+                            <polygon points="30,35 40,18 45,35" fill="#FFCCBC" />
+                            <polygon points="70,35 60,18 55,35" fill="#FFCCBC" />
+
+                            <circle cx="50" cy="55" r="32" fill="url(#catBodyGrad)" stroke="#5D4037" stroke-width="2" />
+
+                            <ellipse cx="38" cy="48" rx="6" ry="7" fill="#1A237E" />
+                            <ellipse cx="62" cy="48" rx="6" ry="7" fill="#1A237E" />
+                            <circle cx="40" cy="46" r="2.5" fill="#ffffff" />
+                            <circle cx="64" cy="46" r="2.5" fill="#ffffff" />
+
+                            <circle cx="50" cy="56" r="3.5" fill="#EC407A" />
+
+                            <line x1="42" y1="58" x2="20" y2="56" stroke="#5D4037" stroke-width="1.5" stroke-linecap="round" />
+                            <line x1="42" y1="62" x2="20" y2="65" stroke="#5D4037" stroke-width="1.5" stroke-linecap="round" />
+                            <line x1="58" y1="58" x2="80" y2="56" stroke="#5D4037" stroke-width="1.5" stroke-linecap="round" />
+                            <line x1="58" y1="62" x2="80" y2="65" stroke="#5D4037" stroke-width="1.5" stroke-linecap="round" />
                         </svg>
                     </div>
                 </div>
-                <h2 class="game-title">الطيور الذكية</h2>
-                <p class="game-desc">أجب إجابة صحيحة لتصويب الطائر وهدم العقبات، ادمج الفيزياء بالمعرفة.</p>
+                <h2 class="game-title">القطط الذكية</h2>
+                <p class="game-desc">أجب إجابة صحيحة لتصويب القط وهدم العقبات، ادمج الفيزياء بالمعرفة.</p>
                 <div class="action-btn">
                     <span>انتقل للعبة</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
