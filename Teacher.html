@@ -1058,129 +1058,82 @@ function toggleImageSearch(id) {
 }
 
 async function searchImages(id) {
-    let q = document.getElementById('search-input-' + id).value.trim();
-    let grid = document.getElementById('img-grid-' + id);
-    let status = document.getElementById('search-status-' + id);
-    if (!q) { status.innerText = '⚠️ أدخل كلمة بحث أولاً'; return; }
-    grid.innerHTML = ''; 
-    status.innerHTML = '⏳ جاري البحث...';
+    const q = document.getElementById('search-input-' + id).value.trim();
+    if (!q) return;
+
+    const resultsDiv = document.getElementById('img-grid-' + id);
+    const statusDiv = document.getElementById('search-status-' + id);
+    
+    statusDiv.innerHTML = '<p style="text-align:center; padding:10px;">🔍 جاري البحث في المصادر العالمية...</p>';
+    resultsDiv.innerHTML = '';
 
     let allImages = [];
 
-    // === المصدر 1: ويكيميديا كومنز ===
-    try {
-        // بحث دقيق بالصور فقط (JPG, PNG, SVG) مع فلترة الأيقونات والرسوم الصغيرة
-        let wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=40&prop=imageinfo&iiprop=url|size|mediatype&iiurlwidth=400&format=json&origin=*`;
-        let r = await fetch(wikiUrl);
-        let d = await r.json();
-        if (d.query && d.query.pages) {
-            Object.values(d.query.pages).forEach(p => {
-                let info = p.imageinfo?.[0];
-                if (!info) return;
-                // فلترة: صور فقط (ليس ملفات صوتية أو فيديو)
-                if (info.mediatype && !['BITMAP','DRAWING'].includes(info.mediatype)) return;
-                // فلترة: تجاهل الصور الصغيرة جداً (أيقونات)
-                if (info.width && info.width < 100) return;
-                if (info.height && info.height < 100) return;
-                // استخدام النسخة المصغرة للعرض السريع
-                let thumbUrl = info.thumburl || info.url;
-                allImages.push({ thumb: thumbUrl, full: info.url, source: 'ويكيميديا' });
-            });
-        }
-    } catch(e) {}
+    // --- المصدر 1 & 2 & 3: ويكيميديا (عربي، إنجليزي، أصل) ---
+    const wikiEndpoints = [
+        `https://ar.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&generator=search&piprop=thumbnail&pithumbsize=300&gsrsearch=${encodeURIComponent(q)}&gsrlimit=15`,
+        `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&generator=search&piprop=thumbnail&pithumbsize=300&gsrsearch=${encodeURIComponent(q)}&gsrlimit=15`,
+        `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&generator=search&piprop=thumbnail&pithumbsize=300&gsrsearch=${encodeURIComponent(q)}&gsrlimit=15`
+    ];
 
-    // === المصدر 2: ويكيبيديا العربية (صور المقالات) ===
-    try {
-        let arUrl = `https://ar.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(q)}&prop=images&imlimit=20&format=json&origin=*`;
-        let r2 = await fetch(arUrl);
-        let d2 = await r2.json();
-        if (d2.query && d2.query.pages) {
-            let pageImages = [];
-            Object.values(d2.query.pages).forEach(page => {
-                if (page.images) pageImages.push(...page.images.map(i => i.title));
-            });
-            // جلب روابط هذه الصور
-            if (pageImages.length > 0) {
-                let titles = pageImages.slice(0, 15).join('|');
-                let infoUrl = `https://ar.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url|size|mediatype&iiurlwidth=400&format=json&origin=*`;
-                let r3 = await fetch(infoUrl);
-                let d3 = await r3.json();
-                if (d3.query && d3.query.pages) {
-                    Object.values(d3.query.pages).forEach(p => {
-                        let info = p.imageinfo?.[0];
-                        if (!info || !info.url) return;
-                        if (info.mediatype && !['BITMAP','DRAWING'].includes(info.mediatype)) return;
-                        if (info.width && info.width < 100) return;
-                        if (info.height && info.height < 100) return;
-                        let thumbUrl = info.thumburl || info.url;
-                        // تجنب التكرار
-                        if (!allImages.find(x => x.full === info.url)) {
-                            allImages.push({ thumb: thumbUrl, full: info.url, source: 'ويكيبيديا ع' });
-                        }
-                    });
+    for (let url of wikiEndpoints) {
+        try {
+            let res = await fetch(url);
+            let data = await res.json();
+            if (data.query && data.query.pages) {
+                for (let pageId in data.query.pages) {
+                    const p = data.query.pages[pageId];
+                    if (p.thumbnail) {
+                        allImages.push({
+                            thumb: p.thumbnail.source,
+                            full: p.thumbnail.source.replace(/\d+px-/, '1000px-'),
+                            source: 'Wikipedia'
+                        });
+                    }
                 }
             }
-        }
-    } catch(e) {}
+        } catch (e) { console.error("Wiki Error:", e); }
+    }
 
-    // === المصدر 3: ويكيبيديا الإنجليزية ===
+    // --- المصدر 4: Pixabay باستخدام المفتاح الخاص بك ---
     try {
-        let enUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(q)}&prop=images&imlimit=20&format=json&origin=*`;
-        let r4 = await fetch(enUrl);
-        let d4 = await r4.json();
-        if (d4.query && d4.query.pages) {
-            let pageImages = [];
-            Object.values(d4.query.pages).forEach(page => {
-                if (page.images) pageImages.push(...page.images.map(i => i.title));
+        const PIXABAY_API_KEY = "55843861-a87510c37c28461eb80f8c78a"; 
+        const pixabayUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(q)}&lang=ar&image_type=all&per_page=30&safesearch=true`;
+        
+        let rPix = await fetch(pixabayUrl);
+        let dPix = await rPix.json();
+        
+        if (dPix.hits && dPix.hits.length > 0) {
+            dPix.hits.forEach(img => {
+                allImages.push({
+                    thumb: img.previewURL,
+                    full: img.largeImageURL,
+                    source: 'Pixabay'
+                });
             });
-            if (pageImages.length > 0) {
-                let titles = pageImages.slice(0, 15).join('|');
-                let infoUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url|size|mediatype&iiurlwidth=400&format=json&origin=*`;
-                let r5 = await fetch(infoUrl);
-                let d5 = await r5.json();
-                if (d5.query && d5.query.pages) {
-                    Object.values(d5.query.pages).forEach(p => {
-                        let info = p.imageinfo?.[0];
-                        if (!info || !info.url) return;
-                        if (info.mediatype && !['BITMAP','DRAWING'].includes(info.mediatype)) return;
-                        if (info.width && info.width < 100) return;
-                        if (info.height && info.height < 100) return;
-                        let thumbUrl = info.thumburl || info.url;
-                        if (!allImages.find(x => x.full === info.url)) {
-                            allImages.push({ thumb: thumbUrl, full: info.url, source: 'ويكيبيديا إن' });
-                        }
-                    });
-                }
-            }
         }
-    } catch(e) {}
+    } catch(e) {
+        console.error("Pixabay Error:", e);
+    }
 
     // عرض النتائج
     if (allImages.length === 0) {
-        status.innerText = '❌ لم يتم العثور على نتائج، جرب كلمة مختلفة';
+        statusDiv.innerHTML = '<p style="text-align:center; padding:10px; color:red;">❌ لم نجد صوراً كافية، جرب كلمات أخرى.</p>';
         return;
     }
 
-    status.innerHTML = `✅ تم العثور على <strong>${allImages.length}</strong> صورة — انقر على الصورة لاختيارها`;
-    
-    allImages.forEach(imgData => {
-        let wrapper = document.createElement('div');
-        wrapper.style.cssText = 'position:relative; cursor:pointer;';
+    statusDiv.innerHTML = `✅ تم العثور على <strong>${allImages.length}</strong> صورة`;
+    resultsDiv.innerHTML = '';
+    allImages.forEach(img => {
+        const div = document.createElement('div');
+        div.className = 'img-item';
+        div.style.position = 'relative';
         
-        let img = document.createElement('img');
-        img.src = imgData.thumb;
-        img.className = 'img-result';
-        img.title = imgData.source;
-        img.onclick = () => selectImage(id, imgData.full);
-        img.onerror = () => wrapper.remove();
+        // إضافة شعار صغير لتمييز مصدر الصورة (إختياري)
+        const badge = `<span style="position:absolute; bottom:2px; right:2px; font-size:10px; background:rgba(0,0,0,0.5); color:white; padding:1px 4px; border-radius:3px;">${img.source}</span>`;
         
-        let badge = document.createElement('span');
-        badge.innerText = imgData.source;
-        badge.style.cssText = 'position:absolute; bottom:3px; right:3px; background:rgba(0,0,0,0.6); color:white; font-size:9px; padding:1px 4px; border-radius:3px; pointer-events:none;';
-        
-        wrapper.appendChild(img);
-        wrapper.appendChild(badge);
-        grid.appendChild(wrapper);
+        div.innerHTML = `<img src="${img.thumb}" class="img-result" onclick="selectImage('${id}', '${img.full}')" title="مصدر الصورة: ${img.source}"> ${badge}`;
+        resultsDiv.appendChild(div);
     });
 }
 
