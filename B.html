@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>الطيور الذكية - نظام أسئلة تفاعلي</title>
+    <title>القطط الذكية - نظام أسئلة تفاعلي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://unpkg.com/mathlive"></script>
@@ -170,7 +170,7 @@
         button { background: linear-gradient(to bottom, #FF8C00, #FF4500); color: white; border: none; padding: 8px 16px; font-size: clamp(0.8rem, 3.2vw, 1rem); border-radius: 50px; cursor: pointer; transition: all 0.3s ease; font-weight: bold; text-transform: uppercase; box-shadow: 0 4px 12px rgba(255,69,0,0.3); min-width: 110px; flex: 1; border: 1px solid rgba(255,255,255,0.2); }
         button:hover { filter: brightness(1.1); transform: translateY(-2px); }
         .instructions { margin-top: 8px; color: white; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; width: 100%; max-width: 500px; margin: 8px auto 0; backdrop-filter: blur(5px); font-size: clamp(0.65rem, 2.5vw, 0.9rem); text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .bird-indicator { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 50px; color: white; font-weight: bold; display: flex; align-items: center; gap: 8px; z-index: 10; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .cat-indicator { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 50px; color: white; font-weight: bold; display: flex; align-items: center; gap: 8px; z-index: 10; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .power-bar { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: min(250px, 75%); height: 16px; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; z-index: 10; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .power-fill { height: 100%; width: 0%; background: linear-gradient(to right, #4CAF50, #FFD700, #FF4500); border-radius: 8px; transition: width 0.1s; box-shadow: inset 0 2px 5px rgba(255,255,255,0.5); }
         .game-over-overlay, .question-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 40; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.5s; padding: 20px; backdrop-filter: blur(4px); }
@@ -464,15 +464,15 @@
 
     <div class="screen" id="screen-game">
         <div class="game-container">
-            <div class="header"><h1>الطيور الذكية</h1></div>
+            <div class="header"><h1>القطط الذكية</h1></div>
             <div class="score-board">
                 <div class="score-item">النقاط: <span id="score">0</span></div>
-                <div class="score-item">الطيور المتبقية: <span id="birds-left">5</span></div>
+                <div class="score-item">القطط المتبقية: <span id="cats-left">5</span></div>
                 <div class="score-item">المرحلة: <span id="level">1</span></div>
             </div>
             <div class="game-canvas-container">
                 <canvas id="gameCanvas"></canvas>
-                <div class="bird-indicator"><i class="fas fa-angry"></i><span>جاهز للإطلاق!</span></div>
+                <div class="cat-indicator"><i class="fas fa-cat"></i><span>جاهز للإطلاق!</span></div>
                 <div class="power-bar"><div class="power-fill" id="power-fill"></div></div>
                 <div class="game-over-overlay" id="gameOverOverlay">
                     <div class="game-over-content"><h2 id="gameOverTitle"></h2><p id="gameOverScore"></p><button id="nextLevelBtn">المستوى التالي</button></div>
@@ -489,7 +489,7 @@
     <button class="btn" onclick="toggleMute()" id="mute-btn" title="الصوت">🔊</button>
     <button class="btn btn-danger" onclick="endGame()" title="إنهاء اللعبة">❌</button>
 </div>
-            <div class="instructions" style="display:none;"><h3>كيف تلعب:</h3><p>اسحب الطائر للخلف ← حرر لإطلاقه ← دمر الأهداف لتنهي المرحلة</p><p>عند نفاد الطيور يظهر سؤال، الإجابة الصحيحة تمنحك 3 طيور إضافية.</p></div>
+            <div class="instructions" style="display:none;"><h3>كيف تلعب:</h3><p>اسحب القطة للخلف ← حرر لإطلاقها ← دمر الفئران لتنهي المرحلة</p><p>عند نفاد القطط يظهر سؤال، الإجابة الصحيحة تمنحك 3 قطط إضافية.</p></div>
         </div>
     </div>
 
@@ -850,7 +850,7 @@ document.addEventListener('click', () => {
                             break; 
                         } else if (cellData.startsWith('[')) {
                             let parsedArray = JSON.parse(cellData);
-                            let extractedTitle = "الطيور الذكية";
+                            let extractedTitle = "القطط الذكية";
 
                             // التحقق إذا كان العنصر الأول هو إعدادات العنوان
                             if (parsedArray.length > 0 && parsedArray[0].type === 'config') {
@@ -871,6 +871,7 @@ document.addEventListener('click', () => {
                     gameQuestions = [ { q: "ما هي عاصمة الأردن؟", opts: ["القدس","عمان","بغداد","دمشق"], ans: 1 }, { q: "7 × 8 = ?", opts: ["48","56","64","72"], ans: 1 } ];
                     gameLessonTitle = "تحدي الرياضيات العام";
                 }
+
 
                 document.getElementById('lesson-title-display').innerText = "درس: " + gameLessonTitle; 
 
@@ -894,76 +895,112 @@ document.addEventListener('click', () => {
             } 
         }
 
-        // -------------------- لعبة الطيور - المشاهد المحسنة و 10 مراحل --------------------
-        let canvas, ctx, score=0, birdsLeft=0, currentLevel=1, gameRunning=true, gameObjects=[], slingshot={x:0,y:0}, currentBird=null, releasedBirds=[], input={active:false,power:0}, birdLaunchDelay=1000;
+        // -------------------- لعبة القطط - المشاهد المحسنة و 10 مراحل --------------------
+        let canvas, ctx, score=0, catsLeft=0, currentLevel=1, gameRunning=true, gameObjects=[], slingshot={x:0,y:0}, currentCat=null, releasedCats=[], input={active:false,power:0}, catLaunchDelay=1000;
         let soundEnabled=true, audioCtx=new (window.AudioContext||window.webkitAudioContext)();
         function playSound(freq,type='sine',dur=0.1,vol=0.3){ if(!soundEnabled)return; const osc=audioCtx.createOscillator(), gain=audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.type=type; osc.frequency.value=freq; gain.gain.setValueAtTime(0,audioCtx.currentTime); gain.gain.linearRampToValueAtTime(vol,audioCtx.currentTime+0.01); gain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+dur); osc.start(); osc.stop(audioCtx.currentTime+dur); }
         
         const levels = {
-            1: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}], blocks:[{x:0.68,y:0.75,w:0.037,h:0.2},{x:0.72,y:0.75,w:0.037,h:0.2},{x:0.76,y:0.75,w:0.037,h:0.2},{x:0.72,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'}], birds:5 },
-            2: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}, {x:0.78,y:0.55}], blocks:[{x:0.65,y:0.75,w:0.037,h:0.2},{x:0.70,y:0.75,w:0.037,h:0.2},{x:0.75,y:0.75,w:0.037,h:0.2},{x:0.8,y:0.75,w:0.037,h:0.2},{x:0.70,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'}], birds:4 },
-            3: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}, {x:0.78,y:0.55}, {x:0.85,y:0.55}], blocks:[{x:0.68,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.75,w:0.037,h:0.2},{x:0.80,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'},{x:0.74,y:0.35,w:0.037,h:0.2}], birds:4 },
-            4: { targets:[{x:0.75,y:0.75}, {x:0.75,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], birds:4 },
-            5: { targets:[{x:0.65,y:0.75}, {x:0.85,y:0.75}, {x:0.75,y:0.55}], blocks:[{x:0.60,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.65,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.90,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.75,y:0.75,w:0.03,h:0.2}], birds:4 },
-            6: { targets:[{x:0.75,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.65,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], birds:5 },
-            7: { targets: [ {x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35} ], blocks: [ {x:0.60,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.70,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.90,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.65,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.75,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.85,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.65,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.15,w:0.12,h:0.05,type:'glass'} ], birds: 4 },
-            8: { targets: [{x:0.80,y:0.75}, {x:0.80,y:0.55}, {x:0.80,y:0.35}], blocks: [ {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.55,w:0.24,h:0.05,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.15,w:0.14,h:0.05,type:'wood'} ], birds: 4 },
-            9: { targets: [{x:0.6,y:0.75},{x:0.65,y:0.75},{x:0.7,y:0.75},{x:0.75,y:0.75},{x:0.8,y:0.75},{x:0.65,y:0.55},{x:0.7,y:0.55},{x:0.75,y:0.55},{x:0.7,y:0.35},{x:0.85,y:0.75}], blocks: [{x:0.55,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.75,w:0.03,h:0.2,type:'glass'},{x:0.60,y:0.55,w:0.30,h:0.05,type:'wood'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.70,y:0.15,w:0.15,h:0.05,type:'stone'}], birds: 5 },
-            10: { targets: [{x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75},{x:0.70,y:0.55}, {x:0.80,y:0.55},{x:0.75,y:0.35}, {x:0.75,y:0.15}], blocks: [{x:0.60,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'},{x:0.75,y:0.55,w:0.35,h:0.05,type:'stone'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.75,y:0.15,w:0.25,h:0.05,type:'wood'},{x:0.70,y:0.05,w:0.02,h:0.1,type:'glass'}, {x:0.80,y:0.05,w:0.02,h:0.1,type:'glass'},{x:0.75,y:-0.05,w:0.15,h:0.03,type:'glass'}], birds: 6 }
+            1: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}], blocks:[{x:0.68,y:0.75,w:0.037,h:0.2},{x:0.72,y:0.75,w:0.037,h:0.2},{x:0.76,y:0.75,w:0.037,h:0.2},{x:0.72,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'}], cats:5 },
+            2: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}, {x:0.78,y:0.55}], blocks:[{x:0.65,y:0.75,w:0.037,h:0.2},{x:0.70,y:0.75,w:0.037,h:0.2},{x:0.75,y:0.75,w:0.037,h:0.2},{x:0.8,y:0.75,w:0.037,h:0.2},{x:0.70,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'}], cats:4 },
+            3: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}, {x:0.78,y:0.55}, {x:0.85,y:0.55}], blocks:[{x:0.68,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.75,w:0.037,h:0.2},{x:0.80,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'},{x:0.74,y:0.35,w:0.037,h:0.2}], cats:4 },
+            4: { targets:[{x:0.75,y:0.75}, {x:0.75,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], cats:4 },
+            5: { targets:[{x:0.65,y:0.75}, {x:0.85,y:0.75}, {x:0.75,y:0.55}], blocks:[{x:0.60,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.65,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.90,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.75,y:0.75,w:0.03,h:0.2}], cats:4 },
+            6: { targets:[{x:0.75,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.65,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], cats:5 },
+            7: { targets: [ {x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35} ], blocks: [ {x:0.60,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.70,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.90,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.65,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.75,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.85,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.65,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.15,w:0.12,h:0.05,type:'glass'} ], cats: 4 },
+            8: { targets: [{x:0.80,y:0.75}, {x:0.80,y:0.55}, {x:0.80,y:0.35}], blocks: [ {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.55,w:0.24,h:0.05,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.15,w:0.14,h:0.05,type:'wood'} ], cats: 4 },
+            9: { targets: [{x:0.6,y:0.75},{x:0.65,y:0.75},{x:0.7,y:0.75},{x:0.75,y:0.75},{x:0.8,y:0.75},{x:0.65,y:0.55},{x:0.7,y:0.55},{x:0.75,y:0.55},{x:0.7,y:0.35},{x:0.85,y:0.75}], blocks: [{x:0.55,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.75,w:0.03,h:0.2,type:'glass'},{x:0.60,y:0.55,w:0.30,h:0.05,type:'wood'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.70,y:0.15,w:0.15,h:0.05,type:'stone'}], cats: 5 },
+            10: { targets: [{x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75},{x:0.70,y:0.55}, {x:0.80,y:0.55},{x:0.75,y:0.35}, {x:0.75,y:0.15}], blocks: [{x:0.60,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'},{x:0.75,y:0.55,w:0.35,h:0.05,type:'stone'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.75,y:0.15,w:0.25,h:0.05,type:'wood'},{x:0.70,y:0.05,w:0.02,h:0.1,type:'glass'}, {x:0.80,y:0.05,w:0.02,h:0.1,type:'glass'},{x:0.75,y:-0.05,w:0.15,h:0.03,type:'glass'}], cats: 6 }
         };
 
-        class Bird {
+        class Cat {
             constructor(x,y){ this.x=x; this.y=y; this.radius=Math.min(20,canvas.width*0.025); this.velocity={x:0,y:0}; this.launched=false; this.trail=[]; this.trailMaxLength=20; }
             draw() {
+                // ذيل الأثر
                 if (this.launched && this.trail && this.trail.length > 0) {
                     ctx.beginPath(); ctx.moveTo(this.trail[0].x, this.trail[0].y);
                     for(let i=1; i<this.trail.length; i++) { ctx.lineTo(this.trail[i].x, this.trail[i].y); }
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'; ctx.lineWidth = 2; ctx.stroke();
+                    ctx.strokeStyle = 'rgba(255, 200, 100, 0.4)'; ctx.lineWidth = 2; ctx.stroke();
                 }
                 ctx.save(); ctx.translate(this.x, this.y);
                 if (this.launched) { let angle = Math.atan2(this.velocity.y, this.velocity.x); ctx.rotate(angle); }
+                // جسم القطة (برتقالي)
+                const catGrad = ctx.createRadialGradient(-this.radius*0.2, -this.radius*0.2, this.radius*0.1, 0, 0, this.radius);
+                catGrad.addColorStop(0, '#FFA726'); catGrad.addColorStop(1, '#E65100');
                 ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#E53935'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
-                ctx.beginPath(); ctx.arc(0, this.radius * 0.3, this.radius * 0.7, 0.1, Math.PI - 0.1, false);
-                ctx.fillStyle = '#FFCDD2'; ctx.fill();
+                ctx.fillStyle = catGrad; ctx.fill(); ctx.strokeStyle = '#5D4037'; ctx.lineWidth = 1.5; ctx.stroke();
+                // أذنان
+                ctx.fillStyle = '#E65100';
+                ctx.beginPath(); ctx.moveTo(-this.radius*0.7, -this.radius*0.6); ctx.lineTo(-this.radius*0.4, -this.radius*1.2); ctx.lineTo(-this.radius*0.1, -this.radius*0.6); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.radius*0.1, -this.radius*0.6); ctx.lineTo(this.radius*0.4, -this.radius*1.2); ctx.lineTo(this.radius*0.7, -this.radius*0.6); ctx.fill();
+                // داخل الأذنين
+                ctx.fillStyle = '#FFCCBC';
+                ctx.beginPath(); ctx.moveTo(-this.radius*0.6, -this.radius*0.65); ctx.lineTo(-this.radius*0.4, -this.radius*1.05); ctx.lineTo(-this.radius*0.2, -this.radius*0.65); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.radius*0.2, -this.radius*0.65); ctx.lineTo(this.radius*0.4, -this.radius*1.05); ctx.lineTo(this.radius*0.6, -this.radius*0.65); ctx.fill();
+                // عيون
+                ctx.fillStyle = '#1A237E';
+                ctx.beginPath(); ctx.ellipse(-this.radius*0.3, -this.radius*0.15, this.radius*0.18, this.radius*0.22, 0, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(this.radius*0.3, -this.radius*0.15, this.radius*0.18, this.radius*0.22, 0, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = 'white';
-                ctx.beginPath(); ctx.arc(this.radius * 0.2, -this.radius * 0.2, this.radius * 0.3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-                ctx.beginPath(); ctx.arc(this.radius * 0.6, -this.radius * 0.2, this.radius * 0.3, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = 'black';
-                ctx.beginPath(); ctx.arc(this.radius * 0.3, -this.radius * 0.2, this.radius * 0.1, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.radius * 0.7, -this.radius * 0.2, this.radius * 0.1, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = 'black';
-                ctx.beginPath(); ctx.moveTo(0, -this.radius * 0.4); ctx.lineTo(this.radius * 0.45, -this.radius * 0.2); ctx.lineTo(this.radius * 0.45, -this.radius * 0.3); ctx.lineTo(0, -this.radius * 0.5); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(this.radius * 0.45, -this.radius * 0.2); ctx.lineTo(this.radius * 0.9, -this.radius * 0.4); ctx.lineTo(this.radius * 0.9, -this.radius * 0.5); ctx.lineTo(this.radius * 0.45, -this.radius * 0.3); ctx.fill();
-                ctx.fillStyle = '#FDD835';
-                ctx.beginPath(); ctx.moveTo(this.radius * 0.5, 0); ctx.lineTo(this.radius * 1.2, this.radius * 0.1); ctx.lineTo(this.radius * 0.5, this.radius * 0.3); ctx.fill(); ctx.stroke();
-                ctx.fillStyle = 'black';
-                ctx.beginPath(); ctx.moveTo(-this.radius * 0.9, 0); ctx.lineTo(-this.radius * 1.4, -this.radius * 0.2); ctx.lineTo(-this.radius * 1.2, 0); ctx.lineTo(-this.radius * 1.4, this.radius * 0.2); ctx.fill();
+                ctx.beginPath(); ctx.arc(-this.radius*0.25, -this.radius*0.2, this.radius*0.07, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.radius*0.35, -this.radius*0.2, this.radius*0.07, 0, Math.PI*2); ctx.fill();
+                // أنف
+                ctx.fillStyle = '#EC407A';
+                ctx.beginPath(); ctx.arc(0, this.radius*0.05, this.radius*0.1, 0, Math.PI*2); ctx.fill();
+                // شوارب
+                ctx.strokeStyle = '#5D4037'; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(-this.radius*0.1, this.radius*0.05); ctx.lineTo(-this.radius*0.9, -this.radius*0.05); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-this.radius*0.1, this.radius*0.1); ctx.lineTo(-this.radius*0.9, this.radius*0.2); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(this.radius*0.1, this.radius*0.05); ctx.lineTo(this.radius*0.9, -this.radius*0.05); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(this.radius*0.1, this.radius*0.1); ctx.lineTo(this.radius*0.9, this.radius*0.2); ctx.stroke();
+                // ذيل
+                ctx.strokeStyle = '#E65100'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+                ctx.beginPath(); ctx.moveTo(-this.radius, this.radius*0.3); ctx.quadraticCurveTo(-this.radius*1.8, -this.radius*0.5, -this.radius*1.5, -this.radius*1.1); ctx.stroke();
                 ctx.restore();
             }
             update(){ if(this.launched){ this.trail.push({x:this.x,y:this.y}); if(this.trail.length>this.trailMaxLength) this.trail.shift(); this.velocity.y+=canvas.height*0.0004; this.x+=this.velocity.x; this.y+=this.velocity.y; const ground=canvas.height*0.08; if(this.x-this.radius<0){ this.velocity.x*=-0.7; this.x=this.radius; } if(this.x+this.radius>canvas.width){ this.velocity.x*=-0.7; this.x=canvas.width-this.radius; } if(this.y-this.radius<0){ this.velocity.y*=-0.5; this.y=this.radius; } if(this.y+this.radius>canvas.height-ground){ this.y=canvas.height-ground-this.radius; this.velocity.y*=-0.5; this.velocity.x*=0.7; } } }
         }
         
-        class TargetBird {
+        class Mouse {
             constructor(x,y){ this.x=x; this.y=y; this.radius=Math.min(18,canvas.width*0.022); this.health=100; }
             draw(){
                 ctx.save();
                 ctx.translate(this.x, this.y);
-                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                // ظل
+                ctx.fillStyle = 'rgba(0,0,0,0.25)';
                 ctx.beginPath(); ctx.ellipse(0, this.radius, this.radius*0.8, this.radius*0.2, 0, 0, Math.PI*2); ctx.fill();
-                const grad = ctx.createRadialGradient(-this.radius*0.3, -this.radius*0.3, this.radius*0.1, 0, 0, this.radius);
-                grad.addColorStop(0, '#b2ff59'); grad.addColorStop(0.6, '#64dd17'); grad.addColorStop(1, '#33691e');
-                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI*2); ctx.fillStyle = grad; ctx.fill(); ctx.strokeStyle = '#1b5e20'; ctx.lineWidth=1.5; ctx.stroke();
-                ctx.fillStyle = '#64dd17';
-                ctx.beginPath(); ctx.moveTo(-this.radius*0.2, -this.radius*0.9); ctx.lineTo(0, -this.radius*1.4); ctx.lineTo(this.radius*0.2, -this.radius*0.9); ctx.lineTo(this.radius*0.4, -this.radius*1.3); ctx.lineTo(this.radius*0.5, -this.radius*0.7); ctx.fill(); ctx.stroke();
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath(); ctx.arc(-this.radius*0.3, -this.radius*0.2, this.radius*0.25, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.radius*0.3, -this.radius*0.2, this.radius*0.25, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#000000';
-                ctx.beginPath(); ctx.arc(-this.radius*0.2, -this.radius*0.2, this.radius*0.08, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.radius*0.2, -this.radius*0.2, this.radius*0.08, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#ffb300';
-                ctx.beginPath(); ctx.moveTo(-this.radius*0.25, this.radius*0.1); ctx.lineTo(this.radius*0.25, this.radius*0.1); ctx.lineTo(0, this.radius*0.5); ctx.fill(); ctx.strokeStyle = '#e65100'; ctx.lineWidth=1; ctx.stroke();
+                // جسم الفأر (رمادي)
+                const mouseGrad = ctx.createRadialGradient(-this.radius*0.2, -this.radius*0.2, this.radius*0.05, 0, 0, this.radius);
+                mouseGrad.addColorStop(0, '#EEEEEE'); mouseGrad.addColorStop(1, '#9E9E9E');
+                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI*2);
+                ctx.fillStyle = mouseGrad; ctx.fill(); ctx.strokeStyle = '#616161'; ctx.lineWidth=1.5; ctx.stroke();
+                // أذنان دائريتان
+                ctx.fillStyle = '#BDBDBD';
+                ctx.beginPath(); ctx.arc(-this.radius*0.55, -this.radius*0.8, this.radius*0.35, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle='#757575'; ctx.lineWidth=1; ctx.stroke();
+                ctx.beginPath(); ctx.arc(this.radius*0.55, -this.radius*0.8, this.radius*0.35, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                // داخل الأذنين
+                ctx.fillStyle = '#F48FB1';
+                ctx.beginPath(); ctx.arc(-this.radius*0.55, -this.radius*0.8, this.radius*0.18, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.radius*0.55, -this.radius*0.8, this.radius*0.18, 0, Math.PI*2); ctx.fill();
+                // عيون
+                ctx.fillStyle = '#D32F2F';
+                ctx.beginPath(); ctx.arc(-this.radius*0.28, -this.radius*0.2, this.radius*0.14, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.radius*0.28, -this.radius*0.2, this.radius*0.14, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.beginPath(); ctx.arc(-this.radius*0.22, -this.radius*0.25, this.radius*0.05, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.radius*0.33, -this.radius*0.25, this.radius*0.05, 0, Math.PI*2); ctx.fill();
+                // أنف
+                ctx.fillStyle = '#F48FB1';
+                ctx.beginPath(); ctx.arc(0, this.radius*0.08, this.radius*0.1, 0, Math.PI*2); ctx.fill();
+                // شوارب
+                ctx.strokeStyle = '#616161'; ctx.lineWidth=0.8;
+                ctx.beginPath(); ctx.moveTo(-this.radius*0.1, this.radius*0.1); ctx.lineTo(-this.radius*0.85, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-this.radius*0.1, this.radius*0.18); ctx.lineTo(-this.radius*0.85, this.radius*0.3); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(this.radius*0.1, this.radius*0.1); ctx.lineTo(this.radius*0.85, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(this.radius*0.1, this.radius*0.18); ctx.lineTo(this.radius*0.85, this.radius*0.3); ctx.stroke();
+                // ذيل ملتوٍ
+                ctx.strokeStyle = '#9E9E9E'; ctx.lineWidth=2; ctx.lineCap='round';
+                ctx.beginPath(); ctx.moveTo(0, this.radius); ctx.quadraticCurveTo(this.radius*0.8, this.radius*1.5, this.radius*0.3, this.radius*2); ctx.stroke();
                 ctx.restore();
             }
         }
@@ -1033,28 +1070,105 @@ document.addEventListener('click', () => {
         
         function drawSlingshot() {
             ctx.save();
-            const slingshotGrad = ctx.createLinearGradient(slingshot.x-10, 0, slingshot.x+20, 0);
-            slingshotGrad.addColorStop(0, "#4e342e"); slingshotGrad.addColorStop(0.5, "#795548"); slingshotGrad.addColorStop(1, "#3e2723");
 
-            if(currentBird && !currentBird.launched) {
-                ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.strokeStyle = '#3e2723';
-                ctx.beginPath(); ctx.moveTo(slingshot.x + 18, slingshot.y + 10); ctx.lineTo(currentBird.x, currentBird.y); ctx.stroke();
+            const bx = slingshot.x;   // مركز القوس أفقياً
+            const by = slingshot.y;   // مركز القوس عمودياً
+
+            // --- العمود الخشبي الحامل للقوس ---
+            const postGrad = ctx.createLinearGradient(bx-6, 0, bx+6, 0);
+            postGrad.addColorStop(0, '#5D4037');
+            postGrad.addColorStop(0.5, '#8D6E63');
+            postGrad.addColorStop(1, '#4E342E');
+            ctx.fillStyle = postGrad;
+            ctx.beginPath();
+            ctx.roundRect(bx - 6, by, 12, 70, 4);
+            ctx.fill();
+            // قاعدة العمود
+            ctx.fillStyle = '#3E2723';
+            ctx.beginPath();
+            ctx.ellipse(bx, by + 70, 14, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // --- القوس (قوس حقيقي منحنٍ) ---
+            const bowHeight = 70; // الطول الكلي للقوس
+            const bowBend  = -22;  // مقدار انحناء القوس للأمام (يمين)
+
+            const bowTopX = bx, bowTopY = by - bowHeight / 2;
+            const bowBotX = bx, bowBotY = by + bowHeight / 2;
+            const bowCtrlX = bx - bowBend;
+            const bowCtrlY = by;
+
+            // ظل القوس
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 4;
+            ctx.beginPath();
+            ctx.moveTo(bowTopX, bowTopY);
+            ctx.quadraticCurveTo(bowCtrlX, bowCtrlY, bowBotX, bowBotY);
+            ctx.strokeStyle = '#4E342E';
+            ctx.lineWidth = 9;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            ctx.restore();
+
+            // القوس نفسه
+            const bowGrad = ctx.createLinearGradient(bx - bowBend, by - bowHeight/2, bx + 5, by + bowHeight/2);
+            bowGrad.addColorStop(0, '#8D6E63');
+            bowGrad.addColorStop(0.5, '#BCAAA4');
+            bowGrad.addColorStop(1, '#6D4C41');
+            ctx.beginPath();
+            ctx.moveTo(bowTopX, bowTopY);
+            ctx.quadraticCurveTo(bowCtrlX, bowCtrlY, bowBotX, bowBotY);
+            ctx.strokeStyle = bowGrad;
+            ctx.lineWidth = 7;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // زخرفة القوس (خطوط تفصيلية)
+            ctx.beginPath();
+            ctx.moveTo(bowTopX, bowTopY + 8);
+            ctx.quadraticCurveTo(bowCtrlX + 3, bowCtrlY, bowBotX, bowBotY - 8);
+            ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // حلقات ربط القوس بالعمود (أعلى وأسفل)
+            ctx.fillStyle = '#FFD54F';
+            ctx.beginPath(); ctx.arc(bowTopX, bowTopY + 4, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#F9A825'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.beginPath(); ctx.arc(bowBotX, bowBotY - 4, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#F9A825'; ctx.lineWidth = 1.5; ctx.stroke();
+
+            // --- الوتر ---
+            let stringEndX, stringEndY;
+            if (currentCat && !currentCat.launched) {
+                // الوتر مشدود نحو القطة
+                stringEndX = currentCat.x;
+                stringEndY = currentCat.y;
+            } else {
+                // الوتر مستقيم (في منتصف القوس)
+                stringEndX = bx + 8;
+                stringEndY = by;
             }
 
-            ctx.fillStyle = "#3e2723";
-            ctx.beginPath(); ctx.moveTo(slingshot.x+10, slingshot.y+40); ctx.lineTo(slingshot.x+25, slingshot.y); ctx.lineTo(slingshot.x+15, slingshot.y); ctx.lineTo(slingshot.x, slingshot.y+40); ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(bowTopX, bowTopY + 4);
+            ctx.lineTo(stringEndX, stringEndY);
+            ctx.lineTo(bowBotX, bowBotY - 4);
+            ctx.strokeStyle = '#ECEFF1';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.stroke();
 
-            if(currentBird && !currentBird.launched) currentBird.draw();
-
-            if(currentBird && !currentBird.launched) {
-                ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.strokeStyle = '#5d4037';
-                ctx.beginPath(); ctx.moveTo(slingshot.x - 10, slingshot.y + 10); ctx.lineTo(currentBird.x - currentBird.radius*0.6, currentBird.y); ctx.stroke();
-                ctx.fillStyle = '#212121'; ctx.beginPath(); ctx.ellipse(currentBird.x - currentBird.radius*0.5, currentBird.y, 8, 12, 0, 0, Math.PI*2); ctx.fill();
+            // --- رسم القطة على الوتر ---
+            if (currentCat && !currentCat.launched) {
+                currentCat.draw();
+                // حلقة الوتر حول القطة
+                ctx.beginPath();
+                ctx.arc(stringEndX, stringEndY, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#90A4AE';
+                ctx.fill();
             }
-
-            ctx.fillStyle = slingshotGrad;
-            ctx.fillRect(slingshot.x - 5, slingshot.y + 40, 15, 60);
-            ctx.beginPath(); ctx.moveTo(slingshot.x+5, slingshot.y+40); ctx.lineTo(slingshot.x-15, slingshot.y); ctx.lineTo(slingshot.x-5, slingshot.y); ctx.lineTo(slingshot.x+10, slingshot.y+40); ctx.fill(); 
 
             ctx.restore();
         }
@@ -1091,30 +1205,30 @@ document.addEventListener('click', () => {
         function loadLevel(levelNum){ 
             const levelData=levels[levelNum]; 
             if(!levelData){ endGame(); return; } 
-            gameObjects=[]; releasedBirds=[]; 
+            gameObjects=[]; releasedCats=[]; 
             const groundHeight=canvas.height*0.08; 
             gameObjects.push(new Block(0,canvas.height-groundHeight,canvas.width,groundHeight,'#4A752C','earth')); 
-            levelData.targets.forEach(t=>{ const rad=Math.min(18,canvas.width*0.022); gameObjects.push(new TargetBird(canvas.width*t.x, canvas.height-(canvas.height*(1-t.y))-rad)); }); 
+            levelData.targets.forEach(t=>{ const rad=Math.min(18,canvas.width*0.022); gameObjects.push(new Mouse(canvas.width*t.x, canvas.height-(canvas.height*(1-t.y))-rad)); }); 
             levelData.blocks.forEach(b=>{ gameObjects.push(new Block(canvas.width*b.x, canvas.height-(canvas.height*(1-b.y))-(b.h?canvas.height*b.h:canvas.width*b.w), canvas.width*b.w, b.h?canvas.height*b.h:canvas.width*b.w, b.color||'#A0522D', b.type||'wood')); }); 
-            birdsLeft=levelData.birds; loadNextBird(); updateUI(); 
+            catsLeft=levelData.cats; loadNextCat(); updateUI(); 
         }
 
-        function loadNextBird(){ if(birdsLeft>0){ birdsLeft--; currentBird=new Bird(slingshot.x,slingshot.y); updateUI(); } else currentBird=null; }
+        function loadNextCat(){ if(catsLeft>0){ catsLeft--; currentCat=new Cat(slingshot.x,slingshot.y); updateUI(); } else currentCat=null; }
         
         function detectCollisions(){ 
-            for(const bird of releasedBirds){ 
-                if(!bird||!bird.launched) continue; 
+            for(const cat of releasedCats){ 
+                if(!cat||!cat.launched) continue; 
                 for(let i=0;i<gameObjects.length;i++){ 
                     const obj=gameObjects[i]; 
-                    if(obj instanceof TargetBird){ 
-                        const dx=bird.x-obj.x, dy=bird.y-obj.y; 
-                        if(Math.sqrt(dx*dx+dy*dy)<bird.radius+obj.radius){ 
+                    if(obj instanceof Mouse){ 
+                        const dx=cat.x-obj.x, dy=cat.y-obj.y; 
+                        if(Math.sqrt(dx*dx+dy*dy)<cat.radius+obj.radius){ 
                             obj.health-=50; 
                             if(obj.health<=0){ gameObjects.splice(i,1); i--; score+=100; updateUI(); playSound(800,'square',0.2,0.8); } 
                         } 
                     } 
                     if(obj instanceof Block){ 
-                        if(bird.x+bird.radius>obj.x && bird.x-bird.radius<obj.x+obj.width && bird.y+bird.radius>obj.y && bird.y-bird.radius<obj.y+obj.height){ 
+                        if(cat.x+cat.radius>obj.x && cat.x-cat.radius<obj.x+obj.width && cat.y+cat.radius>obj.y && cat.y-cat.radius<obj.y+obj.height){ 
                             obj.health-=50; 
                             if(obj.type === 'glass') score+=20;
                             else if(obj.type === 'stone') score+=50;
@@ -1130,7 +1244,7 @@ document.addEventListener('click', () => {
             } 
         }
 
-        function nextBird(){ if(releasedBirds.some(b=>b.launched && (Math.abs(b.velocity.x)>0.5||Math.abs(b.velocity.y)>0.5))){ setTimeout(nextBird,500); return; } const targets=gameObjects.filter(obj=>obj instanceof TargetBird); if(targets.length===0){ playSound(1000,'triangle',0.5,0.6); showGameOverMessage('لقد نجحت!',`نقاطك: ${score}`,true,false); } else if(birdsLeft>0){ loadNextBird(); } else { loadNextQuestion(); } }
+        function nextCat(){ if(releasedCats.some(b=>b.launched && (Math.abs(b.velocity.x)>0.5||Math.abs(b.velocity.y)>0.5))){ setTimeout(nextCat,500); return; } const targets=gameObjects.filter(obj=>obj instanceof Mouse); if(targets.length===0){ playSound(1000,'triangle',0.5,0.6); showGameOverMessage('لقد نجحت!',`نقاطك: ${score}`,true,false); } else if(catsLeft>0){ loadNextCat(); } else { loadNextQuestion(); } }
         function loadNextQuestion() {
             if (!gameQuestions.length) return;
             gameRunning = false;
@@ -1254,9 +1368,9 @@ document.addEventListener('click', () => {
                 correctAnswer: '',
                 correct: true
             });
-            birdsLeft = Math.min(birdsLeft + 1, 5);
+            catsLeft = Math.min(catsLeft + 1, 5);
             gameRunning = true;
-            loadNextBird();
+            loadNextCat();
         }
 
         function showQuestion() { loadNextQuestion(); }
@@ -1275,15 +1389,15 @@ document.addEventListener('click', () => {
             });
             
             if (correct) {
-                birdsLeft += 3;
+                catsLeft += 3;
                 updateUI();
                 playSound(523.25, 'sine', 0.2, 0.5);
-                document.getElementById('feedbackText').innerHTML = '✓ إجابة صحيحة! +3 طيور';
+                document.getElementById('feedbackText').innerHTML = '✓ إجابة صحيحة! +3 قطط';
                 document.getElementById('feedbackText').style.color = '#2ecc71';
                 setTimeout(() => {
                     document.getElementById('questionScreen').classList.remove('visible');
                     gameRunning = true;
-                    loadNextBird();
+                    loadNextCat();
                 }, 2000);
             } else {
                 playSound(200, 'square', 0.5, 0.6);
@@ -1435,7 +1549,7 @@ document.addEventListener('click', () => {
         function showGameOverMessage(title,scoreMsg,levelComplete,gameWon){ document.getElementById('gameOverTitle').innerText=title; document.getElementById('gameOverScore').innerText=scoreMsg; document.getElementById('gameOverOverlay').classList.add('visible'); if(gameWon) { document.getElementById('nextLevelBtn').style.display='none';  } else if(levelComplete){ document.getElementById('nextLevelBtn').style.display='block';  } else { document.getElementById('nextLevelBtn').style.display='none'; } }
         
         function nextLevel(){ currentLevel++; loadLevel(currentLevel); document.getElementById('gameOverOverlay').classList.remove('visible'); }
-        function updateUI(){ document.getElementById('score').innerText=score; document.getElementById('birds-left').innerText=birdsLeft; document.getElementById('level').innerText=currentLevel; }
+        function updateUI(){ document.getElementById('score').innerText=score; document.getElementById('cats-left').innerText=catsLeft; document.getElementById('level').innerText=currentLevel; }
         
         function endGame(){ 
             const finalScore = score; 
@@ -1526,7 +1640,7 @@ function drawUI() {
             ctx.fillText('المرحلة: ' + currentLevel, boxX + boxWidth * 0.8, yPos);
             
             ctx.fillStyle = '#FFD700';
-            ctx.fillText('الطيور: ' + birdsLeft, boxX + boxWidth * 0.5, yPos);
+            ctx.fillText('القطط: ' + catsLeft, boxX + boxWidth * 0.5, yPos);
             
             ctx.fillStyle = '#fff';
             ctx.fillText('النقاط: ' + score, boxX + boxWidth * 0.2, yPos);
@@ -1537,7 +1651,7 @@ function drawUI() {
 function gameLoop(){ 
             if(!gameRunning) { requestAnimationFrame(gameLoop); return; } 
             drawBackgroundDetails(); drawSlingshot(); 
-            gameObjects.forEach(o=>o.draw()); releasedBirds.forEach(b=>{b.update(); b.draw();}); 
+            gameObjects.forEach(o=>o.draw()); releasedCats.forEach(c=>{c.update(); c.draw();}); 
             detectCollisions();
     drawUI(); requestAnimationFrame(gameLoop); 
         }
@@ -1553,9 +1667,9 @@ function gameLoop(){
             const soundBtn=document.getElementById('sound-toggle'); if(soundBtn) soundBtn.onclick=()=>{ soundEnabled=!soundEnabled; soundBtn.innerText=soundEnabled?'إيقاف الصوت':'تشغيل الصوت'; }; 
             canvas.addEventListener('touchstart',handleStart,{passive:false}); canvas.addEventListener('touchmove',handleMove,{passive:false}); canvas.addEventListener('touchend',handleEnd); canvas.addEventListener('mousedown',handleStart); canvas.addEventListener('mousemove',handleMove); canvas.addEventListener('mouseup',handleEnd); 
         }
-        function handleStart(e){ if(!gameRunning||!currentBird||currentBird.launched) return; const pos=getEventPos(e); const dx=pos.x-slingshot.x, dy=pos.y-slingshot.y; if(Math.sqrt(dx*dx+dy*dy)<currentBird.radius*2){ input.active=true; e.preventDefault(); } }
-        function handleMove(e){ if(!gameRunning||!input.active||!currentBird||currentBird.launched) return; const pos=getEventPos(e); let dx=pos.x-slingshot.x, dy=pos.y-slingshot.y; const maxDist=canvas.width*0.12; const dist=Math.min(maxDist,Math.sqrt(dx*dx+dy*dy)); const angle=Math.atan2(dy,dx); const nx=slingshot.x+Math.cos(angle)*dist, ny=slingshot.y+Math.sin(angle)*dist; currentBird.x=nx; currentBird.y=ny; input.power=dist/maxDist; document.getElementById('power-fill').style.width=`${input.power*100}%`; e.preventDefault(); }
-        function handleEnd(e){ if(!gameRunning||!input.active||!currentBird||currentBird.launched) return; input.active=false; const dx=slingshot.x-currentBird.x, dy=slingshot.y-currentBird.y; const factor=Math.min(canvas.width,canvas.height)*0.0005; currentBird.velocity.x=dx*factor; currentBird.velocity.y=dy*factor; currentBird.launched=true; releasedBirds.push(currentBird); currentBird=null; document.getElementById('power-fill').style.width='0%'; setTimeout(()=>nextBird(),birdLaunchDelay); }
+        function handleStart(e){ if(!gameRunning||!currentCat||currentCat.launched) return; const pos=getEventPos(e); const dx=pos.x-slingshot.x, dy=pos.y-slingshot.y; if(Math.sqrt(dx*dx+dy*dy)<currentCat.radius*2){ input.active=true; e.preventDefault(); } }
+        function handleMove(e){ if(!gameRunning||!input.active||!currentCat||currentCat.launched) return; const pos=getEventPos(e); let dx=pos.x-slingshot.x, dy=pos.y-slingshot.y; const maxDist=canvas.width*0.12; const dist=Math.min(maxDist,Math.sqrt(dx*dx+dy*dy)); const angle=Math.atan2(dy,dx); const nx=slingshot.x+Math.cos(angle)*dist, ny=slingshot.y+Math.sin(angle)*dist; currentCat.x=nx; currentCat.y=ny; input.power=dist/maxDist; document.getElementById('power-fill').style.width=`${input.power*100}%`; e.preventDefault(); }
+        function handleEnd(e){ if(!gameRunning||!input.active||!currentCat||currentCat.launched) return; input.active=false; const dx=slingshot.x-currentCat.x, dy=slingshot.y-currentCat.y; const factor=Math.min(canvas.width,canvas.height)*0.0005; currentCat.velocity.x=dx*factor; currentCat.velocity.y=dy*factor; currentCat.launched=true; releasedCats.push(currentCat); currentCat=null; document.getElementById('power-fill').style.width='0%'; setTimeout(()=>nextCat(),catLaunchDelay); }
         function getEventPos(e){ const rect=canvas.getBoundingClientRect(); let x,y; if(e.touches){ x=e.touches[0].clientX-rect.left; y=e.touches[0].clientY-rect.top; } else { x=e.clientX-rect.left; y=e.clientY-rect.top; } return {x,y}; }
         window.addEventListener('resize',()=>{ if(canvas) setupCanvas(); });
         
