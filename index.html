@@ -316,7 +316,6 @@
         .game-card:hover .action-btn {
             background-color: var(--theme-color-hover);
             box-shadow: 0 12px 22px -5px var(--theme-color-shadow);
-            transform: translateY(-2px);
         }
 
         .game-card:hover .action-btn::after {
@@ -659,37 +658,54 @@
                 </div>
             </a>
 
-            <a href="D.html" class="game-card" style="
-                --theme-color: #059669; 
-                --theme-color-hover: #047857;
-                --theme-color-shadow: rgba(5, 150, 105, 0.4); 
-                --theme-color-light: rgba(5, 150, 105, 0.15); 
-                --theme-bg-1: #ecfdf5; 
-                --theme-bg-2: #a7f3d0;">
+            <a href="game_airplane.html" class="game-card" style="
+                --theme-color: #0284c7; 
+                --theme-color-hover: #0369a1;
+                --theme-color-shadow: rgba(2, 132, 199, 0.4); 
+                --theme-color-light: rgba(2, 132, 199, 0.15); 
+                --theme-bg-1: #e0f2fe; 
+                --theme-bg-2: #bae6fd;">
                 <div class="icon-wrapper">
                     <div class="icon-box">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <defs>
-                                <linearGradient id="pipeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4ade80"/><stop offset="30%" stop-color="#22c55e"/><stop offset="100%" stop-color="#14532d"/></linearGradient>
-                                <linearGradient id="flappyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#eab308"/></linearGradient>
-                                <linearGradient id="wingGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient>
+                                <linearGradient id="planeGrad" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0%" stop-color="#ffffff"/>
+                                    <stop offset="100%" stop-color="#e0f2fe"/>
+                                </linearGradient>
+                                <linearGradient id="wingGrad" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0%" stop-color="#38bdf8"/>
+                                    <stop offset="100%" stop-color="#0284c7"/>
+                                </linearGradient>
+                                <linearGradient id="cloudGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#ffffff"/>
+                                    <stop offset="100%" stop-color="#f1f5f9"/>
+                                </linearGradient>
                             </defs>
-                            <rect x="70" y="55" width="20" height="45" fill="url(#pipeGrad)" stroke="#064e3b" stroke-width="2" />
-                            <rect x="66" y="47" width="28" height="12" fill="url(#pipeGrad)" stroke="#064e3b" stroke-width="2" rx="3" />
-                            <circle cx="35" cy="45" r="16" fill="url(#flappyGrad)" stroke="#ca8a04" stroke-width="2" />
-                            <path d="M 20 45 Q 12 40 25 55 Q 30 50 20 45 Z" fill="url(#wingGrad)" stroke="#94a3b8" stroke-width="1.5" />
-                            <circle cx="43" cy="40" r="5" fill="#ffffff" stroke="#ca8a04" stroke-width="1" />
-                            <circle cx="45" cy="40" r="2" fill="#0f172a" />
-                            <path d="M 46 48 Q 62 43 64 50 Q 62 57 46 52 Z" fill="#ea580c" stroke="#c2410c" stroke-width="1.5" />
-                            <path d="M 35 15 L 18 22 L 35 29 L 52 22 Z" fill="#1e293b" />
-                            <rect x="28" y="26" width="14" height="8" fill="#0f172a" />
-                            <path d="M 50 22 L 50 38" stroke="#f59e0b" stroke-width="2" />
-                            <circle cx="50" cy="38" r="2.5" fill="#f59e0b" />
+                            
+                            <circle cx="30" cy="70" r="12" fill="url(#cloudGrad)" opacity="0.9"/>
+                            <circle cx="50" cy="60" r="18" fill="url(#cloudGrad)" opacity="0.9"/>
+                            <circle cx="70" cy="68" r="14" fill="url(#cloudGrad)" opacity="0.9"/>
+                            <rect x="30" y="60" width="40" height="22" fill="url(#cloudGrad)" opacity="0.9" rx="11"/>
+
+                            <g transform="rotate(-15 50 50)">
+                                <path d="M 12 50 L -2 45 L 3 50 L -2 55 Z" fill="#fde047" stroke="#ca8a04" stroke-width="1" stroke-linejoin="round"/>
+                                
+                                <path d="M 25 48 L 18 30 L 35 44 Z" fill="url(#wingGrad)" stroke="#0369a1" stroke-width="1.5" stroke-linejoin="round"/>
+                                
+                                <path d="M 45 55 L 35 68 L 55 58 Z" fill="#0284c7" stroke="#0369a1" stroke-width="1.5" stroke-linejoin="round"/>
+                                
+                                <ellipse cx="50" cy="50" rx="34" ry="11" fill="url(#planeGrad)" stroke="#0369a1" stroke-width="2"/>
+                                
+                                <path d="M 64 44 Q 74 44 78 50 L 64 50 Z" fill="#bae6fd" stroke="#0369a1" stroke-width="1.5"/>
+                                
+                                <path d="M 40 48 L 52 28 L 62 48 Z" fill="url(#wingGrad)" stroke="#0369a1" stroke-width="1.5" stroke-linejoin="round"/>
+                            </g>
                         </svg>
                     </div>
                 </div>
-                <h2 class="game-title">الطائر والحواجز</h2>
-                <p class="game-desc">طير بأمان عبر أنابيب الأسئلة بالاعتماد على ذكائك وسرعة إجاباتك.</p>
+                <h2 class="game-title">لعبة الطائرة والغيوم</h2>
+                <p class="game-desc">حلق بطائرتك بأمان عبر الغيوم الرعدية متجاوزاً العقبات باستخدام ذكائك وسرعة إجاباتك.</p>
                 <div class="action-btn">
                     <span>انتقل للعبة</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
