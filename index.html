@@ -366,6 +366,17 @@
             transform: translateX(-6px) scale(1.1); 
         }
 
+        /* زر ابدأ للمعلم - أزرق ملكي */
+        .teacher-section .action-btn {
+            background: linear-gradient(135deg, #1a56db, #1e3a8a);
+            box-shadow: 0 8px 22px -5px rgba(30, 58, 138, 0.55);
+        }
+
+        .teacher-section .game-card:hover .action-btn {
+            background: linear-gradient(135deg, #1e40af, #152b6e);
+            box-shadow: 0 12px 28px -5px rgba(30, 58, 138, 0.65);
+        }
+
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-40px); }
             to { opacity: 1; transform: translateY(0); }
@@ -546,17 +557,49 @@
                 --theme-bg-2: #cffafe;">
                 <div class="icon-wrapper">
                     <div class="icon-box">
-                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <defs>
-                                <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient>
-                                <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
-                                <linearGradient id="yellowGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient>
-                                <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#15803d"/></linearGradient>
+                                <linearGradient id="cupG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+                                <linearGradient id="cupStem" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#b45309"/></linearGradient>
+                                <linearGradient id="person1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>
+                                <linearGradient id="person2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>
+                                <linearGradient id="person3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
                             </defs>
-                            <rect x="55" y="55" width="28" height="28" rx="6" fill="url(#greenGrad)" stroke="#ffffff" stroke-width="2.5" transform="rotate(-10 69 69)" />
-                            <circle cx="28" cy="72" r="16" fill="url(#yellowGrad)" stroke="#ffffff" stroke-width="2.5" />
-                            <rect x="65" y="15" width="22" height="22" rx="4" fill="url(#blueGrad)" stroke="#ffffff" stroke-width="2.5" transform="rotate(45 76 26)" />
-                            <path d="M 28 12 L 48 45 L 8 45 Z" fill="url(#redGrad)" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" />
+
+                            <!-- Celebration stars top -->
+                            <path d="M 50 6 L 51.5 10 L 56 10 L 52.5 12.5 L 54 16.5 L 50 14 L 46 16.5 L 47.5 12.5 L 44 10 L 48.5 10 Z" fill="#fde047" opacity="0.95"/>
+                            <circle cx="28" cy="10" r="2" fill="#fde047" opacity="0.8"/>
+                            <circle cx="72" cy="10" r="2" fill="#fde047" opacity="0.8"/>
+                            <circle cx="18" cy="20" r="1.5" fill="#fbbf24" opacity="0.7"/>
+                            <circle cx="82" cy="20" r="1.5" fill="#fbbf24" opacity="0.7"/>
+
+                            <!-- Trophy cup body - Enlarged -->
+                            <path d="M 28 15 C 22 38 30 50 50 50 C 70 50 78 38 72 15 Z" fill="url(#cupG)" stroke="#b45309" stroke-width="1.5"/>
+                            <!-- Cup handles - Adjusted for enlarged cup -->
+                            <path d="M 28 20 C 18 20 16 36 28 36" fill="none" stroke="url(#cupG)" stroke-width="3.5" stroke-linecap="round"/>
+                            <path d="M 72 20 C 82 20 84 36 72 36" fill="none" stroke="url(#cupG)" stroke-width="3.5" stroke-linecap="round"/>
+                            <!-- Cup stem - Adjusted for enlarged cup -->
+                            <rect x="46" y="50" width="8" height="7" rx="1" fill="url(#cupStem)"/>
+                            <rect x="38" y="57" width="24" height="4" rx="2" fill="url(#cupStem)"/>
+                            <!-- Cup shine -->
+                            <path d="M 39 24 Q 41 19 45 22" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7" fill="none"/>
+                            <!-- Cup star -->
+                            <path d="M 50 27 L 51.5 31 L 56 31 L 52.5 33.5 L 54 37.5 L 50 35 L 46 37.5 L 47.5 33.5 L 44 31 L 48.5 31 Z" fill="#ffffff" opacity="0.9"/>
+
+                            <!-- Person Left (blue) - Smaller and improved -->
+                            <circle cx="25" cy="70" r="5" fill="url(#person1)"/>
+                            <path d="M 20 85 Q 20 75 25 75 Q 30 75 30 85" fill="url(#person1)"/>
+
+
+                            <!-- Person Center (green) - Smaller and improved -->
+                            <circle cx="50" cy="68" r="5.5" fill="url(#person3)"/>
+                            <path d="M 44 85 Q 44 73 50 73 Q 56 73 56 85" fill="url(#person3)"/>
+
+
+                            <!-- Person Right (red) - Smaller and improved -->
+                            <circle cx="75" cy="70" r="5" fill="url(#person2)"/>
+                            <path d="M 70 85 Q 70 75 75 75 Q 80 75 80 85" fill="url(#person2)"/>
+
                         </svg>
                     </div>
                 </div>
