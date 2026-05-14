@@ -50,22 +50,25 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
         /* متغيرات وأنماط اللعبة الأصلية             */
         /* ========================================= */
         :root {
-            --primary: #46178f;
-            --primary-dark: #321067;
-            --secondary: #eb2730;
-            --success: #26890c;
-            --info: #1368ce;
-            --warning: #ffa602;
-            --light: #f2f2f2;
+            /* الألوان الأساسية للمنصة */
+            --primary: #2F80ED; 
+            --primary-dark: #1366D6;
+            --secondary: #FF8A80;
+            --success: #2ED573;
+            --info: #2F80ED;
+            --warning: #FFD32A;
+            --light: #F8FAFF; 
             --white: #ffffff;
-            --k-red: #e21b3c;
-            --k-red-dark: #b81631;
-            --k-blue: #1368ce;
-            --k-blue-dark: #0f54a8;
-            --k-yellow: #d89e00;
-            --k-yellow-dark: #b08100;
-            --k-green: #26890c;
-            --k-green-dark: #1e6d0a;
+            
+            /* ألوان أزرار مسابقة الإجابات (فاتحة ومشرقة) */
+            --k-red: #D199E8; /* بنفسجي فاتح */
+            --k-red-dark: #B370D1;
+            --k-blue: #FF9F9F; /* بطيخي فاتح */
+            --k-blue-dark: #FF7675;
+            --k-yellow: #FDCB6E; /* أصفر دافئ فاتح */
+            --k-yellow-dark: #E1B12C;
+            --k-green: #55E6C1; /* أخضر نعناعي فاتح */
+            --k-green-dark: #26DEAD;
             
             /* متغيرات لوحة الرياضيات المنبثقة */
             --word-blue: #2b579a;
@@ -77,12 +80,11 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
             --kb-bg: #d1d4d9;
         } 
 
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; } 
 
         body {
-            background: linear-gradient(-45deg, #46178f, #1368ce, #e21b3c, #ffa602);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background: linear-gradient(to bottom, #EAF4FF 0%, #ffffff 60%, #EAF4FF 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -90,11 +92,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
             overflow-x: hidden;
         } 
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        /* Removed gradient animation for cleaner look matching index.html */
 
         .mute-btn {
             position: fixed; top: 20px; left: 20px; z-index: 1000;
@@ -138,8 +136,8 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
         .btn:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0.2); }
         
         .btn-primary { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
-        .btn-teacher { background-color: var(--info); box-shadow: 0 6px 0 var(--k-blue-dark); }
-        .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 var(--k-red-dark); }
+        .btn-teacher { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
+        .btn-student { background-color: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
         .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; margin-top: 10px; } 
         .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark); }
 
@@ -295,21 +293,22 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 
         @keyframes slideUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
         
-        .bg-red { background-color: var(--k-red); box-shadow: 0 8px 0 var(--k-red-dark); }
-        .bg-blue { background-color: var(--k-blue); box-shadow: 0 8px 0 var(--k-blue-dark); }
-        .bg-yellow { background-color: var(--k-yellow); box-shadow: 0 8px 0 var(--k-yellow-dark); color: #333; text-shadow: none; }
-        .bg-green { background-color: var(--k-green); box-shadow: 0 8px 0 var(--k-green-dark); }
+        .bg-red { background-color: var(--k-red); box-shadow: 0 8px 0 var(--k-red-dark); color: black; }
+        .bg-blue { background-color: var(--k-blue); box-shadow: 0 8px 0 var(--k-blue-dark); color: black; }
+        .bg-yellow { background-color: var(--k-yellow); box-shadow: 0 8px 0 var(--k-yellow-dark); color: black; }
+        .bg-green { background-color: var(--k-green); box-shadow: 0 8px 0 var(--k-green-dark); color: black; }
         
-        #screen-countdown, #screen-loading-sheet {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;
-            background: rgba(70, 23, 143, 0.95); display: none; flex-direction: column; 
-            align-items: center; justify-content: center; color: white; backdrop-filter: blur(5px);
+#screen-countdown, #screen-loading-sheet {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000;
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center; color: var(--primary); backdrop-filter: blur(10px);
+            background: rgba(234, 244, 255, 0.8);
         }
-        #countdown-number { font-size: 150px; font-weight: 900; animation: pop 1s infinite; text-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        #countdown-number { font-size: 150px; font-weight: 900; animation: pop 1s infinite; text-shadow: 0 10px 20px rgba(47, 128, 237, 0.3); color: var(--primary); }
         #countdown-text { font-size: 40px; font-weight: bold; margin-bottom: 20px; }
 
         .loader-spinner {
-            border: 8px solid rgba(255,255,255,0.3); border-top: 8px solid white;
+            border: 8px solid rgba(47, 128, 237, 0.1); border-top: 8px solid var(--primary);
             border-radius: 50%; width: 80px; height: 80px; animation: spin 1s linear infinite; margin-bottom: 20px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -462,7 +461,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 </script>
 <div id="screen-loading-sheet">
 <div class="loader-spinner"></div>
-<div style="font-size: 28px; font-weight: bold; margin-top: 20px;" id="loading-text">جاري جلب أسئلة التحدي من المعلم...</div>
+<div style="font-size: 28px; font-weight: bold; margin-top: 20px; color: var(--primary-dark);" id="loading-text">جاري جلب أسئلة التحدي من المعلم...</div>
 </div>
 <div id="screen-countdown">
 <div id="countdown-text">استعد!</div>
@@ -475,7 +474,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 <input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
 <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
 <div class="avatar-grid" id="avatar-container"></div>
-<button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
+<button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ</button>
 <button class="btn btn-back" onclick="showScreen('screen-home')">رجوع</button>
 </div>
 </div>
@@ -496,10 +495,10 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
 
 <div class="question-box" id="question-box-wrapper"><div class="display-text" id="question-text" style="direction: rtl; font-family: 'Cairo', sans-serif;"></div></div>
 <div class="answers-grid">
-<button class="ans-btn bg-red" id="btn-ans-0" onclick="submitAnswer(0)"><span class="ans-icon">▲</span> <span class="display-text" id="ans-text-0" style="direction: rtl;"></span></button>
-<button class="ans-btn bg-blue" id="btn-ans-1" onclick="submitAnswer(1)"><span class="ans-icon">◆</span> <span class="display-text" id="ans-text-1" style="direction: rtl;"></span></button>
-<button class="ans-btn bg-yellow" id="btn-ans-2" onclick="submitAnswer(2)"><span class="ans-icon">●</span> <span class="display-text" id="ans-text-2" style="direction: rtl;"></span></button>
-<button class="ans-btn bg-green" id="btn-ans-3" onclick="submitAnswer(3)"><span class="ans-icon">■</span> <span class="display-text" id="ans-text-3" style="direction: rtl;"></span></button>
+<button class="ans-btn bg-red" id="btn-ans-0" onclick="submitAnswer(0)"><span class="ans-icon">◆</span> <span class="display-text" id="ans-text-0" style="direction: rtl;"></span></button>
+	<button class="ans-btn bg-blue" id="btn-ans-1" onclick="submitAnswer(1)"><span class="ans-icon">◆</span> <span class="display-text" id="ans-text-1" style="direction: rtl;"></span></button>
+	<button class="ans-btn bg-yellow" id="btn-ans-2" onclick="submitAnswer(2)"><span class="ans-icon">◆</span> <span class="display-text" id="ans-text-2" style="direction: rtl;"></span></button>
+	<button class="ans-btn bg-green" id="btn-ans-3" onclick="submitAnswer(3)"><span class="ans-icon">◆</span> <span class="display-text" id="ans-text-3" style="direction: rtl;"></span></button>
 </div>
 </div>
 <div id="feedback-overlay">
@@ -842,7 +841,7 @@ if(url){img.src=url;c.style.display='block';}else{c.style.display='none';}
         ];
 
         let gameQuestions = [], currentRoomPIN = "", refreshInterval;
-let quizTitle = "🎮 التحدي الأكبر";
+let quizTitle = "🎮 <span style=\"color: #2F80ED;\">التحدي الكبير</span>";
         let currentQIndex = 0, studentScore = 0, timerInterval, timeLeft = 60;
         let TOTAL_TIME = 60;
         let currentStreak = 0, powerUpUsed = false, userAnswersHistory = [];
@@ -952,7 +951,7 @@ let quizTitle = "🎮 التحدي الأكبر";
             const q = gameQuestions[currentQIndex];
 TOTAL_TIME = q.time || 60;
 timeLeft = TOTAL_TIME;
-document.getElementById('quiz-title-display').innerText = quizTitle;
+document.getElementById('quiz-title-display').innerHTML = quizTitle;
 
             // --- بداية التعديل: كود ترقيم الأسئلة ---
             const totalQ = gameQuestions.length;
@@ -1010,7 +1009,7 @@ document.getElementById('quiz-title-display').innerText = quizTitle;
             if (type === 'mc' || type === 'tf') {
                 const opts = q.opts || [];
                 opts.forEach((opt, i) => {
-                    const icons = ['▲', '◆', '●', '■'];
+                    const icons = ['◆', '◆', '◆', '◆'];
                     const colors = ['bg-red', 'bg-blue', 'bg-yellow', 'bg-green'];
                     const btn = document.createElement('button');
                     btn.className = `ans-btn ${colors[i % 4]}`;
