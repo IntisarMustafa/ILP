@@ -1331,7 +1331,7 @@ document.addEventListener('click', () => {
             ctx.fillStyle = hill2Grad; ctx.beginPath(); ctx.arc(canvas.width*0.7, canvas.height, canvas.height*0.5, Math.PI, 0); ctx.fill();
         }
         
-        function setupCanvas(){ const container=canvas.parentElement; canvas.width=container.clientWidth; canvas.height=container.clientHeight; slingshot={x:canvas.width*0.15, y:canvas.height*0.75}; loadLevel(currentLevel); }
+        function setupCanvas(){ const container=canvas.parentElement; canvas.width=container.clientWidth; canvas.height=container.clientHeight; slingshot={x:canvas.width*0.15, y:canvas.height*0.60}; loadLevel(currentLevel); }
         
         function loadLevel(levelNum){ 
             const levelData=levels[levelNum]; 
