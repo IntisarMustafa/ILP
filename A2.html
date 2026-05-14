@@ -11,22 +11,22 @@
         /* متغيرات وأنماط اللعبة الأصلية             */
         /* ========================================= */
         :root {
-            --primary: #46178f;
-            --primary-dark: #321067;
-            --secondary: #eb2730;
-            --success: #26890c;
-            --info: #1368ce;
-            --warning: #ffa602;
-            --light: #f2f2f2;
+            --primary: #2F80ED; 
+            --primary-dark: #1366D6;
+            --secondary: #FF8A80;
+            --success: #2ED573;
+            --info: #2F80ED;
+            --warning: #FFD32A;
+            --light: #F8FAFF; 
             --white: #ffffff;
-            --k-red: #e21b3c;
-            --k-red-dark: #b81631;
-            --k-blue: #1368ce;
-            --k-blue-dark: #0f54a8;
-            --k-yellow: #d89e00;
-            --k-yellow-dark: #b08100;
-            --k-green: #26890c;
-            --k-green-dark: #1e6d0a;
+            --k-red: #D199E8; /* بنفسجي فاتح */
+            --k-red-dark: #B370D1;
+            --k-blue: #FF9F9F; /* بطيخي فاتح */
+            --k-blue-dark: #FF7675;
+            --k-yellow: #FDCB6E; /* أصفر دافئ فاتح */
+            --k-yellow-dark: #E1B12C;
+            --k-green: #55E6C1; /* أخضر نعناعي فاتح */
+            --k-green-dark: #26DEAD;
             
             /* متغيرات لوحة الرياضيات المنبثقة */
             --word-blue: #2b579a;
@@ -41,9 +41,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; } 
 
         body {
-            background: linear-gradient(-45deg, #46178f, #1368ce, #e21b3c, #ffa602);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background: linear-gradient(to bottom, #EAF4FF 0%, #ffffff 60%, #EAF4FF 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -81,9 +79,11 @@
         } 
 
         .card {
-            background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 550px; text-align: center;
+            background: rgba(255, 255, 255, 0.98); padding: 40px; border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 15px rgba(47, 128, 237, 0.1); 
+            width: 100%; max-width: 550px; text-align: center;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
         } 
 
         h1 { color: var(--primary); margin-bottom: 25px; font-size: 38px; text-shadow: 2px 2px 0px rgba(0,0,0,0.05); }
@@ -121,7 +121,8 @@
         .math-trigger-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #321067; }
         .room-pin { font-size: 60px; font-weight: 900; letter-spacing: 5px; color: var(--primary); margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
         
-        .btn-student { background-color: var(--k-red); box-shadow: 0 6px 0 var(--k-red-dark); }
+        .btn-student { background-color: #FF9800; box-shadow: 0 6px 0 #E68A00; color: white; }
+        .btn-student:hover { background-color: #FFA726; }
         .btn-back { background-color: #666; box-shadow: 0 6px 0 #444; margin-top: 10px; } 
         .btn-action { background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark); }
 
@@ -234,15 +235,15 @@
 
         @keyframes slideUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
         
-        .bg-red { background-color: var(--k-red); box-shadow: 0 8px 0 var(--k-red-dark); }
-        .bg-blue { background-color: var(--k-blue); box-shadow: 0 8px 0 var(--k-blue-dark); }
-        .bg-yellow { background-color: var(--k-yellow); box-shadow: 0 8px 0 var(--k-yellow-dark); color: #333; text-shadow: none; }
-        .bg-green { background-color: var(--k-green); box-shadow: 0 8px 0 var(--k-green-dark); }
+        .bg-red { background-color: var(--k-red); box-shadow: 0 8px 0 var(--k-red-dark); color: black; }
+        .bg-blue { background-color: var(--k-blue); box-shadow: 0 8px 0 var(--k-blue-dark); color: black; }
+        .bg-yellow { background-color: var(--k-yellow); box-shadow: 0 8px 0 var(--k-yellow-dark); color: black; }
+        .bg-green { background-color: var(--k-green); box-shadow: 0 8px 0 var(--k-green-dark); color: black; }
         
         #screen-countdown, #screen-loading-sheet {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;
-            background: rgba(70, 23, 143, 0.95); display: none; flex-direction: column; 
-            align-items: center; justify-content: center; color: white; backdrop-filter: blur(5px);
+            background: rgba(234, 244, 255, 0.8); display: none; flex-direction: column; 
+            align-items: center; justify-content: center; color: var(--primary); backdrop-filter: blur(5px);
         }
         #countdown-number { font-size: 150px; font-weight: 900; animation: pop 1s infinite; text-shadow: 0 10px 20px rgba(0,0,0,0.3); }
         #countdown-text { font-size: 40px; font-weight: bold; margin-bottom: 20px; }
@@ -1119,7 +1120,7 @@
             if (type === 'mc' || type === 'tf') {
                 const opts = q.opts || [];
                 opts.forEach((opt, i) => {
-                    const icons = ['▲', '◆', '●', '■'];
+                    const icons = ['■', '■', '■', '■'];
                     const colors = ['bg-red', 'bg-blue', 'bg-yellow', 'bg-green'];
                     const btn = document.createElement('button');
                     btn.className = `ans-btn ${colors[i % 4]}`;
