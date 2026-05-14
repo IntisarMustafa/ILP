@@ -19,14 +19,14 @@
             --warning: #FFD32A;
             --light: #F8FAFF; 
             --white: #ffffff;
-            --k-red: #D199E8; /* بنفسجي فاتح */
-            --k-red-dark: #B370D1;
-            --k-blue: #FF9F9F; /* بطيخي فاتح */
-            --k-blue-dark: #FF7675;
-            --k-yellow: #FDCB6E; /* أصفر دافئ فاتح */
-            --k-yellow-dark: #E1B12C;
-            --k-green: #55E6C1; /* أخضر نعناعي فاتح */
-            --k-green-dark: #26DEAD;
+            --k-red: #B370D1; /* بنفسجي أغمق */
+            --k-red-dark: #8E44AD;
+            --k-blue: #FF7675; /* بطيخي أغمق */
+            --k-blue-dark: #E66767;
+            --k-yellow: #F39C12; /* أصفر دافئ أغمق */
+            --k-yellow-dark: #D35400;
+            --k-green: #26DEAD; /* أخضر نعناعي أغمق */
+            --k-green-dark: #16A085;
             
             /* متغيرات لوحة الرياضيات المنبثقة */
             --word-blue: #2b579a;
@@ -219,10 +219,11 @@
         .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
         
         .ans-btn {
-            border: none; border-radius: 12px; color: white; font-size: 26px; font-weight: bold; cursor: pointer;
+            border: none; border-radius: 12px; color: #ffffff; font-size: 26px; font-weight: 900; cursor: pointer;
             min-height: 140px; display: flex; align-items: center; padding: 20px; gap: 20px;
             transition: transform 0.1s, top 0.1s, box-shadow 0.1s, opacity 0.3s; position: relative; top: 0;
-            box-shadow: 0 8px 0 rgba(0,0,0,0.3); text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 0 rgba(0,0,0,0.3); 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5), -1px -1px 0 rgba(0,0,0,0.2);
             opacity: 0; animation: slideUp 0.5s forwards;
         }
         .ans-btn:active { top: 8px; box-shadow: 0 0px 0 rgba(0,0,0,0.3); }
@@ -235,10 +236,10 @@
 
         @keyframes slideUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
         
-        .bg-red { background-color: var(--k-red); box-shadow: 0 8px 0 var(--k-red-dark); color: black; }
-        .bg-blue { background-color: var(--k-blue); box-shadow: 0 8px 0 var(--k-blue-dark); color: black; }
-        .bg-yellow { background-color: var(--k-yellow); box-shadow: 0 8px 0 var(--k-yellow-dark); color: black; }
-        .bg-green { background-color: var(--k-green); box-shadow: 0 8px 0 var(--k-green-dark); color: black; }
+        .bg-red { background-color: var(--k-red); box-shadow: 0 8px 0 var(--k-red-dark); color: white; }
+        .bg-blue { background-color: var(--k-blue); box-shadow: 0 8px 0 var(--k-blue-dark); color: white; }
+        .bg-yellow { background-color: var(--k-yellow); box-shadow: 0 8px 0 var(--k-yellow-dark); color: white; }
+        .bg-green { background-color: var(--k-green); box-shadow: 0 8px 0 var(--k-green-dark); color: white; }
         
         #screen-countdown, #screen-loading-sheet {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;
