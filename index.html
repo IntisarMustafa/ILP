@@ -7,14 +7,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #eef2f6; 
-            --text-main: #020617; 
-            --text-muted: #475569; 
-            --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.75) 100%);
+            --primary: #2F80ED;
+            --primary-dark: #1366D6;
+            --primary-light: #EAF4FF;
+            --primary-accent: #56CCF2;
+            --bg-color: #EAF4FF; 
+            --text-main: #1F2937; 
+            --text-muted: #4B6A8A; 
+            --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.97) 0%, rgba(234, 244, 255, 0.80) 100%);
             
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 15px 35px -5px rgba(15, 23, 42, 0.08);
-            --shadow-hover: 0 30px 60px -15px rgba(15, 23, 42, 0.15);
+            --shadow-sm: 0 4px 6px -1px rgba(47, 128, 237, 0.06);
+            --shadow-md: 0 15px 35px -5px rgba(19, 102, 214, 0.10);
+            --shadow-hover: 0 30px 60px -15px rgba(19, 102, 214, 0.18);
         }
 
         * {
@@ -25,7 +29,7 @@
 
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-color);
+            background: linear-gradient(to bottom, #EAF4FF 0%, #ffffff 60%, #EAF4FF 100%);
             color: var(--text-main);
             line-height: 1.6;
             min-height: 100vh;
@@ -52,13 +56,13 @@
             position: absolute;
             border-radius: 50%;
             filter: blur(120px);
-            opacity: 0.6;
+            opacity: 0.25;
             animation: floatBlobs 25s infinite alternate ease-in-out;
         }
 
-        .blob-1 { top: -15%; right: -10%; width: 50vw; height: 50vw; max-width: 650px; background: #a78bfa; animation-delay: 0s; }
-        .blob-2 { bottom: -10%; left: -10%; width: 60vw; height: 60vw; max-width: 750px; background: #7dd3fc; animation-delay: -5s; }
-        .blob-3 { top: 30%; left: 20%; width: 45vw; height: 45vw; max-width: 550px; background: #f472b6; animation-delay: -10s; }
+        .blob-1 { top: -15%; right: -10%; width: 50vw; height: 50vw; max-width: 650px; background: #56CCF2; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; left: -10%; width: 60vw; height: 60vw; max-width: 750px; background: #2F80ED; animation-delay: -5s; }
+        .blob-3 { top: 30%; left: 20%; width: 45vw; height: 45vw; max-width: 550px; background: #93C5FD; animation-delay: -10s; }
 
         @keyframes floatBlobs {
             0% { transform: translate(0, 0) scale(1) rotate(0deg); }
@@ -79,12 +83,48 @@
             animation: fadeInDown 1s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
+        .header-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.9);
+            border: 1.5px solid rgba(47, 128, 237, 0.25);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 16px rgba(47,128,237,0.10);
+        }
+
+        .header-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #2F80ED, #1366D6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-logo-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .header-logo-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #2F80ED;
+            letter-spacing: 0.5px;
+        }
+
         .header h1 {
             font-size: clamp(2.5rem, 6vw, 3.8rem);
             font-weight: 900;
             margin-bottom: 20px;
             letter-spacing: -1px;
-            background: linear-gradient(135deg, #020617, var(--text-main), #4338ca);
+            background: linear-gradient(135deg, #1366D6, #2F80ED, #56CCF2);
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -97,12 +137,12 @@
             max-width: 750px;
             margin: 0 auto;
             font-weight: 600;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.88);
             padding: 15px 35px;
             border-radius: 100px;
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 1);
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            border: 1.5px solid rgba(47, 128, 237, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(47, 128, 237, 0.08);
         }
 
         /* تنسيقات الأقسام الجديدة */
@@ -110,7 +150,7 @@
             text-align: center;
             font-size: 1.8rem;
             font-weight: 800;
-            color: var(--text-main);
+            color: #1F2937;
             margin-bottom: 30px;
             position: relative;
             display: flex;
@@ -124,9 +164,9 @@
             content: '';
             height: 3px;
             width: 50px;
-            background: var(--text-muted);
+            background: linear-gradient(to right, var(--primary-accent), var(--primary));
             border-radius: 10px;
-            opacity: 0.3;
+            opacity: 0.5;
         }
 
         .teacher-section {
@@ -159,10 +199,10 @@
             box-shadow: var(--shadow-md);
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
-            border-top: 2px solid rgba(255, 255, 255, 1);
-            border-left: 2px solid rgba(255, 255, 255, 1);
-            border-right: 1px solid rgba(255, 255, 255, 0.4);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            border-top: 2px solid rgba(255, 255, 255, 0.95);
+            border-left: 2px solid rgba(255, 255, 255, 0.95);
+            border-right: 1px solid rgba(47, 128, 237, 0.12);
+            border-bottom: 1px solid rgba(47, 128, 237, 0.12);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             opacity: 0;
@@ -261,7 +301,7 @@
         }
 
         .game-card:hover .game-title {
-            color: var(--theme-color);
+            color: var(--primary);
         }
 
         .game-desc {
@@ -285,7 +325,7 @@
             gap: 12px;
             font-weight: 800;
             font-size: 1.1rem;
-            background-color: var(--theme-color); 
+            background-color: #2F80ED; /* Match Header Color */
             color: #ffffff;
             padding: 14px 30px;
             border-radius: 100px;
@@ -293,7 +333,7 @@
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             border: none;
             cursor: pointer;
-            box-shadow: 0 8px 18px -5px var(--theme-color-shadow);
+            box-shadow: 0 8px 18px -5px rgba(47, 128, 237, 0.45);
             overflow: hidden;
         }
 
@@ -314,8 +354,8 @@
         }
 
         .game-card:hover .action-btn {
-            background-color: var(--theme-color-hover);
-            box-shadow: 0 12px 22px -5px var(--theme-color-shadow);
+            background-color: #1366D6; /* Darker shade of header color */
+            box-shadow: 0 12px 22px -5px rgba(47, 128, 237, 0.55);
         }
 
         .game-card:hover .action-btn::after {
@@ -359,6 +399,11 @@
 
     <div class="container">
         <div class="header">
+            <div class="header-logo">
+                <div class="header-logo-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+                </div>
+            </div>
             <h1>منصة التعلم التفاعلي</h1>
             <p>نتشارك ونتفاعل ونتعلم</p>
         </div>
@@ -417,7 +462,7 @@
                 <h2 class="game-title">لوحة المعلم</h2>
                 <p class="game-desc">أنشئ مسابقتك التفاعلية وأدر غرفة الأسئلة ومتابعة نتائج الطلاب لحظة بلحظة.</p>
                 <div class="action-btn">
-                    <span>فتح اللوحة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
@@ -454,7 +499,7 @@
                 <h2 class="game-title">ورقة عمل</h2>
                 <p class="game-desc">اختبر معلوماتك وقيّم أداءك من خلال أوراق عمل تفاعلية وشاملة.</p>
                 <div class="action-btn">
-                    <span>افتح الورقة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
@@ -487,7 +532,7 @@
                 <h2 class="game-title">مسابقة مباشرة 1</h2>
                 <p class="game-desc">لعبة تفاعلية سريعة بأسئلة متنوعة، مثالية للمراجعات والتقييم الختامي.</p>
                 <div class="action-btn">
-                    <span>انتقل للعبة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
@@ -518,7 +563,7 @@
                 <h2 class="game-title">مسابقة مباشرة 2</h2>
                 <p class="game-desc">نسخة مطورة ومميزة من الأسئلة المباشرة مع تحديات إضافية لتعزيز الحماس والمنافسة.</p>
                 <div class="action-btn">
-                    <span>انتقل للعبة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
@@ -558,18 +603,18 @@
                 <h2 class="game-title">الكرة الحمراء والزرقاء</h2>
                 <p class="game-desc">لعبة تحدي ألوان ممتعة، استخدم الكرات لتمييز الإجابة الصحيحة واختبر سرعة بديهتك.</p>
                 <div class="action-btn">
-                    <span>انتقل للعبة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
 
             <a href="B.html" class="game-card" style="
-                --theme-color: #e11d48; 
-                --theme-color-hover: #be123c;
-                --theme-color-shadow: rgba(225, 29, 72, 0.4); 
-                --theme-color-light: rgba(225, 29, 72, 0.15); 
-                --theme-bg-1: #fff1f2; 
-                --theme-bg-2: #fecdd3;">
+                --theme-color: #d97706; 
+                --theme-color-hover: #b45309;
+                --theme-color-shadow: rgba(217, 119, 6, 0.4); 
+                --theme-color-light: rgba(217, 119, 6, 0.15); 
+                --theme-bg-1: #fffbeb; 
+                --theme-bg-2: #fde68a;">
                 <div class="icon-wrapper">
                     <div class="icon-box">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -605,7 +650,7 @@
                 <h2 class="game-title">القطط الذكية</h2>
                 <p class="game-desc">أجب إجابة صحيحة لتصويب القط وهدم العقبات، ادمج الفيزياء بالمعرفة.</p>
                 <div class="action-btn">
-                    <span>انتقل للعبة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
@@ -653,7 +698,7 @@
                 <h2 class="game-title">القط والهدف</h2>
                 <p class="game-desc">لعبة منصات ومراحل كلاسيكية، تجاوز التحديات واجمع النقاط للوصول للهدف.</p>
                 <div class="action-btn">
-                    <span>انتقل للعبة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
@@ -707,7 +752,7 @@
                 <h2 class="game-title">لعبة الطائرة والغيوم</h2>
                 <p class="game-desc">حلق بطائرتك بأمان عبر الغيوم الرعدية متجاوزاً العقبات باستخدام ذكائك وسرعة إجاباتك.</p>
                 <div class="action-btn">
-                    <span>انتقل للعبة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
@@ -743,18 +788,18 @@
                 <h2 class="game-title">المركبة الفضائية</h2>
                 <p class="game-desc">قم بقيادة مركبتك وتجاوز الكويكبات عبر الإجابة الصحيحة للوصول إلى الكوكب.</p>
                 <div class="action-btn">
-                    <span>انتقل للعبة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
 
             <a href="F.html" class="game-card" style="
-                --theme-color: #db2777; 
-                --theme-color-hover: #be185d;
-                --theme-color-shadow: rgba(219, 39, 119, 0.4); 
-                --theme-color-light: rgba(219, 39, 119, 0.15); 
-                --theme-bg-1: #fdf2f8; 
-                --theme-bg-2: #fbcfe8;">
+                --theme-color: #0d9488; 
+                --theme-color-hover: #0f766e;
+                --theme-color-shadow: rgba(13, 148, 136, 0.4); 
+                --theme-color-light: rgba(13, 148, 136, 0.15); 
+                --theme-bg-1: #f0fdfa; 
+                --theme-bg-2: #ccfbf1;">
                 <div class="icon-wrapper">
                     <div class="icon-box">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -794,7 +839,7 @@
                 <h2 class="game-title">مرح الأشكال</h2>
                 <p class="game-desc">طابق الأشكال والألوان للإجابة على الأسئلة وتجاوز المراحل في هذه اللعبة الممتعة.</p>
                 <div class="action-btn">
-                    <span>انتقل للعبة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
@@ -828,7 +873,7 @@
                 <h2 class="game-title">لعبة المكعب</h2>
                 <p class="game-desc">لعبة تفاعلية ثلاثية الأبعاد، قم بحل الألغاز وتدوير المكعب للوصول إلى الإجابات الصحيحة.</p>
                 <div class="action-btn">
-                    <span>انتقل للعبة</span>
+                    <span>ابدأ</span>
                     <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v16l8-8z"/></svg>
                 </div>
             </a>
