@@ -896,21 +896,21 @@ document.addEventListener('click', () => {
         }
 
         // -------------------- لعبة القطط - المشاهد المحسنة و 10 مراحل --------------------
-        let canvas, ctx, score=0, catsLeft=0, currentLevel=1, gameRunning=true, gameObjects=[], slingshot={x:0,y:0}, currentCat=null, releasedCats=[], input={active:false,power:0}, catLaunchDelay=1000;
+        let canvas, ctx, score=0, catsLeft=0, currentLevel=1, gameRunning=true, gameObjects=[], dogs=[], slingshot={x:0,y:0}, currentCat=null, releasedCats=[], input={active:false,power:0}, catLaunchDelay=1000;
         let soundEnabled=true, audioCtx=new (window.AudioContext||window.webkitAudioContext)();
         function playSound(freq,type='sine',dur=0.1,vol=0.3){ if(!soundEnabled)return; const osc=audioCtx.createOscillator(), gain=audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.type=type; osc.frequency.value=freq; gain.gain.setValueAtTime(0,audioCtx.currentTime); gain.gain.linearRampToValueAtTime(vol,audioCtx.currentTime+0.01); gain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+dur); osc.start(); osc.stop(audioCtx.currentTime+dur); }
         
         const levels = {
-            1: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}], blocks:[{x:0.68,y:0.75,w:0.037,h:0.2},{x:0.72,y:0.75,w:0.037,h:0.2},{x:0.76,y:0.75,w:0.037,h:0.2},{x:0.72,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'}], cats:5 },
-            2: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}, {x:0.78,y:0.55}], blocks:[{x:0.65,y:0.75,w:0.037,h:0.2},{x:0.70,y:0.75,w:0.037,h:0.2},{x:0.75,y:0.75,w:0.037,h:0.2},{x:0.8,y:0.75,w:0.037,h:0.2},{x:0.70,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'}], cats:4 },
-            3: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}, {x:0.78,y:0.55}, {x:0.85,y:0.55}], blocks:[{x:0.68,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.75,w:0.037,h:0.2},{x:0.80,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'},{x:0.74,y:0.35,w:0.037,h:0.2}], cats:4 },
-            4: { targets:[{x:0.75,y:0.75}, {x:0.75,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], cats:4 },
-            5: { targets:[{x:0.65,y:0.75}, {x:0.85,y:0.75}, {x:0.75,y:0.55}], blocks:[{x:0.60,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.65,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.90,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.75,y:0.75,w:0.03,h:0.2}], cats:4 },
-            6: { targets:[{x:0.75,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.65,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], cats:5 },
-            7: { targets: [ {x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35} ], blocks: [ {x:0.60,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.70,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.90,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.65,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.75,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.85,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.65,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.15,w:0.12,h:0.05,type:'glass'} ], cats: 4 },
-            8: { targets: [{x:0.80,y:0.75}, {x:0.80,y:0.55}, {x:0.80,y:0.35}], blocks: [ {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.55,w:0.24,h:0.05,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.15,w:0.14,h:0.05,type:'wood'} ], cats: 4 },
-            9: { targets: [{x:0.6,y:0.75},{x:0.65,y:0.75},{x:0.7,y:0.75},{x:0.75,y:0.75},{x:0.8,y:0.75},{x:0.65,y:0.55},{x:0.7,y:0.55},{x:0.75,y:0.55},{x:0.7,y:0.35},{x:0.85,y:0.75}], blocks: [{x:0.55,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.75,w:0.03,h:0.2,type:'glass'},{x:0.60,y:0.55,w:0.30,h:0.05,type:'wood'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.70,y:0.15,w:0.15,h:0.05,type:'stone'}], cats: 5 },
-            10: { targets: [{x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75},{x:0.70,y:0.55}, {x:0.80,y:0.55},{x:0.75,y:0.35}, {x:0.75,y:0.15}], blocks: [{x:0.60,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'},{x:0.75,y:0.55,w:0.35,h:0.05,type:'stone'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.75,y:0.15,w:0.25,h:0.05,type:'wood'},{x:0.70,y:0.05,w:0.02,h:0.1,type:'glass'}, {x:0.80,y:0.05,w:0.02,h:0.1,type:'glass'},{x:0.75,y:-0.05,w:0.15,h:0.03,type:'glass'}], cats: 6 }
+            1: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}], blocks:[{x:0.68,y:0.75,w:0.037,h:0.2},{x:0.72,y:0.75,w:0.037,h:0.2},{x:0.76,y:0.75,w:0.037,h:0.2},{x:0.72,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'}], cats:5, dogs:[] },
+            2: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}, {x:0.78,y:0.55}], blocks:[{x:0.65,y:0.75,w:0.037,h:0.2},{x:0.70,y:0.75,w:0.037,h:0.2},{x:0.75,y:0.75,w:0.037,h:0.2},{x:0.8,y:0.75,w:0.037,h:0.2},{x:0.70,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'}], cats:4, dogs:[{platX:0.62,platY:0.88,platW:0.2,dir:1}] },
+            3: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}, {x:0.78,y:0.55}, {x:0.85,y:0.55}], blocks:[{x:0.68,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.75,w:0.037,h:0.2},{x:0.80,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'},{x:0.74,y:0.35,w:0.037,h:0.2}], cats:4, dogs:[{platX:0.63,platY:0.88,platW:0.2,dir:-1}] },
+            4: { targets:[{x:0.75,y:0.75}, {x:0.75,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], cats:4, dogs:[{platX:0.62,platY:0.88,platW:0.22,dir:1}] },
+            5: { targets:[{x:0.65,y:0.75}, {x:0.85,y:0.75}, {x:0.75,y:0.55}], blocks:[{x:0.60,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.65,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.90,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.75,y:0.75,w:0.03,h:0.2}], cats:4, dogs:[{platX:0.6,platY:0.88,platW:0.22,dir:1}] },
+            6: { targets:[{x:0.75,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.65,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], cats:5, dogs:[{platX:0.6,platY:0.88,platW:0.22,dir:1},{platX:0.62,platY:0.62,platW:0.18,dir:-1}] },
+            7: { targets: [ {x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35} ], blocks: [ {x:0.60,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.70,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.90,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.65,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.75,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.85,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.65,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.15,w:0.12,h:0.05,type:'glass'} ], cats: 4, dogs:[{platX:0.6,platY:0.88,platW:0.22,dir:1}] },
+            8: { targets: [{x:0.80,y:0.75}, {x:0.80,y:0.55}, {x:0.80,y:0.35}], blocks: [ {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.55,w:0.24,h:0.05,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.15,w:0.14,h:0.05,type:'wood'} ], cats: 4, dogs:[{platX:0.6,platY:0.88,platW:0.22,dir:1},{platX:0.63,platY:0.58,platW:0.18,dir:-1}] },
+            9: { targets: [{x:0.6,y:0.75},{x:0.65,y:0.75},{x:0.7,y:0.75},{x:0.75,y:0.75},{x:0.8,y:0.75},{x:0.65,y:0.55},{x:0.7,y:0.55},{x:0.75,y:0.55},{x:0.7,y:0.35},{x:0.85,y:0.75}], blocks: [{x:0.55,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.75,w:0.03,h:0.2,type:'glass'},{x:0.60,y:0.55,w:0.30,h:0.05,type:'wood'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.70,y:0.15,w:0.15,h:0.05,type:'stone'}], cats: 5, dogs:[{platX:0.58,platY:0.88,platW:0.22,dir:1},{platX:0.62,platY:0.6,platW:0.18,dir:-1}] },
+            10: { targets: [{x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75},{x:0.70,y:0.55}, {x:0.80,y:0.55},{x:0.75,y:0.35}, {x:0.75,y:0.15}], blocks: [{x:0.60,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'},{x:0.75,y:0.55,w:0.35,h:0.05,type:'stone'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.75,y:0.15,w:0.25,h:0.05,type:'wood'},{x:0.70,y:0.05,w:0.02,h:0.1,type:'glass'}, {x:0.80,y:0.05,w:0.02,h:0.1,type:'glass'},{x:0.75,y:-0.05,w:0.15,h:0.03,type:'glass'}], cats: 6, dogs:[{platX:0.58,platY:0.88,platW:0.22,dir:1},{platX:0.62,platY:0.6,platW:0.18,dir:-1},{platX:0.64,platY:0.35,platW:0.16,dir:1}] }
         };
 
         class Cat {
@@ -958,7 +958,8 @@ document.addEventListener('click', () => {
                 ctx.beginPath(); ctx.moveTo(-this.radius, this.radius*0.3); ctx.quadraticCurveTo(-this.radius*1.8, -this.radius*0.5, -this.radius*1.5, -this.radius*1.1); ctx.stroke();
                 ctx.restore();
             }
-            update(){ if(this.launched){ this.trail.push({x:this.x,y:this.y}); if(this.trail.length>this.trailMaxLength) this.trail.shift(); this.velocity.y+=canvas.height*0.0004; this.x+=this.velocity.x; this.y+=this.velocity.y; const ground=canvas.height*0.08; if(this.x-this.radius<0){ this.velocity.x*=-0.7; this.x=this.radius; } if(this.x+this.radius>canvas.width){ this.velocity.x*=-0.7; this.x=canvas.width-this.radius; } if(this.y-this.radius<0){ this.velocity.y*=-0.5; this.y=this.radius; } if(this.y+this.radius>canvas.height-ground){ this.y=canvas.height-ground-this.radius; this.velocity.y*=-0.5; this.velocity.x*=0.7; } } }
+            update(){ if(this.launched){ this.trail.push({x:this.x,y:this.y}); if(this.trail.length>this.trailMaxLength) this.trail.shift(); this.velocity.y+=canvas.height*0.0004; this.x+=this.velocity.x; this.y+=this.velocity.y; const ground=canvas.height*0.08; if(this.x-this.radius<0){ this.velocity.x*=-0.7; this.x=this.radius; } if(this.x+this.radius>canvas.width){ this.velocity.x*=-0.7; this.x=canvas.width-this.radius; } if(this.y-this.radius<0){ this.velocity.y*=-0.5; this.y=this.radius; } if(this.y+this.radius>canvas.height-ground){ this.y=canvas.height-ground-this.radius; this.velocity.y*=-0.5; this.velocity.x*=0.7; if(Math.abs(this.velocity.y)<0.8 && Math.abs(this.velocity.x)<0.8){ this.settled=true; } } } }
+            isOnGround(){ return this.settled===true; }
         }
         
         class Mouse {
@@ -1005,6 +1006,136 @@ document.addEventListener('click', () => {
             }
         }
         
+        // ========== كلب - هدف خطير يسير على بلاطة ==========
+        class DogPlatform {
+            // البلاطة التي يسير عليها الكلب
+            constructor(px, py, pw) {
+                this.x = px; this.y = py; this.width = pw; this.height = Math.max(14, canvas.height * 0.03);
+            }
+            draw() {
+                const x = this.x, y = this.y, w = this.width, h = this.height;
+                // جسم البلاطة
+                const grad = ctx.createLinearGradient(x, y, x, y + h);
+                grad.addColorStop(0, '#e74c3c');
+                grad.addColorStop(0.4, '#c0392b');
+                grad.addColorStop(1, '#922b21');
+                ctx.fillStyle = grad;
+                ctx.beginPath(); ctx.roundRect(x, y, w, h, 5); ctx.fill();
+                // خط علوي لامع
+                ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                ctx.beginPath(); ctx.roundRect(x+3, y+2, w-6, h*0.35, 3); ctx.fill();
+                // حدود
+                ctx.strokeStyle = '#7b241c'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.roundRect(x, y, w, h, 5); ctx.stroke();
+                // رمز تحذير ☠
+                ctx.fillStyle = 'rgba(255,255,200,0.7)';
+                ctx.font = `bold ${Math.max(9, h*0.7)}px Cairo`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('⚠', x + w/2, y + h/2);
+            }
+        }
+
+        class Dog {
+            constructor(platX, platY, platW, direction) {
+                this.platX = platX;   // بداية البلاطة
+                this.platY = platY;   // y أعلى البلاطة
+                this.platW = platW * 0.6;   // تقليل عرض البلاطة إلى 60%
+                this.radius = Math.min(20, canvas.width * 0.026);
+                this.x = platX + this.platW * 0.3;
+                this.y = platY - this.radius;
+                this.direction = direction || 1;
+                this.speed = canvas.width * 0.0022;
+                this.bobOffset = Math.random() * Math.PI * 2;
+                this.hitCooldown = 0;
+                this.health = 100;
+                this.platform = new DogPlatform(platX, platY, this.platW);
+                // الكلب يعمل كحاجز - يمنع الوصول خلفه
+                this.barrierX = platX; // موضع الحاجز (بداية البلاطة)
+            }
+            update() {
+                this.x += this.speed * this.direction;
+                if (this.x > this.platX + this.platW - this.radius * 0.5) { this.x = this.platX + this.platW - this.radius * 0.5; this.direction = -1; }
+                if (this.x < this.platX + this.radius * 0.5) { this.x = this.platX + this.radius * 0.5; this.direction = 1; }
+                if (this.hitCooldown > 0) this.hitCooldown--;
+            }
+            draw() {
+                // ارسم البلاطة أولاً
+                this.platform.draw();
+
+                const r = this.radius;
+                const bob = Math.sin(Date.now() * 0.01 + this.bobOffset) * 1.5;
+                ctx.save();
+                ctx.translate(this.x, this.y + bob);
+                if (this.direction < 0) ctx.scale(-1, 1);
+
+                // هالة خطر نابضة
+                const pulse = 0.85 + Math.sin(Date.now() * 0.008) * 0.15;
+                ctx.beginPath(); ctx.arc(0, 0, r * 1.4 * pulse, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(231,76,60,0.18)'; ctx.fill();
+                ctx.strokeStyle = 'rgba(231,76,60,0.55)'; ctx.lineWidth = 2; ctx.stroke();
+
+                // ظل
+                ctx.fillStyle = 'rgba(0,0,0,0.22)';
+                ctx.beginPath(); ctx.ellipse(0, r * 0.82, r * 0.75, r * 0.18, 0, 0, Math.PI * 2); ctx.fill();
+
+                // جسم الكلب
+                const bodyGrad = ctx.createRadialGradient(-r*0.1, 0, r*0.1, 0, 0, r*0.8);
+                bodyGrad.addColorStop(0, '#E8B87A'); bodyGrad.addColorStop(1, '#B8742A');
+                ctx.beginPath(); ctx.ellipse(r*0.15, r*0.08, r*0.72, r*0.5, 0, 0, Math.PI*2);
+                ctx.fillStyle = bodyGrad; ctx.fill();
+                ctx.strokeStyle = '#7A4A10'; ctx.lineWidth = 1.5; ctx.stroke();
+
+                // رأس
+                const hg = ctx.createRadialGradient(-r*0.2, -r*0.55, r*0.05, -r*0.2, -r*0.52, r*0.48);
+                hg.addColorStop(0, '#F0C080'); hg.addColorStop(1, '#C68030');
+                ctx.beginPath(); ctx.arc(-r*0.18, -r*0.52, r*0.46, 0, Math.PI*2);
+                ctx.fillStyle = hg; ctx.fill(); ctx.strokeStyle = '#7A4A10'; ctx.lineWidth = 1.5; ctx.stroke();
+
+                // خطم
+                ctx.fillStyle = '#D4956A';
+                ctx.beginPath(); ctx.ellipse(r*0.12, -r*0.42, r*0.2, r*0.16, 0, 0, Math.PI*2); ctx.fill();
+
+                // أذن متدلية
+                ctx.fillStyle = '#9A4A18';
+                ctx.beginPath(); ctx.ellipse(-r*0.52, -r*0.3, r*0.16, r*0.35, -0.25, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#6A3010'; ctx.lineWidth = 1; ctx.stroke();
+
+                // عين حمراء (مخيفة)
+                ctx.fillStyle = '#c0392b';
+                ctx.beginPath(); ctx.arc(-r*0.3, -r*0.62, r*0.13, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#1a0000';
+                ctx.beginPath(); ctx.arc(-r*0.28, -r*0.62, r*0.07, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.beginPath(); ctx.arc(-r*0.23, -r*0.66, r*0.04, 0, Math.PI*2); ctx.fill();
+
+                // أنف
+                ctx.fillStyle = '#2c0a0a';
+                ctx.beginPath(); ctx.ellipse(r*0.15, -r*0.44, r*0.11, r*0.08, 0, 0, Math.PI*2); ctx.fill();
+
+                // أسنان
+                ctx.fillStyle = 'white';
+                ctx.beginPath(); ctx.moveTo(r*0.04, -r*0.36); ctx.lineTo(r*0.1, -r*0.28); ctx.lineTo(r*0.16, -r*0.36); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(r*0.17, -r*0.36); ctx.lineTo(r*0.23, -r*0.28); ctx.lineTo(r*0.29, -r*0.36); ctx.fill();
+
+                // أرجل متحركة
+                ctx.fillStyle = '#B8742A';
+                [-r*0.52, -r*0.18, r*0.2, r*0.58].forEach((lx, idx) => {
+                    const lb = Math.sin(Date.now()*0.014 + idx*1.3 + this.bobOffset) * r * 0.14;
+                    ctx.beginPath(); ctx.ellipse(lx, r*0.48 + lb, r*0.13, r*0.26, 0, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = '#7A4A10'; ctx.lineWidth = 1; ctx.stroke();
+                });
+
+                // ذيل مهتاج
+                ctx.strokeStyle = '#C68030'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+                const tw = Math.sin(Date.now()*0.018 + this.bobOffset) * 0.6;
+                ctx.beginPath(); ctx.moveTo(r*0.85, r*0.0);
+                ctx.quadraticCurveTo(r*1.4, -r*0.35 + tw*r, r*1.55, -r*0.75 + tw*r*1.4);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+        }
+
         class Block { 
             constructor(x,y,w,h,color='#A0522D', type='wood'){ 
                 this.x=x; this.y=y; this.width=w; this.height=h; this.color=color; this.type=type; 
@@ -1205,11 +1336,20 @@ document.addEventListener('click', () => {
         function loadLevel(levelNum){ 
             const levelData=levels[levelNum]; 
             if(!levelData){ endGame(); return; } 
-            gameObjects=[]; releasedCats=[]; 
+            gameObjects=[]; releasedCats=[]; dogs=[];
             const groundHeight=canvas.height*0.08; 
             gameObjects.push(new Block(0,canvas.height-groundHeight,canvas.width,groundHeight,'#4A752C','earth')); 
             levelData.targets.forEach(t=>{ const rad=Math.min(18,canvas.width*0.022); gameObjects.push(new Mouse(canvas.width*t.x, canvas.height-(canvas.height*(1-t.y))-rad)); }); 
-            levelData.blocks.forEach(b=>{ gameObjects.push(new Block(canvas.width*b.x, canvas.height-(canvas.height*(1-b.y))-(b.h?canvas.height*b.h:canvas.width*b.w), canvas.width*b.w, b.h?canvas.height*b.h:canvas.width*b.w, b.color||'#A0522D', b.type||'wood')); }); 
+            levelData.blocks.forEach(b=>{ gameObjects.push(new Block(canvas.width*b.x, canvas.height-(canvas.height*(1-b.y))-(b.h?canvas.height*b.h:canvas.width*b.w), canvas.width*b.w, b.h?canvas.height*b.h:canvas.width*b.w, b.color||'#A0522D', b.type||'wood')); });
+            if(levelData.dogs){ levelData.dogs.forEach(d=>{ 
+                const px = canvas.width * d.platX;
+                // رفع الكلب عن الأرض: platY=0.88 يعني الأرض، نرفعه بمقدار 15% من ارتفاع الشاشة
+                const groundY = canvas.height * 0.92;
+                const elevatedY = groundY - canvas.height * 0.15; // مرتفع 15% عن الأرض
+                const py = d.platY >= 0.85 ? elevatedY : canvas.height * d.platY;
+                const pw = canvas.width * d.platW;
+                dogs.push(new Dog(px, py, pw, d.dir||1)); 
+            }); }
             catsLeft=levelData.cats; loadNextCat(); updateUI(); 
         }
 
@@ -1233,15 +1373,51 @@ document.addEventListener('click', () => {
                             if(obj.type === 'glass') score+=20;
                             else if(obj.type === 'stone') score+=50;
                             else score+=10;
-                            
                             updateUI(); 
                             if(obj.health<=0){ 
                                 gameObjects.splice(i,1); i--; playSound(600,'sawtooth',0.2,0.7); 
                             } 
                         } 
                     } 
-                } 
+                }
+                // اصطدام القطة المنطلقة بالكلاب - الكلب حاجز يمنع العبور
+                for(let j=0; j<dogs.length; j++){
+                    const dog = dogs[j];
+                    if(dog.hitCooldown > 0) continue;
+                    const dx = cat.x - dog.x, dy = cat.y - dog.y;
+                    const dist = Math.sqrt(dx*dx+dy*dy);
+                    if(dist < cat.radius + dog.radius){
+                        dog.hitCooldown = 90; // كولداون أطول لمنع التكرار
+                        playSound(180,'sawtooth',0.3,0.5);
+                        showDogHitEffect();
+                        // إعادة توجيه القطة: ترتد للأمام (ناحية المقلاع) ولا تعبر للخلف
+                        const nx = dx / dist, ny = dy / dist;
+                        // تأكد أن القطة لا تتجاوز الكلب
+                        cat.x = dog.x + nx * (cat.radius + dog.radius + 2);
+                        cat.y = dog.y + ny * (cat.radius + dog.radius + 2);
+                        // عكس الاتجاه كلياً بقوة أكبر لضمان الارتداد
+                        const speed = Math.sqrt(cat.velocity.x**2 + cat.velocity.y**2);
+                        cat.velocity.x = nx * speed * 0.7;
+                        cat.velocity.y = ny * speed * 0.7;
+                        if(cat.velocity.x > 0) cat.velocity.x *= -1; // دائماً يرتد للخلف (ناحية المقلاع)
+                    }
+                }
             } 
+        }
+
+        function showDogHitEffect() {
+            // منع ظهور أكثر من تحذير واحد في نفس الوقت
+            if(document.getElementById('dog-hit-warning')) return;
+            const container = canvas.parentElement;
+            const flash = document.createElement('div');
+            flash.id = 'dog-hit-warning';
+            flash.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(200,20,20,0.3);z-index:50;border-radius:15px;pointer-events:none;transition:opacity 0.4s;';
+            container.appendChild(flash);
+            const txt = document.createElement('div');
+            txt.innerHTML = '🐕 احذر الكلب!';
+            txt.style.cssText = 'position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:clamp(1rem,4vw,1.8rem);font-weight:900;text-shadow:0 2px 10px #000;z-index:51;pointer-events:none;text-align:center;';
+            container.appendChild(txt);
+            setTimeout(() => { flash.style.opacity='0'; setTimeout(() => { flash.remove(); txt.remove(); }, 400); }, 700);
         }
 
         function nextCat(){ if(releasedCats.some(b=>b.launched && (Math.abs(b.velocity.x)>0.5||Math.abs(b.velocity.y)>0.5))){ setTimeout(nextCat,500); return; } const targets=gameObjects.filter(obj=>obj instanceof Mouse); if(targets.length===0){ playSound(1000,'triangle',0.5,0.6); showGameOverMessage('لقد نجحت!',`نقاطك: ${score}`,true,false); } else if(catsLeft>0){ loadNextCat(); } else { loadNextQuestion(); } }
@@ -1651,7 +1827,9 @@ function drawUI() {
 function gameLoop(){ 
             if(!gameRunning) { requestAnimationFrame(gameLoop); return; } 
             drawBackgroundDetails(); drawSlingshot(); 
-            gameObjects.forEach(o=>o.draw()); releasedCats.forEach(c=>{c.update(); c.draw();}); 
+            gameObjects.forEach(o=>o.draw()); 
+            releasedCats.forEach(c=>{ c.update(); if(!c.isOnGround()) c.draw(); }); 
+            dogs.forEach(d=>{ d.update(); d.draw(); });
             detectCollisions();
     drawUI(); requestAnimationFrame(gameLoop); 
         }
