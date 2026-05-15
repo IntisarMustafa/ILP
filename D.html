@@ -825,7 +825,7 @@
             <input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
             <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
             <div class="avatar-grid" id="avatar-container"></div>
-            <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">🌊 اغمر في اللعب الآن!</button>
+            <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">🌊 ابدأ اللعب!</button>
         </div>
     </div>
 
@@ -2453,34 +2453,53 @@
                 optionsContainer.innerHTML = html;
 
             } else if (qType === 'matching') {
-                // توصيل
+                // توصيل تفاعلي بالـ Canvas
+                currentMatchingState = { selectedLeft: null, matches: {} };
                 const pairs = currentQuestion.pairs || [];
-                const shuffled = [...pairs.map(p => p.right)].sort(() => Math.random() - 0.5);
-                let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-bottom:8px;">
-                    <div style="font-weight:bold;color:#38bdf8;text-align:center;padding:4px;border-bottom:1px solid rgba(255,255,255,0.3);">العمود الأول</div>
-                    <div style="font-weight:bold;color:#38bdf8;text-align:center;padding:4px;border-bottom:1px solid rgba(255,255,255,0.3);">العمود الثاني</div>`;
-                pairs.forEach((pair, i) => {
-                    html += `<div style="padding:8px;background:rgba(255,255,255,0.15);border-radius:8px;text-align:center;color:white;font-size:14px;">${pair.left}</div>
-                        <select id="d-match-${i}" style="padding:8px;border:2px solid rgba(255,255,255,0.3);border-radius:8px;
-                            font-family:'Cairo',sans-serif;background:rgba(0,0,0,0.5);color:white;direction:rtl;width:100%;">
-                            <option value="">اختر...</option>
-                            ${shuffled.map(r => `<option value="${r}">${r}</option>`).join('')}
-                        </select>`;
-                });
-                html += `</div><button onclick="checkMatchingAnswer()" style="margin-top:8px;width:100%;padding:12px;
-                    background:var(--primary);color:white;border:none;border-radius:8px;
-                    font-size:17px;font-weight:bold;cursor:pointer;font-family:'Cairo',sans-serif;">✔ تحقق</button>`;
+                let leftItems  = pairs.map((p, i) => ({ id: i, text: p.left }));
+                let rightItems = pairs.map((p, i) => ({ id: i, text: p.right })).sort(() => Math.random() - 0.5);
+
+                let html = `
+                    <div id="matching-container-wrapper" style="width:100%;display:flex;flex-direction:column;gap:12px;position:relative;">
+                        <canvas id="matching-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
+                        <div style="display:flex;gap:10px;justify-content:space-between;position:relative;z-index:2;">
+                            <div id="matching-left-column" style="flex:1;display:flex;flex-direction:column;gap:10px;">
+                                ${leftItems.map(item => `
+                                    <button id="left-item-${item.id}" onclick="fishSelectLeft(${item.id})"
+                                        style="padding:10px;border:2px solid rgba(255,255,255,0.4);border-radius:10px;
+                                        background:rgba(255,255,255,0.15);color:white;font-weight:bold;font-size:14px;
+                                        cursor:pointer;transition:0.2s;min-height:50px;width:100%;font-family:'Cairo',sans-serif;">
+                                        ${item.text}
+                                    </button>`).join('')}
+                            </div>
+                            <div id="matching-right-column" style="flex:1;display:flex;flex-direction:column;gap:10px;">
+                                ${rightItems.map(item => `
+                                    <button id="right-item-${item.id}" onclick="fishSelectRight(${item.id})"
+                                        style="padding:10px;border:2px solid rgba(255,255,255,0.4);border-radius:10px;
+                                        background:rgba(255,255,255,0.15);color:white;font-weight:bold;font-size:14px;
+                                        cursor:pointer;transition:0.2s;min-height:50px;width:100%;font-family:'Cairo',sans-serif;">
+                                        ${item.text}
+                                    </button>`).join('')}
+                            </div>
+                        </div>
+                        <button onclick="checkMatchingAnswer()" style="width:100%;padding:12px;position:relative;z-index:2;
+                            background:var(--primary);color:white;border:none;border-radius:8px;
+                            font-size:17px;font-weight:bold;cursor:pointer;font-family:'Cairo',sans-serif;">✔ تحقق</button>
+                    </div>`;
                 optionsContainer.innerHTML = html;
+                setTimeout(fishDrawConnections, 80);
 
             } else if (qType === 'dragdrop') {
                 // تصنيف
                 const zones = currentQuestion.zones || [];
                 const items = currentQuestion.items || [];
+                // خلط العناصر مع الاحتفاظ بـ correctZone الأصلي في data attribute
                 const shuffledItems = [...items].sort(() => Math.random() - 0.5);
                 let html = `<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
                     padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:8px;min-height:40px;" id="d-drag-bank">`;
                 shuffledItems.forEach((item, i) => {
-                    html += `<div draggable="true" id="d-ditem-${i}" data-idx="${i}" data-zone="${item.zoneIndex}"
+                    // data-correct-zone يحمل المجموعة الصحيحة للعنصر
+                    html += `<div draggable="true" id="d-ditem-${i}" data-correct-zone="${item.zoneIndex}"
                         ondragstart="event.dataTransfer.setData('text',event.target.id)"
                         onclick="dMobileSelect(this)"
                         style="padding:7px 14px;background:var(--primary);color:white;border-radius:20px;
@@ -2547,27 +2566,117 @@
             _showFeedback(allCorrect);
         }
 
+        // ========== دوال التوصيل التفاعلي (Canvas) ==========
+        let currentMatchingState = { selectedLeft: null, matches: {} };
+        const fishMatchColors = ['#e74c3c','#3498db','#f39c12','#2ecc71','#9b59b6','#e67e22','#1abc9c','#e91e63'];
+
+        function fishDrawConnections() {
+            const canvas = document.getElementById('matching-canvas');
+            if (!canvas) return;
+            const wrapper = document.getElementById('matching-container-wrapper');
+            if (!wrapper) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width  = wrapper.offsetWidth;
+            canvas.height = wrapper.offsetHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let i = 0;
+            for (let leftId in currentMatchingState.matches) {
+                let rightId = currentMatchingState.matches[leftId];
+                let lEl = document.getElementById(`left-item-${leftId}`);
+                let rEl = document.getElementById(`right-item-${rightId}`);
+                if (!lEl || !rEl) { i++; continue; }
+                let lRect = lEl.getBoundingClientRect();
+                let rRect = rEl.getBoundingClientRect();
+                let pRect = wrapper.getBoundingClientRect();
+                // RTL: الخط يبدأ من يسار العنصر الأيسر (يمين الشاشة) وينتهي عند يمين العنصر الأيمن
+                let sx = lRect.left - pRect.left;
+                let sy = lRect.top + lRect.height / 2 - pRect.top;
+                let ex = rRect.right - pRect.left;
+                let ey = rRect.top + rRect.height / 2 - pRect.top;
+                ctx.beginPath();
+                ctx.moveTo(sx, sy);
+                ctx.bezierCurveTo(sx - 40, sy, ex + 40, ey, ex, ey);
+                ctx.strokeStyle = fishMatchColors[i % fishMatchColors.length];
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                i++;
+            }
+        }
+
+        function fishSelectLeft(leftId) {
+            if (currentMatchingState.selectedLeft === leftId) {
+                currentMatchingState.selectedLeft = null;
+            } else if (currentMatchingState.matches[leftId] !== undefined) {
+                delete currentMatchingState.matches[leftId];
+                currentMatchingState.selectedLeft = leftId;
+            } else {
+                currentMatchingState.selectedLeft = leftId;
+            }
+            fishUpdateMatchUI();
+        }
+
+        function fishSelectRight(rightId) {
+            // إزالة أي توصيل سابق لهذا العنصر الأيمن
+            for (let lid in currentMatchingState.matches) {
+                if (currentMatchingState.matches[lid] === rightId) {
+                    delete currentMatchingState.matches[lid]; break;
+                }
+            }
+            if (currentMatchingState.selectedLeft !== null) {
+                currentMatchingState.matches[currentMatchingState.selectedLeft] = rightId;
+                currentMatchingState.selectedLeft = null;
+            }
+            fishUpdateMatchUI();
+        }
+
+        function fishUpdateMatchUI() {
+            // إعادة تنسيق جميع الأزرار
+            document.querySelectorAll('[id^="left-item-"], [id^="right-item-"]').forEach(el => {
+                el.style.background = 'rgba(255,255,255,0.15)';
+                el.style.borderColor = 'rgba(255,255,255,0.4)';
+                el.style.color = 'white';
+            });
+            // تلوين المتوصلة
+            let i = 0;
+            for (let leftId in currentMatchingState.matches) {
+                let rightId = currentMatchingState.matches[leftId];
+                let color = fishMatchColors[i % fishMatchColors.length];
+                let lEl = document.getElementById(`left-item-${leftId}`);
+                let rEl = document.getElementById(`right-item-${rightId}`);
+                if (lEl) { lEl.style.background = color; lEl.style.borderColor = color; }
+                if (rEl) { rEl.style.background = color; rEl.style.borderColor = color; }
+                i++;
+            }
+            // تمييز المحدد
+            if (currentMatchingState.selectedLeft !== null) {
+                let sel = document.getElementById(`left-item-${currentMatchingState.selectedLeft}`);
+                if (sel) { sel.style.background = '#f39c12'; sel.style.borderColor = '#f39c12'; }
+            }
+            fishDrawConnections();
+        }
+
         function checkMatchingAnswer() {
             const pairs = currentQuestion.pairs || [];
             let allCorrect = true;
             pairs.forEach((pair, i) => {
-                const sel = document.getElementById(`d-match-${i}`);
-                if (!sel) return;
-                if (sel.value === pair.right) { sel.style.borderColor = '#2ecc71'; }
-                else { sel.style.borderColor = '#e74c3c'; allCorrect = false; }
-                sel.disabled = true;
+                let rightId = currentMatchingState.matches[i];
+                // rightId هو الـ id العشوائي للعنصر الأيمن — يجب أن يساوي i (لأن rightItems[id].id === الترتيب الأصلي)
+                if (rightId !== i) allCorrect = false;
             });
             _showFeedback(allCorrect);
         }
 
         function checkDragAnswer() {
-            const items = currentQuestion.items || [];
+            // البحث عن جميع عناصر السحب داخل النموذج
+            const dragItems = optionsContainer.querySelectorAll('[data-correct-zone]');
             let allCorrect = true;
-            items.forEach((item, i) => {
-                const el = document.getElementById(`d-ditem-${i}`);
-                if (!el) return;
+            dragItems.forEach(el => {
+                const correctZone = parseInt(el.getAttribute('data-correct-zone'));
                 const parent = el.closest('[id^="d-dropzone-"]');
-                if (!parent || parseInt(parent.dataset.zone) !== item.zoneIndex) {
+                const currentZone = parent ? parseInt(parent.dataset.zone) : -1;
+                if (currentZone !== correctZone) {
                     el.style.background = '#e74c3c'; allCorrect = false;
                 } else {
                     el.style.background = '#2ecc71';
@@ -2682,6 +2791,8 @@
                 loading.innerText = "❌ حدث خطأ أثناء جلب البيانات. تأكد من اتصالك بالإنترنت.";
             }
         }
+
+        window.addEventListener('resize', fishDrawConnections);
 
         window.onload = () => {
             setupAvatars();
