@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>🎨 لعبة الرسم الحر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+    :root {
+        --primary: #2F80ED;
+        --primary-dark: #1366D6;
+        --success: #27ae60;
+        --success-dark: #1e8449;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+        --white: #ffffff;
+        --bg: #eaf4ff;
+        --purple: #8e44ad;
+        --purple-dark: #6c3483;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+    body {
+        background: linear-gradient(160deg, #eaf4ff 0%, #f0f7ff 50%, #e3f0ff 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+    }
+
+    /* ===== SCREENS ===== */
+    .screen {
+        display: none; width: 100%; max-width: 700px; padding: 20px;
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        flex-direction: column; align-items: center; justify-content: center;
+        min-height: 100vh;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.9) translateY(30px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .card {
+        background: rgba(255,255,255,0.97); padding: 40px; border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(47,128,237,0.15); width: 100%; text-align: center;
+    }
+
+    .logo { font-size: 80px; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+    @keyframes float {
+        0%,100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    h1 { color: var(--primary); margin-bottom: 8px; font-size: 34px; }
+    h2 { color: #333; margin-bottom: 20px; font-size: 22px; }
+    .subtitle { color: #888; margin-bottom: 30px; font-size: 15px; }
+
+    .input-group { margin-bottom: 18px; text-align: right; }
+    .input-group label { display: block; font-weight: bold; color: var(--primary); margin-bottom: 6px; font-size: 15px; }
+    .input-group input, .input-group textarea {
+        width: 100%; padding: 14px; border: 3px solid #dce8ff;
+        border-radius: 12px; font-size: 16px; font-weight: bold; text-align: right;
+        transition: border-color 0.3s; font-family: 'Cairo', sans-serif;
+        background: #f8fbff;
+    }
+    .input-group textarea { resize: vertical; min-height: 80px; font-size: 15px; }
+    .input-group input:focus, .input-group textarea:focus { outline: none; border-color: var(--primary); background: white; }
+
+    .btn {
+        width: 100%; padding: 16px; border: none; border-radius: 12px;
+        font-size: 20px; font-weight: 900; cursor: pointer;
+        margin-bottom: 12px; color: var(--white);
+        transition: all 0.15s; position: relative; top: 0;
+        box-shadow: 0 6px 0 rgba(0,0,0,0.18);
+        letter-spacing: 0.3px; font-family: 'Cairo', sans-serif;
+    }
+    .btn:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0.18); }
+    .btn:hover { filter: brightness(1.08); }
+    .btn-primary { background: linear-gradient(135deg, #2F80ED, #1a6dd4); box-shadow: 0 6px 0 #1057b0; }
+    .btn-success { background: linear-gradient(135deg, #27ae60, #1e8449); box-shadow: 0 6px 0 #145a32; }
+    .btn-danger  { background: linear-gradient(135deg, #e74c3c, #c0392b); box-shadow: 0 6px 0 #922b21; }
+    .btn-warning { background: linear-gradient(135deg, #f39c12, #d68910); box-shadow: 0 6px 0 #a0660a; }
+    .btn-purple  { background: linear-gradient(135deg, #8e44ad, #6c3483); box-shadow: 0 6px 0 #4a235a; }
+    .btn-gray    { background: linear-gradient(135deg, #636e72, #2d3436); box-shadow: 0 6px 0 #1a1f20; }
+
+    .btn-sm { font-size: 15px; padding: 10px 20px; width: auto; margin-bottom: 0; }
+
+    /* ===== HOME BUTTONS ===== */
+    .home-btn-group { display: flex; flex-direction: column; gap: 0; width: 100%; }
+    .divider { text-align: center; color: #aaa; font-size: 13px; margin: 5px 0; }
+
+    /* ===== DRAW SCREEN ===== */
+    #screen-draw {
+        display: none; width: 100%; max-width: 900px;
+        padding: 0; min-height: 100vh; align-items: stretch;
+        flex-direction: column;
+    }
+    #screen-draw.active { display: flex; }
+
+    .draw-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white; padding: 12px 20px;
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .draw-header-info { font-size: 14px; opacity: 0.85; }
+    .draw-header h2 { font-size: 18px; margin: 0; }
+
+    .question-banner {
+        background: linear-gradient(135deg, #fff9e6, #fff3cc);
+        border-bottom: 3px solid #f39c12;
+        padding: 14px 20px;
+        font-size: 18px; font-weight: 900; color: #7b5000;
+        text-align: center;
+        min-height: 60px; display: flex; align-items: center; justify-content: center;
+    }
+    .question-img-wrap {
+        display: none; background: #f9f9f9; padding: 10px; text-align: center;
+        border-bottom: 2px solid #eee;
+    }
+    .question-img-wrap img { max-height: 160px; max-width: 100%; border-radius: 10px; }
+
+    /* ===== TOOLBAR ===== */
+    .toolbar {
+        background: #1a2a4a;
+        padding: 10px 14px;
+        display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+        border-bottom: 2px solid #0f1e35;
+    }
+    .tool-btn {
+        padding: 8px 12px; border: 2px solid #2a4070; border-radius: 8px;
+        background: #243560; color: #cce0ff; cursor: pointer;
+        font-size: 13px; font-family: 'Cairo', sans-serif; font-weight: bold;
+        transition: all 0.15s; white-space: nowrap;
+    }
+    .tool-btn:hover { background: #2F80ED; border-color: #2F80ED; color: white; }
+    .tool-btn.active { background: #f39c12; border-color: #d68910; color: white; }
+    .tool-btn.eraser-active { background: #e74c3c; border-color: #c0392b; color: white; }
+
+    .color-swatch {
+        width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+        border: 3px solid transparent; transition: all 0.15s; flex-shrink: 0;
+    }
+    .color-swatch.selected { border-color: white; transform: scale(1.2); box-shadow: 0 0 0 2px #2F80ED; }
+
+    .size-slider {
+        -webkit-appearance: none; appearance: none;
+        width: 90px; height: 6px; border-radius: 3px; background: #2a4070;
+        outline: none; cursor: pointer;
+    }
+    .size-slider::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: #f39c12; cursor: pointer;
+    }
+
+    .color-picker-input {
+        width: 34px; height: 34px; border: none; border-radius: 50%;
+        cursor: pointer; padding: 2px; background: none;
+        border: 2px solid #2a4070;
+    }
+
+    /* ===== CANVAS ===== */
+    .canvas-wrap {
+        flex: 1; background: white; display: flex;
+        justify-content: center; align-items: flex-start;
+        overflow: hidden; position: relative;
+    }
+    #drawCanvas {
+        display: block; cursor: crosshair; touch-action: none;
+        background: white;
+    }
+
+    /* ===== BOTTOM BAR ===== */
+    .bottom-bar {
+        background: #1a2a4a;
+        padding: 12px 16px;
+        display: flex; gap: 10px; align-items: center; justify-content: center;
+        border-top: 2px solid #0f1e35;
+        flex-wrap: wrap;
+    }
+    .bottom-bar .btn {
+        width: auto; margin-bottom: 0; padding: 12px 28px; font-size: 17px;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+    }
+
+    /* ===== SUCCESS SCREEN ===== */
+    .success-icon { font-size: 90px; margin-bottom: 15px; animation: bounce 0.6s; }
+    @keyframes bounce {
+        0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); }
+    }
+
+    /* ===== LOADING ===== */
+    #loading-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7); z-index: 9999;
+        align-items: center; justify-content: center; flex-direction: column; gap: 20px;
+        color: white;
+    }
+    .spinner {
+        width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.3);
+        border-top-color: white; border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 22px; font-weight: bold; }
+
+    /* ===== BRUSH PREVIEW ===== */
+    .brush-preview {
+        width: 34px; height: 34px; border-radius: 50%; background: #2a4070;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .brush-dot { border-radius: 50%; background: white; }
+
+    /* ===== UNDO INDICATOR ===== */
+    .undo-hint {
+        position: absolute; bottom: 10px; right: 10px;
+        background: rgba(0,0,0,0.5); color: white; border-radius: 8px;
+        padding: 6px 12px; font-size: 12px; pointer-events: none;
+        opacity: 0; transition: opacity 0.3s;
+    }
+    .undo-hint.show { opacity: 1; }
+
+    /* ===== TEACHER SCREEN ===== */
+    #screen-teacher {
+        display: none; width: 100%; max-width: 800px; padding: 20px;
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        flex-direction: column; align-items: center;
+        min-height: 100vh; padding-top: 30px;
+    }
+    #screen-teacher.active { display: flex; }
+
+    .teacher-card {
+        background: rgba(255,255,255,0.97); padding: 35px; border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(142,68,173,0.2); width: 100%; text-align: right;
+        margin-bottom: 20px;
+    }
+
+    .teacher-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 25px; flex-wrap: wrap; gap: 10px;
+    }
+    .teacher-header h2 { margin-bottom: 0; color: var(--purple); font-size: 26px; }
+
+    .section-title {
+        font-size: 16px; font-weight: 900; color: var(--purple);
+        margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+
+    .attach-tabs {
+        display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;
+    }
+    .attach-tab {
+        padding: 8px 16px; border: 2px solid #ddd; border-radius: 20px;
+        cursor: pointer; background: white; font-weight: bold;
+        font-size: 13px; font-family: 'Cairo', sans-serif;
+        transition: all 0.2s; color: #555;
+    }
+    .attach-tab:hover { border-color: var(--purple); color: var(--purple); }
+    .attach-tab.active { background: var(--purple); color: white; border-color: var(--purple); }
+
+    .attach-panel { display: none; }
+    .attach-panel.active { display: block; }
+
+    .img-preview-area {
+        border: 3px dashed #d4aaee; border-radius: 14px; padding: 20px;
+        text-align: center; background: #faf5ff; min-height: 100px;
+        display: flex; align-items: center; justify-content: center;
+        flex-direction: column; gap: 10px; cursor: pointer;
+        transition: border-color 0.2s;
+    }
+    .img-preview-area:hover { border-color: var(--purple); }
+    .img-preview-area img { max-height: 160px; max-width: 100%; border-radius: 10px; }
+    .img-preview-area p { color: #999; font-size: 14px; }
+
+    .text-attach-input {
+        width: 100%; padding: 14px; border: 3px solid #d4aaee;
+        border-radius: 12px; font-size: 16px; text-align: right;
+        font-family: 'Cairo', sans-serif; background: #faf5ff;
+        min-height: 100px; resize: vertical;
+    }
+    .text-attach-input:focus { outline: none; border-color: var(--purple); background: white; }
+
+    /* Mini canvas for shape drawing */
+    #shapeCanvas {
+        border: 3px solid #d4aaee; border-radius: 12px;
+        background: white; cursor: crosshair; touch-action: none;
+        display: block; width: 100%; max-width: 100%;
+    }
+    .shape-toolbar {
+        background: #f3eaff; border-radius: 10px; padding: 10px;
+        display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+        margin-bottom: 10px;
+    }
+    .shape-tool-btn {
+        padding: 6px 12px; border: 2px solid #c9a0e0; border-radius: 8px;
+        background: white; color: #6c3483; cursor: pointer;
+        font-size: 12px; font-family: 'Cairo', sans-serif; font-weight: bold;
+        transition: all 0.15s;
+    }
+    .shape-tool-btn:hover, .shape-tool-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+
+    /* PIN display */
+    .pin-display {
+        background: linear-gradient(135deg, #f3eaff, #e8d5f5);
+        border: 3px solid #c9a0e0; border-radius: 18px;
+        padding: 20px 30px; text-align: center; margin: 15px 0;
+    }
+    .pin-number {
+        font-size: 64px; font-weight: 900; color: var(--purple);
+        letter-spacing: 8px; line-height: 1;
+        text-shadow: 2px 2px 0 rgba(108,52,131,0.2);
+    }
+    .pin-label { color: #888; font-size: 14px; margin-top: 5px; }
+
+    .code-box {
+        background: #1a1a2e; border-radius: 12px; padding: 15px 20px;
+        font-family: monospace; font-size: 13px; color: #00d4ff;
+        direction: ltr; text-align: left; word-break: break-all;
+        margin: 10px 0; position: relative;
+        max-height: 120px; overflow-y: auto;
+    }
+
+    .copy-btn {
+        position: absolute; top: 10px; left: 10px;
+        background: #2F80ED; color: white; border: none;
+        padding: 5px 12px; border-radius: 6px; cursor: pointer;
+        font-size: 12px; font-family: 'Cairo', sans-serif;
+    }
+
+    /* Share row */
+    .share-row {
+        display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .share-row input {
+        flex: 1; padding: 12px; border: 3px solid #dce8ff;
+        border-radius: 10px; font-size: 13px; direction: ltr;
+        background: #f8fbff; font-family: monospace;
+        min-width: 0;
+    }
+    .share-row input:focus { outline: none; border-color: var(--primary); }
+
+    /* ===== GALLERY SCREEN ===== */
+    #screen-gallery {
+        display: none; width: 100%; max-width: 1100px; padding: 20px;
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        flex-direction: column; align-items: center;
+        min-height: 100vh; padding-top: 20px;
+    }
+    #screen-gallery.active { display: flex; }
+
+    .gallery-header {
+        background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+        color: white; border-radius: 20px; padding: 25px 30px;
+        text-align: center; width: 100%; margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(108,52,131,0.3);
+    }
+    .gallery-header h2 { color: white; font-size: 28px; margin-bottom: 5px; }
+    .gallery-header p { opacity: 0.85; font-size: 15px; }
+
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px; width: 100%; margin-bottom: 25px;
+    }
+
+    .gallery-card {
+        background: white; border-radius: 18px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;
+        animation: cardIn 0.5s ease both;
+    }
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(20px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .gallery-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(142,68,173,0.25);
+    }
+
+    .gallery-img-wrap {
+        background: #f8f9fa; padding: 10px;
+        display: flex; align-items: center; justify-content: center;
+        min-height: 180px;
+    }
+    .gallery-img-wrap img {
+        max-width: 100%; max-height: 180px;
+        border-radius: 10px; object-fit: contain;
+        cursor: pointer;
+    }
+
+    .gallery-card-footer {
+        padding: 14px 16px;
+        background: linear-gradient(135deg, #f3eaff, #faf5ff);
+        border-top: 2px solid #e8d5f5;
+    }
+    .gallery-student-name {
+        font-size: 17px; font-weight: 900; color: var(--purple-dark);
+        display: flex; align-items: center; gap: 8px;
+    }
+    .gallery-time {
+        font-size: 12px; color: #999; margin-top: 4px;
+    }
+
+    .gallery-rank {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 32px; height: 32px; border-radius: 50%;
+        font-weight: 900; font-size: 14px; color: white;
+        flex-shrink: 0;
+    }
+    .rank-1 { background: linear-gradient(135deg, #f39c12, #d4ac0d); box-shadow: 0 0 10px rgba(243,156,18,0.5); }
+    .rank-2 { background: linear-gradient(135deg, #bdc3c7, #95a5a6); }
+    .rank-3 { background: linear-gradient(135deg, #e67e22, #ca6f1e); }
+    .rank-other { background: linear-gradient(135deg, #8e44ad, #6c3483); }
+
+    .empty-gallery {
+        text-align: center; padding: 60px 20px; color: #aaa;
+    }
+    .empty-gallery .icon { font-size: 70px; margin-bottom: 15px; animation: float 3s ease-in-out infinite; }
+    .empty-gallery p { font-size: 18px; }
+
+    /* Lightbox */
+    #lightbox {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.92); z-index: 99999;
+        align-items: center; justify-content: center; flex-direction: column; gap: 15px;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img { max-width: 90vw; max-height: 80vh; border-radius: 12px; border: 4px solid var(--purple); }
+    #lightbox-name { color: white; font-size: 20px; font-weight: 900; }
+    #lightbox-close {
+        position: absolute; top: 20px; left: 20px;
+        background: #e74c3c; color: white; border: none;
+        width: 44px; height: 44px; border-radius: 50%; font-size: 20px;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Gallery controls */
+    .gallery-controls {
+        display: flex; gap: 10px; width: 100%; margin-bottom: 15px; flex-wrap: wrap;
+    }
+    .gallery-controls .btn { width: auto; padding: 12px 24px; font-size: 16px; flex: 1; min-width: 140px; }
+
+    .gallery-stats {
+        display: flex; gap: 15px; width: 100%; margin-bottom: 15px; flex-wrap: wrap;
+    }
+    .stat-badge {
+        background: white; border-radius: 14px; padding: 12px 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08); flex: 1;
+        text-align: center; min-width: 100px;
+    }
+    .stat-badge .stat-num { font-size: 28px; font-weight: 900; color: var(--purple); }
+    .stat-badge .stat-lbl { font-size: 12px; color: #888; }
+
+    /* Gallery refresh indicator */
+    .refresh-badge {
+        background: #27ae60; color: white; border-radius: 20px;
+        padding: 5px 14px; font-size: 13px; font-weight: bold;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .refresh-dot {
+        width: 8px; height: 8px; border-radius: 50%; background: white;
+        animation: blink 1.2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    @media (max-width: 600px) {
+        .card { padding: 25px; }
+        h1 { font-size: 26px; }
+        .toolbar { gap: 6px; padding: 8px; }
+        .tool-btn { padding: 7px 9px; font-size: 12px; }
+        .size-slider { width: 70px; }
+        .pin-number { font-size: 48px; letter-spacing: 4px; }
+        .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        .teacher-card { padding: 20px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loading-text">📤 جاري إرسال رسمتك...</div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()">
+    <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-name"></div>
+</div>
+
+<!-- Hidden Form for submission -->
+<iframe id="hidden_iframe_draw" name="hidden_iframe_draw" style="display:none;" onload="handleDrawSubmit()"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec"
+      id="drawForm" method="POST" style="display:none;" target="hidden_iframe_draw">
+    <input id="df-name"   name="name"   type="hidden"/>
+    <input id="df-school" name="school" type="hidden"/>
+    <input id="df-score"  name="score"  type="hidden"/>
+</form>
+
+<!-- ======================== -->
+<!-- SCREEN: HOME             -->
+<!-- ======================== -->
+<div class="screen active" id="screen-home">
+    <div class="card">
+        <div class="logo">🎨</div>
+        <h1>لعبة الرسم الحر</h1>
+        <p class="subtitle">ارسم إجابتك وأرسلها للمعلم!</p>
+        <div class="home-btn-group">
+            <button class="btn btn-primary" onclick="showScreen('screen-join')">🚀 دخول الطالب</button>
+            <div class="divider">— أو —</div>
+            <button class="btn btn-purple" onclick="showScreen('screen-teacher')">👨‍🏫 لوحة المعلم</button>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: JOIN             -->
+<!-- ======================== -->
+<div class="screen" id="screen-join">
+    <div class="card">
+        <div class="logo">✏️</div>
+        <h1>لعبة الرسم الحر</h1>
+        <p class="subtitle">ارسم إجابتك وأرسلها للمعلم!</p>
+
+        <div class="input-group">
+            <label>🔢 رمز الغرفة (PIN)</label>
+            <input type="number" id="pin-input" placeholder="أدخل رمز الغرفة..." style="text-align:center; font-size:26px; letter-spacing:4px;">
+        </div>
+        <div class="input-group">
+            <label>👤 اسمك</label>
+            <input type="text" id="name-input" placeholder="اكتب اسمك هنا...">
+        </div>
+
+        <button class="btn btn-primary" onclick="joinRoom()">🚀 ابدأ الرسم</button>
+        <button class="btn btn-gray" onclick="showScreen('screen-home')">← رجوع</button>
+    </div>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: DRAW             -->
+<!-- ======================== -->
+<div class="screen" id="screen-draw">
+    <div class="draw-header">
+        <div>
+            <h2>🎨 لوحة الرسم</h2>
+            <div class="draw-header-info" id="header-info">الطالب: — | الغرفة: —</div>
+        </div>
+        <div style="font-size:13px; opacity:0.8;">ارسم إجابتك ثم اضغط إرسال ✅</div>
+    </div>
+
+    <div class="question-banner" id="question-text">⏳ جاري تحميل السؤال...</div>
+    <div class="question-img-wrap" id="question-img-wrap">
+        <img id="question-img" src="" alt="صورة السؤال">
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button class="tool-btn active" id="btn-pen"   onclick="setTool('pen')">✏️ قلم</button>
+        <button class="tool-btn"        id="btn-eraser" onclick="setTool('eraser')">🧹 ممحاة</button>
+
+        <div style="width:1px; background:#2a4070; height:30px; margin:0 4px;"></div>
+
+        <!-- Colors -->
+        <div class="color-swatch selected" style="background:#222222;" onclick="setColor('#222222', this)"></div>
+        <div class="color-swatch" style="background:#e74c3c;" onclick="setColor('#e74c3c', this)"></div>
+        <div class="color-swatch" style="background:#2F80ED;" onclick="setColor('#2F80ED', this)"></div>
+        <div class="color-swatch" style="background:#27ae60;" onclick="setColor('#27ae60', this)"></div>
+        <div class="color-swatch" style="background:#f39c12;" onclick="setColor('#f39c12', this)"></div>
+        <div class="color-swatch" style="background:#9b59b6;" onclick="setColor('#9b59b6', this)"></div>
+        <input type="color" class="color-picker-input" value="#000000" title="لون مخصص" oninput="setColorCustom(this.value)">
+
+        <div style="width:1px; background:#2a4070; height:30px; margin:0 4px;"></div>
+
+        <!-- Size -->
+        <span style="color:#aac0e8; font-size:13px; white-space:nowrap;">📏 السُّمك:</span>
+        <div class="brush-preview" id="brush-preview">
+            <div class="brush-dot" id="brush-dot" style="width:4px;height:4px;"></div>
+        </div>
+        <input type="range" class="size-slider" id="size-slider" min="1" max="30" value="4" oninput="setSize(this.value)">
+
+        <div style="margin-right:auto;"></div>
+        <button class="tool-btn" onclick="undoLast()" title="تراجع">↩️ تراجع</button>
+        <button class="tool-btn" style="background:#e74c3c; border-color:#c0392b; color:white;" onclick="clearCanvas()">🗑️ مسح الكل</button>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-wrap" id="canvas-wrap">
+        <canvas id="drawCanvas"></canvas>
+        <div class="undo-hint" id="undo-hint">لا يمكن التراجع أكثر!</div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+        <button class="btn btn-danger" style="background:linear-gradient(135deg,#636e72,#2d3436); box-shadow:0 4px 0 #1a1f20;" onclick="backToJoin()">← رجوع</button>
+        <button class="btn btn-success" onclick="submitDrawing()">✅ إرسال للمعلم</button>
+    </div>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: SUCCESS          -->
+<!-- ======================== -->
+<div class="screen" id="screen-success">
+    <div class="card" style="text-align:center;">
+        <div class="success-icon">🎉</div>
+        <h1 style="color:var(--success);">تم الإرسال!</h1>
+        <p style="color:#555; font-size:17px; margin-top:10px; line-height:1.7;">
+            وصلت رسمتك للمعلم بنجاح 🎨<br>
+            أحسنت يا بطل!
+        </p>
+        <div id="sent-preview" style="margin:20px auto; max-width:300px;">
+            <img id="sent-img" style="width:100%; border-radius:14px; border:3px solid var(--success); box-shadow:0 8px 20px rgba(39,174,96,0.2);" />
+        </div>
+        <button class="btn btn-primary" onclick="backToJoin()" style="margin-top:10px;">🔄 إرسال رسمة أخرى</button>
+    </div>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: TEACHER          -->
+<!-- ======================== -->
+<div class="screen" id="screen-teacher">
+
+    <div class="teacher-card" style="text-align:center;">
+        <div style="font-size:60px; margin-bottom:10px;">👨‍🏫</div>
+        <h1 style="color:var(--purple);">لوحة المعلم</h1>
+        <p style="color:#888; margin-bottom:25px; font-size:15px;">أنشئ سؤال الرسم الحر وشاركه مع طلابك</p>
+
+        <!-- Question text -->
+        <div class="input-group" style="text-align:right;">
+            <label>✏️ السؤال / التعليمات</label>
+            <textarea id="teacher-question" placeholder="مثال: ارسم دورة حياة الفراشة... أو ارسم خريطة بلدك..."></textarea>
+        </div>
+
+        <!-- Attachment tabs -->
+        <div class="section-title" style="margin-top:5px;">
+            📎 إرفاق (اختياري)
+        </div>
+        <div class="attach-tabs">
+            <div class="attach-tab active" onclick="switchAttachTab('none', this)">بدون إرفاق</div>
+            <div class="attach-tab" onclick="switchAttachTab('image', this)">🖼️ صورة</div>
+            <div class="attach-tab" onclick="switchAttachTab('text', this)">📝 نص إضافي</div>
+            <div class="attach-tab" onclick="switchAttachTab('shape', this)">✏️ رسم / شكل</div>
+        </div>
+
+        <!-- No attachment -->
+        <div class="attach-panel active" id="panel-none">
+            <div style="background:#f0f7ff; border-radius:12px; padding:15px; color:#888; font-size:14px;">
+                لن يتم إرفاق أي صورة أو نص إضافي
+            </div>
+        </div>
+
+        <!-- Image panel -->
+        <div class="attach-panel" id="panel-image">
+            <div class="img-preview-area" id="img-drop-zone" onclick="document.getElementById('img-file-input').click()">
+                <div id="img-placeholder">
+                    <div style="font-size:40px;">🖼️</div>
+                    <p>اضغط لاختيار صورة من جهازك</p>
+                    <p style="font-size:12px;">أو الصق رابط صورة أدناه</p>
+                </div>
+                <img id="img-preview" style="display:none; max-height:160px; border-radius:10px;" src="" alt="">
+            </div>
+            <input type="file" id="img-file-input" accept="image/*" style="display:none" onchange="handleImgFile(this)">
+            <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+                <input type="url" id="img-url-input" placeholder="أو الصق رابط صورة URL هنا..." style="flex:1; padding:10px; border:2px solid #d4aaee; border-radius:10px; font-size:14px; font-family:'Cairo',sans-serif; direction:ltr;">
+                <button onclick="loadImgFromUrl()" style="padding:10px 16px; background:var(--purple); color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:bold;">تحميل</button>
+            </div>
+            <button onclick="clearAttachImage()" style="margin-top:8px; padding:8px 16px; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer; font-size:13px; font-family:'Cairo',sans-serif;">🗑️ إزالة الصورة</button>
+        </div>
+
+        <!-- Text panel -->
+        <div class="attach-panel" id="panel-text">
+            <textarea class="text-attach-input" id="attach-text-input" placeholder="اكتب نصاً إضافياً يظهر للطلاب أسفل السؤال..."></textarea>
+        </div>
+
+        <!-- Shape panel -->
+        <div class="attach-panel" id="panel-shape">
+            <div class="shape-toolbar">
+                <button class="shape-tool-btn active" id="sp-pen" onclick="setShapeTool('pen',this)">✏️ رسم حر</button>
+                <button class="shape-tool-btn" id="sp-line" onclick="setShapeTool('line',this)">➖ خط</button>
+                <button class="shape-tool-btn" id="sp-rect" onclick="setShapeTool('rect',this)">⬜ مستطيل</button>
+                <button class="shape-tool-btn" id="sp-circle" onclick="setShapeTool('circle',this)">⭕ دائرة</button>
+                <button class="shape-tool-btn" id="sp-arrow" onclick="setShapeTool('arrow',this)">➡️ سهم</button>
+                <div style="width:1px; background:#c9a0e0; height:24px;"></div>
+                <input type="color" value="#1a1a1a" id="shape-color-picker" title="لون" style="width:32px; height:32px; border:2px solid #c9a0e0; border-radius:6px; cursor:pointer; background:none; padding:2px;">
+                <input type="range" min="1" max="12" value="3" id="shape-size-slider" style="width:70px;" oninput="shapeSize=parseInt(this.value)">
+                <button onclick="clearShapeCanvas()" style="padding:6px 12px; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-family:'Cairo',sans-serif;">🗑️ مسح</button>
+                <button onclick="undoShape()" style="padding:6px 12px; background:#636e72; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-family:'Cairo',sans-serif;">↩️ تراجع</button>
+            </div>
+            <canvas id="shapeCanvas" width="640" height="280"></canvas>
+        </div>
+
+        <!-- Generate button -->
+        <button class="btn btn-purple" onclick="generateTeacherCode()" style="margin-top:20px;">
+            ✨ إنشاء الكود للطلاب
+        </button>
+    </div>
+
+    <!-- Generated PIN + Code -->
+    <div class="teacher-card" id="code-result-card" style="display:none; text-align:center;">
+        <div class="section-title" style="justify-content:center;">🎉 تم إنشاء الغرفة!</div>
+
+        <div class="pin-display">
+            <div class="pin-label">رمز الغرفة (PIN)</div>
+            <div class="pin-number" id="display-teacher-pin">——</div>
+            <div class="pin-label" style="margin-top:5px;">شارك هذا الرقم مع الطلاب</div>
+        </div>
+
+        <div style="text-align:right; margin-top:18px;">
+            <div class="section-title">🔗 رابط مباشر للطلاب</div>
+            <div class="share-row">
+                <input type="text" id="student-link-input" readonly>
+                <button class="btn btn-primary btn-sm" onclick="copyStudentLink()">📋 نسخ</button>
+            </div>
+        </div>
+
+        <div style="text-align:right; margin-top:15px;">
+            <div class="section-title">💾 كود JSON (للمطورين)</div>
+            <div class="code-box" id="json-code-box">
+                <button class="copy-btn" onclick="copyJsonCode()">نسخ</button>
+                <span id="json-code-text"></span>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+            <button class="btn btn-success" onclick="openGallery()" style="flex:2; font-size:16px;">
+                🖼️ عرض معرض الرسومات
+            </button>
+            <button class="btn btn-warning" onclick="resetTeacherForm()" style="flex:1; font-size:16px;">
+                🔄 سؤال جديد
+            </button>
+        </div>
+    </div>
+
+    <button class="btn btn-gray" onclick="showScreen('screen-home')" style="max-width:300px;">← الرئيسية</button>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: GALLERY          -->
+<!-- ======================== -->
+<div class="screen" id="screen-gallery" style="max-width:1100px;">
+
+    <div class="gallery-header">
+        <div style="font-size:50px; margin-bottom:8px;">🖼️</div>
+        <h2>معرض رسومات الطلاب</h2>
+        <p id="gallery-subtitle">جاري تحميل الرسومات...</p>
+        <div style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
+            <span class="refresh-badge">
+                <span class="refresh-dot"></span>
+                تحديث تلقائي كل 15 ثانية
+            </span>
+            <span style="background:rgba(255,255,255,0.2); border-radius:14px; padding:5px 14px; font-size:14px;" id="gallery-pin-badge">
+                الغرفة: —
+            </span>
+        </div>
+    </div>
+
+    <div class="gallery-stats">
+        <div class="stat-badge">
+            <div class="stat-num" id="stat-total">0</div>
+            <div class="stat-lbl">رسومات مستلمة</div>
+        </div>
+        <div class="stat-badge">
+            <div class="stat-num" id="stat-question">—</div>
+            <div class="stat-lbl">السؤال</div>
+        </div>
+    </div>
+
+    <div class="gallery-controls">
+        <button class="btn btn-purple" onclick="refreshGallery()">🔄 تحديث الآن</button>
+        <button class="btn btn-gray" onclick="showScreen('screen-teacher')">← رجوع</button>
+    </div>
+
+    <div id="gallery-container" class="gallery-grid"></div>
+
+    <div id="empty-gallery" class="empty-gallery" style="display:none;">
+        <div class="icon">🎨</div>
+        <p>لم يرسل الطلاب رسوماتهم بعد!</p>
+        <p style="font-size:14px; margin-top:8px;">في انتظار رسوماتهم...</p>
+    </div>
+</div>
+
+<script>
+// =====================
+// CONSTANTS
+// =====================
+const SHEET_ID = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec";
+
+// Student state
+let studentName = '';
+let roomPIN = '';
+let currentQuestion = null;
+
+// Drawing state
+let canvas, ctx;
+let isDrawing = false;
+let currentTool = 'pen';
+let currentColor = '#222222';
+let currentSize = 4;
+let history = [];
+let isSubmitting = false;
+
+// Teacher state
+let teacherPIN = '';
+let attachType = 'none';
+let attachImageData = '';
+let galleryRefreshTimer = null;
+
+// Shape canvas state
+let shapeCanvas, shapeCtx;
+let shapeHistory = [];
+let shapeTool = 'pen';
+let shapeSize = 3;
+let shapeDrawing = false;
+let shapeStart = null;
+
+// =====================
+// SCREENS
+// =====================
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+
+    // Stop gallery refresh when leaving gallery
+    if (id !== 'screen-gallery' && galleryRefreshTimer) {
+        clearInterval(galleryRefreshTimer);
+        galleryRefreshTimer = null;
+    }
+
+    // Init shape canvas when entering teacher screen
+    if (id === 'screen-teacher') {
+        setTimeout(initShapeCanvas, 100);
+    }
+}
+
+// =====================
+// JOIN ROOM (STUDENT)
+// =====================
+async function joinRoom() {
+    const pin = document.getElementById('pin-input').value.trim();
+    const name = document.getElementById('name-input').value.trim();
+
+    if (!pin || pin.length < 4) { alert('⚠️ أدخل رمز الغرفة بشكل صحيح!'); return; }
+    if (!name) { alert('⚠️ أدخل اسمك أولاً!'); return; }
+
+    roomPIN = pin;
+    studentName = name;
+
+    document.getElementById('header-info').textContent = `الطالب: ${name} | الغرفة: ${pin}`;
+    showScreen('screen-draw');
+    initCanvas();
+    await loadQuestion(pin);
+}
+
+async function loadQuestion(pin) {
+    const qText = document.getElementById('question-text');
+    qText.textContent = '⏳ جاري تحميل السؤال...';
+
+    try {
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+
+        const row = json.table.rows.find(r =>
+            r.c[1]?.v?.toString() === pin &&
+            r.c[2]?.v?.toString() === 'QUESTIONS'
+        );
+
+        if (!row) {
+            qText.textContent = '🎨 لوحة رسم حرة - ارسم ما تريد!';
+            return;
+        }
+
+        let questions = [];
+        try { questions = JSON.parse(row.c[3]?.v || '[]'); } catch(e) {}
+
+        const freeQ = questions.find(q => q.type === 'freedraw');
+        if (freeQ) {
+            currentQuestion = freeQ;
+            qText.textContent = freeQ.q || '🎨 ارسم إجابتك!';
+
+            // Show attached text
+            if (freeQ.attachText) {
+                qText.textContent += ' — ' + freeQ.attachText;
+            }
+
+            if (freeQ.img) {
+                document.getElementById('question-img').src = freeQ.img;
+                document.getElementById('question-img-wrap').style.display = 'block';
+            }
+        } else {
+            const anyQ = questions.find(q => q.type !== 'config');
+            if (anyQ) {
+                qText.textContent = '✏️ ' + (anyQ.q || 'ارسم إجابتك!');
+                if (anyQ.img) {
+                    document.getElementById('question-img').src = anyQ.img;
+                    document.getElementById('question-img-wrap').style.display = 'block';
+                }
+                currentQuestion = anyQ;
+            } else {
+                qText.textContent = '🎨 لوحة رسم حرة - ارسم ما تريد!';
+            }
+        }
+    } catch(e) {
+        qText.textContent = '🎨 لوحة رسم حرة - ارسم ما تريد!';
+    }
+}
+
+// =====================
+// CANVAS INIT (STUDENT)
+// =====================
+function initCanvas() {
+    canvas = document.getElementById('drawCanvas');
+    ctx = canvas.getContext('2d');
+    resizeCanvas();
+
+    canvas.addEventListener('mousedown',  startDraw);
+    canvas.addEventListener('mousemove',  draw);
+    canvas.addEventListener('mouseup',    stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(touchEvt(e)); }, { passive: false });
+    canvas.addEventListener('touchmove',  (e) => { e.preventDefault(); draw(touchEvt(e)); },      { passive: false });
+    canvas.addEventListener('touchend',   (e) => { e.preventDefault(); stopDraw(); },              { passive: false });
+
+    window.addEventListener('resize', resizeCanvas);
+    saveHistory();
+}
+
+function resizeCanvas() {
+    const wrap = document.getElementById('canvas-wrap');
+    const w = wrap.clientWidth;
+    const h = Math.max(window.innerHeight - 280, 300);
+    let imgData = null;
+    if (canvas.width > 0 && canvas.height > 0) {
+        imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    }
+    canvas.width = w;
+    canvas.height = h;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, w, h);
+    if (imgData) ctx.putImageData(imgData, 0, 0);
+}
+
+function touchEvt(e) {
+    const t = e.touches[0] || e.changedTouches[0];
+    const rect = canvas.getBoundingClientRect();
+    return { offsetX: t.clientX - rect.left, offsetY: t.clientY - rect.top };
+}
+
+function startDraw(e) {
+    isDrawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+    if (currentTool === 'pen') {
+        ctx.arc(e.offsetX, e.offsetY, currentSize / 2, 0, Math.PI * 2);
+        ctx.fillStyle = currentColor;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    }
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    ctx.lineWidth = currentSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (currentTool === 'pen') {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor;
+    } else {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+        ctx.lineWidth = currentSize * 3;
+    }
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+}
+
+function stopDraw() {
+    if (!isDrawing) return;
+    isDrawing = false;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.beginPath();
+    saveHistory();
+}
+
+function saveHistory() {
+    const snapshot = canvas.toDataURL();
+    history.push(snapshot);
+    if (history.length > 20) history.shift();
+}
+
+function undoLast() {
+    if (history.length <= 1) {
+        const hint = document.getElementById('undo-hint');
+        hint.classList.add('show');
+        setTimeout(() => hint.classList.remove('show'), 1500);
+        return;
+    }
+    history.pop();
+    const img = new Image();
+    img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+    };
+    img.src = history[history.length - 1];
+}
+
+function clearCanvas() {
+    if (!confirm('هل تريد مسح الرسمة بالكامل؟')) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveHistory();
+}
+
+function setTool(tool) {
+    currentTool = tool;
+    document.getElementById('btn-pen').classList.toggle('active', tool === 'pen');
+    document.getElementById('btn-eraser').classList.toggle('active', tool === 'eraser');
+    document.getElementById('btn-eraser').classList.toggle('eraser-active', tool === 'eraser');
+    canvas.style.cursor = tool === 'eraser' ? 'cell' : 'crosshair';
+}
+
+function setColor(color, el) {
+    currentColor = color;
+    if (currentTool === 'eraser') setTool('pen');
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+}
+
+function setColorCustom(color) {
+    currentColor = color;
+    if (currentTool === 'eraser') setTool('pen');
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+}
+
+function setSize(val) {
+    currentSize = parseInt(val);
+    const dot = document.getElementById('brush-dot');
+    const size = Math.min(currentSize * 2, 28);
+    dot.style.width = size + 'px';
+    dot.style.height = size + 'px';
+}
+
+// =====================
+// SUBMIT (STUDENT)
+// =====================
+async function submitDrawing() {
+    if (isSubmitting) return;
+    const tempCtx = document.createElement('canvas');
+    tempCtx.width = canvas.width;
+    tempCtx.height = canvas.height;
+    const tc = tempCtx.getContext('2d');
+    tc.fillStyle = 'white';
+    tc.fillRect(0, 0, canvas.width, canvas.height);
+    if (canvas.toDataURL() === tempCtx.toDataURL()) {
+        alert('⚠️ اللوحة فارغة! ارسم شيئاً أولاً.');
+        return;
+    }
+    if (!confirm('هل أنت متأكد من إرسال رسمتك للمعلم؟')) return;
+
+    isSubmitting = true;
+    document.getElementById('loading-overlay').style.display = 'flex';
+
+    const drawingDataUrl = canvas.toDataURL('image/png');
+    window._pendingDrawingImg = drawingDataUrl;
+    window._submittingForm = true;
+
+    const submissionData = {
+        type: 'freedraw',
+        drawing: drawingDataUrl,
+        question: currentQuestion?.q || 'رسم حر',
+        timestamp: new Date().toLocaleString('ar-SA')
+    };
+
+    document.getElementById('df-name').value   = studentName;
+    document.getElementById('df-school').value = roomPIN;
+    document.getElementById('df-score').value  = JSON.stringify(submissionData);
+    document.getElementById('drawForm').submit();
+
+    setTimeout(() => { showSuccess(drawingDataUrl); }, 2500);
+}
+
+let submitHandled = false;
+function handleDrawSubmit() {
+    if (!window._submittingForm || submitHandled) return;
+    submitHandled = true;
+}
+
+function showSuccess(imgSrc) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    document.getElementById('sent-img').src = imgSrc;
+    showScreen('screen-success');
+    isSubmitting = false;
+    submitHandled = false;
+    window._submittingForm = false;
+}
+
+function backToJoin() {
+    isSubmitting = false;
+    history = [];
+    showScreen('screen-join');
+}
+
+// =====================
+// KEYBOARD SHORTCUTS
+// =====================
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'z') undoLast();
+    if (e.key === 'e') setTool('eraser');
+    if (e.key === 'p') setTool('pen');
+});
+
+// =====================
+// TEACHER: ATTACH TABS
+// =====================
+function switchAttachTab(type, el) {
+    attachType = type;
+    document.querySelectorAll('.attach-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.attach-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + type).classList.add('active');
+}
+
+// =====================
+// TEACHER: IMAGE ATTACH
+// =====================
+function handleImgFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        attachImageData = e.target.result;
+        showImgPreview(attachImageData);
+    };
+    reader.readAsDataURL(file);
+}
+
+function loadImgFromUrl() {
+    const url = document.getElementById('img-url-input').value.trim();
+    if (!url) return;
+    attachImageData = url;
+    showImgPreview(url);
+}
+
+function showImgPreview(src) {
+    document.getElementById('img-placeholder').style.display = 'none';
+    const imgEl = document.getElementById('img-preview');
+    imgEl.src = src;
+    imgEl.style.display = 'block';
+}
+
+function clearAttachImage() {
+    attachImageData = '';
+    document.getElementById('img-placeholder').style.display = 'flex';
+    const imgEl = document.getElementById('img-preview');
+    imgEl.src = '';
+    imgEl.style.display = 'none';
+    document.getElementById('img-url-input').value = '';
+    document.getElementById('img-file-input').value = '';
+}
+
+// =====================
+// TEACHER: SHAPE CANVAS
+// =====================
+function initShapeCanvas() {
+    shapeCanvas = document.getElementById('shapeCanvas');
+    if (!shapeCanvas) return;
+    shapeCtx = shapeCanvas.getContext('2d');
+
+    // Responsive width
+    const wrap = shapeCanvas.parentElement;
+    shapeCanvas.width = wrap.clientWidth || 640;
+    shapeCanvas.height = 280;
+
+    shapeCtx.fillStyle = 'white';
+    shapeCtx.fillRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+    saveShapeHistory();
+
+    shapeCanvas.onmousedown = shapeStart2;
+    shapeCanvas.onmousemove = shapeMove2;
+    shapeCanvas.onmouseup = shapeEnd2;
+    shapeCanvas.onmouseleave = shapeEnd2;
+
+    shapeCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); shapeStart2(shapeTouchEvt(e)); }, {passive:false});
+    shapeCanvas.addEventListener('touchmove',  (e) => { e.preventDefault(); shapeMove2(shapeTouchEvt(e)); }, {passive:false});
+    shapeCanvas.addEventListener('touchend',   (e) => { e.preventDefault(); shapeEnd2(); }, {passive:false});
+}
+
+function shapeTouchEvt(e) {
+    const t = e.touches[0] || e.changedTouches[0];
+    const rect = shapeCanvas.getBoundingClientRect();
+    return { offsetX: t.clientX - rect.left, offsetY: t.clientY - rect.top };
+}
+
+let shapeSnapshot = null;
+
+function shapeStart2(e) {
+    shapeDrawing = true;
+    shapeStart = { x: e.offsetX, y: e.offsetY };
+    if (shapeTool === 'pen') {
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(e.offsetX, e.offsetY);
+    } else {
+        shapeSnapshot = shapeCtx.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height);
+    }
+}
+
+function shapeMove2(e) {
+    if (!shapeDrawing) return;
+    const color = document.getElementById('shape-color-picker').value;
+    shapeCtx.strokeStyle = color;
+    shapeCtx.fillStyle = color;
+    shapeCtx.lineWidth = shapeSize;
+    shapeCtx.lineCap = 'round';
+
+    if (shapeTool === 'pen') {
+        shapeCtx.lineTo(e.offsetX, e.offsetY);
+        shapeCtx.stroke();
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(e.offsetX, e.offsetY);
+    } else {
+        // Restore snapshot for live preview
+        shapeCtx.putImageData(shapeSnapshot, 0, 0);
+        const x1 = shapeStart.x, y1 = shapeStart.y;
+        const x2 = e.offsetX, y2 = e.offsetY;
+        drawShape(x1, y1, x2, y2, color);
+    }
+}
+
+function shapeEnd2(e) {
+    if (!shapeDrawing) return;
+    shapeDrawing = false;
+    if (shapeTool !== 'pen' && e) {
+        const color = document.getElementById('shape-color-picker').value;
+        shapeCtx.putImageData(shapeSnapshot, 0, 0);
+        const x2 = e.offsetX || shapeStart.x;
+        const y2 = e.offsetY || shapeStart.y;
+        drawShape(shapeStart.x, shapeStart.y, x2, y2, color);
+    }
+    shapeCtx.beginPath();
+    saveShapeHistory();
+}
+
+function drawShape(x1, y1, x2, y2, color) {
+    shapeCtx.strokeStyle = color;
+    shapeCtx.fillStyle = color;
+    shapeCtx.lineWidth = shapeSize;
+    shapeCtx.lineCap = 'round';
+
+    if (shapeTool === 'line') {
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(x1, y1);
+        shapeCtx.lineTo(x2, y2);
+        shapeCtx.stroke();
+    } else if (shapeTool === 'rect') {
+        shapeCtx.beginPath();
+        shapeCtx.strokeRect(x1, y1, x2-x1, y2-y1);
+    } else if (shapeTool === 'circle') {
+        const r = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
+        shapeCtx.beginPath();
+        shapeCtx.arc(x1, y1, r, 0, Math.PI*2);
+        shapeCtx.stroke();
+    } else if (shapeTool === 'arrow') {
+        const dx = x2-x1, dy = y2-y1;
+        const angle = Math.atan2(dy, dx);
+        const headLen = 18;
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(x1, y1);
+        shapeCtx.lineTo(x2, y2);
+        shapeCtx.stroke();
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(x2, y2);
+        shapeCtx.lineTo(x2 - headLen*Math.cos(angle-Math.PI/6), y2 - headLen*Math.sin(angle-Math.PI/6));
+        shapeCtx.lineTo(x2 - headLen*Math.cos(angle+Math.PI/6), y2 - headLen*Math.sin(angle+Math.PI/6));
+        shapeCtx.closePath();
+        shapeCtx.fill();
+    }
+}
+
+function setShapeTool(tool, el) {
+    shapeTool = tool;
+    document.querySelectorAll('.shape-tool-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+}
+
+function saveShapeHistory() {
+    shapeHistory.push(shapeCanvas.toDataURL());
+    if (shapeHistory.length > 20) shapeHistory.shift();
+}
+
+function undoShape() {
+    if (shapeHistory.length <= 1) return;
+    shapeHistory.pop();
+    const img = new Image();
+    img.onload = () => {
+        shapeCtx.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+        shapeCtx.fillStyle = 'white';
+        shapeCtx.fillRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+        shapeCtx.drawImage(img, 0, 0);
+    };
+    img.src = shapeHistory[shapeHistory.length - 1];
+}
+
+function clearShapeCanvas() {
+    shapeCtx.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+    shapeCtx.fillStyle = 'white';
+    shapeCtx.fillRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+    saveShapeHistory();
+}
+
+function getShapeImageData() {
+    // Check if blank
+    const temp = document.createElement('canvas');
+    temp.width = shapeCanvas.width;
+    temp.height = shapeCanvas.height;
+    const tc = temp.getContext('2d');
+    tc.fillStyle = 'white';
+    tc.fillRect(0, 0, temp.width, temp.height);
+    if (shapeCanvas.toDataURL() === temp.toDataURL()) return null;
+    return shapeCanvas.toDataURL('image/png');
+}
+
+// =====================
+// TEACHER: GENERATE CODE
+// =====================
+function generateTeacherCode() {
+    const q = document.getElementById('teacher-question').value.trim();
+    if (!q) { alert('⚠️ اكتب السؤال أولاً!'); return; }
+
+    // Generate PIN: 4-6 digit random
+    teacherPIN = Math.floor(1000 + Math.random() * 899999).toString();
+
+    // Build question object
+    const questionObj = {
+        type: 'freedraw',
+        q: q,
+        time: 0
+    };
+
+    // Attachment
+    if (attachType === 'image' && attachImageData) {
+        questionObj.img = attachImageData;
+    } else if (attachType === 'text') {
+        const attachText = document.getElementById('attach-text-input').value.trim();
+        if (attachText) questionObj.attachText = attachText;
+    } else if (attachType === 'shape') {
+        const shapeData = getShapeImageData();
+        if (shapeData) questionObj.img = shapeData;
+    }
+
+    const questionsArr = [questionObj];
+    const jsonStr = JSON.stringify(questionsArr, null, 2);
+
+    // Student link
+    const currentUrl = window.location.href.split('?')[0];
+    const studentLink = currentUrl + '?pin=' + teacherPIN + '&mode=student';
+
+    // Display results
+    document.getElementById('display-teacher-pin').textContent = teacherPIN;
+    document.getElementById('student-link-input').value = studentLink;
+    document.getElementById('json-code-text').textContent = jsonStr;
+    document.getElementById('code-result-card').style.display = 'block';
+    document.getElementById('gallery-pin-badge').textContent = 'الغرفة: ' + teacherPIN;
+
+    // Scroll to result
+    document.getElementById('code-result-card').scrollIntoView({ behavior: 'smooth' });
+
+    // Store in localStorage for gallery to read
+    try {
+        localStorage.setItem('teacher_pin', teacherPIN);
+        localStorage.setItem('teacher_question_' + teacherPIN, JSON.stringify(questionObj));
+    } catch(e) {}
+}
+
+function copyStudentLink() {
+    const input = document.getElementById('student-link-input');
+    input.select();
+    document.execCommand('copy');
+    alert('✅ تم نسخ الرابط!');
+}
+
+function copyJsonCode() {
+    const text = document.getElementById('json-code-text').textContent;
+    navigator.clipboard.writeText(text).then(() => alert('✅ تم نسخ الكود!'))
+        .catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            alert('✅ تم نسخ الكود!');
+        });
+}
+
+function resetTeacherForm() {
+    document.getElementById('teacher-question').value = '';
+    document.getElementById('attach-text-input').value = '';
+    clearAttachImage();
+    attachType = 'none';
+    document.querySelectorAll('.attach-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.attach-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('.attach-tab').classList.add('active');
+    document.getElementById('panel-none').classList.add('active');
+    document.getElementById('code-result-card').style.display = 'none';
+    clearShapeCanvas && clearShapeCanvas();
+    shapeHistory = [];
+    teacherPIN = '';
+    window.scrollTo(0, 0);
+}
+
+// =====================
+// GALLERY
+// =====================
+function openGallery() {
+    showScreen('screen-gallery');
+    document.getElementById('gallery-pin-badge').textContent = 'الغرفة: ' + teacherPIN;
+    refreshGallery();
+
+    // Auto refresh every 15 seconds
+    galleryRefreshTimer = setInterval(refreshGallery, 15000);
+}
+
+async function refreshGallery() {
+    const pin = teacherPIN || (localStorage.getItem('teacher_pin') || '');
+    if (!pin) {
+        document.getElementById('gallery-subtitle').textContent = 'لم يتم تحديد غرفة';
+        return;
+    }
+
+    try {
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+
+        // Collect all submissions for this PIN
+        const drawings = [];
+        json.table.rows.forEach(row => {
+            if (!row.c || !row.c[0]) return;
+            const rowPin = row.c[1]?.v?.toString();
+            if (rowPin !== pin) return;
+            const type = row.c[2]?.v?.toString();
+            if (type === 'QUESTIONS') return;
+
+            // Student submission
+            const name = row.c[0]?.v || 'مجهول';
+            const scoreStr = row.c[3]?.v || row.c[2]?.v || '';
+            let drawing = null;
+            let question = '';
+            let timestamp = '';
+
+            try {
+                const data = JSON.parse(scoreStr);
+                if (data.type === 'freedraw' && data.drawing) {
+                    drawing = data.drawing;
+                    question = data.question || '';
+                    timestamp = data.timestamp || '';
+                }
+            } catch(e) {}
+
+            if (drawing) {
+                drawings.push({ name, drawing, question, timestamp });
+            }
+        });
+
+        renderGallery(drawings);
+    } catch(e) {
+        // If offline or error, show empty
+        const container = document.getElementById('gallery-container');
+        const empty = document.getElementById('empty-gallery');
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        document.getElementById('gallery-subtitle').textContent = 'تعذر تحميل البيانات';
+    }
+}
+
+function renderGallery(drawings) {
+    const container = document.getElementById('gallery-container');
+    const empty = document.getElementById('empty-gallery');
+    const subtitle = document.getElementById('gallery-subtitle');
+    const statTotal = document.getElementById('stat-total');
+
+    statTotal.textContent = drawings.length;
+
+    // Get question name
+    let qLabel = '—';
+    try {
+        const stored = localStorage.getItem('teacher_question_' + teacherPIN);
+        if (stored) qLabel = JSON.parse(stored).q || '—';
+    } catch(e) {}
+    document.getElementById('stat-question').textContent = qLabel.length > 20 ? qLabel.slice(0,20)+'...' : qLabel;
+
+    if (drawings.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        subtitle.textContent = 'لم يرسل أحد بعد — الغرفة: ' + teacherPIN;
+        return;
+    }
+
+    empty.style.display = 'none';
+    subtitle.textContent = `${drawings.length} رسمة مستلمة — الغرفة: ${teacherPIN}`;
+    container.innerHTML = '';
+
+    drawings.forEach((item, i) => {
+        const rankNum = i + 1;
+        const rankClass = rankNum === 1 ? 'rank-1' : rankNum === 2 ? 'rank-2' : rankNum === 3 ? 'rank-3' : 'rank-other';
+        const rankIcon = rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : rankNum === 3 ? '🥉' : rankNum;
+
+        const card = document.createElement('div');
+        card.className = 'gallery-card';
+        card.style.animationDelay = (i * 0.07) + 's';
+
+        card.innerHTML = `
+            <div class="gallery-img-wrap">
+                <img src="${item.drawing}" alt="رسمة ${item.name}"
+                     onclick="openLightbox('${item.drawing}', '${escapeStr(item.name)}')"
+                     loading="lazy">
+            </div>
+            <div class="gallery-card-footer">
+                <div class="gallery-student-name">
+                    <span class="gallery-rank ${rankClass}">${rankIcon}</span>
+                    ${escapeHtml(item.name)}
+                </div>
+                ${item.timestamp ? `<div class="gallery-time">⏰ ${item.timestamp}</div>` : ''}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escapeStr(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+// =====================
+// LIGHTBOX
+// =====================
+function openLightbox(src, name) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-name').textContent = name;
+    document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+}
+
+// =====================
+// URL PARAMS AUTO-JOIN
+// =====================
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const pin = params.get('pin');
+    const mode = params.get('mode');
+    if (pin && mode === 'student') {
+        document.getElementById('pin-input').value = pin;
+        showScreen('screen-join');
+    }
+})();
+
+// =====================
+// INIT
+// =====================
+setSize(4);
+</script>
+</body>
+</html>
