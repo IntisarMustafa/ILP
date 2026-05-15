@@ -783,6 +783,37 @@
     </div>
 </div>
 
+<!-- ======================== -->
+<!-- HIDDEN FORM - نفس نمط Teacher-6 وملف A -->
+<!-- يجب أن يكون قبل الـ script الرئيسي -->
+<!-- ======================== -->
+<script>
+    // معرّفة أولاً قبل كل شيء لتجنب ReferenceError عند تحميل الـ iframe
+    function handleSaveResponse() {
+        const successScreen = document.getElementById('screen-success');
+        // نتجاهل الاستدعاء الأولي عند تحميل الصفحة (قبل أي إرسال)
+        if (!successScreen || !window._submittingDrawing) return;
+        window._submittingDrawing = false;
+        showLoading(false);
+        document.getElementById('sent-img').src = window._pendingImageData || '';
+        window._pendingImageData = '';
+        showScreen('screen-success');
+    }
+</script>
+
+<iframe id="hidden_iframe_save" name="hidden_iframe_save"
+        onload="handleSaveResponse()" style="display:none;"></iframe>
+
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec"
+      id="saveDrawingForm" method="POST" target="hidden_iframe_save" style="display:none;">
+    <!-- name = اسم الطالب -->
+    <input type="hidden" name="name"   id="form-student-name">
+    <!-- school = رقم الغرفة (كما في Teacher-6) -->
+    <input type="hidden" name="school" id="form-room-pin">
+    <!-- score = بيانات الرسم المضغوطة (تذهب هنا بعد الضغط) -->
+    <input type="hidden" name="score"  id="form-drawing-data">
+</form>
+
 <script>
 // =====================
 // CONFIG & GLOBALS
@@ -1036,38 +1067,37 @@ function setSize(val) {
 // =====================
 // STUDENT: SUBMIT DRAWING
 // =====================
-let _pendingImageData = '';
-let _iframeReady = false;
+window._pendingImageData  = '';
+window._submittingDrawing = false;
 
 function submitDrawing() {
-    const canvas = document.getElementById('drawCanvas');
-    const imageData = canvas.toDataURL('image/jpeg', 0.5); // ضغط الصورة لتناسب الشيت
-
     if (!confirm('هل أنت متأكد من إرسال رسمتك للمعلم؟')) return;
 
-    // تعبئة الفورم المخفي (نفس طريقة Teacher-6)
-    document.getElementById('form-student-name').value = playerName;
-    document.getElementById('form-room-pin').value     = currentRoomPin;
-    document.getElementById('form-drawing-data').value = imageData;
+    // --- ضغط الصورة: تصغير الأبعاد أولاً ثم رفع جودة JPEG ---
+    // Google Sheets حد الخلية ~50,000 حرف
+    // canvas أصلي قد يكون 800×600 → base64 ~300KB → نصغّره لـ 400×300 → ~40KB
+    const srcCanvas  = document.getElementById('drawCanvas');
+    const tmpCanvas  = document.createElement('canvas');
+    tmpCanvas.width  = 400;
+    tmpCanvas.height = Math.round(srcCanvas.height * (400 / srcCanvas.width));
+    const tmpCtx     = tmpCanvas.getContext('2d');
+    tmpCtx.fillStyle = 'white';
+    tmpCtx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+    tmpCtx.drawImage(srcCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height);
+    const imageData  = tmpCanvas.toDataURL('image/jpeg', 0.4); // جودة 40% بعد التصغير
 
-    _pendingImageData = imageData;
-    _iframeReady = false;
+    // تعبئة الفورم بنفس ترتيب حقول Teacher-6
+    document.getElementById('form-student-name').value = playerName;       // name   ← اسم الطالب
+    document.getElementById('form-room-pin').value     = currentRoomPin;   // school ← رقم الغرفة
+    document.getElementById('form-drawing-data').value = imageData;        // score  ← الصورة المضغوطة
+
+    window._pendingImageData  = imageData;
+    window._submittingDrawing = true;
 
     showLoading(true);
     document.getElementById('loading-text').textContent = '📤 جاري إرسال رسمتك...';
 
     document.getElementById('saveDrawingForm').submit();
-}
-
-function handleSaveResponse() {
-    // تُستدعى عند اكتمال إرسال الفورم للـ iframe المخفي
-    // نتجاهل الاستدعاء الأول (تحميل الصفحة الفارغة)
-    if (!_pendingImageData) return;
-
-    showLoading(false);
-    document.getElementById('sent-img').src = _pendingImageData;
-    _pendingImageData = '';
-    showScreen('screen-success');
 }
 
 function backToJoin() {
@@ -1561,17 +1591,6 @@ function closeLightbox() {
 setSize(4);
 </script>
 
-<!-- ======================== -->
-<!-- HIDDEN FORM (Teacher-6 style save) -->
-<!-- ======================== -->
-<iframe name="hidden_iframe_save" id="hidden_iframe_save" style="display:none;"
-        onload="handleSaveResponse()"></iframe>
-<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec"
-      id="saveDrawingForm" method="POST" target="hidden_iframe_save" style="display:none;">
-    <input type="hidden" name="name"   id="form-student-name">
-    <input type="hidden" name="school" id="form-room-pin">
-    <input type="hidden" name="score"  id="form-drawing-data">
-</form>
 
 </body>
 </html>
