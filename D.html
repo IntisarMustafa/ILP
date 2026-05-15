@@ -1466,8 +1466,11 @@
             globalGameQuestions = customQuestions;
             let currentRoomPIN = Math.floor(100000 + Math.random() * 900000).toString();
             
+            // إضافة عنصر config يحتوي على العنوان (متوافق مع Teacher-6)
+            const questionsWithConfig = [{ type: 'config', title: quizTitle }, ...customQuestions];
+            
             document.getElementById('qform-name').value = currentRoomPIN; 
-            document.getElementById('qform-school').value = JSON.stringify(customQuestions); 
+            document.getElementById('qform-school').value = JSON.stringify(questionsWithConfig); 
             
             document.getElementById('saving-status').style.display = 'block';
             document.getElementById('saving-status').innerText = "⏳ جاري تخزين الأسئلة في النظام...";
@@ -1506,9 +1509,9 @@
 
             try {
                 // الاتصال بشيت الإكسل لجلب البيانات
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet1`);
                 const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
+                const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
                 const rows = json.table.rows;
                 
                 let roomFound = false;
@@ -1579,9 +1582,9 @@
 
         async function fetchLeaderboard(pin) {
             try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet1`);
                 const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
+                const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
                 
                 let players = json.table.rows.filter(r => r.c[1]?.v.toString() === pin && r.c[2]?.v !== "QUESTIONS");
                 players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
@@ -1626,20 +1629,36 @@
             document.getElementById('screen-loading-sheet').style.display = 'flex';
             
             try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
-                const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
-                const rows = json.table.rows;
-                
+                // محاولة القراءة من الورقة الأولى (Sheet1)
                 let foundQuestions = null;
-                for(let i = rows.length - 1; i >= 0; i--) {
-                    if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
-                        if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
-                            foundQuestions = JSON.parse(rows[i].c[1].v.toString());
-                            break;
+                const urls = [
+                    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet1`,
+                    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`
+                ];
+
+                for (const url of urls) {
+                    try {
+                        const res = await fetch(url);
+                        const text = await res.text();
+                        // إزالة wrapper الـ JSON من Google
+                        const startIdx = text.indexOf('{');
+                        const endIdx = text.lastIndexOf('}');
+                        if (startIdx === -1 || endIdx === -1) continue;
+                        const json = JSON.parse(text.substring(startIdx, endIdx + 1));
+                        const rows = json.table.rows;
+                        
+                        for(let i = rows.length - 1; i >= 0; i--) {
+                            if(rows[i] && rows[i].c[0] && rows[i].c[0].v && rows[i].c[0].v.toString() === pin) {
+                                if(rows[i].c[1] && rows[i].c[1].v && rows[i].c[1].v.toString().trim().startsWith('[')) {
+                                    foundQuestions = JSON.parse(rows[i].c[1].v.toString());
+                                    break;
+                                }
+                            }
                         }
-                    }
+                        if (foundQuestions) break; // وجدنا الأسئلة، نوقف البحث
+                    } catch (e) { continue; }
                 }
+
                 if (foundQuestions && foundQuestions.length > 0) {
                     // استخراج العنوان من عنصر config إن وُجد
                     const configItem = foundQuestions.find(q => q.type === 'config');
@@ -1653,10 +1672,15 @@
                     globalGameQuestions = foundQuestions.filter(q => q.type !== 'config');
                     if (globalGameQuestions.length === 0) globalGameQuestions = defaultQuestions;
                 } else {
-                    globalGameQuestions = defaultQuestions;
+                    // لم يُعثر على الغرفة — إظهار تنبيه للمستخدم
+                    document.getElementById('screen-loading-sheet').style.display = 'none';
+                    alert(`❌ لم يتم العثور على غرفة برقم: ${pin}\nتأكد من رقم الغرفة وحاول مجدداً.`);
+                    return;
                 }
             } catch (err) {
-                globalGameQuestions = defaultQuestions;
+                document.getElementById('screen-loading-sheet').style.display = 'none';
+                alert('❌ تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مجدداً.');
+                return;
             }
 
             // إعادة ترتيب مؤشر الأسئلة من البداية
@@ -2631,9 +2655,9 @@
             tbody.innerHTML = '';
 
             try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet1`);
                 const text = await res.text();
-                const json = JSON.parse(text.substring(47, text.length - 2));
+                const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
 
                 let players = json.table.rows.filter(r => r.c[1]?.v?.toString() === pin && r.c[2]?.v !== "QUESTIONS");
                 players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
