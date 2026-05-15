@@ -1036,32 +1036,38 @@ function setSize(val) {
 // =====================
 // STUDENT: SUBMIT DRAWING
 // =====================
-async function submitDrawing() {
+let _pendingImageData = '';
+let _iframeReady = false;
+
+function submitDrawing() {
     const canvas = document.getElementById('drawCanvas');
     const imageData = canvas.toDataURL('image/jpeg', 0.5); // ضغط الصورة لتناسب الشيت
 
     if (!confirm('هل أنت متأكد من إرسال رسمتك للمعلم؟')) return;
 
+    // تعبئة الفورم المخفي (نفس طريقة Teacher-6)
+    document.getElementById('form-student-name').value = playerName;
+    document.getElementById('form-room-pin').value     = currentRoomPin;
+    document.getElementById('form-drawing-data').value = imageData;
+
+    _pendingImageData = imageData;
+    _iframeReady = false;
+
     showLoading(true);
-    try {
-        // تجهيز البيانات بنفس طريقة A2
-        const formData = new FormData();
-        formData.append('name', playerName);
-        formData.append('school', currentRoomPin); // رقم الغرفة يتم تخزينه في عمود school
-        formData.append('score', imageData);       // الصورة يتم تخزينها في عمود score
+    document.getElementById('loading-text').textContent = '📤 جاري إرسال رسمتك...';
 
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: formData
-        });
+    document.getElementById('saveDrawingForm').submit();
+}
 
-        document.getElementById('sent-img').src = imageData;
-        showScreen('screen-success');
-    } catch (e) {
-        alert("❌ فشل إرسال الرسم. حاول مرة أخرى.");
-    }
+function handleSaveResponse() {
+    // تُستدعى عند اكتمال إرسال الفورم للـ iframe المخفي
+    // نتجاهل الاستدعاء الأول (تحميل الصفحة الفارغة)
+    if (!_pendingImageData) return;
+
     showLoading(false);
+    document.getElementById('sent-img').src = _pendingImageData;
+    _pendingImageData = '';
+    showScreen('screen-success');
 }
 
 function backToJoin() {
@@ -1554,5 +1560,18 @@ function closeLightbox() {
 // =====================
 setSize(4);
 </script>
+
+<!-- ======================== -->
+<!-- HIDDEN FORM (Teacher-6 style save) -->
+<!-- ======================== -->
+<iframe name="hidden_iframe_save" id="hidden_iframe_save" style="display:none;"
+        onload="handleSaveResponse()"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec"
+      id="saveDrawingForm" method="POST" target="hidden_iframe_save" style="display:none;">
+    <input type="hidden" name="name"   id="form-student-name">
+    <input type="hidden" name="school" id="form-room-pin">
+    <input type="hidden" name="score"  id="form-drawing-data">
+</form>
+
 </body>
 </html>
