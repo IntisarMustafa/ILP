@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة الطائرة والغيوم - منصة التعلّم التفاعلية</title>
+    <title>لعبة السمكة الذكية - منصة التعلّم التفاعلية</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
     
@@ -71,7 +71,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; } 
 
         body {
-            background: #2F80ED;
+            background: linear-gradient(180deg, #00d4f0 0%, #0099cc 40%, #0077aa 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -199,7 +199,7 @@
             top: 0;
             left: 0;
             z-index: 100;
-            background: #2F80ED;
+            background: linear-gradient(180deg, #00d4f0 0%, #0099cc 100%);
         }
 
         #game-container-wrapper.active {
@@ -212,94 +212,49 @@
             height: 750px; 
             max-width: 100vw;
             max-height: 100vh;
-            background: linear-gradient(to bottom, #1a3a6e, #2d6fa0, #5aabde, #87ceeb);
+            background: 
+                radial-gradient(ellipse at 50% 0%, rgba(100,230,255,0.7) 0%, transparent 55%),
+                linear-gradient(to bottom, 
+                    #00e5ff 0%, 
+                    #00c8f0 12%, 
+                    #00aada 28%, 
+                    #0090c8 45%, 
+                    #0080c0 62%, 
+                    #0095cc 78%, 
+                    #00b0d8 92%, 
+                    #00c8e8 100%);
             overflow: hidden;
             touch-action: none;
             border-radius: 15px; 
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 0 10px #4a4a4a;
-            border: 5px solid #fff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 0 8px #0077b6, 0 0 0 12px #00b4d8;
+            border: 4px solid #00e5ff;
         }
 
         #bird {
             position: absolute;
             top: 50%;
             left: 20%;
-            width: 70px;
-            height: 38px;
+            width: 120px;
+            height: 90px;
             z-index: 10;
-            transition: transform 0.05s ease-out;
+            transition: transform 0.06s ease-out;
+            filter: drop-shadow(0 4px 16px rgba(255,200,0,0.6));
         }
 
-        /* جسم الطائرة */
-        .bird-body {
-            position: absolute;
-            width: 100%;
-            height: 55%;
-            top: 23%;
-            background: linear-gradient(135deg, #e8f4ff 0%, #b8d9f8 40%, #4a9fd4 100%);
-            border-radius: 40% 55% 50% 40%;
-            box-shadow: inset -3px -3px 6px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.3);
-            border: 1.5px solid #2a7ab8;
-            z-index: 2;
+        #bird svg { width: 100%; height: 100%; overflow: visible; }
+
+        /* زعنفة جانبية SVG متحركة */
+        #fish-side-fin {
+            transform-origin: 72% 55%;
+            animation: finWave 0.75s ease-in-out infinite;
         }
 
-        /* نافذة الطائرة */
-        .bird-eye {
-            position: absolute; width: 11px; height: 9px; background: #a8d8ff;
-            border: 1.5px solid #2a7ab8; border-radius: 40%; top: 28%; right: 22%; z-index: 3;
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.8);
-        }
-        .bird-pupil { display: none; }
+        /* إخفاء العناصر القديمة */
+        .bird-tail, .bird-crest, .bird-body, .bird-eye,
+        .bird-pupil, .bird-mouth, .bird-beak, .bird-wing,
+        .bird-engine-trail { display: none; }
 
-        /* مقدمة الطائرة */
-        .bird-beak {
-            position: absolute; width: 26px; height: 13px;
-            background: linear-gradient(to right, #c8e8ff, #4a9fd4);
-            border-radius: 0 50% 50% 0; top: 34%; right: -22px; z-index: 1;
-            border: 1.5px solid #2a7ab8;
-        }
-
-        /* ذيل الطائرة - الزعنفة الرأسية */
-        .bird-tail {
-            position: absolute; width: 14px; height: 22px;
-            background: linear-gradient(to top, #e8f4ff, #4a9fd4);
-            border-radius: 5px 5px 0 0;
-            top: -8px; left: 8px; z-index: 3;
-            border: 1.5px solid #2a7ab8;
-            transform: none;
-        }
-
-        /* الجناح الرئيسي */
-        .bird-wing {
-            position: absolute; width: 48px; height: 16px;
-            background: linear-gradient(to bottom, #d0ecff, #4a9fd4);
-            border: 1.5px solid #2a7ab8;
-            border-radius: 5px 20px 20px 5px;
-            top: 28%; left: 10px; z-index: 4; transform-origin: center center;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.25);
-            animation: planeTilt 1s ease-in-out infinite;
-        }
-
-        /* الجناح الصغير الخلفي */
-        .bird-crest {
-            position: absolute; width: 22px; height: 9px;
-            background: linear-gradient(to bottom, #c8e8ff, #4a9fd4);
-            border-radius: 3px 10px 10px 3px;
-            bottom: 18%; left: 2px; z-index: 3;
-            border: 1.5px solid #2a7ab8;
-            box-shadow: none;
-        }
-
-        /* أثر الدفع من المحرك */
-        .bird-engine-trail {
-            position: absolute; width: 18px; height: 6px;
-            background: linear-gradient(to left, transparent, rgba(255,220,100,0.7), rgba(255,140,0,0.5));
-            border-radius: 50%;
-            top: 42%; left: -18px; z-index: 1;
-            animation: engineTrail 0.3s ease-in-out infinite alternate;
-        }
-
-        /* غيوم رعدية بدلاً من الأنابيب */
+        /* شعاب مرجانية بدلاً من الأنابيب */
         .pipe {
             position: absolute;
             width: 90px;
@@ -311,7 +266,7 @@
         .pipe-top { border-bottom: none; }
         .pipe-bottom { border-top: none; }
 
-        /* تدرج الغيمة الرعدية - للعلوية والسفلية */
+        /* جسم العائق - صخور بحرية داكنة */
         .pipe::before {
             content: '';
             position: absolute;
@@ -320,58 +275,79 @@
             top: 0; bottom: 0;
             background: repeating-linear-gradient(
                 180deg,
-                rgba(80, 80, 120, 0.85) 0px,
-                rgba(50, 50, 90, 0.9) 30px,
-                rgba(80, 80, 130, 0.8) 60px
+                rgba(0, 40, 90, 0.95) 0px,
+                rgba(0, 25, 70, 0.92) 20px,
+                rgba(0, 50, 110, 0.90) 40px,
+                rgba(0, 20, 60, 0.95) 60px
             );
-            border-radius: 18px;
+            border-radius: 12px;
             box-shadow:
-                inset 0 0 20px rgba(0,0,150,0.3),
-                0 0 18px rgba(100,80,200,0.5);
+                inset 0 0 20px rgba(0,80,180,0.4),
+                0 0 18px rgba(0,100,200,0.35),
+                inset 4px 0 10px rgba(0,150,255,0.15);
         }
 
-        /* وميض البرق داخل الغيمة */
+        /* زخرفة العائق */
         .pipe::after {
-            content: '⚡';
+            content: '🪸';
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
             font-size: 26px;
             z-index: 5;
-            animation: lightningFlash 1.5s ease-in-out infinite;
-            text-shadow: 0 0 12px #ffe066, 0 0 24px #ffb700;
+            animation: coralSway 2.5s ease-in-out infinite;
             pointer-events: none;
+            filter: hue-rotate(180deg) saturate(0.6) brightness(0.9);
         }
 
-        /* حواف الغيمة العلوية - موجات في الأسفل */
         .pipe-top::before {
-            border-radius: 18px 18px 0 0;
+            border-radius: 0 0 16px 16px;
         }
         .pipe-top::after {
             top: auto;
-            bottom: 12px;
+            bottom: 10px;
         }
 
-        /* حواف الغيمة السفلية - موجات في الأعلى */
         .pipe-bottom::before {
-            border-radius: 0 0 18px 18px;
+            border-radius: 16px 16px 0 0;
         }
         .pipe-bottom::after {
-            top: 12px;
+            top: 10px;
         }
 
         .ground {
-            position: absolute; bottom: 0; width: 100%; height: 40px;
-            background: linear-gradient(#87ceeb, #5aabde);
-            border-top: 2px solid rgba(255,255,255,0.4);
-            z-index: 10; box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+            position: absolute; bottom: 0; width: 100%; height: 50px;
+            background: linear-gradient(to top, #8B4513 0%, #a0522d 40%, #c2956c 80%, rgba(194,149,108,0) 100%);
+            border-top: 3px solid rgba(255,200,100,0.5);
+            z-index: 10; box-shadow: 0 -5px 15px rgba(139,69,19,0.6);
+        }
+        /* طحالب القاع */
+        .ground::before {
+            content: '🌿🪸🐚🌿🐚🪸🌿🐚';
+            position: absolute;
+            top: -18px;
+            left: 5px;
+            font-size: 20px;
+            letter-spacing: 20px;
+            animation: seaweedSway 3s ease-in-out infinite;
         }
 
+        /* عناصر الزينة البحرية المتحركة (بديل الغيوم) */
         .cloud {
-            position: absolute; background: rgba(180, 180, 220, 0.55); border-radius: 50%;
-            box-shadow: 0 0 20px rgba(100, 80, 200, 0.3); opacity: 0.7;
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.25;
             animation: cloudFloat 20s linear infinite;
+        }
+        /* جعل "الغيوم" فقاعات بحرية */
+        .cloud::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 35% 35%, rgba(150,220,255,0.8), rgba(100,180,255,0.3));
+            border-radius: 50%;
+            border: 1px solid rgba(150,220,255,0.4);
         }
 
         .score-container, .difficulty-indicator {
@@ -381,50 +357,127 @@
         }
         .score-container { top: 20px; left: 20px; font-size: 3rem; }
         .difficulty-indicator { top: 20px; right: 20px; font-size: 1.5rem; border-radius: 20px; }
+        .lives-container {
+            position: absolute;
+            top: 75px;
+            left: 20px;
+            font-size: 1.8rem;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
 
         .game-over, .start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-        .game-over { background: rgba(0, 0, 0, 0.85); z-index: 200; display: none; }
-        .game-over h2 { color: #e74c3c; font-size: 3.5rem; margin-bottom: 25px; animation: pulse 1s infinite; }
-        .game-over p { color: white; font-size: 2.5rem; margin-bottom: 35px; }
+        .game-over { background: rgba(0, 10, 30, 0.92); z-index: 200; display: none; }
+        .game-over h2 { color: #ff4466; font-size: 3.5rem; margin-bottom: 25px; animation: pulse 1s infinite; }
+        .game-over p { color: #aaddff; font-size: 2.5rem; margin-bottom: 35px; }
         
-        .start-screen { background: rgba(0, 0, 0, 0.7); z-index: 300; }
-        .start-screen h2 { color: white; font-size: 3.5rem; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
-        .start-screen p { color: #ffd700; font-size: 2.5rem; margin-bottom: 40px; animation: pulse 1.5s infinite; }
+        .start-screen { background: rgba(0, 10, 30, 0.78); z-index: 300; }
+        .start-screen h2 { color: #88ddff; font-size: 3.5rem; margin-bottom: 30px; text-shadow: 0 0 15px rgba(100, 200, 255, 0.9); }
+        .start-screen p { color: #aaffee; font-size: 2.5rem; margin-bottom: 40px; animation: pulse 1.5s infinite; }
 
-        .instructions { position: absolute; bottom: 60px; width: 100%; text-align: center; color: white; font-size: 1.5rem; z-index: 150; }
-        .jump-effect { position: absolute; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; z-index: 9; pointer-events: none; transform: scale(0); opacity: 0.5; }
+        .instructions { position: absolute; bottom: 70px; width: 100%; text-align: center; color: #aaddff; font-size: 1.5rem; z-index: 150; }
+        .jump-effect { position: absolute; width: 40px; height: 40px; background: rgba(100, 220, 255, 0.2); border-radius: 50%; z-index: 9; pointer-events: none; transform: scale(0); opacity: 0.5; }
 
-        /* نجوم القابلة للجمع */
+        /* نجمة البحر القابلة للجمع */
         .star-collectible {
             position: absolute;
             font-size: 30px;
             z-index: 15;
             pointer-events: none;
-            animation: starFloat 1s ease-in-out infinite alternate, starSpin 2s linear infinite;
-            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.9));
-            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffaa00;
+            animation: starFloat 1s ease-in-out infinite alternate, seaStarSpin 3s linear infinite;
+            filter: drop-shadow(0 0 8px rgba(255, 150, 50, 0.9));
+            text-shadow: 0 0 10px #ff8800, 0 0 20px #ffaa00;
             user-select: none;
         }
         @keyframes starFloat {
             0%   { transform: translateY(0px) scale(1); }
             100% { transform: translateY(-6px) scale(1.1); }
         }
-        @keyframes starSpin {
-            0%   { filter: drop-shadow(0 0 6px #ffd700) brightness(1); }
-            50%  { filter: drop-shadow(0 0 14px #fffb00) brightness(1.4); }
-            100% { filter: drop-shadow(0 0 6px #ffd700) brightness(1); }
+        @keyframes seaStarSpin {
+            0%   { filter: drop-shadow(0 0 6px #ff8800) brightness(1); }
+            50%  { filter: drop-shadow(0 0 14px #ffcc00) brightness(1.4); }
+            100% { filter: drop-shadow(0 0 6px #ff8800) brightness(1); }
         }
         @keyframes starCollect {
             0%   { transform: scale(1); opacity: 1; }
             50%  { transform: scale(2); opacity: 0.7; }
             100% { transform: scale(0); opacity: 0; }
         }
+
+        /* تنسيق صندوق الكنز */
+        .chest-collectible {
+            position: absolute;
+            font-size: 65px; /* صناديق كبيرة كما طلب المستخدم */
+            z-index: 15;
+            animation: chestFloat 2s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.9));
+            cursor: pointer;
+            user-select: none;
+        }
+        @keyframes chestFloat {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-20px) scale(1.1); }
+        }
+
+        /* تأثير الصندوق المضيء الأخير (صندوق الكنز النهائي) */
+        .chest-collectible.final-chest {
+            font-size: 100px;
+            filter: drop-shadow(0 0 20px #fff) drop-shadow(0 0 40px gold) drop-shadow(0 0 60px #ffaa00);
+            animation: finalGlow 0.8s infinite alternate, chestPulse 1.5s ease-in-out infinite;
+            z-index: 20;
+        }
+
+        @keyframes finalGlow {
+            from { 
+                transform: translateY(0) scale(1.3) rotate(-5deg);
+                filter: drop-shadow(0 0 15px gold) drop-shadow(0 0 30px #ffaa00) brightness(1);
+            }
+            to { 
+                transform: translateY(-15px) scale(1.5) rotate(5deg);
+                filter: drop-shadow(0 0 40px white) drop-shadow(0 0 60px gold) brightness(1.5);
+            }
+        }
+
+        @keyframes chestPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+
+        /* تأثير الاحتفال عند الفوز */
+        .win-celebration {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .celebration-particle {
+            position: fixed;
+            font-size: 2rem;
+            pointer-events: none;
+            animation: celebrationFall 3s ease-in forwards;
+        }
+
+        @keyframes celebrationFall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotateZ(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotateZ(720deg) scale(0);
+            }
+        }
         .star-score-popup {
             position: absolute;
-            color: #ffd700;
+            color: #ffcc00;
             font-size: 1.4rem;
             font-weight: 900;
             z-index: 50;
@@ -435,6 +488,15 @@
         @keyframes popupFloat {
             0%   { opacity: 1; transform: translateY(0) scale(1); }
             100% { opacity: 0; transform: translateY(-50px) scale(1.3); }
+        }
+
+        /* تأثير الوميض عند الاصطدام */
+        .damage-flash-effect {
+            animation: damageFlash 0.2s 5;
+        }
+        @keyframes damageFlash {
+            0%, 100% { opacity: 1; filter: brightness(1); }
+            50% { opacity: 0.4; filter: brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5); }
         }
         .tap-to-start-indicator { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); color: white; font-size: 1.2rem; animation: bounce 1.5s infinite; display: none; z-index: 301; }
 
@@ -448,9 +510,9 @@
             justify-content: center; align-items: center; z-index: 400; display: none; padding: 10px;
         }
         .modal-content {
-            background: linear-gradient(135deg, #3498db, #2980b9); padding: 20px;
-            border-radius: 15px; box-shadow: 0 0 30px rgba(0, 0, 0, 0.7); text-align: center;
-            max-width: 500px; width: 95%; max-height: 90vh; overflow-y: auto; border: 3px solid #fff;
+            background: linear-gradient(135deg, #003a6e, #005a8e); padding: 20px;
+            border-radius: 15px; box-shadow: 0 0 30px rgba(0, 100, 200, 0.7); text-align: center;
+            max-width: 500px; width: 95%; max-height: 90vh; overflow-y: auto; border: 3px solid #00aadd;
         }
         #question-text-flappy { color: white; font-size: 1.6rem; margin-bottom: 15px; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); direction: rtl; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .options-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
@@ -471,37 +533,66 @@
             font-weight: bold; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4); border: 2px solid #fff; width: 100%;
         }
 
-        @keyframes planeTilt {
-            0% { transform: rotate(-2deg) translateY(0px); }
-            50% { transform: rotate(2deg) translateY(1px); }
-            100% { transform: rotate(-2deg) translateY(0px); }
+        
+        /* تأثير الخيار المحدد قبل التأكيد */
+        .option-btn.selected-option {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9) !important;
+            border: 3px solid #fff !important;
+            background: linear-gradient(to right, #2ecc71, #27ae60) !important;
+            color: white !important;
+        }
+        @keyframes finWave {
+            0%   { transform: rotate(-15deg) scaleY(0.85); }
+            50%  { transform: rotate(12deg) scaleY(1.15); }
+            100% { transform: rotate(-15deg) scaleY(0.85); }
+        }
+        @keyframes finWaveSmall {
+            0%   { transform: rotate(-10deg); }
+            50%  { transform: rotate(10deg); }
+            100% { transform: rotate(-10deg); }
         }
         @keyframes wingFlapJump {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(-8deg); }
-            100% { transform: rotate(3deg); }
+            0%   { transform: rotate(-20deg) scaleY(0.8); }
+            50%  { transform: rotate(5deg) scaleY(1.2); }
+            100% { transform: rotate(-10deg) scaleY(0.9); }
         }
         @keyframes wingFlap {
-            0% { transform: rotate(-2deg) translateY(0px); }
-            50% { transform: rotate(2deg) translateY(1px); }
-            100% { transform: rotate(-2deg) translateY(0px); }
+            0%   { transform: rotate(-15deg) scaleY(0.85); }
+            50%  { transform: rotate(12deg) scaleY(1.15); }
+            100% { transform: rotate(-15deg) scaleY(0.85); }
         }
-        @keyframes lightningFlash {
-            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            30% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.8); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); filter: brightness(2); }
-            70% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
+        @keyframes coralSway {
+            0%, 100% { transform: translate(-50%, -50%) rotate(-6deg); }
+            50%       { transform: translate(-50%, -50%) rotate(6deg); }
+        }
+        @keyframes bubbleRise {
+            0%   { opacity: 0.9; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-20px) scale(0.5); }
+        }
+        @keyframes bubbleFloat {
+            0%   { opacity: 0.9; transform: translateY(0) scale(1); }
+            40%  { opacity: 0.6; transform: translateY(-8px) scale(1.1) translateX(2px); }
+            100% { opacity: 0; transform: translateY(-18px) scale(0.5) translateX(-2px); }
+        }
+        @keyframes seaweedSway {
+            0%, 100% { transform: skewX(-6deg); }
+            50%       { transform: skewX(6deg); }
         }
         @keyframes engineTrail {
-            0% { opacity: 0.9; width: 18px; }
-            100% { opacity: 0.3; width: 10px; }
+            0%   { opacity: 0.9; }
+            100% { opacity: 0; }
         }
         
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes jumpEffect { 0% { transform: scale(0); opacity: 0.5; background: rgba(255, 255, 255, 0.2); } 50% { transform: scale(0.8); opacity: 0.3; } 100% { transform: scale(1.2); opacity: 0; } }
+        @keyframes jumpEffect { 0% { transform: scale(0); opacity: 0.5; background: rgba(150, 230, 255, 0.3); } 50% { transform: scale(0.8); opacity: 0.3; } 100% { transform: scale(1.2); opacity: 0; } }
         @keyframes cloudFloat { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); } 40% { transform: translateX(-50%) translateY(-10px); } 60% { transform: translateX(-50%) translateY(-5px); } }
-
+        @keyframes planeTilt {
+            0%   { transform: rotate(-2deg); }
+            50%  { transform: rotate(2deg); }
+            100% { transform: rotate(-2deg); }
+        }
         /* ========================================= */
         /* ستايل لوحة الرياضيات (المحرر المنبثق)    */
         /* ========================================= */
@@ -564,6 +655,143 @@
         .root-icon { align-items: center; }
         .root-icon .radicand { border-top: 1.2px solid #333; padding-top: 1px; margin-left: 1px; font-style: italic; }
 
+        /* ===== تأثيرات الضوء في أعماق البحر ===== */
+        #game-container::before { display: none; }
+        #game-container::after { display: none; }
+        @keyframes causticShimmer {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.03); }
+        }
+
+        /* ===== تحسين الزعنفة السفلية (bird-crest) لتتحرك أيضاً ===== */
+        /* (يُضبط عبر الـ JS بنفس animation finWave) */
+
+        /* ===== تحسين مستوى قاع البحر ===== */
+        .ground {
+            position: absolute; bottom: 0; width: 100%; height: 55px;
+            background: linear-gradient(to top, #3d1e00 0%, #5c2e08 30%, #7a4520 60%, rgba(122,69,32,0) 100%);
+            border-top: 3px solid rgba(200,140,60,0.4);
+            z-index: 10;
+            box-shadow: 0 -8px 20px rgba(0,0,50,0.7);
+        }
+        .ground::before {
+            content: '🌿🪸🐚🌿🌿🐚🪸🌿🐚🌿';
+            position: absolute;
+            top: -20px;
+            left: 0px;
+            font-size: 22px;
+            letter-spacing: 16px;
+            animation: seaweedSway 2.5s ease-in-out infinite;
+        }
+        /* رمال متموجة */
+        .ground::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 12px;
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(200,150,80,0.3) 0px,
+                rgba(240,200,120,0.15) 15px,
+                rgba(180,110,50,0.3) 30px
+            );
+        }
+
+        /* ===== سمكات خلفية صغيرة ===== */
+        .bg-fish {
+            position: absolute;
+            font-size: 18px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.35;
+            animation: bgFishSwim linear infinite;
+            filter: blur(0.5px);
+        }
+        @keyframes bgFishSwim {
+            0%   { transform: translateX(0) scaleX(1); }
+            49%  { transform: translateX(calc(var(--swim-dist) * -1)) scaleX(1); }
+            50%  { transform: translateX(calc(var(--swim-dist) * -1)) scaleX(-1); }
+            100% { transform: translateX(0) scaleX(-1); }
+        }
+
+        /* ===== تأثير بريق النجوم البحرية عند الجمع ===== */
+        .star-score-popup {
+            position: absolute;
+            color: #ffcc00;
+            font-size: 1.5rem;
+            font-weight: 900;
+            z-index: 50;
+            pointer-events: none;
+            text-shadow: 0 0 10px #ff8800, 0 0 20px #ffaa00, 2px 2px 0 #000;
+            animation: popupFloat 0.9s ease-out forwards;
+        }
+
+        /* ===== تحسين شاشة البداية ===== */
+        .start-screen {
+            background: 
+                radial-gradient(ellipse at 50% 40%, rgba(0,60,120,0.7) 0%, rgba(0,10,40,0.88) 100%);
+            backdrop-filter: blur(2px);
+        }
+        .start-screen h2 {
+            color: #66ddff;
+            text-shadow: 0 0 20px rgba(0,180,255,0.9), 0 0 40px rgba(0,100,200,0.5);
+        }
+        .start-screen p {
+            color: #aaffee;
+        }
+
+        /* ===== تحسين شاشة انتهاء اللعبة ===== */
+        .game-over {
+            background: rgba(0, 5, 20, 0.93);
+            backdrop-filter: blur(3px);
+        }
+        /* فقاعات متصاعدة */
+        .ocean-bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.7), rgba(200,240,255,0.25));
+            border: 1.5px solid rgba(255,255,255,0.5);
+            z-index: 3;
+            pointer-events: none;
+            animation: oceanBubble linear infinite;
+        }
+        @keyframes oceanBubble {
+            0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0.7; }
+            50%  { transform: translateY(-40%) translateX(5px) scale(1.05); opacity: 0.5; }
+            100% { transform: translateY(-90%) translateX(-3px) scale(0.8); opacity: 0; }
+        }
+
+        /* شعاع الضوء الغاطس */
+        .light-ray {
+            position: absolute;
+            top: 0;
+            width: 45px;
+            background: linear-gradient(to bottom, rgba(220,250,255,0.35) 0%, rgba(180,240,255,0.15) 50%, transparent 100%);
+            z-index: 2;
+            pointer-events: none;
+            animation: rayWave 4s ease-in-out infinite;
+        }
+        @keyframes rayWave {
+            0%, 100% { opacity: 0.6; skewX(-3deg); }
+            50% { opacity: 0.3; skewX(3deg); }
+        }
+
+        /* طحالب متحركة في الخلفية */
+        .bg-seaweed {
+            position: absolute;
+            bottom: 45px;
+            font-size: 26px;
+            z-index: 4;
+            pointer-events: none;
+            animation: seaweedSway 2s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        /* Loading screen ocean theme */
+        #screen-loading-sheet {
+            background: linear-gradient(180deg, #00d4f0 0%, #0099cc 100%) !important;
+        }
+
         @media (max-width: 768px) {
             #game-container { width: 100%; max-width: none; height: 100vh; border-radius: 0; box-shadow: none; border: none; }
             .score-container { font-size: 2.5rem; top: 15px; left: 15px; }
@@ -583,9 +811,9 @@
 <body>
     <button class="mute-btn" id="mute-btn" onclick="toggleMute(event)">🔊</button>
 
-    <div id="screen-loading-sheet" style="display:none; position:fixed; width:100%; height:100%; background:#2F80ED; z-index:1000; flex-direction:column; align-items:center; justify-content:center; color:white;">
+    <div id="screen-loading-sheet" style="display:none; position:fixed; width:100%; height:100%; background:linear-gradient(180deg,#0a1628 0%,#0d2b4e 100%); z-index:1000; flex-direction:column; align-items:center; justify-content:center; color:white;">
         <div style="border:8px solid rgba(255,255,255,0.3); border-top:8px solid white; border-radius:50%; width:80px; height:80px; animation:spin 1s linear infinite;"></div>
-        <div id="loading-text" style="font-size:28px; font-weight:bold; margin-top:20px;">جاري تجهيز التحدي...</div>
+        <div id="loading-text" style="font-size:28px; font-weight:bold; margin-top:20px;">🌊 جاري الغوص في التحدي...</div>
     </div>
     <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
 
@@ -597,7 +825,7 @@
             <input id="input-student-name" placeholder="ما هو اسمك المستعار؟" type="text"/>
             <p style="font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 18px;">اختر صورتك الرمزية:</p>
             <div class="avatar-grid" id="avatar-container"></div>
-            <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">ابدأ اللعب الآن!</button>
+            <button class="btn btn-student" onclick="startStudentFlow()" style="margin-top: 15px; font-size: 22px;">🌊 اغمر في اللعب الآن!</button>
         </div>
     </div>
 
@@ -608,32 +836,127 @@
             <p style="color: #666; font-size: 22px; font-weight: bold; margin-top: 10px;">نهاية التحدي، رصيدك هو:</p>
             <h1 id="final-score-display-result" style="font-size: 90px; color: var(--primary); margin: 10px 0; text-shadow: 3px 3px 0px rgba(0,0,0,0.1);">0</h1>
             <p id="final-status" style="font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--info);">جاري حفظ النتيجة...</p>
-            <button class="btn btn-primary" onclick="showScreen('screen-student-login')" style="font-size: 22px; margin-top:15px;">العودة للرئيسية</button>
+            <button class="btn btn-action" onclick="viewCurrentRoomLeaderboard()" style="font-size: 22px; margin-top:5px; background-color: var(--warning); color: #333; box-shadow: 0 6px 0 var(--k-yellow-dark);">🏆 عرض لوحة الصدارة</button>
+            <button class="btn btn-primary" onclick="showScreen('screen-student-login')" style="font-size: 22px; margin-top:10px;">العودة للرئيسية</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-standalone-leaderboard">
+        <div class="card" style="max-width: 700px; width: 100%;">
+            <h2>🏆 لوحة الصدارة</h2>
+            <p style="margin-bottom: 20px; color: #666;">أدخل رقم الغرفة (PIN) لعرض ترتيب الأبطال</p>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="number" id="search-leaderboard-pin" placeholder="أدخل رقم الغرفة..." style="margin-bottom: 0; flex: 2;">
+                <button class="btn btn-action" onclick="searchStandaloneLeaderboard()" style="margin-bottom: 0; flex: 1; padding: 10px;">🔍 بحث</button>
+            </div>
+
+            <table id="standalone-leaderboard-table" style="display: none;">
+                <thead><tr><th>المركز</th><th>البطل المتميز</th><th>النقاط</th></tr></thead>
+                <tbody id="standalone-leaderboard-body"></tbody>
+            </table>
+
+            <div id="standalone-loading-board" style="display:none; font-size: 18px; font-weight: bold; color: var(--primary); margin: 20px 0;">
+                ⏳ جاري البحث عن البيانات...
+            </div>
+
+            <button class="btn btn-back" onclick="showScreen('screen-student-result')" style="margin-top: 25px;">رجوع</button>
         </div>
     </div>
 
     <div id="game-container-wrapper">
         <div id="game-container">
             <div id="bird">
-                <div class="bird-tail"></div>
-                <div class="bird-crest"></div>
-                <div class="bird-body"></div>
-                <div class="bird-eye"><div class="bird-pupil"></div></div>
-                <div class="bird-beak"></div>
-                <div class="bird-wing"></div>
-                <div class="bird-engine-trail"></div>
+                <svg viewBox="0 0 500 380" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFE033"/>
+                            <stop offset="40%" stop-color="#FFC200"/>
+                            <stop offset="100%" stop-color="#E07800"/>
+                        </linearGradient>
+                        <linearGradient id="finGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFD000"/>
+                            <stop offset="100%" stop-color="#FF8C00"/>
+                        </linearGradient>
+                        <linearGradient id="tailGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFC200"/>
+                            <stop offset="100%" stop-color="#FF9500"/>
+                        </linearGradient>
+                        <radialGradient id="eyeGrad" cx="35%" cy="30%">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="100%" stop-color="#dddddd"/>
+                        </radialGradient>
+                        <radialGradient id="shineGrad" cx="35%" cy="30%">
+                            <stop offset="0%" stop-color="rgba(255,255,220,0.85)"/>
+                            <stop offset="100%" stop-color="rgba(255,255,200,0)"/>
+                        </radialGradient>
+                    </defs>
+
+                    <!-- ذيل السمكة -->
+                    <path d="M 155,190 L 30,95 Q 75,190 30,285 Z" fill="url(#tailGrad)"/>
+                    <!-- خطوط تفصيل الذيل -->
+                    <path d="M 138,190 L 48,128 M 138,190 L 38,190 M 138,190 L 48,252"
+                          stroke="rgba(255,255,255,0.55)" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+                    <!-- الزعنفة العلوية -->
+                    <path d="M 215,125 Q 260,38 320,128 Z" fill="url(#finGrad)" opacity="0.95"/>
+
+                    <!-- الزعنفة السفلية -->
+                    <path d="M 225,255 Q 258,335 295,255 Z" fill="url(#finGrad)" opacity="0.95"/>
+
+                    <!-- جسم السمكة -->
+                    <ellipse cx="268" cy="190" rx="135" ry="88" fill="url(#bodyGrad)"/>
+
+                    <!-- لمعة على الجسم -->
+                    <ellipse cx="300" cy="155" rx="42" ry="26" fill="url(#shineGrad)" transform="rotate(-20,300,155)"/>
+
+                    <!-- خطوط بيضاء على الجسم -->
+                    <path d="M 205,112 Q 245,190 205,268" stroke="#FFF" stroke-width="13" fill="none" stroke-linecap="round" opacity="0.85"/>
+                    <path d="M 255,106 Q 295,190 255,274" stroke="#FFF" stroke-width="13" fill="none" stroke-linecap="round" opacity="0.75"/>
+
+                    <!-- الزعنفة الجانبية (متحركة) -->
+                    <path id="fish-side-fin" d="M 288,208 Q 215,232 246,268 Z" fill="url(#finGrad)" opacity="0.9"/>
+
+                    <!-- خدود وردية -->
+                    <ellipse cx="328" cy="212" rx="17" ry="11" fill="#FF6B8A" opacity="0.45"/>
+
+                    <!-- العين - بيضاء -->
+                    <circle cx="345" cy="162" r="26" fill="url(#eyeGrad)" stroke="#CC7700" stroke-width="2.5"/>
+                    <!-- حدقة العين -->
+                    <circle cx="352" cy="162" r="15" fill="#1a1a2e"/>
+                    <!-- لمعة العين كبيرة -->
+                    <circle cx="357" cy="155" r="6" fill="#FFF"/>
+                    <!-- لمعة صغيرة ثانية -->
+                    <circle cx="347" cy="168" r="3" fill="rgba(255,255,255,0.7)"/>
+
+                    <!-- الفم المبتسم -->
+                    <path d="M 348,222 Q 368,244 384,220" stroke="#AA5500" stroke-width="5" fill="none" stroke-linecap="round"/>
+
+                    <!-- فقاعات هواء -->
+                    <g opacity="0.9">
+                        <circle cx="420" cy="148" r="10" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.8)" stroke-width="2">
+                            <animate attributeName="cy" values="148;60;148" dur="3s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.9;0;0.9" dur="3s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="445" cy="125" r="6" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.8)" stroke-width="1.5">
+                            <animate attributeName="cy" values="125;40;125" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.9;0;0.9" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+                        </circle>
+                    </g>
+                </svg>
             </div>
             <div class="ground"></div>
-            <div class="score-container">النتيجة: <span id="display-score">0</span> &nbsp;⭐<span id="display-star-score">0</span></div>
+            <div class="score-container">النتيجة: <span id="display-score">0</span> &nbsp;🌟<span id="display-star-score">0</span></div>
+            <div id="lives-display" class="lives-container">❤️❤️❤️❤️❤️</div>
             <div class="difficulty-indicator">الصعوبة: <span id="difficulty-level">سهلة</span></div>
 
             <div class="start-screen" id="start-screen">
-                <h2>لعبة الطائرة والغيوم</h2>
+                <h2>لعبة السمكة الذكية</h2>
                 <p>انقر على الشاشة للبدء</p>
-                <div class="tap-to-start-indicator">🫳 انقر أو المس للقفز!</div>
+                <div class="tap-to-start-indicator">🫳 انقر أو المس للسباحة!</div>
             </div>
 
-            <div class="instructions">اضغط على الشاشة أو المسها لتحليق الطائرة!</div>
+            <div class="instructions">اضغط على الشاشة أو المسها لتسبح السمكة!</div>
             
             <div id="question-modal" class="question-modal">
                 <div class="modal-content">
@@ -815,7 +1138,6 @@
         </div>
     </div> </div>
 
-    <audio id="bgmMusic" src="https://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/menu.ogg" loop preload="auto"></audio>
     <audio id="jumpSound" src="https://commondatastorage.googleapis.com/codeskulptor-assets/jump.ogg" preload="auto"></audio>
     <audio id="scoreSound" src="https://commondatastorage.googleapis.com/codeskulptor-assets/week7-bounce.m4a" preload="auto"></audio>
     <audio id="gameOverSound" src="https://actions.google.com/sounds/v1/cartoon/slide_whistle.ogg" preload="auto"></audio>
@@ -916,22 +1238,151 @@
         // ========================================== //
         // 2. أكواد واجهة المنصة وغرف المعلم          //
         // ========================================== //
-        const bgmMusic = document.getElementById('bgmMusic');
-        bgmMusic.volume = 0.3; 
+        // ===== موسيقى الفقاعات اللطيفة (Web Audio API) =====
+        const OceanMusic = (() => {
+            let ctx, masterGain, running = false;
+
+            function init() {
+                if (ctx) return;
+                ctx = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(0.32, ctx.currentTime);
+                masterGain.connect(ctx.destination);
+            }
+
+            // فقاعة واحدة: نغمة صاعدة ناعمة مع reverb بسيط
+            function popBubble() {
+                if (!running) return;
+                const t = ctx.currentTime;
+
+                // اختر نغمة عشوائية من سلّم ناعم (C maj pentatonic)
+                const notes = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.5, 1174.66];
+                const freq = notes[Math.floor(Math.random() * notes.length)];
+
+                // المذبذب الرئيسي - نغمة فقاعة
+                const osc = ctx.createOscillator();
+                const env = ctx.createGain();
+                osc.type = 'sine';
+                // الفقاعة تبدأ من نغمة منخفضة وترتفع قليلاً ثم تتلاشى
+                osc.frequency.setValueAtTime(freq * 0.82, t);
+                osc.frequency.exponentialRampToValueAtTime(freq, t + 0.08);
+                osc.frequency.exponentialRampToValueAtTime(freq * 1.04, t + 0.22);
+
+                // غلاف الصوت: هجوم سريع وانحسار ناعم
+                env.gain.setValueAtTime(0.0001, t);
+                env.gain.exponentialRampToValueAtTime(0.13, t + 0.03);
+                env.gain.exponentialRampToValueAtTime(0.07, t + 0.15);
+                env.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+
+                // هارمونيك ثانوي خفيف (يضفي دفئاً)
+                const osc2 = ctx.createOscillator();
+                const env2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(freq * 1.5, t);
+                osc2.frequency.exponentialRampToValueAtTime(freq * 1.52, t + 0.25);
+                env2.gain.setValueAtTime(0.0001, t);
+                env2.gain.exponentialRampToValueAtTime(0.04, t + 0.04);
+                env2.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+
+                // reverb بسيط بواسطة delay قصير
+                const delay = ctx.createDelay(0.08);
+                delay.delayTime.value = 0.06;
+                const delayGain = ctx.createGain();
+                delayGain.gain.value = 0.18;
+
+                osc.connect(env);
+                osc2.connect(env2);
+                env.connect(masterGain);
+                env2.connect(masterGain);
+                env.connect(delay);
+                delay.connect(delayGain);
+                delayGain.connect(masterGain);
+
+                osc.start(t);
+                osc2.start(t);
+                osc.stop(t + 0.6);
+                osc2.stop(t + 0.4);
+
+                // جدولة الفقاعة التالية بفترات عشوائية طبيعية
+                const nextIn = 400 + Math.random() * 1800;
+                setTimeout(popBubble, nextIn);
+            }
+
+            // تيار خفيف جداً من الضوضاء المرشّحة (عمق البحر)
+            function makeDeepHum() {
+                const bufSize = ctx.sampleRate * 4;
+                const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+                const data = buf.getChannelData(0);
+                for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+
+                const src = ctx.createBufferSource();
+                src.buffer = buf;
+                src.loop = true;
+
+                const bp = ctx.createBiquadFilter();
+                bp.type = 'bandpass';
+                bp.frequency.value = 180;
+                bp.Q.value = 0.4;
+
+                const humGain = ctx.createGain();
+                humGain.gain.value = 0.022;
+
+                src.connect(bp);
+                bp.connect(humGain);
+                humGain.connect(masterGain);
+                src.start();
+            }
+
+            return {
+                play() {
+                    init();
+                    if (ctx.state === 'suspended') ctx.resume();
+                    if (running) return;
+                    running = true;
+                    makeDeepHum();
+                    setTimeout(popBubble, 300);
+                },
+                pause() {
+                    if (!ctx) return;
+                    masterGain.gain.setTargetAtTime(0, ctx.currentTime, 0.5);
+                    setTimeout(() => { if (ctx) ctx.suspend(); }, 600);
+                    running = false;
+                },
+                resume() {
+                    if (!ctx) return;
+                    ctx.resume();
+                    masterGain.gain.setTargetAtTime(0.32, ctx.currentTime, 0.4);
+                    running = true;
+                    setTimeout(popBubble, 300);
+                },
+                setMuted(m) {
+                    if (!ctx) return;
+                    masterGain.gain.setTargetAtTime(m ? 0 : 0.32, ctx.currentTime, 0.3);
+                }
+            };
+        })();
+
+        // كائن bgmMusic متوافق مع الكود القديم
+        const bgmMusic = {
+            _playing: false,
+            play()  { OceanMusic.play(); this._playing = true; return Promise.resolve(); },
+            pause() { OceanMusic.pause(); this._playing = false; },
+            resume(){ OceanMusic.resume(); this._playing = true; },
+        };
+
 
         let isMuted = false;
         function toggleMute(event) { 
             if(event) event.stopPropagation();
             isMuted = !isMuted; 
             document.getElementById('mute-btn').innerText = isMuted ? "🔇" : "🔊"; 
-            if (isMuted) bgmMusic.pause();
-            else if (gameRunning && !gamePaused) bgmMusic.play().catch(e=>{});
+            OceanMusic.setMuted(isMuted);
         }
 
         const avatars = ["🦁","🦋","🤖","🥷","👨‍🔬","👩‍🔬","🐺","🦊","🐯","🐼","🐰","🐹","🐻","🐥","🦉","🐧","🫅","👸","🦸‍♂️","🦸‍♀️","🕵️","🧙‍♂️","🧚‍♀️","🚀","🛸","⭐","🔥","⚡"];
         let selectedAvatar = avatars[0];
         let globalGameQuestions = [];
-        let quizTitle = 'لعبة الطائرة الفهمانة';
+        let quizTitle = 'لعبة السمكة الذكية';
         let currentQuestionIndex = 0; // مؤشر الأسئلة بالترتيب
         
         const defaultQuestions = [
@@ -1194,7 +1645,7 @@
                     const configItem = foundQuestions.find(q => q.type === 'config');
                     if (configItem && configItem.title) {
                         quizTitle = configItem.title;
-                        document.title = configItem.title + ' | الطائر الفهمان';
+                        document.title = configItem.title + ' | السمكة الذكية';
                         const titleEl = document.getElementById('quiz-title-display');
                         if (titleEl) { titleEl.textContent = configItem.title; titleEl.style.display = 'block'; }
                     }
@@ -1225,7 +1676,7 @@
         const gameContainer = document.getElementById('game-container');
         const bird = document.getElementById('bird');
         const scoreDisplay = document.getElementById('display-score');
-        const birdWing = document.querySelector('.bird-wing');
+        const birdWing = document.getElementById('fish-side-fin');
         const startScreen = document.getElementById('start-screen');
         const difficultyLevel = document.getElementById('difficulty-level');
         const birdBody = document.querySelector('.bird-body');
@@ -1248,6 +1699,8 @@
         let pipeIntervalId, pipes = [], wingFlapActive = true, animationFrameId;
         let pipeWidth = 90;
         let currentQuestion = null, questionActive = false;
+        let isInvincible = false;
+        let lives = 5;
 
         // --- متغيرات النجوم ---
         let stars = [];
@@ -1255,6 +1708,15 @@
         let starSpawnCounter = 0;
         const STAR_SPAWN_EVERY = 80; // إطار
         const STAR_POINTS = 1;
+
+        let chests = [];
+        let chestSpawnCounter = 0;
+        const CHEST_SPAWN_EVERY = 350; // ظهور صندوق كنز كل فترة
+        
+        // متغيرات للصندوق النهائي
+        let pipesCounter = 0; // لحساب عدد الأعمدة التي ظهرت
+        const CHEST_EVERY_N_PIPES = 3; // يظهر صندوق كل 3 أعمدة
+        let lastChestSpawned = false; // للتأكد من عدم تكرار الصندوق الأخير
 
         const difficultySettings = [
             { level: "سهلة", pipeSpeed: 2.5, pipeGap: 280, pipeInterval: 1800, gravity: 0.22, jumpPower: -5.5 },
@@ -1272,12 +1734,50 @@
             birdPosition = gameContainer.offsetHeight / 2 - bird.offsetHeight / 2;
             bird.style.top = birdPosition + 'px';
             bird.style.transform = 'rotate(0deg)';
-            birdWing.style.animation = 'wingFlap 0.15s linear infinite';
+            birdWing.style.animation = 'finWave 0.8s ease-in-out infinite';
+        }
+
+        function updateLivesUI() {
+            const display = document.getElementById('lives-display');
+            if (display) display.textContent = '❤️'.repeat(Math.max(0, lives)) + '🖤'.repeat(5 - Math.max(0, lives));
+        }
+
+        function resetToSafePlace() {
+            if (isInvincible) return; // منع تكرار الاصطدام في نفس اللحظة
+
+            lives--;
+            updateLivesUI();
+
+            if (lives <= 0) {
+                endFlappyGame();
+                return;
+            }
+
+            isInvincible = true; // تفعيل الحماية المؤقتة
+
+            // إعادة السمكة لمكان آمن
+            birdPosition = gameContainer.offsetHeight / 2 - bird.offsetHeight / 2;
+            birdVelocity = 0; 
+            bird.style.top = birdPosition + 'px';
+            bird.style.transform = 'rotate(0deg)';
+            
+            // تأثير وميض بسيط وصوت للإشارة للاصطدام
+            bird.classList.add('damage-flash-effect');
+            if (!isMuted) { wrongAnswerSound.currentTime = 0; wrongAnswerSound.play().catch(e=>{}); }
+
+            // إيقاف الحماية بعد ثانية واحدة لتعود السمكة للوضع الطبيعي
+            setTimeout(() => { 
+                bird.classList.remove('damage-flash-effect'); 
+                isInvincible = false;
+            }, 1000);
         }
 
         function startGameFlappy() {
             if (gameRunning) endFlappyGame(); 
 
+            lives = 5;
+            updateLivesUI();
+            isInvincible = false;
             gameRunning = true; gamePaused = false; questionActive = false;
             score = 0; scoreDisplay.textContent = score;
             birdPosition = gameContainer.offsetHeight / 2 - bird.offsetHeight / 2;
@@ -1294,6 +1794,14 @@
             document.querySelectorAll('.star-collectible').forEach(s => s.remove());
             const starScoreEl = document.getElementById('display-star-score');
             if (starScoreEl) starScoreEl.textContent = '0';
+
+            // إعادة ضبط الصناديق
+            chests.forEach(c => c.el.remove());
+            chests = [];
+            chestSpawnCounter = 0;
+            pipesCounter = 0;
+            lastChestSpawned = false;
+
             updateDifficulty();
 
             if (!isMuted) bgmMusic.play().catch(e=>{});
@@ -1311,6 +1819,10 @@
         }
 
         function pauseGameForQuestion() {
+            // إذا انتهت جميع الأسئلة، لا تعرض سؤالاً جديداً
+            if (currentQuestionIndex >= globalGameQuestions.length) {
+                return;
+            }
             gamePaused = true;
             bgmMusic.pause();
             cancelAnimationFrame(animationFrameId);
@@ -1336,42 +1848,44 @@
             birdPosition = gameContainer.offsetHeight / 2 - bird.offsetHeight / 2;
             birdVelocity = 0; bird.style.top = birdPosition + 'px';
             bird.style.transform = 'rotate(0deg)';
-            birdWing.style.animation = 'wingFlap 0.15s linear infinite'; 
+            birdWing.style.animation = 'finWave 0.8s ease-in-out infinite'; 
 
             createPipe();
             animationFrameId = requestAnimationFrame(gameLoop); 
         }
 
         function updateDifficulty() {
-            if (score >= 20) currentDifficultyIndex = 4;
-            else if (score >= 12) currentDifficultyIndex = 3;
-            else if (score >= 6) currentDifficultyIndex = 2;
-            else if (score >= 2) currentDifficultyIndex = 1;
+            // زيادة النقاط المطلوبة لكل مستوى لتجنب الصعوبة المفاجئة
+            if (score >= 50) currentDifficultyIndex = 4;
+            else if (score >= 35) currentDifficultyIndex = 3;
+            else if (score >= 20) currentDifficultyIndex = 2;
+            else if (score >= 10) currentDifficultyIndex = 1;
             else currentDifficultyIndex = 0;
 
             pipeSpeed = difficultySettings[currentDifficultyIndex].pipeSpeed;
             gravity = difficultySettings[currentDifficultyIndex].gravity;
             jumpPower = difficultySettings[currentDifficultyIndex].jumpPower;
             difficultyLevel.textContent = difficultySettings[currentDifficultyIndex].level;
-
-            
         }
 
         function createClouds() {
-            for (let i = 0; i < 10; i++) {
-                const cloud = document.createElement('div');
-                cloud.classList.add('cloud');
-                const size = Math.random() * 80 + 40;
-                cloud.style.width = size + 'px'; cloud.style.height = size * 0.6 + 'px';
-                cloud.style.top = Math.random() * (gameContainer.offsetHeight * 0.7) + 'px';
-                cloud.style.left = Math.random() * gameContainer.offsetWidth + 'px';
-                cloud.style.animationDelay = `${Math.random() * 20}s`;
-                cloud.style.animationDuration = `${20 + Math.random() * 10}s`;
-                gameContainer.appendChild(cloud);
+            // فقاعات بحرية خفيفة فقط
+            for (let i = 0; i < 6; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('ocean-bubble');
+                const size = Math.random() * 10 + 5;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.bottom = (Math.random() * 80 + 5) + '%';
+                const dur = 6 + Math.random() * 8;
+                bubble.style.animationDuration = dur + 's';
+                bubble.style.animationDelay = `${Math.random() * dur}s`;
+                gameContainer.appendChild(bubble);
             }
         }
 
-        function createPipe() {
+                function createPipe() {
             if (!gameRunning || gamePaused) return;
             const pipeGap = difficultySettings[currentDifficultyIndex].pipeGap;
             const minHeight = 80;
@@ -1386,10 +1900,42 @@
             const bottomPipe = document.createElement('div');
             bottomPipe.classList.add('pipe', 'pipe-bottom');
             bottomPipe.style.height = (gameContainer.offsetHeight - topPipeHeight - pipeGap - 40) + 'px';
-            bottomPipe.style.bottom = '40px'; bottomPipe.style.right = `-${pipeWidth}px`;
-            gameContainer.appendChild(bottomPipe);
+            bottomPipe.style.bottom = '40px'; bottomPipe.style.right = `-${pipeWidth}px`; gameContainer.appendChild(bottomPipe);
 
             pipes.push({ top: topPipe, bottom: bottomPipe, passed: false });
+
+            pipesCounter++;
+
+            // منطق ظهور الصناديق
+            let shouldSpawnChest = false;
+            let isFinal = false;
+
+            // هل هذا هو وقت الصندوق الأخير؟
+            if (currentQuestionIndex >= globalGameQuestions.length && !lastChestSpawned) {
+                // الصندوق النهائي يظهر بعد عمودين من انتهاء الأسئلة
+                shouldSpawnChest = true;
+                isFinal = true;
+                lastChestSpawned = true;
+            } 
+            // هل هو وقت صندوق عادي؟
+            else if (currentQuestionIndex < globalGameQuestions.length) {
+                if (pipesCounter % CHEST_EVERY_N_PIPES === 0) {
+                    shouldSpawnChest = true;
+                }
+            }
+
+            if (shouldSpawnChest) {
+                const chest = document.createElement('div');
+                chest.classList.add('chest-collectible');
+                if (isFinal) chest.classList.add('final-chest'); // إضافة التميز للصندوق الأخير
+                
+                chest.textContent = '🎁'; 
+                const chestY = topPipeHeight + (pipeGap / 2) - 32; 
+                chest.style.top = chestY + 'px';
+                chest.style.right = `-${pipeWidth}px`;
+                gameContainer.appendChild(chest);
+                chests.push({ el: chest, collected: false, y: chestY, isFinal: isFinal });
+            }
         }
 
         function movePipes() {
@@ -1423,8 +1969,10 @@
             const groundRect = document.querySelector('.ground').getBoundingClientRect();
             const containerRect = gameContainer.getBoundingClientRect();
 
-            const birdTop = birdRect.top - containerRect.top + 5; const birdBottom = birdRect.bottom - containerRect.top - 5;
-            const birdLeft = birdRect.left - containerRect.left + 5; const birdRight = birdRect.right - containerRect.left - 5;
+            const birdTop = birdRect.top - containerRect.top + 20; 
+            const birdBottom = birdRect.bottom - containerRect.top - 20;
+            const birdLeft = birdRect.left - containerRect.left + 25; 
+            const birdRight = birdRect.right - containerRect.left - 25;
 
             const topPipeTop = topPipeRect.top - containerRect.top; const topPipeBottom = topPipeRect.bottom - containerRect.top;
             const topPipeLeft = topPipeRect.left - containerRect.left; const topPipeRight = topPipeRect.right - containerRect.left;
@@ -1454,7 +2002,7 @@
             setTimeout(() => jumpEffect.remove(), 500);
 
             birdWing.style.animation = 'wingFlapJump 0.2s forwards';
-            setTimeout(() => { if (gameRunning && !gamePaused) birdWing.style.animation = 'wingFlap 0.15s linear infinite'; }, 200);
+            setTimeout(() => { if (gameRunning && !gamePaused) birdWing.style.animation = 'finWave 0.8s ease-in-out infinite'; }, 200);
             birdBody.style.transform = 'scale(1.05, 0.95)';
             setTimeout(() => { birdBody.style.transform = 'scale(1)'; }, 100);
         }
@@ -1463,10 +2011,12 @@
             if (!gameRunning || gamePaused) return;
             const el = document.createElement('div');
             el.classList.add('star-collectible');
-            el.textContent = '⭐';
-            // ضع النجمة في موقع عشوائي عمودي داخل منطقة اللعب
+            // استخدام نجمة البحر مع تنويع الكائنات البحرية
+            const seaItems = ['🌟', '🐠', '🐡', '🦐', '🐙'];
+            el.textContent = seaItems[Math.floor(Math.random() * seaItems.length)];
+            // ضع نجمة البحر في موقع عشوائي عمودي داخل منطقة اللعب
             const minY = 50;
-            const maxY = gameContainer.offsetHeight - 100;
+            const maxY = gameContainer.offsetHeight - 110;
             const yPos = Math.floor(Math.random() * (maxY - minY)) + minY;
             el.style.top = yPos + 'px';
             el.style.right = '-40px';
@@ -1491,37 +2041,37 @@
                 right += pipeSpeed;
                 star.el.style.right = right + 'px';
 
-                // حذف النجمة إذا خرجت من الشاشة
+                // إزالة النجوم التي تخرج من الشاشة
                 if (right > gameContainer.offsetWidth + 40) {
                     star.el.remove();
                     stars.splice(i, 1);
                     continue;
                 }
 
-                // كشف التصادم مع الطائرة
+                // التحقق من الالتقاط
                 const starLeft = gameContainer.offsetWidth - right - 30;
                 const starRight = starLeft + 30;
                 const starTop = star.y;
                 const starBottom = starTop + 30;
 
-                if (birdRight > starLeft + 5 && birdLeft < starRight - 5 &&
-                    birdBottom > starTop + 5 && birdTop < starBottom - 5) {
-                    // جمع النجمة!
+                if (birdRight > starLeft && birdLeft < starRight && birdBottom > starTop && birdTop < birdBottom) {
                     star.collected = true;
-                    starScore += STAR_POINTS;
+                    star.el.style.transition = 'all 0.4s ease-out';
+                    star.el.style.transform = 'scale(2) translateY(-50px)';
+                    star.el.style.opacity = '0';
+                    
+                    setTimeout(() => star.el.remove(), 400);
+                    
+                    starScore += 5;
                     const starScoreEl = document.getElementById('display-star-score');
                     if (starScoreEl) starScoreEl.textContent = starScore;
 
-                    // تأثير الجمع
-                    star.el.style.animation = 'starCollect 0.4s ease-out forwards';
-                    setTimeout(() => { star.el.remove(); }, 400);
-
-                    // نص النقاط الطائر
+                    // تأثير نصي طائر
                     const popup = document.createElement('div');
-                    popup.classList.add('star-score-popup');
-                    popup.textContent = '+' + STAR_POINTS + ' ⭐';
-                    popup.style.left = (starLeft + 5) + 'px';
-                    popup.style.top = (starTop - 10) + 'px';
+                    popup.className = 'star-score-popup';
+                    popup.textContent = '+5';
+                    popup.style.left = (starLeft) + 'px';
+                    popup.style.top = (starTop) + 'px';
                     gameContainer.appendChild(popup);
                     setTimeout(() => popup.remove(), 800);
 
@@ -1529,6 +2079,67 @@
                     if (!isMuted) { scoreSound.volume = 0.5; scoreSound.currentTime = 0; scoreSound.play().catch(e=>{}); }
 
                     stars.splice(i, 1);
+                }
+            }
+        }
+
+        function createChest() {
+            if (!gameRunning || gamePaused || currentQuestionIndex >= globalGameQuestions.length) return;
+            
+            const el = document.createElement('div');
+            el.classList.add('chest-collectible');
+            el.textContent = '🎁'; 
+            const minY = 100;
+            const maxY = gameContainer.offsetHeight - 180;
+            const randomY = Math.floor(Math.random() * (maxY - minY)) + minY;
+            el.style.top = randomY + 'px';
+            el.style.right = '-100px';
+            gameContainer.appendChild(el);
+            chests.push({ el, collected: false, y: randomY });
+        }
+
+        function moveChests() {
+            if (!gameRunning || gamePaused) return;
+            const birdRect = bird.getBoundingClientRect();
+            const containerRect = gameContainer.getBoundingClientRect();
+            const birdTop = birdRect.top - containerRect.top;
+            const birdBottom = birdRect.bottom - containerRect.top;
+            const birdLeft = birdRect.left - containerRect.left;
+            const birdRight = birdRect.right - containerRect.left;
+
+            for (let i = chests.length - 1; i >= 0; i--) {
+                const chest = chests[i];
+                if (chest.collected) continue;
+
+                let right = parseFloat(chest.el.style.right || '-100');
+                right += pipeSpeed;
+                chest.el.style.right = right + 'px';
+
+                if (right > gameContainer.offsetWidth + 100) {
+                    chest.el.remove(); 
+                    chests.splice(i, 1); 
+                    continue;
+                }
+
+                const chestSize = 65;
+                const chestLeft = gameContainer.offsetWidth - right - chestSize;
+                const chestRight = chestLeft + chestSize;
+                const chestTop = chest.y;
+                const chestBottom = chestTop + chestSize;
+
+                // عند لمس الصندوق
+                if (birdRight > chestLeft && birdLeft < chestRight && birdBottom > chestTop && birdTop < chestBottom) {
+                    chest.collected = true;
+                    chest.el.remove();
+                    chests.splice(i, 1);
+                    if (!isMuted) { scoreSound.currentTime = 0; scoreSound.play().catch(e=>{}); }
+                    
+                    // إذا كان صندوق نهائي، اعرض الاحتفال
+                    if (chest.isFinal) {
+                        showWinCelebration();
+                    } else {
+                        pauseGameForQuestion(); 
+                    }
                 }
             }
         }
@@ -1541,13 +2152,14 @@
             bird.style.transform = `rotate(${rotation}deg)`;
 
             if (birdVelocity > 4 && wingFlapActive) { birdWing.style.animation = 'none'; wingFlapActive = false; }
-            else if (birdVelocity <= 4 && !wingFlapActive) { birdWing.style.animation = 'wingFlap 0.15s linear infinite'; wingFlapActive = true; }
+            else if (birdVelocity <= 4 && !wingFlapActive) { birdWing.style.animation = 'finWave 0.8s ease-in-out infinite'; wingFlapActive = true; }
 
             if (birdPosition <= 0) { birdPosition = 0; birdVelocity = 0; }
             bird.style.top = birdPosition + 'px';
 
             movePipes();
             moveStars();
+            moveChests(); // تحريك الصناديق
 
             // توليد النجوم دورياً
             starSpawnCounter++;
@@ -1555,6 +2167,8 @@
                 createStar();
                 starSpawnCounter = 0;
             }
+
+            // تظهر الصناديق الآن تلقائياً مع كل زوج من الأعمدة في دالة createPipe
 
             // ------- توليد الأعمدة حسب المسافة -------
             if (pipes.length === 0) {
@@ -1571,45 +2185,96 @@
             }
             // ----------------------------------------
 
-            for (let i = pipes.length - 1; i >= 0; i--) {
-                if (checkCollision(pipes[i].top, pipes[i].bottom)) { pauseGameForQuestion(); return; }
-            }
-            if (birdPosition + bird.offsetHeight >= gameContainer.offsetHeight - 40 || birdPosition <= 0) {
-                pauseGameForQuestion(); return;
+            // التحقق من الاصطدام بالعقبات (إذا لم تكن السمكة في فترة الحماية)
+            if (!isInvincible) {
+                for (let i = pipes.length - 1; i >= 0; i--) {
+                    if (checkCollision(pipes[i].top, pipes[i].bottom)) { 
+                        resetToSafePlace(); 
+                    }
+                }
+                // التحقق من الاصطدام بالقاع أو السقف
+                if (birdPosition + bird.offsetHeight >= gameContainer.offsetHeight - 40 || birdPosition <= 0) {
+                    resetToSafePlace(); 
+                }
             }
             
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        // تم التعديل هنا ليتم الانتقال الفوري لصفحة النتائج وتسجيل الدرجات عند الخسارة
-        function endFlappyGame() {
+
+        function showWinCelebration() {
+            // *** احفظ النقاط فوراً قبل أي شيء ***
+            const savedScore = score;
+            const savedStarScore = starScore;
+
+            gameRunning = false;
+            gamePaused = false;
+            questionActive = false;
+            cancelAnimationFrame(animationFrameId);
+            
+            bgmMusic.pause();
+            
+            // تشغيل صوت الفوز
+            if (!isMuted) { 
+                correctAnswerSound.currentTime = 0; 
+                correctAnswerSound.play().catch(e=>{}); 
+            }
+            
+            // إنشاء حاوية الاحتفال
+            const celebration = document.createElement('div');
+            celebration.className = 'win-celebration';
+            gameContainer.appendChild(celebration);
+            
+            // إضافة جزيئات احتفالية
+            const particles = ['🎉', '🎊', '✨', '⭐', '🌟', '💫', '🏆', '👑'];
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'celebration-particle';
+                particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = '-50px';
+                particle.style.animationDelay = (i * 0.1) + 's';
+                celebration.appendChild(particle);
+            }
+            
+            // إنهاء اللعبة بعد فترة قصيرة مع تمرير النقاط المحفوظة
+            setTimeout(() => {
+                endFlappyGame(true, savedScore, savedStarScore);
+            }, 1500);
+        }
+
+        function endFlappyGame(isWin, _savedScore, _savedStarScore) {
             gameRunning = false; gamePaused = false; questionActive = false;
              cancelAnimationFrame(animationFrameId);
 
             bgmMusic.pause();
 
-            if (!isMuted) { gameOverSound.currentTime = 0; gameOverSound.play().catch(e=>{}); }
+            if (!isMuted && !isWin) { gameOverSound.currentTime = 0; gameOverSound.play().catch(e=>{}); }
             birdWing.style.animation = 'none'; bird.style.transform = 'rotate(90deg)';
 
             pipes.forEach(pipe => { pipe.top.remove(); pipe.bottom.remove(); }); pipes = [];
-            // تنظيف النجوم
             stars.forEach(s => s.el.remove()); stars = [];
             document.querySelectorAll('.star-collectible, .star-score-popup').forEach(s => s.remove());
+            chests.forEach(c => { if(c.el && c.el.parentNode) c.el.remove(); }); chests = [];
 
-            // النتيجة النهائية = نقاط العبور + نقاط النجوم
-            const totalScore = score + starScore;
+            // استخدم النقاط المحفوظة إن وُجدت (حالة الفوز)، وإلا استخدم القيم الحالية
+            const finalScore = (_savedScore !== undefined) ? _savedScore : score;
+            const finalStarScore = (_savedStarScore !== undefined) ? _savedStarScore : starScore;
+            const totalScore = finalScore + finalStarScore;
 
-            // الحفظ والإنتقال المباشر
             document.getElementById('form-score').value = totalScore;
             document.getElementById('final-score-display-result').innerText = totalScore;
-            // عرض تفاصيل النتيجة
+
             const statusEl = document.getElementById('final-status');
             if (statusEl) {
-                statusEl.innerHTML = `🎮 نقاط العبور: ${score} &nbsp;|&nbsp; ⭐ نجوم: ${starScore}<br><span style="color:var(--info)">جاري حفظ النتيجة...</span>`;
+                if (isWin) {
+                    statusEl.innerHTML = `🏆 تهانينا! لقد وجدت صندوق الكنز المضيء! 🏆<br>🎮 نقاط العبور: ${finalScore} &nbsp;|&nbsp; 🌟 نجوم البحر: ${finalStarScore}<br><span style="color:var(--success)">جاري حفظ نتيجتك المميزة...</span>`;
+                } else {
+                    statusEl.innerHTML = `🎮 نقاط العبور: ${finalScore} &nbsp;|&nbsp; 🌟 نجوم البحر: ${finalStarScore}<br><span style="color:var(--info)">جاري حفظ النتيجة...</span>`;
+                }
             }
-            document.getElementById('scoreForm').submit(); // حفظ في شيت جوجل ليظهر عند المعلم
+            document.getElementById('scoreForm').submit();
 
-            // إخفاء اللعبة وعرض النتيجة
             document.getElementById('game-container-wrapper').classList.remove('active');
             showScreen('screen-student-result');
         }
@@ -1617,9 +2282,16 @@
         function displayQuestion() {
             questionActive = true;
 
-            // إذا استنفدنا كل الأسئلة، كررها من البداية
+            // إذا لا توجد أسئلة، استخدم الافتراضية
+            if (!globalGameQuestions || globalGameQuestions.length === 0) {
+                globalGameQuestions = defaultQuestions.slice();
+            }
+
+            // إذا استنفدنا كل الأسئلة، لا تكررها — أبقِ المؤشر فوق الحد حتى يظهر الصندوق النهائي
             if (currentQuestionIndex >= globalGameQuestions.length) {
-                currentQuestionIndex = 0;
+                // هذه الحالة لا يجب أن تصل إليها بعد التعديل، لكن كإجراء أمان نوقف اللعب
+                questionActive = false;
+                return;
             }
 
             currentQuestion = globalGameQuestions[currentQuestionIndex];
@@ -1670,15 +2342,72 @@
             continueBtn.style.display = 'none';
 
             if (qType === 'mc' || qType === 'tf') {
+                let selectedIdx = null; // لتخزين رقم الإجابة التي تم اختيارها
+
                 // اختيار من متعدد
                 (currentQuestion.opts || []).forEach((option, index) => {
                     const button = document.createElement('button');
                     button.classList.add('option-btn');
                     button.innerHTML = option;
                     button.dataset.index = index;
-                    button.addEventListener('click', () => checkAnswer(index));
+                    
+                    button.addEventListener('click', () => {
+                        // 1. إزالة التحديد عن كل الأزرار الأخرى وتخفيف سطوعها
+                        Array.from(optionsContainer.querySelectorAll('.option-btn')).forEach(btn => {
+                            btn.classList.remove('selected-option');
+                            btn.style.opacity = '0.7'; 
+                        });
+                        
+                        // 2. تمييز الزر الذي تم الضغط عليه
+                        button.classList.add('selected-option');
+                        button.style.opacity = '1';
+                        selectedIdx = index; // حفظ اختيار الطالب
+                        
+                        // 3. إظهار زر التأكيد
+                        const confirmBtn = document.getElementById('confirm-mc-btn');
+                        if (confirmBtn) confirmBtn.style.display = 'block';
+                    });
+                    
                     optionsContainer.appendChild(button);
                 });
+
+                // إنشاء زر تأكيد الإجابة (مخفي في البداية)
+                const confirmBtn = document.createElement('button');
+                confirmBtn.id = 'confirm-mc-btn';
+                confirmBtn.textContent = '✔ تأكيد الإجابة';
+                confirmBtn.style.display = 'none'; 
+                confirmBtn.style.marginTop = '15px';
+                confirmBtn.style.width = '100%';
+                confirmBtn.style.padding = '12px';
+                confirmBtn.style.background = 'var(--primary)'; // لون المنصة البنفسجي
+                confirmBtn.style.color = 'white';
+                confirmBtn.style.border = '2px solid #fff';
+                confirmBtn.style.borderRadius = '8px';
+                confirmBtn.style.fontSize = '18px';
+                confirmBtn.style.fontWeight = 'bold';
+                confirmBtn.style.cursor = 'pointer';
+                confirmBtn.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
+                confirmBtn.style.transition = 'all 0.2s';
+
+                // عند الضغط على زر التأكيد، يتم إرسال الإجابة للتقييم
+                confirmBtn.addEventListener('click', () => {
+                    if (selectedIdx !== null) {
+                        confirmBtn.style.display = 'none'; // إخفاء زر التأكيد بعد الضغط
+                        checkAnswer(selectedIdx); // اعتماد الإجابة
+                    }
+                });
+
+                confirmBtn.addEventListener('mouseover', () => {
+                    confirmBtn.style.transform = 'translateY(-2px)';
+                    confirmBtn.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.4)';
+                });
+
+                confirmBtn.addEventListener('mouseout', () => {
+                    confirmBtn.style.transform = 'translateY(0)';
+                    confirmBtn.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
+                });
+                
+                optionsContainer.appendChild(confirmBtn);
 
             } else if (qType === 'blanks') {
                 // إكمال فراغات
@@ -1880,6 +2609,56 @@
         startScreen.addEventListener('click', startGameFlappy);
         startScreen.addEventListener('touchstart', function(e) { e.preventDefault(); startGameFlappy(); }, { passive: false });
 
+        function viewCurrentRoomLeaderboard() {
+            const pin = document.getElementById('form-school').value.trim();
+            const searchInput = document.getElementById('search-leaderboard-pin');
+            if (searchInput) searchInput.value = pin || '';
+            showScreen('screen-standalone-leaderboard');
+            if (pin) searchStandaloneLeaderboard();
+        }
+
+        async function searchStandaloneLeaderboard() {
+            const pin = document.getElementById('search-leaderboard-pin').value.trim();
+            if (!pin) { alert('يرجى إدخال رقم الغرفة للبحث!'); return; }
+
+            const tbody = document.getElementById('standalone-leaderboard-body');
+            const table = document.getElementById('standalone-leaderboard-table');
+            const loading = document.getElementById('standalone-loading-board');
+
+            table.style.display = 'none';
+            loading.style.display = 'block';
+            loading.innerText = "⏳ جاري جلب البيانات من النظام...";
+            tbody.innerHTML = '';
+
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+
+                let players = json.table.rows.filter(r => r.c[1]?.v?.toString() === pin && r.c[2]?.v !== "QUESTIONS");
+                players.sort((a,b) => (b.c[2]?.v || 0) - (a.c[2]?.v || 0));
+
+                if (players.length === 0) {
+                    loading.innerText = "لا توجد نتائج مسجلة لهذه الغرفة حتى الآن.";
+                    return;
+                }
+
+                players.forEach((p, i) => {
+                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : "🏅"));
+                    tbody.innerHTML += `<tr>
+                        <td>${i+1} ${medal}</td>
+                        <td style="font-weight:bold;">${p.c[0].v}</td>
+                        <td style="color:var(--primary);font-weight:900;font-size:24px;">${p.c[2].v}</td>
+                    </tr>`;
+                });
+
+                loading.style.display = 'none';
+                table.style.display = 'table';
+            } catch(e) {
+                loading.innerText = "❌ حدث خطأ أثناء جلب البيانات. تأكد من اتصالك بالإنترنت.";
+            }
+        }
+
         window.onload = () => {
             setupAvatars();
             const urlParams = new URLSearchParams(window.location.search);
@@ -1892,7 +2671,7 @@
                 quizTitle = decoded;
                 const titleEl = document.getElementById('quiz-title-display');
                 if (titleEl) { titleEl.textContent = decoded; titleEl.style.display = 'block'; }
-                document.title = decoded + ' | الطائر الفهمان';
+                document.title = decoded + ' | السمكة الذكية';
             }
         };
     </script>
