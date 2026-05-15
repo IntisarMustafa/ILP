@@ -1086,10 +1086,10 @@ function submitDrawing() {
     tmpCtx.drawImage(srcCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height);
     const imageData  = tmpCanvas.toDataURL('image/jpeg', 0.4); // جودة 40% بعد التصغير
 
-    // تعبئة الفورم بنفس ترتيب حقول Teacher-6
-    document.getElementById('form-student-name').value = playerName;       // name   ← اسم الطالب
-    document.getElementById('form-room-pin').value     = currentRoomPin;   // school ← رقم الغرفة
-    document.getElementById('form-drawing-data').value = imageData;        // score  ← الصورة المضغوطة
+    // حفظ الطالب: العمود A = اسم_الطالب&الرسمة، العمود B = رقم الغرفة
+    document.getElementById('form-student-name').value = playerName + '&' + imageData; // name   → العمود A
+    document.getElementById('form-room-pin').value     = currentRoomPin;               // school → العمود B = رقم الغرفة
+    document.getElementById('form-drawing-data').value = '';                           // score  → فارغ
 
     window._pendingImageData  = imageData;
     window._submittingDrawing = true;
@@ -1515,11 +1515,10 @@ async function refreshGallery() {
         
         container.innerHTML = "";
         
-        // تصفية الصفوف: رسومات الطلاب = العمود B يساوي رقم الغرفة والعمود C ليس 'TEACHER_Q'
+        // تصفية الصفوف: الطالب → العمود B = رقم الغرفة، العمود A = اسم&رسمة
         const studentDrawings = json.table.rows.filter(r => 
             r.c[1] && r.c[1].v.toString() === currentRoomPin && 
-            r.c[2] && r.c[2].v.toString() !== 'TEACHER_Q' &&
-            r.c[0] && r.c[0].v
+            r.c[0] && r.c[0].v && r.c[0].v.toString().includes('&')
         );
 
         statTotal.textContent = studentDrawings.length;
@@ -1529,8 +1528,10 @@ async function refreshGallery() {
         } else {
             empty.style.display = 'none';
             studentDrawings.forEach((item, i) => {
-                const studentName = item.c[0].v.toString();  // العمود A = اسم الطالب
-                const drawingData = item.c[2].v.toString();   // العمود C = الرسمة
+                const rawA = item.c[0].v.toString();          // العمود A = اسم&رسمة
+                const ampIdx = rawA.indexOf('&');
+                const studentName = rawA.substring(0, ampIdx);
+                const drawingData = rawA.substring(ampIdx + 1); // base64 الرسمة
 
                 const card = document.createElement('div');
                 card.className = "gallery-card";
