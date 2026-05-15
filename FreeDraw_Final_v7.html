@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>🎨 لعبة الرسم الحر v6</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+    :root {
+        --primary: #2F80ED;
+        --primary-dark: #1366D6;
+        --success: #27ae60;
+        --success-dark: #1e8449;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+        --white: #ffffff;
+        --bg: #eaf4ff;
+        --purple: #8e44ad;
+        --purple-dark: #6c3483;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+    body {
+        background: linear-gradient(160deg, #eaf4ff 0%, #f0f7ff 50%, #e3f0ff 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+    }
+
+    /* ===== SCREENS ===== */
+    .screen {
+        display: none; width: 100%; max-width: 700px; padding: 20px;
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        flex-direction: column; align-items: center; justify-content: center;
+        min-height: 100vh;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.9) translateY(30px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .card {
+        background: rgba(255,255,255,0.97); padding: 40px; border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(47,128,237,0.15); width: 100%; text-align: center;
+    }
+
+    .logo { font-size: 80px; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+    @keyframes float {
+        0%,100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    h1 { color: var(--primary); margin-bottom: 8px; font-size: 34px; }
+    h2 { color: #333; margin-bottom: 20px; font-size: 22px; }
+    .subtitle { color: #888; margin-bottom: 30px; font-size: 15px; }
+
+    .input-group { margin-bottom: 18px; text-align: right; }
+    .input-group label { display: block; font-weight: bold; color: var(--primary); margin-bottom: 6px; font-size: 15px; }
+    .input-group input, .input-group textarea {
+        width: 100%; padding: 14px; border: 3px solid #dce8ff;
+        border-radius: 12px; font-size: 16px; font-weight: bold; text-align: right;
+        transition: border-color 0.3s; font-family: 'Cairo', sans-serif;
+        background: #f8fbff;
+    }
+    .input-group textarea { resize: vertical; min-height: 80px; font-size: 15px; }
+    .input-group input:focus, .input-group textarea:focus { outline: none; border-color: var(--primary); background: white; }
+
+    .btn {
+        width: 100%; padding: 16px; border: none; border-radius: 12px;
+        font-size: 20px; font-weight: 900; cursor: pointer;
+        margin-bottom: 12px; color: var(--white);
+        transition: all 0.15s; position: relative; top: 0;
+        box-shadow: 0 6px 0 rgba(0,0,0,0.18);
+        letter-spacing: 0.3px; font-family: 'Cairo', sans-serif;
+    }
+    .btn:active { top: 6px; box-shadow: 0 0px 0 rgba(0,0,0,0.18); }
+    .btn:hover { filter: brightness(1.08); }
+    .btn-primary { background: linear-gradient(135deg, #2F80ED, #1a6dd4); box-shadow: 0 6px 0 #1057b0; }
+    .btn-success { background: linear-gradient(135deg, #27ae60, #1e8449); box-shadow: 0 6px 0 #145a32; }
+    .btn-danger  { background: linear-gradient(135deg, #e74c3c, #c0392b); box-shadow: 0 6px 0 #922b21; }
+    .btn-warning { background: linear-gradient(135deg, #f39c12, #d68910); box-shadow: 0 6px 0 #a0660a; }
+    .btn-purple  { background: linear-gradient(135deg, #8e44ad, #6c3483); box-shadow: 0 6px 0 #4a235a; }
+    .btn-gray    { background: linear-gradient(135deg, #636e72, #2d3436); box-shadow: 0 6px 0 #1a1f20; }
+
+    .btn-sm { font-size: 15px; padding: 10px 20px; width: auto; margin-bottom: 0; }
+
+    /* ===== HOME BUTTONS ===== */
+    .home-btn-group { display: flex; flex-direction: column; gap: 0; width: 100%; }
+    .divider { text-align: center; color: #aaa; font-size: 13px; margin: 5px 0; }
+
+    /* ===== DRAW SCREEN ===== */
+    #screen-draw {
+        display: none; width: 100%; max-width: 900px;
+        padding: 0; min-height: 100vh; align-items: stretch;
+        flex-direction: column;
+    }
+    #screen-draw.active { display: flex; }
+
+    .draw-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white; padding: 12px 20px;
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .draw-header-info { font-size: 14px; opacity: 0.85; }
+    .draw-header h2 { font-size: 18px; margin: 0; }
+
+    .question-banner {
+        background: linear-gradient(135deg, #fff9e6, #fff3cc);
+        border-bottom: 3px solid #f39c12;
+        padding: 14px 20px;
+        font-size: 18px; font-weight: 900; color: #7b5000;
+        text-align: center;
+        min-height: 60px; display: flex; align-items: center; justify-content: center;
+    }
+    .question-img-wrap {
+        display: none; background: #f9f9f9; padding: 10px; text-align: center;
+        border-bottom: 2px solid #eee;
+    }
+    .question-img-wrap img { max-height: 160px; max-width: 100%; border-radius: 10px; }
+
+    /* ===== TOOLBAR ===== */
+    .toolbar {
+        background: #1a2a4a;
+        padding: 10px 14px;
+        display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+        border-bottom: 2px solid #0f1e35;
+    }
+    .tool-btn {
+        padding: 8px 12px; border: 2px solid #2a4070; border-radius: 8px;
+        background: #243560; color: #cce0ff; cursor: pointer;
+        font-size: 13px; font-family: 'Cairo', sans-serif; font-weight: bold;
+        transition: all 0.15s; white-space: nowrap;
+    }
+    .tool-btn:hover { background: #2F80ED; border-color: #2F80ED; color: white; }
+    .tool-btn.active { background: #f39c12; border-color: #d68910; color: white; }
+    .tool-btn.eraser-active { background: #e74c3c; border-color: #c0392b; color: white; }
+
+    .color-swatch {
+        width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+        border: 3px solid transparent; transition: all 0.15s; flex-shrink: 0;
+    }
+    .color-swatch.selected { border-color: white; transform: scale(1.2); box-shadow: 0 0 0 2px #2F80ED; }
+
+    .size-slider {
+        -webkit-appearance: none; appearance: none;
+        width: 90px; height: 6px; border-radius: 3px; background: #2a4070;
+        outline: none; cursor: pointer;
+    }
+    .size-slider::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: #f39c12; cursor: pointer;
+    }
+
+    .color-picker-input {
+        width: 34px; height: 34px; border: none; border-radius: 50%;
+        cursor: pointer; padding: 2px; background: none;
+        border: 2px solid #2a4070;
+    }
+
+    /* ===== CANVAS ===== */
+    .canvas-wrap {
+        flex: 1; background: white; display: flex;
+        justify-content: center; align-items: flex-start;
+        overflow: hidden; position: relative;
+    }
+    #drawCanvas {
+        display: block; cursor: crosshair; touch-action: none;
+        background: white;
+    }
+
+    /* ===== BOTTOM BAR ===== */
+    .bottom-bar {
+        background: #1a2a4a;
+        padding: 12px 16px;
+        display: flex; gap: 10px; align-items: center; justify-content: center;
+        border-top: 2px solid #0f1e35;
+        flex-wrap: wrap;
+    }
+    .bottom-bar .btn {
+        width: auto; margin-bottom: 0; padding: 12px 28px; font-size: 17px;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+    }
+
+    /* ===== SUCCESS SCREEN ===== */
+    .success-icon { font-size: 90px; margin-bottom: 15px; animation: bounce 0.6s; }
+    @keyframes bounce {
+        0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); }
+    }
+
+    /* ===== LOADING ===== */
+    #loading-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7); z-index: 9999;
+        align-items: center; justify-content: center; flex-direction: column; gap: 20px;
+        color: white;
+    }
+    .spinner {
+        width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.3);
+        border-top-color: white; border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 22px; font-weight: bold; }
+
+    /* ===== BRUSH PREVIEW ===== */
+    .brush-preview {
+        width: 34px; height: 34px; border-radius: 50%; background: #2a4070;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .brush-dot { border-radius: 50%; background: white; }
+
+    /* ===== UNDO INDICATOR ===== */
+    .undo-hint {
+        position: absolute; bottom: 10px; right: 10px;
+        background: rgba(0,0,0,0.5); color: white; border-radius: 8px;
+        padding: 6px 12px; font-size: 12px; pointer-events: none;
+        opacity: 0; transition: opacity 0.3s;
+    }
+    .undo-hint.show { opacity: 1; }
+
+    /* ===== TEACHER SCREEN ===== */
+    #screen-teacher {
+        display: none; width: 100%; max-width: 800px; padding: 20px;
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        flex-direction: column; align-items: center;
+        min-height: 100vh; padding-top: 30px;
+    }
+    #screen-teacher.active { display: flex; }
+
+    .teacher-card {
+        background: rgba(255,255,255,0.97); padding: 35px; border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(142,68,173,0.2); width: 100%; text-align: right;
+        margin-bottom: 20px;
+    }
+
+    .teacher-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 25px; flex-wrap: wrap; gap: 10px;
+    }
+    .teacher-header h2 { margin-bottom: 0; color: var(--purple); font-size: 26px; }
+
+    .section-title {
+        font-size: 16px; font-weight: 900; color: var(--purple);
+        margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+
+    .attach-tabs {
+        display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;
+    }
+    .attach-tab {
+        padding: 8px 16px; border: 2px solid #ddd; border-radius: 20px;
+        cursor: pointer; background: white; font-weight: bold;
+        font-size: 13px; font-family: 'Cairo', sans-serif;
+        transition: all 0.2s; color: #555;
+    }
+    .attach-tab:hover { border-color: var(--purple); color: var(--purple); }
+    .attach-tab.active { background: var(--purple); color: white; border-color: var(--purple); }
+
+    .attach-panel { display: none; }
+    .attach-panel.active { display: block; }
+
+    .img-preview-area {
+        border: 3px dashed #d4aaee; border-radius: 14px; padding: 20px;
+        text-align: center; background: #faf5ff; min-height: 100px;
+        display: flex; align-items: center; justify-content: center;
+        flex-direction: column; gap: 10px; cursor: pointer;
+        transition: border-color 0.2s;
+    }
+    .img-preview-area:hover { border-color: var(--purple); }
+    .img-preview-area img { max-height: 160px; max-width: 100%; border-radius: 10px; }
+    .img-preview-area p { color: #999; font-size: 14px; }
+
+    /* ===== IMAGE SEARCH SYSTEM ===== */
+    .img-search-container {
+        background: #f8f9fa; border: 2px solid #ccc; padding: 15px;
+        border-radius: 10px; margin-bottom: 15px; display: none;
+    }
+    .img-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px; max-height: 320px; overflow-y: auto; margin-top: 10px;
+        padding: 4px;
+    }
+    .img-result {
+        width: 100%; height: 100px; object-fit: cover; border-radius: 8px;
+        cursor: pointer; border: 3px solid transparent; transition: all 0.2s;
+        display: block;
+    }
+    .img-result:hover { border-color: var(--purple); transform: scale(1.04); box-shadow: 0 4px 12px rgba(142,68,173,0.25); }
+    .img-preview-box { margin-top: 10px; text-align: center; display: none; }
+    .img-preview-box img { max-height: 140px; border-radius: 10px; border: 3px solid var(--purple); }
+
+    .text-attach-input {
+        width: 100%; padding: 14px; border: 3px solid #d4aaee;
+        border-radius: 12px; font-size: 16px; text-align: right;
+        font-family: 'Cairo', sans-serif; background: #faf5ff;
+        min-height: 100px; resize: vertical;
+    }
+    .text-attach-input:focus { outline: none; border-color: var(--purple); background: white; }
+
+    /* Mini canvas for shape drawing */
+    #shapeCanvas {
+        border: 3px solid #d4aaee; border-radius: 12px;
+        background: white; cursor: crosshair; touch-action: none;
+        display: block; width: 100%; max-width: 100%;
+    }
+    .shape-toolbar {
+        background: #f3eaff; border-radius: 10px; padding: 10px;
+        display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+        margin-bottom: 10px;
+    }
+    .shape-tool-btn {
+        padding: 6px 12px; border: 2px solid #c9a0e0; border-radius: 8px;
+        background: white; color: #6c3483; cursor: pointer;
+        font-size: 12px; font-family: 'Cairo', sans-serif; font-weight: bold;
+        transition: all 0.15s;
+    }
+    .shape-tool-btn:hover, .shape-tool-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+
+    /* PIN display */
+    .pin-display {
+        background: linear-gradient(135deg, #f3eaff, #e8d5f5);
+        border: 3px solid #c9a0e0; border-radius: 18px;
+        padding: 20px 30px; text-align: center; margin: 15px 0;
+    }
+    .pin-number {
+        font-size: 64px; font-weight: 900; color: var(--purple);
+        letter-spacing: 8px; line-height: 1;
+        text-shadow: 2px 2px 0 rgba(108,52,131,0.2);
+    }
+    .pin-label { color: #888; font-size: 14px; margin-top: 5px; }
+
+    .code-box {
+        background: #1a1a2e; border-radius: 12px; padding: 15px 20px;
+        font-family: monospace; font-size: 13px; color: #00d4ff;
+        direction: ltr; text-align: left; word-break: break-all;
+        margin: 10px 0; position: relative;
+        max-height: 120px; overflow-y: auto;
+    }
+
+    .copy-btn {
+        position: absolute; top: 10px; left: 10px;
+        background: #2F80ED; color: white; border: none;
+        padding: 5px 12px; border-radius: 6px; cursor: pointer;
+        font-size: 12px; font-family: 'Cairo', sans-serif;
+    }
+
+    /* Share row */
+    .share-row {
+        display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .share-row input {
+        flex: 1; padding: 12px; border: 3px solid #dce8ff;
+        border-radius: 10px; font-size: 13px; direction: ltr;
+    }
+
+    /* ===== GALLERY SCREEN ===== */
+    #screen-gallery {
+        display: none; width: 100%; max-width: 1100px; padding: 20px;
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        flex-direction: column; align-items: center;
+        min-height: 100vh;
+    }
+    #screen-gallery.active { display: flex; }
+
+    .gallery-header {
+        width: 100%; display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 25px; background: white; padding: 20px 30px; border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 15px;
+    }
+    .gallery-title-wrap h1 { margin-bottom: 0; font-size: 28px; }
+    .gallery-subtitle { color: #888; font-size: 14px; }
+
+    .gallery-stats { display: flex; gap: 20px; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 24px; font-weight: 900; color: var(--primary); display: block; line-height: 1; }
+    .stat-label { font-size: 12px; color: #aaa; font-weight: bold; }
+
+    .gallery-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 25px; width: 100%;
+    }
+
+    .gallery-card {
+        background: white; border-radius: 20px; overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        transition: all 0.3s; position: relative;
+        animation: cardPop 0.5s backwards;
+    }
+    @keyframes cardPop {
+        0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .gallery-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(47,128,237,0.2); }
+
+    .gallery-img-wrap {
+        width: 100%; aspect-ratio: 4/3; background: #f9f9f9;
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden; cursor: pointer; border-bottom: 1px solid #eee;
+    }
+    .gallery-img-wrap img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.5s; }
+    .gallery-card:hover .gallery-img-wrap img { transform: scale(1.05); }
+
+    .gallery-card-footer { padding: 15px; text-align: right; }
+    .gallery-student-name { font-weight: 900; color: #333; font-size: 16px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .gallery-rank {
+        width: 24px; height: 24px; border-radius: 50%; display: flex;
+        align-items: center; justify-content: center; font-size: 12px;
+        color: white; font-weight: bold;
+    }
+    .rank-1 { background: #f1c40f; }
+    .rank-2 { background: #bdc3c7; }
+    .rank-3 { background: #e67e22; }
+    .rank-other { background: #eee; color: #999; }
+
+    .gallery-time { font-size: 11px; color: #bbb; }
+
+    .empty-gallery {
+        text-align: center; padding: 80px 20px; color: #ccc;
+    }
+    .empty-icon { font-size: 80px; margin-bottom: 20px; opacity: 0.3; }
+
+    /* ===== LIGHTBOX ===== */
+    #lightbox {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9); z-index: 10000;
+        display: none; align-items: center; justify-content: center;
+        flex-direction: column; padding: 20px;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox-img { max-width: 95%; max-height: 80vh; border-radius: 12px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+    #lightbox-name { color: white; font-size: 24px; font-weight: 900; margin-top: 20px; }
+    #lightbox-close {
+        position: absolute; top: 20px; right: 20px; background: white;
+        width: 44px; height: 44px; border-radius: 50%; border: none;
+        font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+        .card { padding: 25px 20px; }
+        h1 { font-size: 28px; }
+        .pin-number { font-size: 48px; letter-spacing: 4px; }
+        .toolbar { padding: 8px; gap: 5px; }
+        .tool-btn { padding: 6px 10px; font-size: 12px; }
+        .color-swatch { width: 28px; height: 28px; }
+        .size-slider { width: 60px; }
+        .gallery-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loading-text">📤 جاري إرسال رسمتك...</div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()">
+    <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-name"></div>
+</div>
+
+<!-- Hidden Form for submission (Legacy support) -->
+<iframe id="hidden_iframe_draw" name="hidden_iframe_draw" style="display:none;" onload="handleDrawSubmit()"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec"
+      id="drawForm" method="POST" style="display:none;" target="hidden_iframe_draw">
+    <input id="df-name"   name="name"   type="hidden"/>
+    <input id="df-school" name="school" type="hidden"/>
+    <input id="df-score"  name="score"  type="hidden"/>
+</form>
+
+<!-- نموذج إرسال بيانات المعلم (Legacy support) -->
+<iframe id="hidden_iframe_questions" name="hidden_iframe_questions" style="display:none;" onload="handleQuestionsSubmit()"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec"
+      id="questionsForm" method="POST" style="display:none;" target="hidden_iframe_questions">
+    <input id="qf-name"   name="name"   type="hidden"/>
+    <input id="qf-school" name="school" type="hidden"/>
+    <input id="qf-score"  name="score"  type="hidden"/>
+</form>
+
+<!-- ======================== -->
+<!-- SCREEN: HOME             -->
+<!-- ======================== -->
+<div class="screen active" id="screen-home">
+    <div class="card">
+        <div class="logo">🎨</div>
+        <h1>لعبة الرسم الحر</h1>
+        <p class="subtitle">ارسم إجابتك وأرسلها للمعلم!</p>
+        <div class="home-btn-group">
+            <button class="btn btn-primary" onclick="showScreen('screen-join')">🚀 دخول الطالب</button>
+            <div class="divider">— أو —</div>
+            <button class="btn btn-purple" onclick="showScreen('screen-teacher')">👨‍🏫 لوحة المعلم</button>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: JOIN             -->
+<!-- ======================== -->
+<div class="screen" id="screen-join">
+    <div class="card">
+        <div class="logo">✏️</div>
+        <h1>لعبة الرسم الحر</h1>
+        <p class="subtitle">ارسم إجابتك وأرسلها للمعلم!</p>
+
+        <div class="input-group">
+            <label>🔢 رمز الغرفة (PIN)</label>
+            <input type="number" id="pin-input" placeholder="أدخل رمز الغرفة..." style="text-align:center; font-size:26px; letter-spacing:4px;">
+        </div>
+        <div class="input-group">
+            <label>👤 اسمك</label>
+            <input type="text" id="student-name-input" placeholder="اكتب اسمك هنا...">
+        </div>
+
+        <button class="btn btn-primary" onclick="joinRoom()">🚀 ابدأ الرسم</button>
+        <button class="btn btn-gray" onclick="showScreen('screen-home')">← رجوع</button>
+    </div>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: DRAW             -->
+<!-- ======================== -->
+<div class="screen" id="screen-draw">
+    <div class="draw-header">
+        <div>
+            <h2>🎨 لوحة الرسم</h2>
+            <div class="draw-header-info" id="header-info">الطالب: — | الغرفة: —</div>
+        </div>
+        <div style="font-size:13px; opacity:0.8;">ارسم إجابتك ثم اضغط إرسال ✅</div>
+    </div>
+
+    <div class="question-banner" id="question-text">⏳ جاري تحميل السؤال...</div>
+    <div class="question-img-wrap" id="question-img-wrap">
+        <img id="question-img" src="" alt="صورة السؤال">
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button class="tool-btn active" id="btn-pen"   onclick="setTool('pen')">✏️ قلم</button>
+        <button class="tool-btn"        id="btn-eraser" onclick="setTool('eraser')">🧹 ممحاة</button>
+
+        <div style="width:1px; background:#2a4070; height:30px; margin:0 4px;"></div>
+
+        <!-- Colors -->
+        <div class="color-swatch selected" style="background:#222222;" onclick="setColor('#222222', this)"></div>
+        <div class="color-swatch" style="background:#e74c3c;" onclick="setColor('#e74c3c', this)"></div>
+        <div class="color-swatch" style="background:#2F80ED;" onclick="setColor('#2F80ED', this)"></div>
+        <div class="color-swatch" style="background:#27ae60;" onclick="setColor('#27ae60', this)"></div>
+        <div class="color-swatch" style="background:#f39c12;" onclick="setColor('#f39c12', this)"></div>
+        <div class="color-swatch" style="background:#9b59b6;" onclick="setColor('#9b59b6', this)"></div>
+        <input type="color" class="color-picker-input" value="#000000" title="لون مخصص" oninput="setColorCustom(this.value)">
+
+        <div style="width:1px; background:#2a4070; height:30px; margin:0 4px;"></div>
+
+        <!-- Size -->
+        <span style="color:#aac0e8; font-size:13px; white-space:nowrap;">📏 السُّمك:</span>
+        <div class="brush-preview" id="brush-preview">
+            <div class="brush-dot" id="brush-dot" style="width:4px;height:4px;"></div>
+        </div>
+        <input type="range" class="size-slider" id="size-slider" min="1" max="30" value="4" oninput="setSize(this.value)">
+
+        <div style="margin-right:auto;"></div>
+        <button class="tool-btn" onclick="undoLast()" title="تراجع">↩️ تراجع</button>
+        <button class="tool-btn" style="background:#e74c3c; border-color:#c0392b; color:white;" onclick="clearCanvas()">🗑️ مسح الكل</button>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-wrap" id="canvas-wrap">
+        <canvas id="drawCanvas"></canvas>
+        <div class="undo-hint" id="undo-hint">لا يمكن التراجع أكثر!</div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+        <button class="btn btn-danger" style="background:linear-gradient(135deg,#636e72,#2d3436); box-shadow:0 4px 0 #1a1f20;" onclick="backToJoin()">← رجوع</button>
+        <button class="btn btn-success" onclick="submitDrawing()">✅ إرسال للمعلم</button>
+    </div>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: SUCCESS          -->
+<!-- ======================== -->
+<div class="screen" id="screen-success">
+    <div class="card" style="text-align:center;">
+        <div class="success-icon">🎉</div>
+        <h1 style="color:var(--success);">تم الإرسال!</h1>
+        <p style="color:#555; font-size:17px; margin-top:10px; line-height:1.7;">
+            وصلت رسمتك للمعلم بنجاح 🎨<br>
+            أحسنت يا بطل!
+        </p>
+        <div id="sent-preview" style="margin:20px auto; max-width:300px;">
+            <img id="sent-img" style="width:100%; border-radius:14px; border:3px solid var(--success); box-shadow:0 8px 20px rgba(39,174,96,0.2);" />
+        </div>
+        <button class="btn btn-primary" onclick="backToJoin()" style="margin-top:10px;">🔄 إرسال رسمة أخرى</button>
+    </div>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: TEACHER          -->
+<!-- ======================== -->
+<div class="screen" id="screen-teacher">
+
+    <div class="teacher-card" style="text-align:center;">
+        <div style="font-size:60px; margin-bottom:10px;">👨‍🏫</div>
+        <h1 style="color:var(--purple);">لوحة المعلم</h1>
+        <p style="color:#888; margin-bottom:25px; font-size:15px;">أنشئ سؤال الرسم الحر وشاركه مع طلابك</p>
+
+        <!-- Question text -->
+        <div class="input-group" style="text-align:right;">
+            <label>✏️ السؤال / التعليمات</label>
+            <textarea id="teacher-question" placeholder="مثال: ارسم دورة حياة الفراشة... أو ارسم خريطة بلدك..."></textarea>
+        </div>
+
+        <!-- Attachment tabs -->
+        <div class="section-title" style="margin-top:5px;">
+            📎 إرفاق (اختياري)
+        </div>
+        <div class="attach-tabs">
+            <div class="attach-tab active" onclick="switchAttachTab('none', this)">بدون إرفاق</div>
+            <div class="attach-tab" onclick="switchAttachTab('image', this)">🖼️ صورة</div>
+            <div class="attach-tab" onclick="switchAttachTab('text', this)">📝 نص إضافي</div>
+            <div class="attach-tab" onclick="switchAttachTab('shape', this)">✏️ رسم / شكل</div>
+        </div>
+
+        <!-- No attachment -->
+        <div class="attach-panel active" id="panel-none">
+            <div style="background:#f0f7ff; border-radius:12px; padding:15px; color:#888; font-size:14px;">
+                لن يتم إرفاق أي صورة أو نص إضافي
+            </div>
+        </div>
+
+        <!-- Image panel -->
+        <div class="attach-panel" id="panel-image">
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+                <label style="font-size:14px; color:var(--purple); font-weight:bold;">🖼️ اختر طريقة إضافة الصورة:</label>
+                <button type="button" onclick="toggleAttachImageSearch()" style="background:var(--purple); color:white; border:none; padding:7px 14px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:bold; font-family:'Cairo',sans-serif;">🔍 بحث عن صورة</button>
+            </div>
+
+            <!-- Search box -->
+            <div id="attach-search-box" class="img-search-container">
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="attach-search-input" placeholder="مثال: قلب، خلية، خريطة العالم..." style="flex:1; margin-bottom:0; padding:10px; font-family:'Cairo',sans-serif; font-size:14px; border:2px solid #d4aaee; border-radius:8px;" onkeydown="if(event.key==='Enter') searchAttachImages()">
+                    <button onclick="searchAttachImages()" style="background:var(--purple); color:white; border:none; padding:10px 18px; border-radius:6px; cursor:pointer; font-weight:bold; font-family:'Cairo',sans-serif;">بحث</button>
+                </div>
+                <div id="attach-search-status" style="margin-top:8px; font-size:13px; color:#555;"></div>
+                <div id="attach-img-grid" class="img-grid"></div>
+            </div>
+
+            <!-- URL input -->
+            <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+                <input type="url" id="attach-img-url" placeholder="أو الصق رابط صورة URL هنا..." style="flex:1; padding:10px; border:2px solid #d4aaee; border-radius:10px; font-size:14px; font-family:'Cairo',sans-serif; direction:ltr; background:#faf5ff;" oninput="previewAttachImage()">
+                <button onclick="previewAttachImage()" style="padding:10px 16px; background:var(--purple); color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Cairo',sans-serif; font-weight:bold;">معاينة</button>
+            </div>
+
+            <!-- File upload removed: Excel cannot handle large base64 images -->
+            <div style="margin-top:8px; display:flex; justify-content:flex-end;">
+                <button onclick="clearAttachImage()" style="padding:9px 16px; background:#e74c3c; color:white; border:none; border-radius:10px; cursor:pointer; font-size:13px; font-family:'Cairo',sans-serif;">🗑️ إزالة</button>
+            </div>
+
+            <!-- Preview -->
+            <div id="attach-img-preview-box" class="img-preview-box" style="margin-top:10px;">
+                <img id="attach-img-preview" alt="معاينة" style="max-height:160px; border-radius:10px; border:3px solid var(--purple);">
+                <p style="font-size:12px; color:var(--success); font-weight:bold; margin-top:6px;">✅ ستظهر هذه الصورة للطلاب مع السؤال</p>
+            </div>
+        </div>
+
+        <!-- Text panel -->
+        <div class="attach-panel" id="panel-text">
+            <textarea class="text-attach-input" id="attach-text-input" placeholder="اكتب نصاً إضافياً يظهر للطلاب أسفل السؤال..."></textarea>
+        </div>
+
+        <!-- Shape panel -->
+        <div class="attach-panel" id="panel-shape">
+            <div class="shape-toolbar">
+                <button class="shape-tool-btn active" id="sp-pen" onclick="setShapeTool('pen',this)">✏️ رسم حر</button>
+                <button class="shape-tool-btn" id="sp-line" onclick="setShapeTool('line',this)">➖ خط</button>
+                <button class="shape-tool-btn" id="sp-rect" onclick="setShapeTool('rect',this)">⬜ مستطيل</button>
+                <button class="shape-tool-btn" id="sp-circle" onclick="setShapeTool('circle',this)">⭕ دائرة</button>
+                <button class="shape-tool-btn" id="sp-arrow" onclick="setShapeTool('arrow',this)">➡️ سهم</button>
+                <div style="width:1px; background:#c9a0e0; height:24px;"></div>
+                <input type="color" value="#1a1a1a" id="shape-color-picker" title="لون" style="width:32px; height:32px; border:2px solid #c9a0e0; border-radius:6px; cursor:pointer; background:none; padding:2px;">
+                <input type="range" min="1" max="12" value="3" id="shape-size-slider" style="width:70px;" oninput="shapeSize=parseInt(this.value)">
+                <button onclick="clearShapeCanvas()" style="padding:6px 12px; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-family:'Cairo',sans-serif;">🗑️ مسح</button>
+                <button onclick="undoShape()" style="padding:6px 12px; background:#636e72; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-family:'Cairo',sans-serif;">↩️ تراجع</button>
+            </div>
+            <canvas id="shapeCanvas" width="640" height="280"></canvas>
+        </div>
+
+        <!-- Generate button -->
+        <button class="btn btn-purple" onclick="generateTeacherCode()" style="margin-top:20px;">
+            ✨ إنشاء الكود للطلاب
+        </button>
+    </div>
+
+    <!-- Generated PIN + Code -->
+    <div class="teacher-card" id="code-result-card" style="display:none; text-align:center;">
+        <div class="section-title" style="justify-content:center;">🎉 تم إنشاء الغرفة!</div>
+
+        <div class="pin-display">
+            <div class="pin-number" id="display-teacher-pin">000000</div>
+            <div class="pin-label">رمز الغرفة (PIN)</div>
+        </div>
+
+        <div class="input-group" style="text-align:right;">
+            <label>🔗 رابط الدخول المباشر للطلاب:</label>
+            <div class="share-row">
+                <input type="text" id="student-link-input" readonly>
+                <button class="btn btn-primary btn-sm" onclick="copyStudentLink()">نسخ الرابط</button>
+            </div>
+        </div>
+
+        <div class="input-group" style="text-align:center; margin-top:15px;">
+            <label style="display:block; margin-bottom:10px;">📱 QR Code للطلاب:</label>
+            <div id="qr-container" style="display:flex; justify-content:center; align-items:center; background:#f8fbff; border:3px solid #dce8ff; border-radius:16px; padding:20px; min-height:180px;">
+                <div id="qrcode"></div>
+            </div>
+            <p style="font-size:12px; color:#aaa; margin-top:8px;">امسح الكود للدخول مباشرة إلى الغرفة</p>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn btn-success" onclick="openGallery()" style="flex:2;">🖼️ فتح معرض الرسومات</button>
+            <button class="btn btn-gray" onclick="resetTeacherForm()" style="flex:1;">🔄 سؤال جديد</button>
+        </div>
+    </div>
+
+    <button class="btn btn-gray" onclick="showScreen('screen-home')" style="max-width:200px;">← رجوع للرئيسية</button>
+</div>
+
+<!-- ======================== -->
+<!-- SCREEN: GALLERY          -->
+<!-- ======================== -->
+<div class="screen" id="screen-gallery">
+    <div class="gallery-header">
+        <div class="gallery-title-wrap">
+            <h1>🖼️ معرض الرسومات</h1>
+            <div class="gallery-subtitle" id="gallery-subtitle">جاري تحميل البيانات...</div>
+        </div>
+
+        <div class="gallery-stats">
+            <div class="stat-item">
+                <span class="stat-label">إجمالي الرسومات</span>
+                <span class="stat-label" id="teacher-pin-display" style="display:none;"></span>
+                <span class="stat-value" id="stat-total">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">السؤال</span>
+                <span class="stat-value" id="stat-question" style="font-size:14px; color:#555;">—</span>
+            </div>
+            <div class="stat-item" style="background:#f3eaff; padding:5px 15px; border-radius:12px; border:1px solid #d4aaee;">
+                <span class="stat-label" style="color:var(--purple);">رمز الغرفة</span>
+                <span class="stat-value" id="gallery-pin-badge" style="color:var(--purple); font-size:20px;">—</span>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary btn-sm" onclick="refreshGallery()">🔄 تحديث</button>
+            <button class="btn btn-gray btn-sm" onclick="showScreen('screen-teacher')">← رجوع</button>
+        </div>
+    </div>
+
+    <div id="empty-gallery" class="empty-gallery">
+        <div class="empty-icon">🎨</div>
+        <h2>لا توجد رسومات بعد</h2>
+        <p>بمجرد أن يرسل الطلاب رسوماتهم، ستظهر هنا تلقائياً</p>
+    </div>
+
+    <div class="gallery-grid" id="gallery-container">
+        <!-- Cards will be injected here -->
+    </div>
+</div>
+
+<!-- ======================== -->
+<!-- HIDDEN FORM - نفس نمط Teacher-6 وملف A -->
+<!-- يجب أن يكون قبل الـ script الرئيسي -->
+<!-- ======================== -->
+<script>
+    // معرّفة أولاً قبل كل شيء لتجنب ReferenceError عند تحميل الـ iframe
+    function handleSaveResponse() {
+        const successScreen = document.getElementById('screen-success');
+        // نتجاهل الاستدعاء الأولي عند تحميل الصفحة (قبل أي إرسال)
+        if (!successScreen || !window._submittingDrawing) return;
+        window._submittingDrawing = false;
+        showLoading(false);
+        document.getElementById('sent-img').src = window._pendingImageData || '';
+        window._pendingImageData = '';
+        showScreen('screen-success');
+    }
+</script>
+
+<iframe id="hidden_iframe_save" name="hidden_iframe_save"
+        onload="handleSaveResponse()" style="display:none;"></iframe>
+
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec"
+      id="saveDrawingForm" method="POST" target="hidden_iframe_save" style="display:none;">
+    <!-- name   = اسم الطالب  → العمود A -->
+    <input type="hidden" name="name"   id="form-student-name">
+    <!-- school = رقم الغرفة  → العمود B -->
+    <input type="hidden" name="school" id="form-room-pin">
+    <!-- score  = بيانات الرسم → العمود C -->
+    <input type="hidden" name="score"  id="form-drawing-data">
+</form>
+
+<script>
+// =====================
+// CONFIG & GLOBALS
+// =====================
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec";
+const SHEET_ID   = "1M-LkkAoNarQDN6_Hbb5ZGhs4vuD5cfhREKpZE-48_tg";
+
+let currentRoomPin = "";
+let playerName = "";
+let currentQuestion = "";
+
+let currentScreen = 'screen-home';
+let teacherPIN = '';
+let isSubmitting = false;
+
+// Drawing state
+let canvas, ctx;
+let isDrawing = false;
+let currentColor = '#222222';
+let currentSize = 4;
+let currentTool = 'pen';
+let history = [];
+
+// Teacher state
+let attachType = 'none';
+let attachImageData = '';
+let shapeCanvas, shapeCtx;
+let shapeDrawing = false;
+let shapeStart = { x: 0, y: 0 };
+let shapeTool = 'pen';
+let shapeSize = 3;
+let shapeHistory = [];
+let galleryRefreshTimer = null;
+
+// =====================
+// NAVIGATION
+// =====================
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    currentScreen = screenId;
+
+    if (screenId === 'screen-draw') {
+        initCanvas();
+    } else if (screenId === 'screen-teacher') {
+        setTimeout(initShapeCanvas, 100);
+    }
+
+    if (screenId !== 'screen-gallery' && galleryRefreshTimer) {
+        clearInterval(galleryRefreshTimer);
+        galleryRefreshTimer = null;
+    }
+
+    window.scrollTo(0, 0);
+}
+
+function showLoading(show) {
+    document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+}
+
+// =====================
+// STUDENT: JOIN ROOM
+// =====================
+async function joinRoom() {
+    const pin = document.getElementById('pin-input').value.trim();
+    const name = document.getElementById('student-name-input').value.trim();
+
+    if (!pin || !name) {
+        alert("⚠️ يرجى إدخال الاسم ورقم الغرفة");
+        return;
+    }
+
+    showLoading(true);
+    try {
+        // جلب البيانات مباشرة من الشيت (نفس طريقة A2 الأصلية)
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+
+        // البحث عن الغرفة: العمود A = رقم الغرفة، العمود B يبدأ بـ [ (JSON السؤال)
+        const row = json.table.rows.find(r => 
+            r.c[0] && r.c[0].v.toString() === pin && 
+            r.c[1] && r.c[1].v.toString().trim().startsWith('[')
+        );
+
+        if (row) {
+            currentRoomPin = pin;
+            playerName = name;
+            
+            // استخراج بيانات السؤال من العمود B
+            try {
+                const questionData = JSON.parse(row.c[1].v)[0];
+                document.getElementById('question-text').textContent = questionData.q || "ارسم إجابتك!";
+                
+                if (questionData.img) {
+                    document.getElementById('question-img').src = questionData.img;
+                    document.getElementById('question-img-wrap').style.display = 'block';
+                }
+            } catch(e) {
+                document.getElementById('question-text').textContent = "ارسم ما يخطر ببالك!";
+            }
+
+            document.getElementById('header-info').textContent = `الطالب: ${name} | الغرفة: ${pin}`;
+            showScreen('screen-draw');
+        } else {
+            alert("❌ رقم الغرفة غير صحيح أو غير مفعل");
+        }
+    } catch (e) {
+        alert("⚠️ خطأ في الاتصال. تأكد من معرف الشيت (SHEET_ID).");
+    }
+    showLoading(false);
+}
+
+// =====================
+// CANVAS LOGIC
+// =====================
+function initCanvas() {
+    canvas = document.getElementById('drawCanvas');
+    ctx = canvas.getContext('2d');
+
+    // Make it responsive
+    const wrap = document.getElementById('canvas-wrap');
+    canvas.width = wrap.clientWidth;
+    canvas.height = wrap.clientHeight;
+
+    // Fill white background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Event listeners
+    canvas.onmousedown = startDraw;
+    canvas.onmousemove = draw;
+    canvas.onmouseup = stopDraw;
+    canvas.onmouseleave = stopDraw;
+
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(touchEvt(e)); }, {passive:false});
+    canvas.addEventListener('touchmove',  (e) => { e.preventDefault(); draw(touchEvt(e)); }, {passive:false});
+    canvas.addEventListener('touchend',   (e) => { e.preventDefault(); stopDraw(); }, {passive:false});
+
+    saveHistory();
+}
+
+function touchEvt(e) {
+    const t = e.touches[0] || e.changedTouches[0];
+    const rect = canvas.getBoundingClientRect();
+    return { offsetX: t.clientX - rect.left, offsetY: t.clientY - rect.top };
+}
+
+function startDraw(e) {
+    isDrawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+    if (currentTool === 'pen') {
+        ctx.arc(e.offsetX, e.offsetY, currentSize / 2, 0, Math.PI * 2);
+        ctx.fillStyle = currentColor;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    }
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    ctx.lineWidth = currentSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (currentTool === 'pen') {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor;
+    } else {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+        ctx.lineWidth = currentSize * 3;
+    }
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+}
+
+function stopDraw() {
+    if (!isDrawing) return;
+    isDrawing = false;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.beginPath();
+    saveHistory();
+}
+
+function saveHistory() {
+    const snapshot = canvas.toDataURL();
+    history.push(snapshot);
+    if (history.length > 20) history.shift();
+}
+
+function undoLast() {
+    if (history.length <= 1) {
+        const hint = document.getElementById('undo-hint');
+        hint.classList.add('show');
+        setTimeout(() => hint.classList.remove('show'), 1500);
+        return;
+    }
+    history.pop();
+    const img = new Image();
+    img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+    };
+    img.src = history[history.length - 1];
+}
+
+function clearCanvas() {
+    if (!confirm('هل تريد مسح الرسمة بالكامل؟')) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveHistory();
+}
+
+function setTool(tool) {
+    currentTool = tool;
+    document.getElementById('btn-pen').classList.toggle('active', tool === 'pen');
+    document.getElementById('btn-eraser').classList.toggle('active', tool === 'eraser');
+    document.getElementById('btn-eraser').classList.toggle('eraser-active', tool === 'eraser');
+    canvas.style.cursor = tool === 'eraser' ? 'cell' : 'crosshair';
+}
+
+function setColor(color, el) {
+    currentColor = color;
+    if (currentTool === 'eraser') setTool('pen');
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+}
+
+function setColorCustom(color) {
+    currentColor = color;
+    if (currentTool === 'eraser') setTool('pen');
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+}
+
+function setSize(val) {
+    currentSize = parseInt(val);
+    const dot = document.getElementById('brush-dot');
+    const size = Math.min(currentSize * 2, 28);
+    dot.style.width = size + 'px';
+    dot.style.height = size + 'px';
+}
+
+// =====================
+// STUDENT: SUBMIT DRAWING
+// =====================
+window._pendingImageData  = '';
+window._submittingDrawing = false;
+
+function submitDrawing() {
+    if (!confirm('هل أنت متأكد من إرسال رسمتك للمعلم؟')) return;
+
+    // --- ضغط الصورة: تصغير الأبعاد أولاً ثم رفع جودة JPEG ---
+    // Google Sheets حد الخلية ~50,000 حرف
+    // canvas أصلي قد يكون 800×600 → base64 ~300KB → نصغّره لـ 400×300 → ~40KB
+    const srcCanvas  = document.getElementById('drawCanvas');
+    const tmpCanvas  = document.createElement('canvas');
+    tmpCanvas.width  = 400;
+    tmpCanvas.height = Math.round(srcCanvas.height * (400 / srcCanvas.width));
+    const tmpCtx     = tmpCanvas.getContext('2d');
+    tmpCtx.fillStyle = 'white';
+    tmpCtx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+    tmpCtx.drawImage(srcCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height);
+    const imageData  = tmpCanvas.toDataURL('image/jpeg', 0.4); // جودة 40% بعد التصغير
+
+    // حفظ الطالب: العمود A = اسم_الطالب&الرسمة، العمود B = رقم الغرفة
+    document.getElementById('form-student-name').value = playerName + '&' + imageData; // name   → العمود A
+    document.getElementById('form-room-pin').value     = currentRoomPin;               // school → العمود B = رقم الغرفة
+    document.getElementById('form-drawing-data').value = '';                           // score  → فارغ
+
+    window._pendingImageData  = imageData;
+    window._submittingDrawing = true;
+
+    showLoading(true);
+    document.getElementById('loading-text').textContent = '📤 جاري إرسال رسمتك...';
+
+    document.getElementById('saveDrawingForm').submit();
+}
+
+function backToJoin() {
+    isSubmitting = false;
+    history = [];
+    showScreen('screen-join');
+}
+
+// =====================
+// KEYBOARD SHORTCUTS
+// =====================
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'z') undoLast();
+    if (e.key === 'e') setTool('eraser');
+    if (e.key === 'p') setTool('pen');
+});
+
+// =====================
+// TEACHER: ATTACH TABS
+// =====================
+function switchAttachTab(type, el) {
+    attachType = type;
+    document.querySelectorAll('.attach-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.attach-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + type).classList.add('active');
+}
+
+// =====================
+// TEACHER: IMAGE ATTACH
+// =====================
+function toggleAttachImageSearch() {
+    const box = document.getElementById('attach-search-box');
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+async function searchAttachImages() {
+    const q = document.getElementById('attach-search-input').value.trim();
+    if (!q) return;
+
+    const resultsDiv = document.getElementById('attach-img-grid');
+    const statusDiv = document.getElementById('attach-search-status');
+
+    statusDiv.innerHTML = '<p style="text-align:center; padding:10px;">🔍 جاري البحث في المصادر العالمية...</p>';
+    resultsDiv.innerHTML = '';
+
+    let allImages = [];
+
+    // المصادر: ويكيميديا
+    const wikiEndpoints = [
+        `https://ar.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&generator=search&piprop=thumbnail&pithumbsize=300&gsrsearch=${encodeURIComponent(q)}&gsrlimit=15`,
+        `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&generator=search&piprop=thumbnail&pithumbsize=300&gsrsearch=${encodeURIComponent(q)}&gsrlimit=15`,
+        `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&generator=search&piprop=thumbnail&pithumbsize=300&gsrsearch=${encodeURIComponent(q)}&gsrlimit=15`
+    ];
+
+    for (let url of wikiEndpoints) {
+        try {
+            let res = await fetch(url);
+            let data = await res.json();
+            if (data.query && data.query.pages) {
+                for (let pageId in data.query.pages) {
+                    const p = data.query.pages[pageId];
+                    if (p.thumbnail) {
+                        allImages.push({
+                            thumb: p.thumbnail.source,
+                            full: p.thumbnail.source.replace(/\d+px-/, '1000px-'),
+                            source: 'Wikipedia'
+                        });
+                    }
+                }
+            }
+        } catch(e) { console.error("Wiki Error:", e); }
+    }
+
+    // Pixabay
+    try {
+        const PIXABAY_API_KEY = "55843861-a87510c37c28461eb80f8c78a";
+        const pixabayUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(q)}&lang=ar&image_type=all&per_page=30&safesearch=true`;
+        let rPix = await fetch(pixabayUrl);
+        let dPix = await rPix.json();
+        if (dPix.hits && dPix.hits.length > 0) {
+            dPix.hits.forEach(img => {
+                allImages.push({
+                    thumb: img.previewURL,
+                    full: img.largeImageURL,
+                    source: 'Pixabay'
+                });
+            });
+        }
+    } catch(e) { console.error("Pixabay Error:", e); }
+
+    if (allImages.length === 0) {
+        statusDiv.innerHTML = '<p style="text-align:center; padding:10px; color:red;">❌ لم نجد صوراً كافية، جرب كلمات أخرى.</p>';
+        return;
+    }
+
+    statusDiv.innerHTML = `✅ تم العثور على <strong>${allImages.length}</strong> صورة`;
+    resultsDiv.innerHTML = '';
+    allImages.forEach(img => {
+        const div = document.createElement('div');
+        div.style.position = 'relative';
+        const badge = `<span style="position:absolute; bottom:2px; right:2px; font-size:10px; background:rgba(0,0,0,0.5); color:white; padding:1px 4px; border-radius:3px;">${img.source}</span>`;
+        div.innerHTML = `<img src="${img.thumb}" class="img-result" onclick="selectAttachImage('${img.full}')" title="مصدر الصورة: ${img.source}"> ${badge}`;
+        resultsDiv.appendChild(div);
+    });
+}
+
+function selectAttachImage(url) {
+    document.getElementById('attach-img-url').value = url;
+    attachImageData = url;
+    previewAttachImage();
+    toggleAttachImageSearch();
+}
+
+function previewAttachImage() {
+    const url = document.getElementById('attach-img-url').value.trim();
+    const box = document.getElementById('attach-img-preview-box');
+    const imgEl = document.getElementById('attach-img-preview');
+    if (url) {
+        attachImageData = url;
+        imgEl.src = url;
+        imgEl.onerror = () => { box.style.display = 'none'; };
+        imgEl.onload = () => { box.style.display = 'block'; };
+    } else {
+        box.style.display = 'none';
+    }
+}
+
+function handleAttachImgFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 1.5 * 1024 * 1024) {
+        alert('⚠️ حجم الصورة كبير جداً (أكثر من 1.5 ميغابايت).\nيرجى استخدام رابط URL أو ضغط الصورة أولاً.');
+        input.value = '';
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        attachImageData = e.target.result;
+        document.getElementById('attach-img-url').value = e.target.result;
+        previewAttachImage();
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearAttachImage() {
+    attachImageData = '';
+    document.getElementById('attach-img-url').value = '';
+    document.getElementById('attach-img-file').value = '';
+    document.getElementById('attach-img-preview-box').style.display = 'none';
+    document.getElementById('attach-img-preview').src = '';
+}
+
+// =====================
+// TEACHER: SHAPE CANVAS
+// =====================
+function initShapeCanvas() {
+    shapeCanvas = document.getElementById('shapeCanvas');
+    if (!shapeCanvas) return;
+    shapeCtx = shapeCanvas.getContext('2d');
+
+    const wrap = shapeCanvas.parentElement;
+    shapeCanvas.width = wrap.clientWidth || 640;
+    shapeCanvas.height = 280;
+
+    shapeCtx.fillStyle = 'white';
+    shapeCtx.fillRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+    saveShapeHistory();
+
+    shapeCanvas.onmousedown = shapeStart2;
+    shapeCanvas.onmousemove = shapeMove2;
+    shapeCanvas.onmouseup = shapeEnd2;
+    shapeCanvas.onmouseleave = shapeEnd2;
+
+    shapeCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); shapeStart2(shapeTouchEvt(e)); }, {passive:false});
+    shapeCanvas.addEventListener('touchmove',  (e) => { e.preventDefault(); shapeMove2(shapeTouchEvt(e)); }, {passive:false});
+}
+
+function shapeTouchEvt(e) {
+    const t = e.touches[0] || e.changedTouches[0];
+    const rect = shapeCanvas.getBoundingClientRect();
+    return { offsetX: t.clientX - rect.left, offsetY: t.clientY - rect.top };
+}
+
+let shapeSnapshot = null;
+
+function shapeStart2(e) {
+    shapeDrawing = true;
+    shapeStart = { x: e.offsetX, y: e.offsetY };
+    if (shapeTool === 'pen') {
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(e.offsetX, e.offsetY);
+    } else {
+        shapeSnapshot = shapeCtx.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height);
+    }
+}
+
+function shapeMove2(e) {
+    if (!shapeDrawing) return;
+    const color = document.getElementById('shape-color-picker').value;
+    shapeCtx.strokeStyle = color;
+    shapeCtx.fillStyle = color;
+    shapeCtx.lineWidth = shapeSize;
+    shapeCtx.lineCap = 'round';
+
+    if (shapeTool === 'pen') {
+        shapeCtx.lineTo(e.offsetX, e.offsetY);
+        shapeCtx.stroke();
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(e.offsetX, e.offsetY);
+    } else {
+        shapeCtx.putImageData(shapeSnapshot, 0, 0);
+        const x1 = shapeStart.x, y1 = shapeStart.y;
+        const x2 = e.offsetX, y2 = e.offsetY;
+        drawShape(x1, y1, x2, y2, color);
+    }
+}
+
+function shapeEnd2(e) {
+    if (!shapeDrawing) return;
+    shapeDrawing = false;
+    if (shapeTool !== 'pen' && e) {
+        const color = document.getElementById('shape-color-picker').value;
+        shapeCtx.putImageData(shapeSnapshot, 0, 0);
+        const x2 = e.offsetX || shapeStart.x;
+        const y2 = e.offsetY || shapeStart.y;
+        drawShape(shapeStart.x, shapeStart.y, x2, y2, color);
+    }
+    shapeCtx.beginPath();
+    saveShapeHistory();
+}
+
+function drawShape(x1, y1, x2, y2, color) {
+    shapeCtx.strokeStyle = color;
+    shapeCtx.fillStyle = color;
+    shapeCtx.lineWidth = shapeSize;
+    shapeCtx.lineCap = 'round';
+
+    if (shapeTool === 'line') {
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(x1, y1);
+        shapeCtx.lineTo(x2, y2);
+        shapeCtx.stroke();
+    } else if (shapeTool === 'rect') {
+        shapeCtx.beginPath();
+        shapeCtx.strokeRect(x1, y1, x2-x1, y2-y1);
+    } else if (shapeTool === 'circle') {
+        const r = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
+        shapeCtx.beginPath();
+        shapeCtx.arc(x1, y1, r, 0, Math.PI*2);
+        shapeCtx.stroke();
+    } else if (shapeTool === 'arrow') {
+        const dx = x2-x1, dy = y2-y1;
+        const angle = Math.atan2(dy, dx);
+        const headLen = 18;
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(x1, y1);
+        shapeCtx.lineTo(x2, y2);
+        shapeCtx.stroke();
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(x2, y2);
+        shapeCtx.lineTo(x2 - headLen*Math.cos(angle-Math.PI/6), y2 - headLen*Math.sin(angle-Math.PI/6));
+        shapeCtx.lineTo(x2 - headLen*Math.cos(angle+Math.PI/6), y2 - headLen*Math.sin(angle+Math.PI/6));
+        shapeCtx.closePath();
+        shapeCtx.fill();
+    }
+}
+
+function setShapeTool(tool, el) {
+    shapeTool = tool;
+    document.querySelectorAll('.shape-tool-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+}
+
+function saveShapeHistory() {
+    shapeHistory.push(shapeCanvas.toDataURL());
+    if (shapeHistory.length > 20) shapeHistory.shift();
+}
+
+function undoShape() {
+    if (shapeHistory.length <= 1) return;
+    shapeHistory.pop();
+    const img = new Image();
+    img.onload = () => {
+        shapeCtx.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+        shapeCtx.fillStyle = 'white';
+        shapeCtx.fillRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+        shapeCtx.drawImage(img, 0, 0);
+    };
+    img.src = shapeHistory[shapeHistory.length - 1];
+}
+
+function clearShapeCanvas() {
+    shapeCtx.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+    shapeCtx.fillStyle = 'white';
+    shapeCtx.fillRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+    saveShapeHistory();
+}
+
+function getShapeImageData() {
+    const temp = document.createElement('canvas');
+    temp.width = shapeCanvas.width;
+    temp.height = shapeCanvas.height;
+    const tc = temp.getContext('2d');
+    tc.fillStyle = 'white';
+    tc.fillRect(0, 0, temp.width, temp.height);
+    if (shapeCanvas.toDataURL() === temp.toDataURL()) return null;
+    return shapeCanvas.toDataURL('image/png');
+}
+
+// =====================
+// TEACHER: GENERATE CODE
+// =====================
+async function generateTeacherCode() {
+    const q = document.getElementById('teacher-question').value.trim();
+    if (!q) { alert('⚠️ اكتب السؤال أولاً!'); return; }
+
+    teacherPIN = Math.floor(1000 + Math.random() * 899999).toString();
+
+    const questionObj = {
+        type: 'freedraw',
+        q: q,
+        time: 0
+    };
+
+    if (attachType === 'image' && attachImageData) {
+        questionObj.img = attachImageData;
+    } else if (attachType === 'text') {
+        const attachText = document.getElementById('attach-text-input').value.trim();
+        if (attachText) questionObj.attachText = attachText;
+    } else if (attachType === 'shape') {
+        const shapeData = getShapeImageData();
+        if (shapeData) questionObj.img = shapeData;
+    }
+
+    const jsonStr = JSON.stringify([questionObj]);
+    document.getElementById('json-code-text').textContent = JSON.stringify([questionObj], null, 2);
+
+    showLoading(true);
+    document.getElementById('loading-text').textContent = '📤 جاري حفظ السؤال في النظام...';
+
+    try {
+        const formData = new FormData();
+        formData.append('name', teacherPIN);  // العمود A = رقم الغرفة
+        formData.append('school', jsonStr);   // العمود B = كود السؤال (JSON)
+        formData.append('score', 'TEACHER_Q'); // العمود C = علامة تعريف المعلم
+
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: formData
+        });
+
+        currentRoomPin = teacherPIN;
+        document.getElementById('display-teacher-pin').textContent = teacherPIN;
+        document.getElementById('teacher-pin-display').innerText = teacherPIN;
+        const studentLink = window.location.href.split('?')[0] + '?pin=' + teacherPIN + '&mode=student';
+        document.getElementById('student-link-input').value = studentLink;
+        document.getElementById('code-result-card').style.display = 'block';
+
+        // توليد QR Code
+        document.getElementById('qrcode').innerHTML = '';
+        new QRCode(document.getElementById('qrcode'), {
+            text: studentLink,
+            width: 180,
+            height: 180,
+            colorDark: '#1a2a4a',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        window.scrollTo(0, document.getElementById('code-result-card').offsetTop);
+    } catch (e) {
+        alert("❌ فشل حفظ السؤال. حاول مرة أخرى.");
+    }
+    showLoading(false);
+}
+
+function copyStudentLink() {
+    const input = document.getElementById('student-link-input');
+    input.select();
+    document.execCommand('copy');
+    alert('✅ تم نسخ الرابط!');
+}
+
+function copyJsonCode() {
+    const text = document.getElementById('json-code-text').textContent;
+    navigator.clipboard.writeText(text).then(() => alert('✅ تم نسخ الكود!'));
+}
+
+function resetTeacherForm() {
+    document.getElementById('teacher-question').value = '';
+    document.getElementById('attach-text-input').value = '';
+    clearAttachImage();
+    attachType = 'none';
+    document.querySelectorAll('.attach-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.attach-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('.attach-tab').classList.add('active');
+    document.getElementById('panel-none').classList.add('active');
+    document.getElementById('code-result-card').style.display = 'none';
+    document.getElementById('qrcode').innerHTML = '';
+    clearShapeCanvas && clearShapeCanvas();
+    shapeHistory = [];
+    teacherPIN = '';
+    window.scrollTo(0, 0);
+}
+
+// =====================
+// GALLERY
+// =====================
+function openGallery() {
+    showScreen('screen-gallery');
+    document.getElementById('gallery-pin-badge').textContent = 'الغرفة: ' + currentRoomPin;
+    refreshGallery();
+    galleryRefreshTimer = setInterval(refreshGallery, 10000);
+}
+
+async function refreshGallery() {
+    if (!currentRoomPin) return;
+
+    try {
+        const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+        
+        const container = document.getElementById('gallery-container');
+        const empty = document.getElementById('empty-gallery');
+        const statTotal = document.getElementById('stat-total');
+        
+        container.innerHTML = "";
+        
+        // تصفية الصفوف: الطالب → العمود B = رقم الغرفة، العمود A = اسم&رسمة
+        const studentDrawings = json.table.rows.filter(r => 
+            r.c[1] && r.c[1].v.toString() === currentRoomPin && 
+            r.c[0] && r.c[0].v && r.c[0].v.toString().includes('&')
+        );
+
+        statTotal.textContent = studentDrawings.length;
+
+        if (studentDrawings.length === 0) {
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            studentDrawings.forEach((item, i) => {
+                const rawA = item.c[0].v.toString();          // العمود A = اسم&رسمة
+                const ampIdx = rawA.indexOf('&');
+                const studentName = rawA.substring(0, ampIdx);
+                const drawingData = rawA.substring(ampIdx + 1); // base64 الرسمة
+
+                const card = document.createElement('div');
+                card.className = "gallery-card";
+                card.style.animationDelay = (i * 0.07) + 's';
+                card.innerHTML = `
+                    <div class="gallery-img-wrap">
+                        <img src="${drawingData}" style="width:100%" onclick="openLightbox('${drawingData}', '${escapeStr(studentName)}')">
+                    </div>
+                    <div class="gallery-card-footer">
+                        <div class="gallery-student-name">${escapeHtml(studentName)}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    } catch (e) {
+        console.error("خطأ في جلب البيانات:", e);
+    }
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escapeStr(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+// =====================
+// LIGHTBOX
+// =====================
+function openLightbox(src, name) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-name').textContent = name;
+    document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+}
+
+// =====================
+// URL PARAMS AUTO-JOIN
+// =====================
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const pin = params.get('pin');
+    const mode = params.get('mode');
+    if (pin && mode === 'student') {
+        document.getElementById('pin-input').value = pin;
+        showScreen('screen-join');
+    }
+})();
+
+// =====================
+// INIT
+// =====================
+setSize(4);
+</script>
+
+
+</body>
+</html>
