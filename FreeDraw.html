@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>🎨 لعبة الرسم الحر</title>
+<title>🎨 لعبة الرسم الحر v6</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"/>
 <style>
     :root {
@@ -806,11 +806,11 @@
 
 <form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec"
       id="saveDrawingForm" method="POST" target="hidden_iframe_save" style="display:none;">
-    <!-- name = اسم الطالب -->
+    <!-- name   = اسم الطالب  → العمود A -->
     <input type="hidden" name="name"   id="form-student-name">
-    <!-- school = رقم الغرفة (كما في Teacher-6) -->
+    <!-- school = رقم الغرفة  → العمود B -->
     <input type="hidden" name="school" id="form-room-pin">
-    <!-- score = بيانات الرسم المضغوطة (تذهب هنا بعد الضغط) -->
+    <!-- score  = بيانات الرسم → العمود C -->
     <input type="hidden" name="score"  id="form-drawing-data">
 </form>
 
@@ -893,19 +893,19 @@ async function joinRoom() {
         const text = await res.text();
         const json = JSON.parse(text.substring(47, text.length - 2));
 
-        // البحث عن الغرفة
+        // البحث عن الغرفة: العمود A = رقم الغرفة، العمود C = علامة TEACHER_Q
         const row = json.table.rows.find(r => 
-            r.c[1] && r.c[1].v.toString() === pin && 
-            r.c[0] && r.c[0].v.toString() === 'TEACHER_Q'
+            r.c[0] && r.c[0].v.toString() === pin && 
+            r.c[2] && r.c[2].v.toString() === 'TEACHER_Q'
         );
 
         if (row) {
             currentRoomPin = pin;
             playerName = name;
             
-            // استخراج بيانات السؤال
+            // استخراج بيانات السؤال من العمود B
             try {
-                const questionData = JSON.parse(row.c[2].v)[0];
+                const questionData = JSON.parse(row.c[1].v)[0];
                 document.getElementById('question-text').textContent = questionData.q || "ارسم إجابتك!";
                 
                 if (questionData.img) {
@@ -1441,9 +1441,9 @@ async function generateTeacherCode() {
 
     try {
         const formData = new FormData();
-        formData.append('name', 'TEACHER_Q'); // هوية المعلم
-        formData.append('school', teacherPIN); // رقم الغرفة
-        formData.append('score', jsonStr);     // كود السؤال
+        formData.append('name', teacherPIN);  // العمود A = رقم الغرفة
+        formData.append('school', jsonStr);   // العمود B = كود السؤال (JSON)
+        formData.append('score', 'TEACHER_Q'); // العمود C = علامة تعريف المعلم
 
         await fetch(SCRIPT_URL, {
             method: 'POST',
@@ -1515,11 +1515,11 @@ async function refreshGallery() {
         
         container.innerHTML = "";
         
-        // تصفية الصفوف لجلب رسومات الطلاب في هذه الغرفة فقط
+        // تصفية الصفوف: رسومات الطلاب = العمود B يساوي رقم الغرفة والعمود C ليس 'TEACHER_Q'
         const studentDrawings = json.table.rows.filter(r => 
             r.c[1] && r.c[1].v.toString() === currentRoomPin && 
-            r.c[0] && r.c[0].v.toString() !== 'TEACHER_Q' &&
-            r.c[2] && r.c[2].v
+            r.c[2] && r.c[2].v.toString() !== 'TEACHER_Q' &&
+            r.c[0] && r.c[0].v
         );
 
         statTotal.textContent = studentDrawings.length;
@@ -1529,8 +1529,8 @@ async function refreshGallery() {
         } else {
             empty.style.display = 'none';
             studentDrawings.forEach((item, i) => {
-                const studentName = item.c[0].v.toString();
-                const drawingData = item.c[2].v.toString();
+                const studentName = item.c[0].v.toString();  // العمود A = اسم الطالب
+                const drawingData = item.c[2].v.toString();   // العمود C = الرسمة
 
                 const card = document.createElement('div');
                 card.className = "gallery-card";
