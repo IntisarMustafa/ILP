@@ -756,6 +756,213 @@ function toggleMute() {
 function endGame() {
     gameRunning = false;
     showScreen('screen-student-result');
+    startCelebration();
+}
+
+// ========== مظاهر احتفالية ==========
+let celebrationActive = false;
+let celebrationAnimId = null;
+let confettiParticles = [];
+
+function startCelebration() {
+    celebrationActive = true;
+    confettiParticles = [];
+
+    let cc = document.getElementById('confetti-canvas');
+    if (!cc) {
+        cc = document.createElement('canvas');
+        cc.id = 'confetti-canvas';
+        cc.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99998;';
+        document.body.appendChild(cc);
+    }
+    cc.width = window.innerWidth;
+    cc.height = window.innerHeight;
+
+    const colors = ['#FFD700','#FF4500','#46178f','#e21b3c','#1368ce','#26890c','#FF69B4','#00CED1','#FFA502','#ECCC68'];
+    const shapes = ['rect','circle','star','triangle'];
+    for (let i = 0; i < 200; i++) {
+        confettiParticles.push({
+            x: Math.random() * cc.width,
+            y: -20 - Math.random() * 400,
+            w: 8 + Math.random() * 14,
+            h: 6 + Math.random() * 10,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            shape: shapes[Math.floor(Math.random() * shapes.length)],
+            vx: (Math.random() - 0.5) * 5,
+            vy: 2 + Math.random() * 5,
+            rot: Math.random() * Math.PI * 2,
+            rotV: (Math.random() - 0.5) * 0.2,
+            alpha: 1,
+            wave: Math.random() * Math.PI * 2
+        });
+    }
+
+    showWinBanner();
+    playCelebrationSound();
+    if (celebrationAnimId) cancelAnimationFrame(celebrationAnimId);
+    animateConfetti();
+    setTimeout(stopCelebration, 8000);
+}
+
+function animateConfetti() {
+    const cc = document.getElementById('confetti-canvas');
+    if (!cc || !celebrationActive) return;
+    const ctx2 = cc.getContext('2d');
+    ctx2.clearRect(0, 0, cc.width, cc.height);
+
+    confettiParticles.forEach(p => {
+        p.x += p.vx + Math.sin(p.wave + Date.now() * 0.002) * 1.2;
+        p.y += p.vy;
+        p.rot += p.rotV;
+        p.wave += 0.05;
+        if (p.y > cc.height * 0.65) p.alpha -= 0.014;
+
+        ctx2.save();
+        ctx2.globalAlpha = Math.max(0, p.alpha);
+        ctx2.translate(p.x, p.y);
+        ctx2.rotate(p.rot);
+        ctx2.fillStyle = p.color;
+
+        if (p.shape === 'rect') {
+            ctx2.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        } else if (p.shape === 'circle') {
+            ctx2.beginPath(); ctx2.arc(0, 0, p.w/2, 0, Math.PI*2); ctx2.fill();
+        } else if (p.shape === 'star') {
+            ctx2.beginPath();
+            for (let s = 0; s < 5; s++) {
+                const a = (s * 4 * Math.PI / 5) - Math.PI/2;
+                const b = (s * 4 * Math.PI / 5 + 2*Math.PI/5) - Math.PI/2;
+                ctx2.lineTo(Math.cos(a)*p.w/2, Math.sin(a)*p.w/2);
+                ctx2.lineTo(Math.cos(b)*p.w/4, Math.sin(b)*p.w/4);
+            }
+            ctx2.closePath(); ctx2.fill();
+        } else if (p.shape === 'triangle') {
+            ctx2.beginPath();
+            ctx2.moveTo(0, -p.h/2); ctx2.lineTo(p.w/2, p.h/2); ctx2.lineTo(-p.w/2, p.h/2);
+            ctx2.closePath(); ctx2.fill();
+        }
+        ctx2.restore();
+
+        if (p.y > cc.height + 20 || p.alpha <= 0) {
+            p.y = -20; p.x = Math.random() * cc.width; p.alpha = 1; p.vy = 2 + Math.random() * 4;
+        }
+    });
+
+    celebrationAnimId = requestAnimationFrame(animateConfetti);
+}
+
+function showWinBanner() {
+    let banner = document.getElementById('win-banner');
+    if (banner) banner.remove();
+
+    if (!document.getElementById('celebration-styles')) {
+        const st = document.createElement('style');
+        st.id = 'celebration-styles';
+        st.textContent = `
+            @keyframes bannerSlide {
+                from { transform: translateY(-120%); opacity:0; }
+                to   { transform: translateY(0); opacity:1; }
+            }
+            @keyframes winPulse {
+                from { transform: scale(1) rotate(-6deg); }
+                to   { transform: scale(1.22) rotate(6deg); }
+            }
+            @keyframes starFloat {
+                0%   { transform: translateY(0) scale(1); opacity:1; }
+                100% { transform: translateY(-90px) scale(0.2); opacity:0; }
+            }
+            @keyframes resultCardPop {
+                0%   { transform: scale(0.4); opacity:0; }
+                65%  { transform: scale(1.07); }
+                100% { transform: scale(1); opacity:1; }
+            }
+            @keyframes scoreBounce {
+                0%   { transform: scale(0) rotate(-10deg); }
+                60%  { transform: scale(1.3) rotate(5deg); }
+                100% { transform: scale(1) rotate(0deg); }
+            }
+            @keyframes shimmer {
+                0%,100% { text-shadow: 0 0 10px #FFD700, 0 0 30px #FF8C00, 2px 2px 0 #000; }
+                50%     { text-shadow: 0 0 25px #FFD700, 0 0 60px #FFA502, 0 0 80px #FF4500, 2px 2px 0 #000; }
+            }
+            #screen-student-result.active .card {
+                animation: resultCardPop 0.75s cubic-bezier(0.34,1.56,0.64,1) 0.1s both !important;
+            }
+            #final-score-display {
+                animation: scoreBounce 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.5s both !important;
+            }
+        `;
+        document.head.appendChild(st);
+    }
+
+    banner = document.createElement('div');
+    banner.id = 'win-banner';
+    banner.innerHTML = `
+        <span style="font-size:clamp(2.5rem,8vw,4.5rem);display:inline-block;animation:winPulse 0.55s ease-in-out infinite alternate;">🏆</span>
+        <div style="font-size:clamp(1.3rem,5vw,2.6rem);font-weight:900;color:#FFD700;animation:shimmer 1.5s ease-in-out infinite;font-family:'Cairo',sans-serif;margin:6px 0;">أحسنت! لقد أتممت التحدي!</div>
+        <div style="font-size:clamp(0.9rem,3vw,1.5rem);color:#fff;font-family:'Cairo',sans-serif;text-shadow:1px 1px 0 #000;">🎊 رائع جداً! استمر هكذا! 🎊</div>
+    `;
+    banner.style.cssText = `
+        position:fixed;top:0;left:0;width:100%;z-index:99999;
+        background:linear-gradient(135deg,rgba(70,23,143,0.97),rgba(226,27,60,0.97));
+        padding:18px 10px;text-align:center;
+        box-shadow:0 6px 30px rgba(0,0,0,0.6);
+        border-bottom:4px solid #FFD700;
+        animation:bannerSlide 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    `;
+    document.body.appendChild(banner);
+    launchFloatingStars();
+}
+
+function launchFloatingStars() {
+    const emojis = ['⭐','🌟','✨','🎊','🎉','🏅','💥','🔥','🎈','🥳'];
+    for (let i = 0; i < 22; i++) {
+        setTimeout(() => {
+            const el = document.createElement('div');
+            el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            const x = 3 + Math.random() * 92;
+            const y = 10 + Math.random() * 75;
+            const dur = 1.2 + Math.random() * 1.8;
+            el.style.cssText = `
+                position:fixed;left:${x}vw;top:${y}vh;
+                font-size:${1.4 + Math.random()*2.2}rem;
+                pointer-events:none;z-index:99997;
+                animation:starFloat ${dur}s ease-out forwards;
+            `;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), dur * 1000 + 100);
+        }, i * 160);
+    }
+}
+
+function playCelebrationSound() {
+    if (!soundEnabled) return;
+    try {
+        const melody = [523,659,784,1047,784,659,1047,1319];
+        const durs   = [0.12,0.12,0.12,0.18,0.1,0.1,0.14,0.45];
+        let t = audioCtx.currentTime + 0.05;
+        melody.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
+            gain.gain.linearRampToValueAtTime(0, t + durs[i]);
+            osc.start(t); osc.stop(t + durs[i]);
+            t += durs[i] + 0.04;
+        });
+    } catch(e) {}
+}
+
+function stopCelebration() {
+    celebrationActive = false;
+    if (celebrationAnimId) { cancelAnimationFrame(celebrationAnimId); celebrationAnimId = null; }
+    const cc = document.getElementById('confetti-canvas');
+    if (cc) { cc.style.transition = 'opacity 1s'; cc.style.opacity = '0'; setTimeout(() => cc.remove(), 1000); }
+    const banner = document.getElementById('win-banner');
+    if (banner) { banner.style.transition = 'opacity 1s'; banner.style.opacity = '0'; setTimeout(() => banner.remove(), 1000); }
 }
 
 function enterFullscreen() {
@@ -906,56 +1113,104 @@ document.addEventListener('click', () => {
             3: { targets:[{x:0.8,y:0.75}, {x:0.87,y:0.75}, {x:0.78,y:0.55}, {x:0.85,y:0.55}], blocks:[{x:0.68,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.75,w:0.037,h:0.2},{x:0.80,y:0.75,w:0.037,h:0.2},{x:0.74,y:0.55,w:0.1,h:0.05,color:'#A52A2A',type:'wood'},{x:0.74,y:0.35,w:0.037,h:0.2}], cats:4, dogs:[{platX:0.63,platY:0.88,platW:0.2,dir:-1}] },
             4: { targets:[{x:0.75,y:0.75}, {x:0.75,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], cats:4, dogs:[{platX:0.62,platY:0.88,platW:0.22,dir:1}] },
             5: { targets:[{x:0.65,y:0.75}, {x:0.85,y:0.75}, {x:0.75,y:0.55}], blocks:[{x:0.60,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.75,w:0.03,h:0.2},{x:0.65,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.75,w:0.03,h:0.2},{x:0.90,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.75,y:0.75,w:0.03,h:0.2}], cats:4, dogs:[{platX:0.6,platY:0.88,platW:0.22,dir:1}] },
-            6: { targets:[{x:0.75,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.65,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], cats:5, dogs:[{platX:0.6,platY:0.88,platW:0.22,dir:1},{platX:0.62,platY:0.62,platW:0.18,dir:-1}] },
+            6: { targets:[{x:0.75,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35}], blocks:[{x:0.65,y:0.75,w:0.03,h:0.2},{x:0.75,y:0.75,w:0.03,h:0.2},{x:0.85,y:0.75,w:0.03,h:0.2},{x:0.70,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.80,y:0.55,w:0.12,h:0.05,color:'#A52A2A',type:'wood'},{x:0.70,y:0.35,w:0.03,h:0.2},{x:0.80,y:0.35,w:0.03,h:0.2},{x:0.75,y:0.15,w:0.12,h:0.05,color:'#A52A2A',type:'wood'}], cats:5, dogs:[{platX:0.55,platY:0.88,platW:0.18,dir:1},{platX:0.60,platY:0.58,platW:0.16,dir:-1}] },
             7: { targets: [ {x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75}, {x:0.70,y:0.55}, {x:0.80,y:0.55}, {x:0.75,y:0.35} ], blocks: [ {x:0.60,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.70,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.90,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.65,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.75,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.85,y:0.55,w:0.12,h:0.05,type:'glass'}, {x:0.65,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.75,y:0.15,w:0.12,h:0.05,type:'glass'} ], cats: 4, dogs:[{platX:0.6,platY:0.88,platW:0.22,dir:1}] },
-            8: { targets: [{x:0.80,y:0.75}, {x:0.80,y:0.55}, {x:0.80,y:0.35}], blocks: [ {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.55,w:0.24,h:0.05,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.15,w:0.14,h:0.05,type:'wood'} ], cats: 4, dogs:[{platX:0.6,platY:0.88,platW:0.22,dir:1},{platX:0.63,platY:0.58,platW:0.18,dir:-1}] },
-            9: { targets: [{x:0.6,y:0.75},{x:0.65,y:0.75},{x:0.7,y:0.75},{x:0.75,y:0.75},{x:0.8,y:0.75},{x:0.65,y:0.55},{x:0.7,y:0.55},{x:0.75,y:0.55},{x:0.7,y:0.35},{x:0.85,y:0.75}], blocks: [{x:0.55,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.75,w:0.03,h:0.2,type:'glass'},{x:0.60,y:0.55,w:0.30,h:0.05,type:'wood'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.70,y:0.15,w:0.15,h:0.05,type:'stone'}], cats: 5, dogs:[{platX:0.58,platY:0.88,platW:0.22,dir:1},{platX:0.62,platY:0.6,platW:0.18,dir:-1}] },
-            10: { targets: [{x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75},{x:0.70,y:0.55}, {x:0.80,y:0.55},{x:0.75,y:0.35}, {x:0.75,y:0.15}], blocks: [{x:0.60,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'},{x:0.75,y:0.55,w:0.35,h:0.05,type:'stone'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.75,y:0.15,w:0.25,h:0.05,type:'wood'},{x:0.70,y:0.05,w:0.02,h:0.1,type:'glass'}, {x:0.80,y:0.05,w:0.02,h:0.1,type:'glass'},{x:0.75,y:-0.05,w:0.15,h:0.03,type:'glass'}], cats: 6, dogs:[{platX:0.58,platY:0.88,platW:0.22,dir:1},{platX:0.62,platY:0.6,platW:0.18,dir:-1},{platX:0.64,platY:0.35,platW:0.16,dir:1}] }
+            8: { targets: [{x:0.80,y:0.75}, {x:0.80,y:0.55}, {x:0.80,y:0.35}], blocks: [ {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.55,w:0.24,h:0.05,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'glass'}, {x:0.80,y:0.15,w:0.14,h:0.05,type:'wood'} ], cats: 4, dogs:[{platX:0.55,platY:0.88,platW:0.18,dir:1},{platX:0.58,platY:0.56,platW:0.16,dir:-1}] },
+            9: { targets: [{x:0.6,y:0.75},{x:0.65,y:0.75},{x:0.7,y:0.75},{x:0.75,y:0.75},{x:0.8,y:0.75},{x:0.65,y:0.55},{x:0.7,y:0.55},{x:0.75,y:0.55},{x:0.7,y:0.35},{x:0.85,y:0.75}], blocks: [{x:0.55,y:0.75,w:0.03,h:0.2,type:'glass'}, {x:0.85,y:0.75,w:0.03,h:0.2,type:'glass'},{x:0.60,y:0.55,w:0.30,h:0.05,type:'wood'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.75,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.70,y:0.15,w:0.15,h:0.05,type:'stone'}], cats: 5, dogs:[{platX:0.53,platY:0.88,platW:0.18,dir:1},{platX:0.56,platY:0.57,platW:0.16,dir:-1}] },
+            10: { targets: [{x:0.65,y:0.75}, {x:0.75,y:0.75}, {x:0.85,y:0.75},{x:0.70,y:0.55}, {x:0.80,y:0.55},{x:0.75,y:0.35}, {x:0.75,y:0.15}], blocks: [{x:0.60,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.70,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.80,y:0.75,w:0.04,h:0.2,type:'stone'}, {x:0.90,y:0.75,w:0.04,h:0.2,type:'stone'},{x:0.75,y:0.55,w:0.35,h:0.05,type:'stone'},{x:0.65,y:0.35,w:0.03,h:0.2,type:'wood'}, {x:0.85,y:0.35,w:0.03,h:0.2,type:'wood'},{x:0.75,y:0.15,w:0.25,h:0.05,type:'wood'},{x:0.70,y:0.05,w:0.02,h:0.1,type:'glass'}, {x:0.80,y:0.05,w:0.02,h:0.1,type:'glass'},{x:0.75,y:-0.05,w:0.15,h:0.03,type:'glass'}], cats: 6, dogs:[{platX:0.52,platY:0.88,platW:0.17,dir:1},{platX:0.55,platY:0.57,platW:0.15,dir:-1},{platX:0.57,platY:0.33,platW:0.14,dir:1}] }
         };
 
         class Cat {
             constructor(x,y){ this.x=x; this.y=y; this.radius=Math.min(20,canvas.width*0.025); this.velocity={x:0,y:0}; this.launched=false; this.trail=[]; this.trailMaxLength=20; }
             draw() {
-                // ذيل الأثر
-                if (this.launched && this.trail && this.trail.length > 0) {
-                    ctx.beginPath(); ctx.moveTo(this.trail[0].x, this.trail[0].y);
-                    for(let i=1; i<this.trail.length; i++) { ctx.lineTo(this.trail[i].x, this.trail[i].y); }
-                    ctx.strokeStyle = 'rgba(255, 200, 100, 0.4)'; ctx.lineWidth = 2; ctx.stroke();
+                const r = this.radius;
+                // ذيل الأثر المتوهج
+                if (this.launched && this.trail && this.trail.length > 1) {
+                    for(let i=1; i<this.trail.length; i++){
+                        const alpha = (i/this.trail.length)*0.6;
+                        const width = (i/this.trail.length)*r*0.7;
+                        ctx.beginPath(); ctx.moveTo(this.trail[i-1].x, this.trail[i-1].y); ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                        ctx.strokeStyle = `rgba(255,180,60,${alpha})`; ctx.lineWidth = width; ctx.lineCap='round'; ctx.stroke();
+                    }
                 }
                 ctx.save(); ctx.translate(this.x, this.y);
                 if (this.launched) { let angle = Math.atan2(this.velocity.y, this.velocity.x); ctx.rotate(angle); }
-                // جسم القطة (برتقالي)
-                const catGrad = ctx.createRadialGradient(-this.radius*0.2, -this.radius*0.2, this.radius*0.1, 0, 0, this.radius);
-                catGrad.addColorStop(0, '#FFA726'); catGrad.addColorStop(1, '#E65100');
-                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = catGrad; ctx.fill(); ctx.strokeStyle = '#5D4037'; ctx.lineWidth = 1.5; ctx.stroke();
-                // أذنان
-                ctx.fillStyle = '#E65100';
-                ctx.beginPath(); ctx.moveTo(-this.radius*0.7, -this.radius*0.6); ctx.lineTo(-this.radius*0.4, -this.radius*1.2); ctx.lineTo(-this.radius*0.1, -this.radius*0.6); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(this.radius*0.1, -this.radius*0.6); ctx.lineTo(this.radius*0.4, -this.radius*1.2); ctx.lineTo(this.radius*0.7, -this.radius*0.6); ctx.fill();
-                // داخل الأذنين
-                ctx.fillStyle = '#FFCCBC';
-                ctx.beginPath(); ctx.moveTo(-this.radius*0.6, -this.radius*0.65); ctx.lineTo(-this.radius*0.4, -this.radius*1.05); ctx.lineTo(-this.radius*0.2, -this.radius*0.65); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(this.radius*0.2, -this.radius*0.65); ctx.lineTo(this.radius*0.4, -this.radius*1.05); ctx.lineTo(this.radius*0.6, -this.radius*0.65); ctx.fill();
-                // عيون
+
+                // ظل
+                ctx.fillStyle = 'rgba(0,0,0,0.18)';
+                ctx.beginPath(); ctx.ellipse(r*0.1, r*0.85, r*0.75, r*0.18, 0, 0, Math.PI*2); ctx.fill();
+
+                // ذيل منحنٍ خلف الجسم
+                ctx.save();
+                ctx.strokeStyle = '#D84315'; ctx.lineWidth = r*0.22; ctx.lineCap = 'round';
+                ctx.beginPath(); ctx.moveTo(-r*0.7, r*0.4);
+                ctx.bezierCurveTo(-r*2.0, r*0.2, -r*2.2, -r*0.8, -r*1.3, -r*1.2);
+                ctx.stroke();
+                ctx.restore();
+
+                // أذنان خارجيتان مثلثتان (قبل الجسم لتظهر خلفه)
+                ctx.fillStyle = '#BF360C';
+                ctx.strokeStyle = '#4E342E'; ctx.lineWidth = 1.2;
+                ctx.beginPath(); ctx.moveTo(-r*0.65, -r*0.72); ctx.lineTo(-r*0.32, -r*1.38); ctx.lineTo(r*0.0, -r*0.72); ctx.closePath(); ctx.fill(); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(r*0.05, -r*0.72); ctx.lineTo(r*0.35, -r*1.38); ctx.lineTo(r*0.68, -r*0.72); ctx.closePath(); ctx.fill(); ctx.stroke();
+                // داخل الأذنين (وردي)
+                ctx.fillStyle = '#FF8A65';
+                ctx.beginPath(); ctx.moveTo(-r*0.56, -r*0.76); ctx.lineTo(-r*0.33, -r*1.18); ctx.lineTo(-r*0.10, -r*0.76); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(r*0.14, -r*0.76); ctx.lineTo(r*0.35, -r*1.18); ctx.lineTo(r*0.58, -r*0.76); ctx.closePath(); ctx.fill();
+
+                // جسم القطة بتدرج لامع
+                const catGrad = ctx.createRadialGradient(-r*0.25, -r*0.3, r*0.05, r*0.05, r*0.05, r*1.05);
+                catGrad.addColorStop(0, '#FFCC80');
+                catGrad.addColorStop(0.35, '#FFA726');
+                catGrad.addColorStop(0.75, '#F57C00');
+                catGrad.addColorStop(1, '#BF360C');
+                ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2);
+                ctx.fillStyle = catGrad; ctx.fill();
+                ctx.strokeStyle = '#4E342E'; ctx.lineWidth = r*0.1; ctx.stroke();
+
+                // خطوط نمر خفيفة
+                ctx.strokeStyle = 'rgba(180,80,0,0.35)'; ctx.lineWidth = r*0.09; ctx.lineCap='round';
+                ctx.beginPath(); ctx.moveTo(-r*0.1, -r*0.72); ctx.lineTo(-r*0.05, -r*0.35); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(r*0.1, -r*0.72); ctx.lineTo(r*0.05, -r*0.35); ctx.stroke();
+
+                // عيون (كبيرة وواضحة)
+                // بياض العين
+                ctx.fillStyle = '#FFFDE7';
+                ctx.beginPath(); ctx.ellipse(-r*0.3, -r*0.18, r*0.22, r*0.26, -0.15, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(r*0.3, -r*0.18, r*0.22, r*0.26, 0.15, 0, Math.PI*2); ctx.fill();
+                // قزحية (خضراء)
+                ctx.fillStyle = '#2E7D32';
+                ctx.beginPath(); ctx.ellipse(-r*0.3, -r*0.17, r*0.16, r*0.21, -0.1, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(r*0.3, -r*0.17, r*0.16, r*0.21, 0.1, 0, Math.PI*2); ctx.fill();
+                // حدقة رأسية (قطة حقيقية)
                 ctx.fillStyle = '#1A237E';
-                ctx.beginPath(); ctx.ellipse(-this.radius*0.3, -this.radius*0.15, this.radius*0.18, this.radius*0.22, 0, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(this.radius*0.3, -this.radius*0.15, this.radius*0.18, this.radius*0.22, 0, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'white';
-                ctx.beginPath(); ctx.arc(-this.radius*0.25, -this.radius*0.2, this.radius*0.07, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.radius*0.35, -this.radius*0.2, this.radius*0.07, 0, Math.PI*2); ctx.fill();
-                // أنف
-                ctx.fillStyle = '#EC407A';
-                ctx.beginPath(); ctx.arc(0, this.radius*0.05, this.radius*0.1, 0, Math.PI*2); ctx.fill();
-                // شوارب
-                ctx.strokeStyle = '#5D4037'; ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(-this.radius*0.1, this.radius*0.05); ctx.lineTo(-this.radius*0.9, -this.radius*0.05); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(-this.radius*0.1, this.radius*0.1); ctx.lineTo(-this.radius*0.9, this.radius*0.2); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(this.radius*0.1, this.radius*0.05); ctx.lineTo(this.radius*0.9, -this.radius*0.05); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(this.radius*0.1, this.radius*0.1); ctx.lineTo(this.radius*0.9, this.radius*0.2); ctx.stroke();
-                // ذيل
-                ctx.strokeStyle = '#E65100'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-                ctx.beginPath(); ctx.moveTo(-this.radius, this.radius*0.3); ctx.quadraticCurveTo(-this.radius*1.8, -this.radius*0.5, -this.radius*1.5, -this.radius*1.1); ctx.stroke();
+                ctx.beginPath(); ctx.ellipse(-r*0.3, -r*0.17, r*0.07, r*0.18, 0, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(r*0.3, -r*0.17, r*0.07, r*0.18, 0, 0, Math.PI*2); ctx.fill();
+                // بريق
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.beginPath(); ctx.arc(-r*0.25, -r*0.24, r*0.065, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(r*0.35, -r*0.24, r*0.065, 0, Math.PI*2); ctx.fill();
+                // خط العين
+                ctx.strokeStyle = '#1A237E'; ctx.lineWidth = r*0.06;
+                ctx.beginPath(); ctx.arc(-r*0.3, -r*0.18, r*0.22, Math.PI, 0); ctx.stroke();
+                ctx.beginPath(); ctx.arc(r*0.3, -r*0.18, r*0.22, Math.PI, 0); ctx.stroke();
+
+                // أنف مثلثي وردي
+                ctx.fillStyle = '#F06292';
+                ctx.beginPath(); ctx.moveTo(-r*0.1, r*0.04); ctx.lineTo(r*0.1, r*0.04); ctx.lineTo(0, r*0.18); ctx.closePath(); ctx.fill();
+                ctx.strokeStyle = '#C2185B'; ctx.lineWidth=r*0.05; ctx.stroke();
+                // خط الفم
+                ctx.strokeStyle = '#5D4037'; ctx.lineWidth = r*0.07; ctx.lineCap='round';
+                ctx.beginPath(); ctx.moveTo(0, r*0.18); ctx.lineTo(-r*0.18, r*0.32); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, r*0.18); ctx.lineTo(r*0.18, r*0.32); ctx.stroke();
+
+                // شوارب طويلة وواضحة
+                ctx.strokeStyle = 'rgba(80,40,10,0.75)'; ctx.lineWidth = r*0.055;
+                [[-0.12, 0.06, -1.0, -0.04], [-0.12, 0.16, -1.0, 0.26],
+                 [0.12, 0.06, 1.0, -0.04],  [0.12, 0.16, 1.0, 0.26]].forEach(([x1,y1,x2,y2])=>{
+                    ctx.beginPath(); ctx.moveTo(r*x1, r*y1); ctx.lineTo(r*x2, r*y2); ctx.stroke();
+                });
+
                 ctx.restore();
             }
             update(){ if(this.launched){ this.trail.push({x:this.x,y:this.y}); if(this.trail.length>this.trailMaxLength) this.trail.shift(); this.velocity.y+=canvas.height*0.0004; this.x+=this.velocity.x; this.y+=this.velocity.y; const ground=canvas.height*0.08; if(this.x-this.radius<0){ this.velocity.x*=-0.7; this.x=this.radius; } if(this.x+this.radius>canvas.width){ this.velocity.x*=-0.7; this.x=canvas.width-this.radius; } if(this.y-this.radius<0){ this.velocity.y*=-0.5; this.y=this.radius; } if(this.y+this.radius>canvas.height-ground){ this.y=canvas.height-ground-this.radius; this.velocity.y*=-0.5; this.velocity.x*=0.7; if(Math.abs(this.velocity.y)<0.8 && Math.abs(this.velocity.x)<0.8){ this.settled=true; } } } }
@@ -963,45 +1218,87 @@ document.addEventListener('click', () => {
         }
         
         class Mouse {
-            constructor(x,y){ this.x=x; this.y=y; this.radius=Math.min(18,canvas.width*0.022); this.health=100; }
+            constructor(x,y){ this.x=x; this.y=y; this.radius=Math.min(16,canvas.width*0.02); this.health=100; }
             draw(){
+                const r = this.radius;
                 ctx.save();
                 ctx.translate(this.x, this.y);
+
                 // ظل
-                ctx.fillStyle = 'rgba(0,0,0,0.25)';
-                ctx.beginPath(); ctx.ellipse(0, this.radius, this.radius*0.8, this.radius*0.2, 0, 0, Math.PI*2); ctx.fill();
-                // جسم الفأر (رمادي)
-                const mouseGrad = ctx.createRadialGradient(-this.radius*0.2, -this.radius*0.2, this.radius*0.05, 0, 0, this.radius);
-                mouseGrad.addColorStop(0, '#EEEEEE'); mouseGrad.addColorStop(1, '#9E9E9E');
-                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI*2);
-                ctx.fillStyle = mouseGrad; ctx.fill(); ctx.strokeStyle = '#616161'; ctx.lineWidth=1.5; ctx.stroke();
-                // أذنان دائريتان
-                ctx.fillStyle = '#BDBDBD';
-                ctx.beginPath(); ctx.arc(-this.radius*0.55, -this.radius*0.8, this.radius*0.35, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle='#757575'; ctx.lineWidth=1; ctx.stroke();
-                ctx.beginPath(); ctx.arc(this.radius*0.55, -this.radius*0.8, this.radius*0.35, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-                // داخل الأذنين
-                ctx.fillStyle = '#F48FB1';
-                ctx.beginPath(); ctx.arc(-this.radius*0.55, -this.radius*0.8, this.radius*0.18, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.radius*0.55, -this.radius*0.8, this.radius*0.18, 0, Math.PI*2); ctx.fill();
-                // عيون
-                ctx.fillStyle = '#D32F2F';
-                ctx.beginPath(); ctx.arc(-this.radius*0.28, -this.radius*0.2, this.radius*0.14, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.radius*0.28, -this.radius*0.2, this.radius*0.14, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'white';
-                ctx.beginPath(); ctx.arc(-this.radius*0.22, -this.radius*0.25, this.radius*0.05, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.radius*0.33, -this.radius*0.25, this.radius*0.05, 0, Math.PI*2); ctx.fill();
-                // أنف
-                ctx.fillStyle = '#F48FB1';
-                ctx.beginPath(); ctx.arc(0, this.radius*0.08, this.radius*0.1, 0, Math.PI*2); ctx.fill();
-                // شوارب
-                ctx.strokeStyle = '#616161'; ctx.lineWidth=0.8;
-                ctx.beginPath(); ctx.moveTo(-this.radius*0.1, this.radius*0.1); ctx.lineTo(-this.radius*0.85, 0); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(-this.radius*0.1, this.radius*0.18); ctx.lineTo(-this.radius*0.85, this.radius*0.3); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(this.radius*0.1, this.radius*0.1); ctx.lineTo(this.radius*0.85, 0); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(this.radius*0.1, this.radius*0.18); ctx.lineTo(this.radius*0.85, this.radius*0.3); ctx.stroke();
-                // ذيل ملتوٍ
-                ctx.strokeStyle = '#9E9E9E'; ctx.lineWidth=2; ctx.lineCap='round';
-                ctx.beginPath(); ctx.moveTo(0, this.radius); ctx.quadraticCurveTo(this.radius*0.8, this.radius*1.5, this.radius*0.3, this.radius*2); ctx.stroke();
+                ctx.fillStyle = 'rgba(0,0,0,0.22)';
+                ctx.beginPath(); ctx.ellipse(r*0.05, r*0.92, r*0.72, r*0.18, 0, 0, Math.PI*2); ctx.fill();
+
+                // ذيل منحنٍ طويل
+                ctx.strokeStyle = '#BDBDBD'; ctx.lineWidth = r*0.18; ctx.lineCap = 'round';
+                ctx.beginPath(); ctx.moveTo(r*0.05, r*0.55);
+                ctx.bezierCurveTo(r*1.0, r*1.2, r*1.8, r*0.5, r*2.2, r*1.5);
+                ctx.stroke();
+                // تدرج طرف الذيل
+                ctx.strokeStyle = '#E0E0E0'; ctx.lineWidth = r*0.09;
+                ctx.beginPath(); ctx.moveTo(r*1.8, r*0.55); ctx.bezierCurveTo(r*2.0, r*0.8, r*2.2, r*1.2, r*2.2, r*1.5); ctx.stroke();
+
+                // أذنان دائريتان كبيرتان (قبل الجسم)
+                ctx.fillStyle = '#B0BEC5';
+                ctx.strokeStyle = '#78909C'; ctx.lineWidth = r*0.1;
+                ctx.beginPath(); ctx.arc(-r*0.48, -r*0.85, r*0.42, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                ctx.beginPath(); ctx.arc(r*0.48, -r*0.85, r*0.42, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                // داخل الأذنين (وردي دافئ)
+                const earInnerGrad1 = ctx.createRadialGradient(-r*0.48, -r*0.85, 0, -r*0.48, -r*0.85, r*0.28);
+                earInnerGrad1.addColorStop(0, '#FCE4EC'); earInnerGrad1.addColorStop(1, '#F48FB1');
+                ctx.fillStyle = earInnerGrad1;
+                ctx.beginPath(); ctx.arc(-r*0.48, -r*0.85, r*0.26, 0, Math.PI*2); ctx.fill();
+                const earInnerGrad2 = ctx.createRadialGradient(r*0.48, -r*0.85, 0, r*0.48, -r*0.85, r*0.28);
+                earInnerGrad2.addColorStop(0, '#FCE4EC'); earInnerGrad2.addColorStop(1, '#F48FB1');
+                ctx.fillStyle = earInnerGrad2;
+                ctx.beginPath(); ctx.arc(r*0.48, -r*0.85, r*0.26, 0, Math.PI*2); ctx.fill();
+
+                // جسم الفأر بتدرج ناعم
+                const mouseGrad = ctx.createRadialGradient(-r*0.28, -r*0.32, r*0.04, r*0.05, r*0.05, r*1.08);
+                mouseGrad.addColorStop(0, '#F5F5F5');
+                mouseGrad.addColorStop(0.4, '#CFD8DC');
+                mouseGrad.addColorStop(0.8, '#90A4AE');
+                mouseGrad.addColorStop(1, '#546E7A');
+                ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+                ctx.fillStyle = mouseGrad; ctx.fill();
+                ctx.strokeStyle = '#455A64'; ctx.lineWidth = r*0.1; ctx.stroke();
+
+                // خط بطن فاتح
+                ctx.fillStyle = 'rgba(255,255,255,0.35)';
+                ctx.beginPath(); ctx.ellipse(0, r*0.12, r*0.42, r*0.38, 0, 0, Math.PI*2); ctx.fill();
+
+                // عيون حمراء مضيئة (عيون فأر)
+                const eyeGrad1 = ctx.createRadialGradient(-r*0.3, -r*0.22, 0, -r*0.3, -r*0.22, r*0.19);
+                eyeGrad1.addColorStop(0, '#FF8A80'); eyeGrad1.addColorStop(0.5, '#D32F2F'); eyeGrad1.addColorStop(1, '#7F0000');
+                ctx.fillStyle = eyeGrad1;
+                ctx.beginPath(); ctx.arc(-r*0.3, -r*0.22, r*0.19, 0, Math.PI*2); ctx.fill();
+                const eyeGrad2 = ctx.createRadialGradient(r*0.3, -r*0.22, 0, r*0.3, -r*0.22, r*0.19);
+                eyeGrad2.addColorStop(0, '#FF8A80'); eyeGrad2.addColorStop(0.5, '#D32F2F'); eyeGrad2.addColorStop(1, '#7F0000');
+                ctx.fillStyle = eyeGrad2;
+                ctx.beginPath(); ctx.arc(r*0.3, -r*0.22, r*0.19, 0, Math.PI*2); ctx.fill();
+                // بريق العينين
+                ctx.fillStyle = 'rgba(255,255,255,0.85)';
+                ctx.beginPath(); ctx.arc(-r*0.24, -r*0.29, r*0.07, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(r*0.36, -r*0.29, r*0.07, 0, Math.PI*2); ctx.fill();
+
+                // أنف بيضاوي وردي
+                const noseGrad = ctx.createRadialGradient(0, r*0.08, 0, 0, r*0.08, r*0.14);
+                noseGrad.addColorStop(0, '#FCE4EC'); noseGrad.addColorStop(1, '#E91E63');
+                ctx.fillStyle = noseGrad;
+                ctx.beginPath(); ctx.ellipse(0, r*0.08, r*0.14, r*0.1, 0, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#C2185B'; ctx.lineWidth = r*0.04; ctx.stroke();
+
+                // فم صغير
+                ctx.strokeStyle = '#546E7A'; ctx.lineWidth = r*0.07; ctx.lineCap='round';
+                ctx.beginPath(); ctx.moveTo(0, r*0.18); ctx.lineTo(-r*0.14, r*0.30); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, r*0.18); ctx.lineTo(r*0.14, r*0.30); ctx.stroke();
+
+                // شوارب رفيعة طويلة
+                ctx.strokeStyle = 'rgba(84,110,122,0.7)'; ctx.lineWidth = r*0.05;
+                [[-0.12, 0.08, -1.0, -0.02], [-0.12, 0.18, -1.0, 0.32],
+                 [0.12, 0.08, 1.0, -0.02],  [0.12, 0.18, 1.0, 0.32]].forEach(([x1,y1,x2,y2])=>{
+                    ctx.beginPath(); ctx.moveTo(r*x1, r*y1); ctx.lineTo(r*x2, r*y2); ctx.stroke();
+                });
+
                 ctx.restore();
             }
         }
@@ -1040,7 +1337,7 @@ document.addEventListener('click', () => {
                 this.platX = platX;   // بداية البلاطة
                 this.platY = platY;   // y أعلى البلاطة
                 this.platW = platW * 0.6;   // تقليل عرض البلاطة إلى 60%
-                this.radius = Math.min(20, canvas.width * 0.026);
+                this.radius = Math.min(25, canvas.width * 0.030);
                 this.x = platX + this.platW * 0.3;
                 this.y = platY - this.radius;
                 this.direction = direction || 1;
@@ -1074,63 +1371,91 @@ document.addEventListener('click', () => {
                 ctx.fillStyle = 'rgba(231,76,60,0.18)'; ctx.fill();
                 ctx.strokeStyle = 'rgba(231,76,60,0.55)'; ctx.lineWidth = 2; ctx.stroke();
 
-                // ظل
-                ctx.fillStyle = 'rgba(0,0,0,0.22)';
-                ctx.beginPath(); ctx.ellipse(0, r * 0.82, r * 0.75, r * 0.18, 0, 0, Math.PI * 2); ctx.fill();
+                // ظل أرضي محسّن
+                ctx.save();
+                const shadowGrd = ctx.createRadialGradient(0, r*0.82, 0, 0, r*0.82, r*0.85);
+                shadowGrd.addColorStop(0, 'rgba(0,0,0,0.35)');
+                shadowGrd.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = shadowGrd;
+                ctx.beginPath(); ctx.ellipse(0, r * 0.82, r * 0.75, r * 0.22, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+
+                // ذيل مهتاج في الخلف
+                ctx.strokeStyle = '#C68030'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+                const tw = Math.sin(Date.now()*0.018 + this.bobOffset) * 0.6;
+                ctx.beginPath(); ctx.moveTo(-r*0.85, r*0.0);
+                ctx.quadraticCurveTo(-r*1.4, -r*0.35 + tw*r, -r*1.55, -r*0.75 + tw*r*1.4);
+                ctx.stroke();
 
                 // جسم الكلب
-                const bodyGrad = ctx.createRadialGradient(-r*0.1, 0, r*0.1, 0, 0, r*0.8);
+                const bodyGrad = ctx.createRadialGradient(r*0.1, 0, r*0.1, 0, 0, r*0.8);
                 bodyGrad.addColorStop(0, '#E8B87A'); bodyGrad.addColorStop(1, '#B8742A');
-                ctx.beginPath(); ctx.ellipse(r*0.15, r*0.08, r*0.72, r*0.5, 0, 0, Math.PI*2);
+                ctx.beginPath(); ctx.ellipse(-r*0.15, r*0.08, r*0.72, r*0.5, 0, 0, Math.PI*2);
                 ctx.fillStyle = bodyGrad; ctx.fill();
-                ctx.strokeStyle = '#7A4A10'; ctx.lineWidth = 1.5; ctx.stroke();
-
-                // رأس
-                const hg = ctx.createRadialGradient(-r*0.2, -r*0.55, r*0.05, -r*0.2, -r*0.52, r*0.48);
-                hg.addColorStop(0, '#F0C080'); hg.addColorStop(1, '#C68030');
-                ctx.beginPath(); ctx.arc(-r*0.18, -r*0.52, r*0.46, 0, Math.PI*2);
-                ctx.fillStyle = hg; ctx.fill(); ctx.strokeStyle = '#7A4A10'; ctx.lineWidth = 1.5; ctx.stroke();
-
-                // خطم
-                ctx.fillStyle = '#D4956A';
-                ctx.beginPath(); ctx.ellipse(r*0.12, -r*0.42, r*0.2, r*0.16, 0, 0, Math.PI*2); ctx.fill();
-
-                // أذن متدلية
-                ctx.fillStyle = '#9A4A18';
-                ctx.beginPath(); ctx.ellipse(-r*0.52, -r*0.3, r*0.16, r*0.35, -0.25, 0, Math.PI*2); ctx.fill();
-                ctx.strokeStyle = '#6A3010'; ctx.lineWidth = 1; ctx.stroke();
-
-                // عين حمراء (مخيفة)
-                ctx.fillStyle = '#c0392b';
-                ctx.beginPath(); ctx.arc(-r*0.3, -r*0.62, r*0.13, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#1a0000';
-                ctx.beginPath(); ctx.arc(-r*0.28, -r*0.62, r*0.07, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'white';
-                ctx.beginPath(); ctx.arc(-r*0.23, -r*0.66, r*0.04, 0, Math.PI*2); ctx.fill();
-
-                // أنف
-                ctx.fillStyle = '#2c0a0a';
-                ctx.beginPath(); ctx.ellipse(r*0.15, -r*0.44, r*0.11, r*0.08, 0, 0, Math.PI*2); ctx.fill();
-
-                // أسنان
-                ctx.fillStyle = 'white';
-                ctx.beginPath(); ctx.moveTo(r*0.04, -r*0.36); ctx.lineTo(r*0.1, -r*0.28); ctx.lineTo(r*0.16, -r*0.36); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(r*0.17, -r*0.36); ctx.lineTo(r*0.23, -r*0.28); ctx.lineTo(r*0.29, -r*0.36); ctx.fill();
+                // ظل سفلي على الجسم
+                ctx.save();
+                ctx.clip();
+                const bodyShadow = ctx.createLinearGradient(0, -r*0.3, 0, r*0.6);
+                bodyShadow.addColorStop(0, 'rgba(255,255,255,0.12)');
+                bodyShadow.addColorStop(0.4, 'rgba(0,0,0,0)');
+                bodyShadow.addColorStop(1, 'rgba(0,0,0,0.28)');
+                ctx.fillStyle = bodyShadow;
+                ctx.beginPath(); ctx.ellipse(-r*0.15, r*0.08, r*0.72, r*0.5, 0, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+                ctx.strokeStyle = '#7A4A10'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.ellipse(-r*0.15, r*0.08, r*0.72, r*0.5, 0, 0, Math.PI*2); ctx.stroke();
 
                 // أرجل متحركة
                 ctx.fillStyle = '#B8742A';
-                [-r*0.52, -r*0.18, r*0.2, r*0.58].forEach((lx, idx) => {
+                [-r*0.58, -r*0.2, r*0.18, r*0.52].forEach((lx, idx) => {
                     const lb = Math.sin(Date.now()*0.014 + idx*1.3 + this.bobOffset) * r * 0.14;
                     ctx.beginPath(); ctx.ellipse(lx, r*0.48 + lb, r*0.13, r*0.26, 0, 0, Math.PI*2); ctx.fill();
                     ctx.strokeStyle = '#7A4A10'; ctx.lineWidth = 1; ctx.stroke();
                 });
 
-                // ذيل مهتاج
-                ctx.strokeStyle = '#C68030'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-                const tw = Math.sin(Date.now()*0.018 + this.bobOffset) * 0.6;
-                ctx.beginPath(); ctx.moveTo(r*0.85, r*0.0);
-                ctx.quadraticCurveTo(r*1.4, -r*0.35 + tw*r, r*1.55, -r*0.75 + tw*r*1.4);
-                ctx.stroke();
+                // رأس في الأمام
+                const hg = ctx.createRadialGradient(r*0.2, -r*0.55, r*0.05, r*0.2, -r*0.52, r*0.48);
+                hg.addColorStop(0, '#F0C080'); hg.addColorStop(1, '#C68030');
+                ctx.beginPath(); ctx.arc(r*0.18, -r*0.52, r*0.46, 0, Math.PI*2);
+                ctx.fillStyle = hg; ctx.fill();
+                // ظل على الرأس
+                ctx.save();
+                ctx.clip();
+                const headShadow = ctx.createRadialGradient(r*0.38, -r*0.38, r*0.05, r*0.18, -r*0.52, r*0.46);
+                headShadow.addColorStop(0, 'rgba(255,255,255,0.18)');
+                headShadow.addColorStop(0.5, 'rgba(0,0,0,0)');
+                headShadow.addColorStop(1, 'rgba(0,0,0,0.25)');
+                ctx.fillStyle = headShadow;
+                ctx.beginPath(); ctx.arc(r*0.18, -r*0.52, r*0.46, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+                ctx.strokeStyle = '#7A4A10'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.arc(r*0.18, -r*0.52, r*0.46, 0, Math.PI*2); ctx.stroke();
+
+                // خطم
+                ctx.fillStyle = '#D4956A';
+                ctx.beginPath(); ctx.ellipse(r*0.48, -r*0.42, r*0.2, r*0.16, 0, 0, Math.PI*2); ctx.fill();
+
+                // أذن متدلية
+                ctx.fillStyle = '#9A4A18';
+                ctx.beginPath(); ctx.ellipse(r*0.0, -r*0.3, r*0.16, r*0.35, 0.25, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#6A3010'; ctx.lineWidth = 1; ctx.stroke();
+
+                // عين حمراء
+                ctx.fillStyle = '#c0392b';
+                ctx.beginPath(); ctx.arc(r*0.3, -r*0.62, r*0.13, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#1a0000';
+                ctx.beginPath(); ctx.arc(r*0.28, -r*0.62, r*0.07, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.beginPath(); ctx.arc(r*0.33, -r*0.66, r*0.04, 0, Math.PI*2); ctx.fill();
+
+                // أنف
+                ctx.fillStyle = '#2c0a0a';
+                ctx.beginPath(); ctx.ellipse(r*0.58, -r*0.44, r*0.11, r*0.08, 0, 0, Math.PI*2); ctx.fill();
+
+                // أسنان
+                ctx.fillStyle = 'white';
+                ctx.beginPath(); ctx.moveTo(r*0.38, -r*0.36); ctx.lineTo(r*0.44, -r*0.28); ctx.lineTo(r*0.50, -r*0.36); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(r*0.51, -r*0.36); ctx.lineTo(r*0.57, -r*0.28); ctx.lineTo(r*0.63, -r*0.36); ctx.fill();
 
                 ctx.restore();
             }
@@ -1339,7 +1664,7 @@ document.addEventListener('click', () => {
             gameObjects=[]; releasedCats=[]; dogs=[];
             const groundHeight=canvas.height*0.08; 
             gameObjects.push(new Block(0,canvas.height-groundHeight,canvas.width,groundHeight,'#4A752C','earth')); 
-            levelData.targets.forEach(t=>{ const rad=Math.min(18,canvas.width*0.022); gameObjects.push(new Mouse(canvas.width*t.x, canvas.height-(canvas.height*(1-t.y))-rad)); }); 
+            levelData.targets.forEach(t=>{ const rad=Math.min(13,canvas.width*0.016); gameObjects.push(new Mouse(canvas.width*t.x, canvas.height-(canvas.height*(1-t.y))-rad)); }); 
             levelData.blocks.forEach(b=>{ gameObjects.push(new Block(canvas.width*b.x, canvas.height-(canvas.height*(1-b.y))-(b.h?canvas.height*b.h:canvas.width*b.w), canvas.width*b.w, b.h?canvas.height*b.h:canvas.width*b.w, b.color||'#A0522D', b.type||'wood')); });
             if(levelData.dogs){ levelData.dogs.forEach(d=>{ 
                 const px = canvas.width * d.platX;
