@@ -1077,12 +1077,13 @@ function initCanvas() {
         if (currentTool === 'pen') {
             if (activeMagnetTool) {
                 const loc = activeMagnetTool.globalToLocal(mx, my);
-                const snp = activeMagnetTool.checkMagnet(loc.x, loc.y);
+                // بمجرد تفعيل المغناطيس نُقيّد المحور العمودي على حافة الأداة دائماً
+                const snp = activeMagnetTool.checkMagnetStrict(loc.x, loc.y);
                 if (snp) {
                     const g = activeMagnetTool.localToGlobal(snp.x, snp.y);
                     mx = g.x; my = g.y;
                 } else {
-                    // انفكاك المغناطيس إذا ابتعد القلم
+                    // انفكاك المغناطيس فقط إذا خرج القلم من طول الأداة
                     activeMagnetTool = null;
                 }
             }
@@ -1394,6 +1395,9 @@ function clearAttachImage() {
 // =====================
 // TEACHER: SHAPE CANVAS
 // =====================
+// متغير الأداة الممغنطة النشطة في لوحة المعلم
+let shapeActiveMagnetTool = null;
+
 function initShapeCanvas() {
     shapeCanvas = document.getElementById('shapeCanvas');
     if (!shapeCanvas) return;
@@ -1407,68 +1411,113 @@ function initShapeCanvas() {
     shapeCtx.fillRect(0, 0, shapeCanvas.width, shapeCanvas.height);
     saveShapeHistory();
 
-    shapeCanvas.onmousedown = shapeStart2;
-    shapeCanvas.onmousemove = shapeMove2;
-    shapeCanvas.onmouseup = shapeEnd2;
-    shapeCanvas.onmouseleave = shapeEnd2;
+    // === نظام الرسم الموحد مع دعم المغناطيس (pointer events) ===
+    shapeCanvas.addEventListener('pointerdown', (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        shapeDrawing = true;
+        shapeCanvas.setPointerCapture(e.pointerId);
+        shapeActiveMagnetTool = null;
 
-    shapeCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); shapeStart2(shapeTouchEvt(e)); }, {passive:false});
-    shapeCanvas.addEventListener('touchmove',  (e) => { e.preventDefault(); shapeMove2(shapeTouchEvt(e)); }, {passive:false});
-}
+        const rect = shapeCanvas.getBoundingClientRect();
+        let mx = e.clientX - rect.left;
+        let my = e.clientY - rect.top;
 
-function shapeTouchEvt(e) {
-    const t = e.touches[0] || e.changedTouches[0];
-    const rect = shapeCanvas.getBoundingClientRect();
-    return { offsetX: t.clientX - rect.left, offsetY: t.clientY - rect.top };
+        // فحص المغناطيس فقط عند أداة القلم والرسم الحر
+        if (shapeTool === 'pen') {
+            for (const t of shapeGeoTools) {
+                if (!(t instanceof GeoRuler) && !(t instanceof GeoProtractor)) continue;
+                const loc = t.globalToLocal(mx, my);
+                const snp = t.checkMagnet(loc.x, loc.y);
+                if (snp) {
+                    shapeActiveMagnetTool = t;
+                    const g = t.localToGlobal(snp.x, snp.y);
+                    mx = g.x; my = g.y;
+                    break;
+                }
+            }
+        }
+
+        shapeStart = { x: mx, y: my };
+
+        if (shapeTool === 'pen') {
+            shapeCtx.beginPath();
+            shapeCtx.arc(mx, my, shapeSize / 2, 0, Math.PI * 2);
+            shapeCtx.fillStyle = document.getElementById('shape-color-picker').value;
+            shapeCtx.fill();
+            shapeCtx.beginPath();
+            shapeCtx.moveTo(mx, my);
+        } else {
+            shapeSnapshot = shapeCtx.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height);
+        }
+    });
+
+    shapeCanvas.addEventListener('pointermove', (e) => {
+        if (!shapeDrawing) return;
+
+        const rect = shapeCanvas.getBoundingClientRect();
+        let mx = e.clientX - rect.left;
+        let my = e.clientY - rect.top;
+
+        const color = document.getElementById('shape-color-picker').value;
+        shapeCtx.strokeStyle = color;
+        shapeCtx.fillStyle = color;
+        shapeCtx.lineWidth = shapeSize;
+        shapeCtx.lineCap = 'round';
+        shapeCtx.lineJoin = 'round';
+
+        if (shapeTool === 'pen') {
+            // تطبيق المغناطيس
+            if (shapeActiveMagnetTool) {
+                const loc = shapeActiveMagnetTool.globalToLocal(mx, my);
+                const snp = shapeActiveMagnetTool.checkMagnetStrict(loc.x, loc.y);
+                if (snp) {
+                    const g = shapeActiveMagnetTool.localToGlobal(snp.x, snp.y);
+                    mx = g.x; my = g.y;
+                } else {
+                    shapeActiveMagnetTool = null;
+                }
+            }
+            shapeCtx.globalCompositeOperation = 'source-over';
+            shapeCtx.lineTo(mx, my);
+            shapeCtx.stroke();
+            shapeCtx.beginPath();
+            shapeCtx.moveTo(mx, my);
+        } else {
+            shapeCtx.putImageData(shapeSnapshot, 0, 0);
+            drawShape(shapeStart.x, shapeStart.y, mx, my, color);
+        }
+    });
+
+    shapeCanvas.addEventListener('pointerup', (e) => {
+        if (!shapeDrawing) return;
+        shapeDrawing = false;
+        shapeActiveMagnetTool = null;
+
+        if (shapeTool !== 'pen') {
+            const rect = shapeCanvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const color = document.getElementById('shape-color-picker').value;
+            shapeCtx.putImageData(shapeSnapshot, 0, 0);
+            drawShape(shapeStart.x, shapeStart.y, mx, my, color);
+        }
+        shapeCtx.beginPath();
+        saveShapeHistory();
+    });
+
+    shapeCanvas.addEventListener('pointerleave', (e) => {
+        if (!shapeDrawing) return;
+        shapeDrawing = false;
+        shapeActiveMagnetTool = null;
+        shapeCtx.beginPath();
+        saveShapeHistory();
+    });
+
+    shapeCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
+    shapeCanvas.addEventListener('touchmove',  (e) => { e.preventDefault(); }, { passive: false });
 }
 
 let shapeSnapshot = null;
-
-function shapeStart2(e) {
-    shapeDrawing = true;
-    shapeStart = { x: e.offsetX, y: e.offsetY };
-    if (shapeTool === 'pen') {
-        shapeCtx.beginPath();
-        shapeCtx.moveTo(e.offsetX, e.offsetY);
-    } else {
-        shapeSnapshot = shapeCtx.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height);
-    }
-}
-
-function shapeMove2(e) {
-    if (!shapeDrawing) return;
-    const color = document.getElementById('shape-color-picker').value;
-    shapeCtx.strokeStyle = color;
-    shapeCtx.fillStyle = color;
-    shapeCtx.lineWidth = shapeSize;
-    shapeCtx.lineCap = 'round';
-
-    if (shapeTool === 'pen') {
-        shapeCtx.lineTo(e.offsetX, e.offsetY);
-        shapeCtx.stroke();
-        shapeCtx.beginPath();
-        shapeCtx.moveTo(e.offsetX, e.offsetY);
-    } else {
-        shapeCtx.putImageData(shapeSnapshot, 0, 0);
-        const x1 = shapeStart.x, y1 = shapeStart.y;
-        const x2 = e.offsetX, y2 = e.offsetY;
-        drawShape(x1, y1, x2, y2, color);
-    }
-}
-
-function shapeEnd2(e) {
-    if (!shapeDrawing) return;
-    shapeDrawing = false;
-    if (shapeTool !== 'pen' && e) {
-        const color = document.getElementById('shape-color-picker').value;
-        shapeCtx.putImageData(shapeSnapshot, 0, 0);
-        const x2 = e.offsetX || shapeStart.x;
-        const y2 = e.offsetY || shapeStart.y;
-        drawShape(shapeStart.x, shapeStart.y, x2, y2, color);
-    }
-    shapeCtx.beginPath();
-    saveShapeHistory();
-}
 
 function drawShape(x1, y1, x2, y2, color) {
     shapeCtx.strokeStyle = color;
@@ -1785,7 +1834,8 @@ class GeoTool {
         return { x: lx*Math.cos(rad) - ly*Math.sin(rad) + this.x, y: lx*Math.sin(rad) + ly*Math.cos(rad) + this.y };
     }
 
-    checkMagnet() { return null; } // يُعاد تعريفه في الأبناء
+    checkMagnet() { return null; }       // يُعاد تعريفه في الأبناء
+    checkMagnetStrict() { return null; } // يُعاد تعريفه في الأبناء
 
     mount() {
         this.container.style.pointerEvents = 'none'; // الحاوية شفافة للنقرات
@@ -1889,6 +1939,17 @@ class GeoRuler extends GeoTool {
         }
         return null;
     }
+    // بعد تفعيل المغناطيس: التقيّد بالحافة طالما القلم ضمن طول المسطرة
+    checkMagnetStrict(lx, ly) {
+        const edgeY = -this.height / 2;
+        if (lx >= -this.width/2 - 20 && lx <= this.width/2 + 20) {
+            return {
+                x: Math.max(-this.width/2 + 4, Math.min(this.width/2 - 4, lx)),
+                y: edgeY
+            };
+        }
+        return null;
+    }
 }
 
 // ---- المنقلة ----
@@ -1944,6 +2005,12 @@ class GeoProtractor extends GeoTool {
         // الحافة السفلية للمنقلة (الخط المستقيم) = height/2 في الإحداثيات المحلية
         const edgeY = this.height / 2;
         if (Math.abs(ly - edgeY) < 50 && lx >= -this.width/2 + 8 && lx <= this.width/2 - 8)
+            return { x: Math.max(-this.width/2 + 8, Math.min(this.width/2 - 8, lx)), y: edgeY };
+        return null;
+    }
+    checkMagnetStrict(lx, ly) {
+        const edgeY = this.height / 2;
+        if (lx >= -this.width/2 + 8 && lx <= this.width/2 - 8)
             return { x: Math.max(-this.width/2 + 8, Math.min(this.width/2 - 8, lx)), y: edgeY };
         return null;
     }
@@ -2023,18 +2090,6 @@ class GeoCompass {
             const rect = this.container.getBoundingClientRect();
             return { x: e.clientX-rect.left, y: e.clientY-rect.top };
         };
-        // تحويل إحداثيات الـ overlay إلى إحداثيات الكانفاس الداخلية
-        const toCanvas = (ox, oy) => {
-            if (!this.canvasEl) return { x: ox, y: oy };
-            const rect = this.canvasEl.getBoundingClientRect();
-            const scaleX = this.canvasEl.width  / rect.width;
-            const scaleY = this.canvasEl.height / rect.height;
-            const contRect = this.container.getBoundingClientRect();
-            return {
-                x: (ox + contRect.left - rect.left) * scaleX,
-                y: (oy + contRect.top  - rect.top)  * scaleY
-            };
-        };
         const getCtx = () => {
             if (!this.canvasEl) return null;
             return this.canvasEl.getContext('2d');
@@ -2052,11 +2107,7 @@ class GeoCompass {
                 drawing=true;
                 this.el.setPointerCapture(e.pointerId);
                 lastAng = Math.atan2(pos.y-this.y, pos.x-this.x);
-                // نحوّل مركز الفرجار ونصف قطره إلى فضاء الكانفاس
-                const cCenter = toCanvas(this.x, this.y);
-                const cEdge   = toCanvas(this.x + this.radius, this.y);
-                const cRadius = cEdge.x - cCenter.x;
-                const c = getCtx(); if(c){ c.beginPath(); c.arc(cCenter.x,cCenter.y,cRadius,lastAng,lastAng,false); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
+                const c = getCtx(); if(c){ c.beginPath(); c.arc(this.x,this.y,this.radius,lastAng,lastAng,false); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
                 e.stopPropagation();
             }
         });
@@ -2071,12 +2122,8 @@ class GeoCompass {
                 let diff = ca-lastAng;
                 while(diff>Math.PI) diff-=2*Math.PI;
                 while(diff<-Math.PI) diff+=2*Math.PI;
-                // نحوّل مركز الفرجار ونصف قطره إلى فضاء الكانفاس
-                const cCenter = toCanvas(this.x, this.y);
-                const cEdge   = toCanvas(this.x + this.radius, this.y);
-                const cRadius = cEdge.x - cCenter.x;
                 const c = getCtx();
-                if(c){ c.beginPath(); c.arc(cCenter.x,cCenter.y,cRadius,lastAng,lastAng+diff,diff<0); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
+                if(c){ c.beginPath(); c.arc(this.x,this.y,this.radius,lastAng,lastAng+diff,diff<0); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
                 lastAng += diff;
             }
         });
@@ -2137,19 +2184,16 @@ class GeoEraser extends GeoTool {
             };
         };
 
-        const doErase = () => {
+        const doErase = (clientX, clientY) => {
             const ctx = this.canvasEl.getContext('2d');
             if (!ctx) return;
-            // تحويل مركز الممحاة من إحداثيات الـ overlay إلى إحداثيات الكانفاس الداخلية
-            const canvasRect = this.canvasEl.getBoundingClientRect();
-            const contRect   = this.container.getBoundingClientRect();
-            const scaleX = this.canvasEl.width  / canvasRect.width;
-            const scaleY = this.canvasEl.height / canvasRect.height;
-            // this.x/y هي إحداثيات داخل الـ overlay → نحوّلها إلى الشاشة ثم إلى الكانفاس
-            const screenX = this.x + contRect.left;
-            const screenY = this.y + contRect.top;
-            const cxC = (screenX - canvasRect.left) * scaleX;
-            const cyC = (screenY - canvasRect.top)  * scaleY;
+            // نحسب مركز الممحاة في إحداثيات الشاشة
+            const rect = this.canvasEl.getBoundingClientRect();
+            const scaleX = this.canvasEl.width  / rect.width;
+            const scaleY = this.canvasEl.height / rect.height;
+            // مركز الممحاة في إحداثيات الكانفاس
+            const cxC = (this.x - rect.left + window.scrollX) * scaleX;
+            const cyC = (this.y - rect.top  + window.scrollY) * scaleY;
             const wC  = this.eraserW * scaleX;
             const hC  = this.eraserH * scaleY;
             const rad = this.angle * Math.PI / 180;
@@ -2167,16 +2211,11 @@ class GeoEraser extends GeoTool {
             if (e.target.closest('.gt-rotate') || e.target.closest('.gt-delete')) return;
             erasing = true;
             drag.setPointerCapture(e.pointerId);
-            doErase(); // محو فوري عند الضغط
             e.stopPropagation();
         });
         drag.addEventListener('pointermove', e => {
             if (!erasing) return;
-            // تحديث موضع الممحاة ثم المسح
-            this.x += e.movementX;
-            this.y += e.movementY;
-            this.applyTransform();
-            doErase();
+            doErase(e.clientX, e.clientY);
             e.stopPropagation();
         });
         drag.addEventListener('pointerup', e => {
