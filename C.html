@@ -330,7 +330,7 @@
         .jump-btn { width: 80px; height: 80px; background: rgba(16, 185, 129, 0.4); border-color: rgba(16, 185, 129, 0.6); color: #fff; }
         .jump-btn:active { background: rgba(16, 185, 129, 0.7); }
 
-        @media (min-width: 1025px) { .mobile-hud { display: none; } }
+        @media (min-width: 1200px) and (hover: hover) { .mobile-hud { display: none; } }
         @media (max-width: 768px) { 
             .stat-glass { font-size: 0.9rem; padding: 6px 10px; } 
             .hud-btn { width: 35px; height: 35px; font-size: 1rem; } 
@@ -420,16 +420,52 @@
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     
 /* ========================================= */
-/* تعديل خاص للوح التفاعلي */
+/* تعديل خاص للوح التفاعلي الكبير فقط (ليس الآيباد) */
 /* ========================================= */
-@media (min-width: 768px) {
+
+/* الآيباد والشاشات المتوسطة: نفس سلوك الموبايل */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .mobile-hud {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-end !important;
+        bottom: max(20px, env(safe-area-inset-bottom)) !important;
+        left: max(20px, env(safe-area-inset-left)) !important;
+        right: max(20px, env(safe-area-inset-right)) !important;
+        gap: 0 !important;
+    }
+
+    .d-pad,
+    .action-pad {
+        position: static !important;
+        display: flex !important;
+        gap: 15px !important;
+        justify-content: flex-start !important;
+    }
+
+    .mobile-btn {
+        width: 80px !important;
+        height: 80px !important;
+        font-size: 2rem !important;
+    }
+
+    .jump-btn {
+        width: 90px !important;
+        height: 90px !important;
+    }
+}
+
+/* اللوح التفاعلي الكبير (1200px+): كل الأزرار في اليمين */
+@media (min-width: 1200px) {
 
     .mobile-hud {
         display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 40px !important;
+        justify-content: flex-end !important;
+        align-items: flex-end !important;
         bottom: 40px !important;
+        left: 40px !important;
+        right: 40px !important;
+        gap: 20px !important;
     }
 
     .d-pad,
@@ -437,18 +473,17 @@
         position: static !important;
         display: flex !important;
         gap: 20px !important;
-        justify-content: center !important;
     }
 
     .mobile-btn {
-        width: 90px !important;
-        height: 90px !important;
-        font-size: 36px !important;
+        width: 110px !important;
+        height: 110px !important;
+        font-size: 40px !important;
     }
 
     .jump-btn {
-        width: 90px !important;
-        height: 90px !important;
+        width: 120px !important;
+        height: 120px !important;
     }
 }
 
