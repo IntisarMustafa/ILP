@@ -1078,7 +1078,7 @@ function copyGameLink() {
 
     let lastTime = performance.now();
     function update(dt) {
-        if(dt > 0.05) dt = 0.05;
+        if(dt > 0.033) dt = 0.033; // تحسين الأداء: تحديد الـ dt بـ 30fps max بدلاً من 20fps
         particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= dt; p.size *= 0.95; }); particles = particles.filter(p => p.life > 0);
         switchRings.forEach(r => { r.r += dt * 500; r.life -= dt * 3; r.thickness = Math.max(0, r.life * 15); }); switchRings = switchRings.filter(r => r.life > 0);
         playerTrail.forEach(t => { t.life -= dt * 4; t.size *= 0.9; }); playerTrail = playerTrail.filter(t => t.life > 0);
@@ -1107,9 +1107,31 @@ function copyGameLink() {
             if (Math.abs(player.vx) > stats.maxSpeed * 0.5 || Math.abs(player.vy) > 300) { if (Math.random() < 0.4) playerTrail.push({x: player.x, y: player.y, size: player.r * 0.8, color: player.colorType, life: 1}); }
             
             level.boxes.forEach(box => {
-                box.vy += stats.gravity * dt; box.x += box.vx * dt; box.y += box.vy * dt; box.vx *= 0.82; 
+                box.vy += stats.gravity * dt;
+                box.vx *= Math.pow(0.82, dt * 60);
                 let boxSolids = [...level.platforms, ...level.gates];
-                boxSolids.forEach(p => { if(resolveRectRect(box, p)) { let overlapY = (box.y + box.h) - p.y; if(overlapY > 0 && overlapY < 25 && box.vy > 0) { box.y = p.y - box.h; box.vy = 0; } } });
+                // حل المحور X اولاً
+                box.x += box.vx * dt;
+                boxSolids.forEach(p => {
+                    if(resolveRectRect(box, p)) {
+                        let overlapLeft = (box.x + box.w) - p.x;
+                        let overlapRight = (p.x + p.w) - box.x;
+                        if(overlapLeft < overlapRight) { box.x = p.x - box.w; box.vx = 0; }
+                        else { box.x = p.x + p.w; box.vx = 0; }
+                    }
+                });
+                // ثم حل المحور Y
+                box.y += box.vy * dt;
+                boxSolids.forEach(p => {
+                    if(resolveRectRect(box, p)) {
+                        let overlapTop = (box.y + box.h) - p.y;
+                        let overlapBottom = (p.y + p.h) - box.y;
+                        if(overlapTop < overlapBottom) { box.y = p.y - box.h; box.vy = 0; }
+                        else { box.y = p.y + p.h; box.vy = 0; }
+                    }
+                });
+                // اذا وقع خارج المستوى نرجعه
+                if(box.y > level.height + 400) { box.x = 300; box.y = 100; box.vx = 0; box.vy = 0; }
             });
 
             let moveDir = 0; if (Input.left) moveDir -= 1; if (Input.right) moveDir += 1;
