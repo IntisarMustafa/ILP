@@ -2023,6 +2023,18 @@ class GeoCompass {
             const rect = this.container.getBoundingClientRect();
             return { x: e.clientX-rect.left, y: e.clientY-rect.top };
         };
+        // تحويل إحداثيات الـ overlay إلى إحداثيات الكانفاس الداخلية
+        const toCanvas = (ox, oy) => {
+            if (!this.canvasEl) return { x: ox, y: oy };
+            const rect = this.canvasEl.getBoundingClientRect();
+            const scaleX = this.canvasEl.width  / rect.width;
+            const scaleY = this.canvasEl.height / rect.height;
+            const contRect = this.container.getBoundingClientRect();
+            return {
+                x: (ox + contRect.left - rect.left) * scaleX,
+                y: (oy + contRect.top  - rect.top)  * scaleY
+            };
+        };
         const getCtx = () => {
             if (!this.canvasEl) return null;
             return this.canvasEl.getContext('2d');
@@ -2040,7 +2052,11 @@ class GeoCompass {
                 drawing=true;
                 this.el.setPointerCapture(e.pointerId);
                 lastAng = Math.atan2(pos.y-this.y, pos.x-this.x);
-                const c = getCtx(); if(c){ c.beginPath(); c.arc(this.x,this.y,this.radius,lastAng,lastAng,false); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
+                // نحوّل مركز الفرجار ونصف قطره إلى فضاء الكانفاس
+                const cCenter = toCanvas(this.x, this.y);
+                const cEdge   = toCanvas(this.x + this.radius, this.y);
+                const cRadius = cEdge.x - cCenter.x;
+                const c = getCtx(); if(c){ c.beginPath(); c.arc(cCenter.x,cCenter.y,cRadius,lastAng,lastAng,false); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
                 e.stopPropagation();
             }
         });
@@ -2055,8 +2071,12 @@ class GeoCompass {
                 let diff = ca-lastAng;
                 while(diff>Math.PI) diff-=2*Math.PI;
                 while(diff<-Math.PI) diff+=2*Math.PI;
+                // نحوّل مركز الفرجار ونصف قطره إلى فضاء الكانفاس
+                const cCenter = toCanvas(this.x, this.y);
+                const cEdge   = toCanvas(this.x + this.radius, this.y);
+                const cRadius = cEdge.x - cCenter.x;
                 const c = getCtx();
-                if(c){ c.beginPath(); c.arc(this.x,this.y,this.radius,lastAng,lastAng+diff,diff<0); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
+                if(c){ c.beginPath(); c.arc(cCenter.x,cCenter.y,cRadius,lastAng,lastAng+diff,diff<0); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
                 lastAng += diff;
             }
         });
@@ -2117,16 +2137,19 @@ class GeoEraser extends GeoTool {
             };
         };
 
-        const doErase = (clientX, clientY) => {
+        const doErase = () => {
             const ctx = this.canvasEl.getContext('2d');
             if (!ctx) return;
-            // نحسب مركز الممحاة في إحداثيات الشاشة
-            const rect = this.canvasEl.getBoundingClientRect();
-            const scaleX = this.canvasEl.width  / rect.width;
-            const scaleY = this.canvasEl.height / rect.height;
-            // مركز الممحاة في إحداثيات الكانفاس
-            const cxC = (this.x - rect.left + window.scrollX) * scaleX;
-            const cyC = (this.y - rect.top  + window.scrollY) * scaleY;
+            // تحويل مركز الممحاة من إحداثيات الـ overlay إلى إحداثيات الكانفاس الداخلية
+            const canvasRect = this.canvasEl.getBoundingClientRect();
+            const contRect   = this.container.getBoundingClientRect();
+            const scaleX = this.canvasEl.width  / canvasRect.width;
+            const scaleY = this.canvasEl.height / canvasRect.height;
+            // this.x/y هي إحداثيات داخل الـ overlay → نحوّلها إلى الشاشة ثم إلى الكانفاس
+            const screenX = this.x + contRect.left;
+            const screenY = this.y + contRect.top;
+            const cxC = (screenX - canvasRect.left) * scaleX;
+            const cyC = (screenY - canvasRect.top)  * scaleY;
             const wC  = this.eraserW * scaleX;
             const hC  = this.eraserH * scaleY;
             const rad = this.angle * Math.PI / 180;
@@ -2144,11 +2167,16 @@ class GeoEraser extends GeoTool {
             if (e.target.closest('.gt-rotate') || e.target.closest('.gt-delete')) return;
             erasing = true;
             drag.setPointerCapture(e.pointerId);
+            doErase(); // محو فوري عند الضغط
             e.stopPropagation();
         });
         drag.addEventListener('pointermove', e => {
             if (!erasing) return;
-            doErase(e.clientX, e.clientY);
+            // تحديث موضع الممحاة ثم المسح
+            this.x += e.movementX;
+            this.y += e.movementY;
+            this.applyTransform();
+            doErase();
             e.stopPropagation();
         });
         drag.addEventListener('pointerup', e => {
