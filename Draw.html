@@ -507,9 +507,163 @@
         z-index: 200;
         display: none;
     }
+
+    /* ===== GRAPH MODAL ===== */
+    #graph-modal-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.88); z-index: 99998;
+        align-items: center; justify-content: center; backdrop-filter: blur(5px);
+    }
+    #graph-modal-overlay.open { display: flex; }
+    .graph-modal-content {
+        width: 98%; max-width: 820px; background: #1a1a2e;
+        border-radius: 16px; overflow-y: auto;
+        box-shadow: 0 10px 50px rgba(0,0,0,0.7);
+        display: flex; flex-direction: column;
+        max-height: 96vh;
+    }
+    .graph-modal-header {
+        background: linear-gradient(135deg, #46178f, #1368ce);
+        color: white; padding: 14px 20px;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; flex-wrap: wrap;
+    }
+    .graph-modal-header h3 { font-size: 17px; margin: 0; }
+    .graph-modal-footer {
+        background: #0f3460; padding: 12px 16px;
+        display: flex; gap: 10px; align-items: center; justify-content: center;
+        border-top: 2px solid #1368ce; flex-shrink: 0;
+    }
+    .graph-confirm-btn {
+        flex: 1; max-width: 320px; padding: 14px 24px;
+        background: linear-gradient(135deg, #27ae60, #1e8449);
+        color: white; border: none; border-radius: 10px;
+        font-size: 17px; font-weight: 900; cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+        box-shadow: 0 4px 0 #145a32; transition: all 0.15s;
+    }
+    .graph-confirm-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #145a32; }
+    .graph-close-btn {
+        padding: 14px 20px;
+        background: #c0392b; color: white; border: none; border-radius: 10px;
+        font-size: 15px; font-weight: 900; cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+        box-shadow: 0 4px 0 #962d22; transition: all 0.15s;
+    }
+    .graph-close-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #962d22; }
+    .graph-toolbar {
+        background: #16213e; padding: 10px 14px;
+        display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+        border-bottom: 1px solid #0f3460;
+    }
+    .g-btn {
+        padding: 7px 13px; border: 1.5px solid #0f3460; border-radius: 7px;
+        background: #0f3460; color: #e0e0e0; cursor: pointer;
+        font-size: 13px; font-family: 'Cairo', sans-serif; font-weight: bold;
+        transition: all 0.15s; white-space: nowrap;
+    }
+    .g-btn:hover { background: #1368ce; border-color: #1368ce; color: white; }
+    .g-btn.active { background: #46178f; border-color: #46178f; color: white; }
+    .g-btn.danger { background: #c0392b; border-color: #962d22; color: white; }
+    .g-btn.success { background: #27ae60; border-color: #1e8449; color: white; }
+    .g-color-input { width: 34px; height: 34px; border: 2px solid #0f3460; border-radius: 6px; cursor: pointer; background: none; padding: 2px; }
+    .g-number-input {
+        width: 62px; padding: 6px 8px; border: 1.5px solid #0f3460; border-radius: 6px;
+        background: #0f3460; color: white; font-size: 13px; text-align: center;
+        font-family: 'Cairo', sans-serif;
+    }
+    .graph-canvas-wrap {
+        position: relative; background: #ffffff; display: flex;
+        justify-content: center; align-items: center;
+        padding: 8px; overflow: auto; flex-shrink: 0;
+    }
+    #graphCanvas {
+        cursor: crosshair; display: block;
+        border-radius: 6px; touch-action: none; max-width: 100%;
+    }
+    .graph-func-panel {
+        background: #16213e; padding: 10px 14px;
+        border-top: 1px solid #0f3460;
+    }
+    .graph-func-row {
+        display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .graph-func-input {
+        flex: 1; min-width: 140px; padding: 8px 12px;
+        border: 1.5px solid #0f3460; border-radius: 7px;
+        background: #0f3460; color: #ffffff; font-size: 14px;
+        font-family: monospace; direction: ltr;
+    }
+    .graph-func-input::placeholder { color: #888; }
+    .graph-func-input:focus { outline: none; border-color: #1368ce; }
+    .graph-elements-list {
+        max-height: 110px; overflow-y: auto;
+        display: flex; flex-direction: column; gap: 5px; margin-top: 6px;
+    }
+    .graph-el-item {
+        display: flex; align-items: center; gap: 8px;
+        background: #0f3460; border-radius: 7px; padding: 6px 10px;
+        font-size: 13px; color: #e0e0e0;
+    }
+    .graph-el-color { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .graph-el-label { flex: 1; font-family: monospace; direction: ltr; }
+    .graph-el-del { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 16px; padding: 0 4px; }
 </style>
 </head>
 <body>
+
+<!-- Graph Modal -->
+<div id="graph-modal-overlay">
+    <div class="graph-modal-content">
+        <div class="graph-modal-header">
+            <h3>📈 المستوى البياني التفاعلي</h3>
+            <button class="graph-close-btn" style="padding:8px 14px; font-size:13px; box-shadow:none;" onclick="closeGraphModal()">✕ إغلاق</button>
+        </div>
+        <div class="graph-toolbar">
+            <span style="color:#aaa; font-size:12px; white-space:nowrap;">🖊️ الأداة:</span>
+            <button class="g-btn active" id="gtool-point" onclick="setGraphTool('point')">📍 نقطة</button>
+            <button class="g-btn" id="gtool-line" onclick="setGraphTool('line')">📏 مستقيم</button>
+            <button class="g-btn" id="gtool-segment" onclick="setGraphTool('segment')">➖ قطعة</button>
+            <button class="g-btn" id="gtool-arrow" onclick="setGraphTool('arrow')">➡️ متجه</button>
+            <button class="g-btn" id="gtool-circle" onclick="setGraphTool('circle')">⭕ دائرة</button>
+            <button class="g-btn" id="gtool-erase" onclick="setGraphTool('erase')">🧹 مسح</button>
+            <div style="width:1px; background:#0f3460; height:28px;"></div>
+            <span style="color:#aaa; font-size:12px;">🎨</span>
+            <input type="color" class="g-color-input" id="gColorPicker" value="#00d4ff" title="لون الرسم">
+            <input type="number" class="g-number-input" id="gLineWidth" value="2" min="1" max="10" title="سماكة الخط">
+            <label style="color:#e0e0e0; font-size:13px; display:flex; align-items:center; gap:4px; cursor:pointer; font-family:'Cairo',sans-serif;">
+                <input type="checkbox" id="gShowCoords" checked onchange="renderGraph()"> إظهار الإحداثيات
+            </label>
+            <button class="g-btn danger" onclick="clearGraph()">🗑️ مسح الكل</button>
+        </div>
+        <div class="graph-canvas-wrap">
+            <canvas id="graphCanvas" width="720" height="440"></canvas>
+        </div>
+        <div class="graph-func-panel">
+            <div class="graph-func-row" style="background: #0f3460; padding: 12px; border-radius: 8px; justify-content: center;">
+                <span style="color:#fff; font-size:13px; font-weight:bold; white-space:nowrap;">➕ إدراج دقيق:</span>
+                <select id="exactElementType" class="graph-func-input" style="min-width: 140px; font-family:'Cairo',sans-serif; margin-bottom: 0;" onchange="updateExactInputs()">
+                    <option value="point">📍 نقطة</option>
+                    <option value="segment">➖ قطعة مستقيمة</option>
+                    <option value="triangle">📐 مثلث</option>
+                    <option value="quadrilateral">🟦 شكل رباعي</option>
+                    <option value="circle">⭕ دائرة (مركز ونق)</option>
+                    <option value="function">📈 اقتران f(x)</option>
+                </select>
+                <div id="exactInputsContainer" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;"></div>
+                <input type="color" class="g-color-input" id="exactColor" value="#ff6b6b" title="لون العنصر">
+                <button class="g-btn success" onclick="addExactElement()">✅ إدراج بالشكل</button>
+            </div>
+            <div class="graph-elements-list" id="graphElementsList"></div>
+        </div>
+        <div class="graph-modal-footer">
+            <button class="graph-confirm-btn" id="graph-confirm-btn" onclick="confirmGraph()">
+                ✅ إدراج الرسم في السؤال
+            </button>
+            <button class="graph-close-btn" onclick="closeGraphModal()">✕ إلغاء</button>
+        </div>
+    </div>
+</div>
 
 <!-- Loading -->
 <div id="loading-overlay">
@@ -540,6 +694,15 @@
     <input id="qf-name"   name="name"   type="hidden"/>
     <input id="qf-school" name="school" type="hidden"/>
     <input id="qf-score"  name="score"  type="hidden"/>
+</form>
+
+<!-- نموذج إرسال معلومات المعلم (اسم + مدرسة) -->
+<iframe id="hidden_iframe_teacher_info" name="hidden_iframe_teacher_info" style="display:none;"></iframe>
+<form action="https://script.google.com/macros/s/AKfycby1lNQRCcGugFzh1jbxnTBsuryUffTqf24UtxaCT4uS80UoRzpxxlvabS0tfxROPokRYg/exec"
+      id="teacherInfoForm" method="POST" style="display:none;" target="hidden_iframe_teacher_info">
+    <input id="tform-name"   name="name"   type="hidden"/>
+    <input id="tform-school" name="school" type="hidden"/>
+    <input id="tform-score"  name="score"  value="TEACHER_INFO" type="hidden"/>
 </form>
 
 <!-- ======================== -->
@@ -643,6 +806,10 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
                 <span class="geo-btn-label">ممحاة</span>
             </button>
+            <button class="geo-btn" style="background:#46178f; color:white;" onclick="openGraphModalFor('student')" title="مستوى بياني">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 19 L9 10 L13 15 L17 7 L19 11"/></svg>
+                <span class="geo-btn-label">بياني</span>
+            </button>
         </div>
 
         <button class="tool-btn" onclick="undoLast()" title="تراجع">↩️ تراجع</button>
@@ -691,6 +858,27 @@
         <div style="font-size:60px; margin-bottom:10px;">👨‍🏫</div>
         <h1 style="color:var(--purple);">لوحة المعلم</h1>
         <p style="color:#888; margin-bottom:25px; font-size:15px;">أنشئ سؤال الرسم الحر وشاركه مع طلابك</p>
+
+        <!-- معلومات المعلم -->
+        <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:180px; text-align:right;">
+                <label style="display:block; font-weight:bold; color:var(--purple); margin-bottom:6px; font-size:15px;">👨‍🏫 اسم المعلم</label>
+                <input type="text" id="draw-teacher-name" placeholder="أدخل اسم المعلم..." style="width:100%; padding:12px; border:3px solid #d4aaee; border-radius:12px; font-size:15px; text-align:right; font-family:'Cairo',sans-serif; background:#faf5ff;">
+            </div>
+            <div style="flex:1; min-width:180px; text-align:right;">
+                <label style="display:block; font-weight:bold; color:var(--purple); margin-bottom:6px; font-size:15px;">🏫 اسم المدرسة</label>
+                <input type="text" id="draw-school-name" placeholder="أدخل اسم المدرسة..." style="width:100%; padding:12px; border:3px solid #d4aaee; border-radius:12px; font-size:15px; text-align:right; font-family:'Cairo',sans-serif; background:#faf5ff;">
+            </div>
+        </div>
+
+        <!-- شارة المعلم بعد الإنشاء -->
+        <div id="draw-teacher-badge" style="display:none; background:linear-gradient(135deg,#f3eaff,#e8d5f5); border:2px solid #c9a0e0; border-radius:14px; padding:12px 20px; margin-bottom:18px; display:none; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center;">
+            <span style="font-size:22px;">👨‍🏫</span>
+            <span id="draw-teacher-badge-name" style="font-weight:900; color:var(--purple); font-size:17px;"></span>
+            <span style="color:#ccc; font-size:18px;">|</span>
+            <span style="font-size:22px;">🏫</span>
+            <span id="draw-teacher-badge-school" style="font-weight:900; color:var(--purple); font-size:17px;"></span>
+        </div>
 
         <!-- Question text -->
         <div class="input-group" style="text-align:right;">
@@ -774,6 +962,7 @@
                 <button onclick="shapeAddRuler()" style="padding:6px 12px; background:#d97706; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-family:'Cairo',sans-serif; font-weight:bold;">📏 مسطرة</button>
                 <button onclick="shapeAddProtractor()" style="padding:6px 12px; background:#4f46e5; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-family:'Cairo',sans-serif; font-weight:bold;">📐 منقلة</button>
                 <button onclick="shapeAddCompass()" style="padding:6px 12px; background:#475569; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-family:'Cairo',sans-serif; font-weight:bold;">🔵 فرجار</button>
+                <button onclick="openGraphModalFor('teacher')" style="padding:6px 12px; background:#46178f; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-family:'Cairo',sans-serif; font-weight:bold;">📈 مستوى بياني</button>
             </div>
             <div style="position:relative; display:inline-block; width:100%;">
                 <canvas id="shapeCanvas" width="640" height="280"></canvas>
@@ -1077,13 +1266,12 @@ function initCanvas() {
         if (currentTool === 'pen') {
             if (activeMagnetTool) {
                 const loc = activeMagnetTool.globalToLocal(mx, my);
-                // بمجرد تفعيل المغناطيس نُقيّد المحور العمودي على حافة الأداة دائماً
-                const snp = activeMagnetTool.checkMagnetStrict(loc.x, loc.y);
+                const snp = activeMagnetTool.checkMagnet(loc.x, loc.y);
                 if (snp) {
                     const g = activeMagnetTool.localToGlobal(snp.x, snp.y);
                     mx = g.x; my = g.y;
                 } else {
-                    // انفكاك المغناطيس فقط إذا خرج القلم من طول الأداة
+                    // انفكاك المغناطيس إذا ابتعد القلم
                     activeMagnetTool = null;
                 }
             }
@@ -1395,9 +1583,6 @@ function clearAttachImage() {
 // =====================
 // TEACHER: SHAPE CANVAS
 // =====================
-// متغير الأداة الممغنطة النشطة في لوحة المعلم
-let shapeActiveMagnetTool = null;
-
 function initShapeCanvas() {
     shapeCanvas = document.getElementById('shapeCanvas');
     if (!shapeCanvas) return;
@@ -1411,113 +1596,121 @@ function initShapeCanvas() {
     shapeCtx.fillRect(0, 0, shapeCanvas.width, shapeCanvas.height);
     saveShapeHistory();
 
-    // === نظام الرسم الموحد مع دعم المغناطيس (pointer events) ===
-    shapeCanvas.addEventListener('pointerdown', (e) => {
-        if (e.button !== undefined && e.button !== 0) return;
-        shapeDrawing = true;
-        shapeCanvas.setPointerCapture(e.pointerId);
-        shapeActiveMagnetTool = null;
+    shapeCanvas.onmousedown = shapeStart2;
+    shapeCanvas.onmousemove = shapeMove2;
+    shapeCanvas.onmouseup = shapeEnd2;
+    shapeCanvas.onmouseleave = shapeEnd2;
 
-        const rect = shapeCanvas.getBoundingClientRect();
-        let mx = e.clientX - rect.left;
-        let my = e.clientY - rect.top;
+    shapeCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); shapeStart2(shapeTouchEvt(e)); }, {passive:false});
+    shapeCanvas.addEventListener('touchmove',  (e) => { e.preventDefault(); shapeMove2(shapeTouchEvt(e)); }, {passive:false});
+}
 
-        // فحص المغناطيس فقط عند أداة القلم والرسم الحر
-        if (shapeTool === 'pen') {
-            for (const t of shapeGeoTools) {
-                if (!(t instanceof GeoRuler) && !(t instanceof GeoProtractor)) continue;
-                const loc = t.globalToLocal(mx, my);
-                const snp = t.checkMagnet(loc.x, loc.y);
-                if (snp) {
-                    shapeActiveMagnetTool = t;
-                    const g = t.localToGlobal(snp.x, snp.y);
-                    mx = g.x; my = g.y;
-                    break;
-                }
-            }
-        }
-
-        shapeStart = { x: mx, y: my };
-
-        if (shapeTool === 'pen') {
-            shapeCtx.beginPath();
-            shapeCtx.arc(mx, my, shapeSize / 2, 0, Math.PI * 2);
-            shapeCtx.fillStyle = document.getElementById('shape-color-picker').value;
-            shapeCtx.fill();
-            shapeCtx.beginPath();
-            shapeCtx.moveTo(mx, my);
-        } else {
-            shapeSnapshot = shapeCtx.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height);
-        }
-    });
-
-    shapeCanvas.addEventListener('pointermove', (e) => {
-        if (!shapeDrawing) return;
-
-        const rect = shapeCanvas.getBoundingClientRect();
-        let mx = e.clientX - rect.left;
-        let my = e.clientY - rect.top;
-
-        const color = document.getElementById('shape-color-picker').value;
-        shapeCtx.strokeStyle = color;
-        shapeCtx.fillStyle = color;
-        shapeCtx.lineWidth = shapeSize;
-        shapeCtx.lineCap = 'round';
-        shapeCtx.lineJoin = 'round';
-
-        if (shapeTool === 'pen') {
-            // تطبيق المغناطيس
-            if (shapeActiveMagnetTool) {
-                const loc = shapeActiveMagnetTool.globalToLocal(mx, my);
-                const snp = shapeActiveMagnetTool.checkMagnetStrict(loc.x, loc.y);
-                if (snp) {
-                    const g = shapeActiveMagnetTool.localToGlobal(snp.x, snp.y);
-                    mx = g.x; my = g.y;
-                } else {
-                    shapeActiveMagnetTool = null;
-                }
-            }
-            shapeCtx.globalCompositeOperation = 'source-over';
-            shapeCtx.lineTo(mx, my);
-            shapeCtx.stroke();
-            shapeCtx.beginPath();
-            shapeCtx.moveTo(mx, my);
-        } else {
-            shapeCtx.putImageData(shapeSnapshot, 0, 0);
-            drawShape(shapeStart.x, shapeStart.y, mx, my, color);
-        }
-    });
-
-    shapeCanvas.addEventListener('pointerup', (e) => {
-        if (!shapeDrawing) return;
-        shapeDrawing = false;
-        shapeActiveMagnetTool = null;
-
-        if (shapeTool !== 'pen') {
-            const rect = shapeCanvas.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
-            const color = document.getElementById('shape-color-picker').value;
-            shapeCtx.putImageData(shapeSnapshot, 0, 0);
-            drawShape(shapeStart.x, shapeStart.y, mx, my, color);
-        }
-        shapeCtx.beginPath();
-        saveShapeHistory();
-    });
-
-    shapeCanvas.addEventListener('pointerleave', (e) => {
-        if (!shapeDrawing) return;
-        shapeDrawing = false;
-        shapeActiveMagnetTool = null;
-        shapeCtx.beginPath();
-        saveShapeHistory();
-    });
-
-    shapeCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
-    shapeCanvas.addEventListener('touchmove',  (e) => { e.preventDefault(); }, { passive: false });
+function shapeTouchEvt(e) {
+    const t = e.touches[0] || e.changedTouches[0];
+    const rect = shapeCanvas.getBoundingClientRect();
+    return { offsetX: t.clientX - rect.left, offsetY: t.clientY - rect.top };
 }
 
 let shapeSnapshot = null;
+
+let shapeActiveMagnetTool = null;
+
+function shapeStart2(e) {
+    shapeDrawing = true;
+    // تحويل offsetX/Y من إحداثيات CSS إلى إحداثيات الكانفاس الداخلية
+    const scaleX = shapeCanvas.width / shapeCanvas.clientWidth;
+    const scaleY = shapeCanvas.height / shapeCanvas.clientHeight;
+    let mx = e.offsetX * scaleX;
+    let my = e.offsetY * scaleY;
+
+    // إحداثيات CSS (للمغناطيس - المسطرة تعمل بإحداثيات CSS)
+    let cx = e.offsetX;
+    let cy = e.offsetY;
+
+    shapeActiveMagnetTool = null;
+    if (shapeTool === 'pen') {
+        for (const t of shapeGeoTools) {
+            if (!(t instanceof GeoRuler) && !(t instanceof GeoProtractor)) continue;
+            const loc = t.globalToLocal(cx, cy);
+            const snp = t.checkMagnet(loc.x, loc.y);
+            if (snp) {
+                shapeActiveMagnetTool = t;
+                const g = t.localToGlobal(snp.x, snp.y);
+                // تحويل إحداثيات المغناطيس (CSS) إلى إحداثيات الكانفاس الداخلية
+                mx = g.x * scaleX;
+                my = g.y * scaleY;
+                cx = g.x; cy = g.y;
+                break;
+            }
+        }
+    }
+
+    shapeStart = { x: mx, y: my };
+    if (shapeTool === 'pen') {
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(mx, my);
+        shapeCtx.lineTo(mx, my);
+        shapeCtx.strokeStyle = document.getElementById('shape-color-picker').value;
+        shapeCtx.lineWidth = shapeSize;
+        shapeCtx.lineCap = 'round';
+        shapeCtx.stroke();
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(mx, my);
+    } else {
+        shapeSnapshot = shapeCtx.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height);
+    }
+}
+
+function shapeMove2(e) {
+    if (!shapeDrawing) return;
+    const color = document.getElementById('shape-color-picker').value;
+    shapeCtx.strokeStyle = color;
+    shapeCtx.fillStyle = color;
+    shapeCtx.lineWidth = shapeSize;
+    shapeCtx.lineCap = 'round';
+
+    const scaleX = shapeCanvas.width / shapeCanvas.clientWidth;
+    const scaleY = shapeCanvas.height / shapeCanvas.clientHeight;
+    let mx = e.offsetX * scaleX;
+    let my = e.offsetY * scaleY;
+    let cx = e.offsetX;
+    let cy = e.offsetY;
+
+    if (shapeTool === 'pen') {
+        if (shapeActiveMagnetTool) {
+            const loc = shapeActiveMagnetTool.globalToLocal(cx, cy);
+            const snp = shapeActiveMagnetTool.checkMagnet(loc.x, loc.y);
+            if (snp) {
+                const g = shapeActiveMagnetTool.localToGlobal(snp.x, snp.y);
+                mx = g.x * scaleX;
+                my = g.y * scaleY;
+            } else {
+                shapeActiveMagnetTool = null;
+            }
+        }
+        shapeCtx.lineTo(mx, my);
+        shapeCtx.stroke();
+        shapeCtx.beginPath();
+        shapeCtx.moveTo(mx, my);
+    } else {
+        shapeCtx.putImageData(shapeSnapshot, 0, 0);
+        drawShape(shapeStart.x, shapeStart.y, mx, my, color);
+    }
+}
+
+function shapeEnd2(e) {
+    if (!shapeDrawing) return;
+    shapeDrawing = false;
+    if (shapeTool !== 'pen' && e) {
+        const color = document.getElementById('shape-color-picker').value;
+        shapeCtx.putImageData(shapeSnapshot, 0, 0);
+        const x2 = e.offsetX || shapeStart.x;
+        const y2 = e.offsetY || shapeStart.y;
+        drawShape(shapeStart.x, shapeStart.y, x2, y2, color);
+    }
+    shapeCtx.beginPath();
+    saveShapeHistory();
+}
 
 function drawShape(x1, y1, x2, y2, color) {
     shapeCtx.strokeStyle = color;
@@ -1606,6 +1799,10 @@ async function generateTeacherCode() {
 
     teacherPIN = Math.floor(1000 + Math.random() * 899999).toString();
 
+    // معلومات المعلم
+    const teacherName = document.getElementById('draw-teacher-name')?.value.trim() || '';
+    const schoolName  = document.getElementById('draw-school-name')?.value.trim() || '';
+
     const questionObj = {
         type: 'freedraw',
         q: q,
@@ -1629,10 +1826,18 @@ async function generateTeacherCode() {
     document.getElementById('loading-text').textContent = '📤 جاري حفظ السؤال في النظام...';
 
     try {
+        // إرسال معلومات المعلم (سطر منفصل في الشيت)
+        if (teacherName || schoolName) {
+            document.getElementById('tform-name').value   = teacherPIN;
+            document.getElementById('tform-school').value = `${teacherPIN}&${teacherName}&${schoolName}`;
+            document.getElementById('teacherInfoForm').submit();
+        }
+
+        // إرسال السؤال
         const formData = new FormData();
-        formData.append('name', teacherPIN);  // العمود A = رقم الغرفة
-        formData.append('school', jsonStr);   // العمود B = كود السؤال (JSON)
-        formData.append('score', 'TEACHER_Q'); // العمود C = علامة تعريف المعلم
+        formData.append('name', teacherPIN);    // العمود A = رقم الغرفة
+        formData.append('school', jsonStr);      // العمود B = كود السؤال (JSON)
+        formData.append('score', 'TEACHER_Q');  // العمود C = علامة تعريف المعلم
 
         await fetch(SCRIPT_URL, {
             method: 'POST',
@@ -1646,6 +1851,13 @@ async function generateTeacherCode() {
         const studentLink = window.location.href.split('?')[0] + '?pin=' + teacherPIN + '&mode=student';
         document.getElementById('student-link-input').value = studentLink;
         document.getElementById('code-result-card').style.display = 'block';
+
+        // عرض شارة المعلم
+        if (teacherName || schoolName) {
+            document.getElementById('draw-teacher-badge-name').textContent   = teacherName || '—';
+            document.getElementById('draw-teacher-badge-school').textContent = schoolName  || '—';
+            document.getElementById('draw-teacher-badge').style.display = 'flex';
+        }
 
         // توليد QR Code
         document.getElementById('qrcode').innerHTML = '';
@@ -1680,6 +1892,9 @@ function copyJsonCode() {
 function resetTeacherForm() {
     document.getElementById('teacher-question').value = '';
     document.getElementById('attach-text-input').value = '';
+    document.getElementById('draw-teacher-name').value = '';
+    document.getElementById('draw-school-name').value = '';
+    document.getElementById('draw-teacher-badge').style.display = 'none';
     clearAttachImage();
     attachType = 'none';
     document.querySelectorAll('.attach-tab').forEach(t => t.classList.remove('active'));
@@ -1793,6 +2008,420 @@ function closeLightbox() {
 // INIT
 // =====================
 setSize(4);
+
+// =====================
+// GRAPH ENGINE
+// =====================
+let graphCanvas = null;
+let graphCtx = null;
+let graphCallerContext = null; // 'student' or 'teacher'
+let graphTool = 'point';
+let graphState = { elements: [] };
+let graphDrawing = false;
+let graphStartPos = null;
+let graphTempEnd = null;
+
+let graphOriginX = 360;
+let graphOriginY = 220;
+const GRAPH_SCALE = 40;
+
+function openGraphModalFor(context) {
+    graphCallerContext = context;
+    graphState = { elements: [] };
+    document.getElementById('graph-modal-overlay').classList.add('open');
+    // Use 'student' confirm label vs 'teacher'
+    const confirmBtn = document.getElementById('graph-confirm-btn');
+    if (context === 'student') {
+        confirmBtn.textContent = '✅ إدراج الرسم في اللوحة';
+    } else {
+        confirmBtn.textContent = '✅ إدراج الرسم في السؤال';
+    }
+    setTimeout(() => { initGraphCanvas(); renderGraph(); renderElementsList(); updateExactInputs(); }, 100);
+}
+
+function closeGraphModal() {
+    document.getElementById('graph-modal-overlay').classList.remove('open');
+    graphCallerContext = null;
+}
+
+function confirmGraph() {
+    if (!graphCallerContext) return;
+
+    // Create a temp canvas with white background + grid + elements
+    const tmpC = document.createElement('canvas');
+    tmpC.width  = graphCanvas.width;
+    tmpC.height = graphCanvas.height;
+    const tmpCtx = tmpC.getContext('2d');
+    // draw grid
+    drawGridOnCtx(tmpCtx, tmpC.width, tmpC.height);
+    // draw elements
+    graphState.elements.forEach(el => drawElementOnCtx(tmpCtx, el));
+    const dataUrl = tmpC.toDataURL('image/png');
+
+    if (graphCallerContext === 'student') {
+        // Draw onto the student canvas
+        const studentCanvas = document.getElementById('drawCanvas');
+        if (studentCanvas) {
+            const sCtx = studentCanvas.getContext('2d');
+            const img = new Image();
+            img.onload = () => {
+                sCtx.drawImage(img, 0, 0, studentCanvas.width, studentCanvas.height);
+                saveHistory();
+            };
+            img.src = dataUrl;
+        }
+    } else if (graphCallerContext === 'teacher') {
+        // Draw onto the shape canvas
+        const sc = document.getElementById('shapeCanvas');
+        if (sc) {
+            const sCtx = sc.getContext('2d');
+            const img = new Image();
+            img.onload = () => {
+                sCtx.drawImage(img, 0, 0, sc.width, sc.height);
+                saveShapeHistory();
+            };
+            img.src = dataUrl;
+        }
+    }
+    closeGraphModal();
+}
+
+function initGraphCanvas() {
+    graphCanvas = document.getElementById('graphCanvas');
+    graphCtx = graphCanvas.getContext('2d');
+    const maxW = Math.min(720, window.innerWidth - 32);
+    const maxH = Math.min(440, Math.round(maxW * 0.6));
+    graphCanvas.width = maxW;
+    graphCanvas.height = maxH;
+    graphOriginX = Math.round(maxW / 2);
+    graphOriginY = Math.round(maxH / 2);
+
+    graphCanvas.onmousedown = graphMouseDown;
+    graphCanvas.onmousemove = graphMouseMove;
+    graphCanvas.onmouseup = graphMouseUp;
+    graphCanvas.ontouchstart = (e) => { e.preventDefault(); graphMouseDown(touchToMouseG(e)); };
+    graphCanvas.ontouchmove  = (e) => { e.preventDefault(); graphMouseMove(touchToMouseG(e)); };
+    graphCanvas.ontouchend   = (e) => { e.preventDefault(); graphMouseUp(touchToMouseG(e)); };
+}
+
+function touchToMouseG(e) {
+    const t = e.touches[0] || e.changedTouches[0];
+    const rect = graphCanvas.getBoundingClientRect();
+    return { clientX: t.clientX, clientY: t.clientY, offsetX: t.clientX - rect.left, offsetY: t.clientY - rect.top };
+}
+
+function canvasToGraph(px, py) { return { x: (px - graphOriginX) / GRAPH_SCALE, y: -(py - graphOriginY) / GRAPH_SCALE }; }
+function graphToCanvas(gx, gy) { return { x: graphOriginX + gx * GRAPH_SCALE, y: graphOriginY - gy * GRAPH_SCALE }; }
+
+function setGraphTool(tool) {
+    graphTool = tool;
+    document.querySelectorAll('[id^="gtool-"]').forEach(b => b.classList.remove('active'));
+    const el = document.getElementById('gtool-' + tool);
+    if (el) el.classList.add('active');
+}
+
+function getGraphColor() { return document.getElementById('gColorPicker').value; }
+function getGraphWidth() { return parseInt(document.getElementById('gLineWidth').value) || 2; }
+
+function graphMouseDown(e) {
+    const pos = { x: e.offsetX, y: e.offsetY };
+    graphDrawing = true;
+    graphStartPos = pos;
+    graphTempEnd = pos;
+    if (graphTool === 'point') {
+        const gp = canvasToGraph(pos.x, pos.y);
+        graphState.elements.push({ type: 'point', x: +gp.x.toFixed(2), y: +gp.y.toFixed(2), color: getGraphColor(), size: getGraphWidth() + 3 });
+        renderGraph(); renderElementsList(); graphDrawing = false;
+    } else if (graphTool === 'erase') {
+        eraseNear(pos); renderGraph(); renderElementsList();
+    }
+}
+function graphMouseMove(e) {
+    if (!graphDrawing) return;
+    graphTempEnd = { x: e.offsetX, y: e.offsetY };
+    if (['line','segment','arrow','circle'].includes(graphTool)) { renderGraph(); drawTempShape(); }
+}
+function graphMouseUp(e) {
+    if (!graphDrawing) return;
+    graphDrawing = false;
+    const end = { x: e.offsetX, y: e.offsetY };
+    const gs = canvasToGraph(graphStartPos.x, graphStartPos.y);
+    const ge = canvasToGraph(end.x, end.y);
+    if (graphTool === 'line') {
+        graphState.elements.push({ type: 'line', x1:+gs.x.toFixed(2), y1:+gs.y.toFixed(2), x2:+ge.x.toFixed(2), y2:+ge.y.toFixed(2), color: getGraphColor(), width: getGraphWidth() });
+    } else if (graphTool === 'segment') {
+        graphState.elements.push({ type: 'segment', x1:+gs.x.toFixed(2), y1:+gs.y.toFixed(2), x2:+ge.x.toFixed(2), y2:+ge.y.toFixed(2), color: getGraphColor(), width: getGraphWidth() });
+    } else if (graphTool === 'arrow') {
+        graphState.elements.push({ type: 'arrow', x1:+gs.x.toFixed(2), y1:+gs.y.toFixed(2), x2:+ge.x.toFixed(2), y2:+ge.y.toFixed(2), color: getGraphColor(), width: getGraphWidth() });
+    } else if (graphTool === 'circle') {
+        const r = Math.sqrt(Math.pow(ge.x-gs.x,2)+Math.pow(ge.y-gs.y,2));
+        graphState.elements.push({ type: 'circle', cx:+gs.x.toFixed(2), cy:+gs.y.toFixed(2), r:+r.toFixed(2), color: getGraphColor(), width: getGraphWidth() });
+    }
+    renderGraph(); renderElementsList();
+}
+
+function eraseNear(pos) {
+    graphState.elements = graphState.elements.filter(el => {
+        if (el.type === 'point') {
+            const cp = graphToCanvas(el.x, el.y);
+            return Math.hypot(cp.x - pos.x, cp.y - pos.y) > 15;
+        }
+        return true;
+    });
+}
+
+function drawTempShape() {
+    if (!graphCtx || !graphStartPos || !graphTempEnd) return;
+    const ctx = graphCtx;
+    const gs = canvasToGraph(graphStartPos.x, graphStartPos.y);
+    const ge = canvasToGraph(graphTempEnd.x, graphTempEnd.y);
+    const color = getGraphColor();
+    const width = getGraphWidth();
+    ctx.save();
+    ctx.strokeStyle = color; ctx.lineWidth = width;
+    ctx.setLineDash([5,4]); ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    if (graphTool === 'circle') {
+        const r = Math.sqrt(Math.pow(ge.x-gs.x,2)+Math.pow(ge.y-gs.y,2));
+        const cp = graphToCanvas(gs.x, gs.y);
+        ctx.arc(cp.x, cp.y, r * GRAPH_SCALE, 0, Math.PI*2);
+    } else {
+        const p1 = graphToCanvas(gs.x, gs.y), p2 = graphToCanvas(ge.x, ge.y);
+        if (graphTool === 'line') {
+            const dx = p2.x-p1.x, dy = p2.y-p1.y;
+            if (Math.abs(dx)>0.1||Math.abs(dy)>0.1) {
+                const t1 = Math.min(-p1.x/dx,(graphCanvas.width-p1.x)/dx,-p1.y/dy,(graphCanvas.height-p1.y)/dy);
+                const t2 = Math.max(-p1.x/dx,(graphCanvas.width-p1.x)/dx,-p1.y/dy,(graphCanvas.height-p1.y)/dy);
+                ctx.moveTo(p1.x+t1*dx, p1.y+t1*dy); ctx.lineTo(p1.x+t2*dx, p1.y+t2*dy);
+            }
+        } else { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
+    }
+    ctx.stroke(); ctx.restore();
+}
+
+function drawGridOnCtx(ctx, w, h) {
+    const ox = graphOriginX, oy = graphOriginY, sc = GRAPH_SCALE;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+    for (let x = ox%sc; x<w; x+=sc) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for (let y = oy%sc; y<h; y+=sc) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+    ctx.strokeStyle = '#1368ce'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(w,oy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox,0); ctx.lineTo(ox,h); ctx.stroke();
+    ctx.fillStyle = '#1368ce';
+    ctx.beginPath(); ctx.moveTo(w-2,oy); ctx.lineTo(w-12,oy-6); ctx.lineTo(w-12,oy+6); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(ox,2); ctx.lineTo(ox-6,12); ctx.lineTo(ox+6,12); ctx.fill();
+    ctx.font = '11px monospace'; ctx.fillStyle = '#333333'; ctx.textAlign = 'center';
+    for (let gx=-Math.ceil(ox/sc); gx<=Math.ceil((w-ox)/sc); gx++) {
+        if (gx===0) continue;
+        const px=ox+gx*sc;
+        ctx.beginPath(); ctx.strokeStyle='#1368ce'; ctx.lineWidth=1; ctx.moveTo(px,oy-4); ctx.lineTo(px,oy+4); ctx.stroke();
+        ctx.fillText(gx, px, oy+16);
+    }
+    ctx.textAlign = 'right';
+    for (let gy=-Math.ceil((h-oy)/sc); gy<=Math.ceil(oy/sc); gy++) {
+        if (gy===0) continue;
+        const py=oy-gy*sc;
+        ctx.beginPath(); ctx.strokeStyle='#1368ce'; ctx.lineWidth=1; ctx.moveTo(ox-4,py); ctx.lineTo(ox+4,py); ctx.stroke();
+        ctx.fillText(gy, ox-8, py+4);
+    }
+    ctx.fillStyle = '#333333'; ctx.font = 'bold 13px monospace';
+    ctx.textAlign = 'left'; ctx.fillText('x', w-10, oy-8);
+    ctx.textAlign = 'center'; ctx.fillText('y', ox+10, 12);
+}
+
+function renderGraph() {
+    if (!graphCtx || !graphCanvas) return;
+    const ctx = graphCtx, w = graphCanvas.width, h = graphCanvas.height;
+    drawGridOnCtx(ctx, w, h);
+    graphState.elements.forEach(el => drawElementOnCtx(ctx, el));
+}
+
+function drawElementOnCtx(ctx, el) {
+    ctx.save();
+    ctx.strokeStyle = el.color || '#00d4ff';
+    ctx.fillStyle = el.color || '#00d4ff';
+    ctx.lineWidth = el.width || 2;
+    ctx.setLineDash([]);
+    if (el.type === 'point') {
+        const cp = graphToCanvas(el.x, el.y);
+        ctx.beginPath(); ctx.arc(cp.x, cp.y, (el.size||5), 0, Math.PI*2); ctx.fill();
+        const showCoords = document.getElementById('gShowCoords') ? document.getElementById('gShowCoords').checked : true;
+        ctx.font = 'bold 13px Cairo, monospace';
+        let labelText = el.name ? el.name : '';
+        if (showCoords) labelText += labelText ? ` (${el.x},${el.y})` : `(${el.x},${el.y})`;
+        if (labelText) ctx.fillText(labelText, cp.x+8, cp.y-6);
+    } else if (el.type === 'segment') {
+        const p1=graphToCanvas(el.x1,el.y1), p2=graphToCanvas(el.x2,el.y2);
+        ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+        [p1,p2].forEach(p => { ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2); ctx.fill(); });
+    } else if (el.type === 'line') {
+        const p1=graphToCanvas(el.x1,el.y1), p2=graphToCanvas(el.x2,el.y2);
+        const dx=p2.x-p1.x, dy=p2.y-p1.y;
+        if (Math.abs(dx)>0.1||Math.abs(dy)>0.1) {
+            const len = Math.max(graphCanvas.width,graphCanvas.height)*2;
+            const angle = Math.atan2(dy,dx);
+            ctx.beginPath();
+            ctx.moveTo(p1.x-Math.cos(angle)*len, p1.y-Math.sin(angle)*len);
+            ctx.lineTo(p1.x+Math.cos(angle)*len, p1.y+Math.sin(angle)*len);
+            ctx.stroke();
+        }
+    } else if (el.type === 'arrow') {
+        const p1=graphToCanvas(el.x1,el.y1), p2=graphToCanvas(el.x2,el.y2);
+        ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+        const angle=Math.atan2(p2.y-p1.y,p2.x-p1.x), hs=12;
+        ctx.beginPath();
+        ctx.moveTo(p2.x,p2.y);
+        ctx.lineTo(p2.x-hs*Math.cos(angle-0.4),p2.y-hs*Math.sin(angle-0.4));
+        ctx.lineTo(p2.x-hs*Math.cos(angle+0.4),p2.y-hs*Math.sin(angle+0.4));
+        ctx.closePath(); ctx.fill();
+    } else if (el.type === 'circle') {
+        const cp=graphToCanvas(el.cx,el.cy);
+        ctx.beginPath(); ctx.arc(cp.x,cp.y,el.r*GRAPH_SCALE,0,Math.PI*2); ctx.stroke();
+    } else if (el.type === 'triangle') {
+        const p1=graphToCanvas(el.x1,el.y1), p2=graphToCanvas(el.x2,el.y2), p3=graphToCanvas(el.x3,el.y3);
+        ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.lineTo(p3.x,p3.y); ctx.closePath(); ctx.stroke();
+        [p1,p2,p3].forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();});
+    } else if (el.type === 'quadrilateral') {
+        const p1=graphToCanvas(el.x1,el.y1),p2=graphToCanvas(el.x2,el.y2),p3=graphToCanvas(el.x3,el.y3),p4=graphToCanvas(el.x4,el.y4);
+        ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.lineTo(p3.x,p3.y); ctx.lineTo(p4.x,p4.y); ctx.closePath(); ctx.stroke();
+        [p1,p2,p3,p4].forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();});
+    } else if (el.type === 'function') {
+        ctx.beginPath();
+        let started = false;
+        const xMin=canvasToGraph(0,0).x, xMax=canvasToGraph(graphCanvas.width,0).x;
+        const step=(xMax-xMin)/600;
+        for (let gx=xMin; gx<=xMax; gx+=step) {
+            try {
+                const gy=evalFunc(el.expr,gx);
+                if (!isFinite(gy)||isNaN(gy)){started=false;continue;}
+                const cp=graphToCanvas(gx,gy);
+                if (cp.y<-50||cp.y>graphCanvas.height+50){started=false;continue;}
+                if (!started){ctx.moveTo(cp.x,cp.y);started=true;}
+                else ctx.lineTo(cp.x,cp.y);
+            } catch(e){started=false;}
+        }
+        ctx.stroke();
+    }
+    ctx.restore();
+}
+
+// For backward compatibility alias
+function drawElement(ctx, el) { drawElementOnCtx(ctx, el); }
+
+function evalFunc(expr, x) {
+    const e = expr.replace(/\^/g,'**')
+        .replace(/sin/g,'Math.sin').replace(/cos/g,'Math.cos').replace(/tan/g,'Math.tan')
+        .replace(/sqrt/g,'Math.sqrt').replace(/abs/g,'Math.abs').replace(/log/g,'Math.log')
+        .replace(/pi/g,'Math.PI').replace(/e(?![x])/g,'Math.E');
+    return (new Function('x', '"use strict"; return (' + e + ')'))(x);
+}
+
+function clearGraph() {
+    graphState.elements = [];
+    renderGraph(); renderElementsList();
+}
+
+function renderElementsList() {
+    const list = document.getElementById('graphElementsList');
+    if (!list) return;
+    if (!graphState.elements.length) {
+        list.innerHTML = '<span style="color:#666; font-size:12px;">لا توجد عناصر بعد</span>';
+        return;
+    }
+    list.innerHTML = graphState.elements.map((el, i) => {
+        const label = el.type==='function' ? `f(x) = ${el.expr}` :
+                      el.type==='point' ? `نقطة (${el.x}, ${el.y})` :
+                      el.type==='circle' ? `دائرة مركز (${el.cx},${el.cy}) r=${el.r}` :
+                      el.type==='line' ? `مستقيم` :
+                      el.type==='segment' ? `قطعة (${el.x1},${el.y1})→(${el.x2},${el.y2})` :
+                      el.type==='triangle' ? `مثلث` :
+                      el.type==='quadrilateral' ? `شكل رباعي` :
+                      el.type==='arrow' ? `متجه` : el.type;
+        return `<div class="graph-el-item">
+            <span class="graph-el-color" style="background:${el.color||'#00d4ff'}"></span>
+            <span class="graph-el-label">${label}</span>
+            <button class="graph-el-del" onclick="deleteGraphElement(${i})">✕</button>
+        </div>`;
+    }).join('');
+}
+
+function deleteGraphElement(index) {
+    graphState.elements.splice(index, 1);
+    renderGraph(); renderElementsList();
+}
+
+function updateExactInputs() {
+    const typeEl = document.getElementById('exactElementType');
+    const container = document.getElementById('exactInputsContainer');
+    if (!typeEl || !container) return;
+    const type = typeEl.value;
+    let html = '';
+    const makeCoord = (lbl, idPre) => `
+        <div style="display:flex; gap:2px; align-items:center; background:#16213e; padding:4px 6px; border-radius:6px; border:1px solid #1368ce;" dir="ltr">
+            <span style="color:#aaa;font-size:11px; font-family:monospace;">${lbl}</span>
+            <input type="text" id="${idPre}x" class="graph-func-input" placeholder="X" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
+            <input type="text" id="${idPre}y" class="graph-func-input" placeholder="Y" style="min-width:45px; max-width:55px; padding:4px; font-size:12px; margin:0;" dir="ltr">
+        </div>`;
+    if (type==='point') {
+        html = makeCoord('P','p1_') + `<input type="text" id="p1_name" class="graph-func-input" placeholder="تسمية (اختياري)" style="min-width:100px; padding:4px; font-size:12px; margin:0;" dir="rtl">`;
+    } else if (type==='segment') {
+        html = makeCoord('P1','p1_') + makeCoord('P2','p2_');
+    } else if (type==='triangle') {
+        html = makeCoord('P1','p1_') + makeCoord('P2','p2_') + makeCoord('P3','p3_');
+    } else if (type==='quadrilateral') {
+        html = makeCoord('P1','p1_') + makeCoord('P2','p2_') + makeCoord('P3','p3_') + makeCoord('P4','p4_');
+    } else if (type==='circle') {
+        html = makeCoord('المركز','p1_') + `<div style="display:flex; gap:2px; align-items:center; background:#16213e; padding:4px 6px; border-radius:6px; border:1px solid #1368ce;"><span style="color:#aaa;font-size:11px;">نق(r)</span><input type="text" id="circ_r" class="graph-func-input" placeholder="R" style="min-width:50px; max-width:60px; padding:4px; font-size:12px; margin:0;" dir="ltr"></div>`;
+    } else if (type==='function') {
+        html = `<input type="text" class="graph-func-input" id="func_expr" placeholder="مثال: x^2 أو sin(x)" style="min-width: 160px; margin:0;" dir="ltr">`;
+    }
+    container.innerHTML = html;
+}
+
+function addExactElement() {
+    const typeEl = document.getElementById('exactElementType');
+    if (!typeEl) return;
+    const type = typeEl.value;
+    const color = document.getElementById('exactColor').value;
+    const width = getGraphWidth();
+    const getV = (id) => parseFloat(document.getElementById(id)?.value);
+    const checkNaN = (...vals) => vals.some(v => isNaN(v));
+    let el = null;
+    if (type==='point') {
+        const x=getV('p1_x'), y=getV('p1_y');
+        const name=document.getElementById('p1_name')?.value.trim()||'';
+        if (checkNaN(x,y)) return alert('الرجاء إدخال الإحداثيات.');
+        el={type:'point', x, y, color, size:width+3, name};
+    } else if (type==='segment') {
+        const x1=getV('p1_x'),y1=getV('p1_y'),x2=getV('p2_x'),y2=getV('p2_y');
+        if (checkNaN(x1,y1,x2,y2)) return alert('الرجاء إدخال إحداثيات النقطتين.');
+        el={type:'segment', x1,y1,x2,y2,color,width};
+    } else if (type==='triangle') {
+        const x1=getV('p1_x'),y1=getV('p1_y'),x2=getV('p2_x'),y2=getV('p2_y'),x3=getV('p3_x'),y3=getV('p3_y');
+        if (checkNaN(x1,y1,x2,y2,x3,y3)) return alert('الرجاء إدخال إحداثيات النقاط الثلاث.');
+        el={type:'triangle', x1,y1,x2,y2,x3,y3,color,width};
+    } else if (type==='quadrilateral') {
+        const x1=getV('p1_x'),y1=getV('p1_y'),x2=getV('p2_x'),y2=getV('p2_y'),x3=getV('p3_x'),y3=getV('p3_y'),x4=getV('p4_x'),y4=getV('p4_y');
+        if (checkNaN(x1,y1,x2,y2,x3,y3,x4,y4)) return alert('الرجاء إدخال إحداثيات النقاط الأربع.');
+        el={type:'quadrilateral', x1,y1,x2,y2,x3,y3,x4,y4,color,width};
+    } else if (type==='circle') {
+        const cx=getV('p1_x'),cy=getV('p1_y'),r=getV('circ_r');
+        if (checkNaN(cx,cy,r)||r<=0) return alert('الرجاء إدخال إحداثيات المركز ونصف قطر صحيح.');
+        el={type:'circle', cx,cy,r,color,width};
+    } else if (type==='function') {
+        const expr=document.getElementById('func_expr')?.value.trim();
+        if (!expr) return alert('الرجاء إدخال الاقتران.');
+        try { evalFunc(expr,1); } catch(e) { return alert('دالة غير صحيحة!\nمثال: x^2 أو 2*x+1 أو sin(x)'); }
+        el={type:'function', expr, color, label:`f(x) = ${expr}`};
+    }
+    if (el) {
+        graphState.elements.push(el);
+        renderGraph(); renderElementsList();
+        document.querySelectorAll('#exactInputsContainer input[type="text"], #exactInputsContainer input[type="number"]').forEach(inp => { if(inp.id!=='p1_name') inp.value=''; });
+    }
+}
 </script>
 
 <!-- ===================== -->
@@ -1834,8 +2463,7 @@ class GeoTool {
         return { x: lx*Math.cos(rad) - ly*Math.sin(rad) + this.x, y: lx*Math.sin(rad) + ly*Math.cos(rad) + this.y };
     }
 
-    checkMagnet() { return null; }       // يُعاد تعريفه في الأبناء
-    checkMagnetStrict() { return null; } // يُعاد تعريفه في الأبناء
+    checkMagnet() { return null; } // يُعاد تعريفه في الأبناء
 
     mount() {
         this.container.style.pointerEvents = 'none'; // الحاوية شفافة للنقرات
@@ -1928,24 +2556,11 @@ class GeoRuler extends GeoTool {
         return div;
     }
     checkMagnet(lx, ly) {
-        // الحافة العلوية للمسطرة = -height/2 في الإحداثيات المحلية
         const edgeY = -this.height / 2;
-        // نطاق المغناطيس: 50px فوق وتحت حافة المسطرة
         if (Math.abs(ly - edgeY) < 50 && lx >= -this.width/2 - 10 && lx <= this.width/2 + 10) {
             return {
                 x: Math.max(-this.width/2 + 4, Math.min(this.width/2 - 4, lx)),
-                y: edgeY
-            };
-        }
-        return null;
-    }
-    // بعد تفعيل المغناطيس: التقيّد بالحافة طالما القلم ضمن طول المسطرة
-    checkMagnetStrict(lx, ly) {
-        const edgeY = -this.height / 2;
-        if (lx >= -this.width/2 - 20 && lx <= this.width/2 + 20) {
-            return {
-                x: Math.max(-this.width/2 + 4, Math.min(this.width/2 - 4, lx)),
-                y: edgeY
+                y: edgeY - 4
             };
         }
         return null;
@@ -2002,16 +2617,13 @@ class GeoProtractor extends GeoTool {
         return div;
     }
     checkMagnet(lx, ly) {
-        // الحافة السفلية للمنقلة (الخط المستقيم) = height/2 في الإحداثيات المحلية
         const edgeY = this.height / 2;
-        if (Math.abs(ly - edgeY) < 50 && lx >= -this.width/2 + 8 && lx <= this.width/2 - 8)
-            return { x: Math.max(-this.width/2 + 8, Math.min(this.width/2 - 8, lx)), y: edgeY };
-        return null;
-    }
-    checkMagnetStrict(lx, ly) {
-        const edgeY = this.height / 2;
-        if (lx >= -this.width/2 + 8 && lx <= this.width/2 - 8)
-            return { x: Math.max(-this.width/2 + 8, Math.min(this.width/2 - 8, lx)), y: edgeY };
+        if (Math.abs(ly - edgeY) < 50 && lx >= -this.width/2 + 8 && lx <= this.width/2 - 8) {
+            return {
+                x: Math.max(-this.width/2 + 8, Math.min(this.width/2 - 8, lx)),
+                y: edgeY + 4
+            };
+        }
         return null;
     }
 }
@@ -2085,14 +2697,33 @@ class GeoCompass {
     _bindEvents() {
         let moving=false, resizing=false, drawing=false;
         let sx,sy,ix,iy,lastAng;
-
         const getPos = e => {
             const rect = this.container.getBoundingClientRect();
             return { x: e.clientX-rect.left, y: e.clientY-rect.top };
         };
+        const toCanvas = (ox, oy) => {
+            if (!this.canvasEl) return { x: ox, y: oy };
+            const rect = this.canvasEl.getBoundingClientRect();
+            const scaleX = this.canvasEl.width  / rect.width;
+            const scaleY = this.canvasEl.height / rect.height;
+            const contRect = this.container.getBoundingClientRect();
+            return {
+                x: (ox + contRect.left - rect.left) * scaleX,
+                y: (oy + contRect.top  - rect.top)  * scaleY
+            };
+        };
         const getCtx = () => {
             if (!this.canvasEl) return null;
             return this.canvasEl.getContext('2d');
+        };
+
+        // دالة مساعدة لتحديد اللون والسُمك حسب الشاشة (طالب/معلم)
+        const getToolStyle = () => {
+            const isTeacher = this.canvasEl.id === 'shapeCanvas';
+            return {
+                color: isTeacher ? document.getElementById('shape-color-picker').value : (typeof currentColor !== 'undefined' ? currentColor : '#222'),
+                size: isTeacher ? shapeSize : (typeof currentSize !== 'undefined' ? currentSize : 3)
+            };
         };
 
         this.el.addEventListener('pointerdown', e => {
@@ -2107,7 +2738,21 @@ class GeoCompass {
                 drawing=true;
                 this.el.setPointerCapture(e.pointerId);
                 lastAng = Math.atan2(pos.y-this.y, pos.x-this.x);
-                const c = getCtx(); if(c){ c.beginPath(); c.arc(this.x,this.y,this.radius,lastAng,lastAng,false); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
+
+                const cCenter = toCanvas(this.x, this.y);
+                const cEdge   = toCanvas(this.x + this.radius, this.y);
+                const cRadius = Math.abs(cEdge.x - cCenter.x);
+                const c = getCtx();
+                const style = getToolStyle();
+
+                if(c){
+                    c.beginPath();
+                    c.arc(cCenter.x, cCenter.y, cRadius, lastAng, lastAng, false);
+                    c.strokeStyle = style.color;
+                    c.lineWidth = style.size;
+                    c.lineCap = 'round';
+                    c.stroke();
+                }
                 e.stopPropagation();
             }
         });
@@ -2122,8 +2767,21 @@ class GeoCompass {
                 let diff = ca-lastAng;
                 while(diff>Math.PI) diff-=2*Math.PI;
                 while(diff<-Math.PI) diff+=2*Math.PI;
+
+                const cCenter = toCanvas(this.x, this.y);
+                const cEdge   = toCanvas(this.x + this.radius, this.y);
+                const cRadius = Math.abs(cEdge.x - cCenter.x);
                 const c = getCtx();
-                if(c){ c.beginPath(); c.arc(this.x,this.y,this.radius,lastAng,lastAng+diff,diff<0); c.strokeStyle=currentColor||'#222'; c.lineWidth=currentStrokeWidth||3; c.lineCap='round'; c.stroke(); }
+                const style = getToolStyle();
+
+                if(c){
+                    c.beginPath();
+                    c.arc(cCenter.x, cCenter.y, cRadius, lastAng, lastAng+diff, diff<0);
+                    c.strokeStyle = style.color;
+                    c.lineWidth = style.size;
+                    c.lineCap = 'round';
+                    c.stroke();
+                }
                 lastAng += diff;
             }
         });
@@ -2184,16 +2842,19 @@ class GeoEraser extends GeoTool {
             };
         };
 
-        const doErase = (clientX, clientY) => {
+        const doErase = () => {
             const ctx = this.canvasEl.getContext('2d');
             if (!ctx) return;
-            // نحسب مركز الممحاة في إحداثيات الشاشة
-            const rect = this.canvasEl.getBoundingClientRect();
-            const scaleX = this.canvasEl.width  / rect.width;
-            const scaleY = this.canvasEl.height / rect.height;
-            // مركز الممحاة في إحداثيات الكانفاس
-            const cxC = (this.x - rect.left + window.scrollX) * scaleX;
-            const cyC = (this.y - rect.top  + window.scrollY) * scaleY;
+            // تحويل مركز الممحاة من إحداثيات الـ overlay إلى إحداثيات الكانفاس الداخلية
+            const canvasRect = this.canvasEl.getBoundingClientRect();
+            const contRect   = this.container.getBoundingClientRect();
+            const scaleX = this.canvasEl.width  / canvasRect.width;
+            const scaleY = this.canvasEl.height / canvasRect.height;
+            // this.x/y هي إحداثيات داخل الـ overlay → نحوّلها إلى الشاشة ثم إلى الكانفاس
+            const screenX = this.x + contRect.left;
+            const screenY = this.y + contRect.top;
+            const cxC = (screenX - canvasRect.left) * scaleX;
+            const cyC = (screenY - canvasRect.top)  * scaleY;
             const wC  = this.eraserW * scaleX;
             const hC  = this.eraserH * scaleY;
             const rad = this.angle * Math.PI / 180;
@@ -2211,11 +2872,16 @@ class GeoEraser extends GeoTool {
             if (e.target.closest('.gt-rotate') || e.target.closest('.gt-delete')) return;
             erasing = true;
             drag.setPointerCapture(e.pointerId);
+            doErase(); // محو فوري عند الضغط
             e.stopPropagation();
         });
         drag.addEventListener('pointermove', e => {
             if (!erasing) return;
-            doErase(e.clientX, e.clientY);
+            // تحديث موضع الممحاة ثم المسح
+            this.x += e.movementX;
+            this.y += e.movementY;
+            this.applyTransform();
+            doErase();
             e.stopPropagation();
         });
         drag.addEventListener('pointerup', e => {
