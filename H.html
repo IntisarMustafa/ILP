@@ -1078,10 +1078,12 @@ function copyGameLink() {
 
     let lastTime = performance.now();
     function update(dt) {
-        if(dt > 0.033) dt = 0.033; // تحسين الأداء: تحديد الـ dt بـ 30fps max بدلاً من 20fps
-        particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= dt; p.size *= 0.95; }); particles = particles.filter(p => p.life > 0);
+        // تثبيت dt بين حد أدنى وأقصى لضمان نفس السرعة على جميع الأجهزة (60fps/120fps/144fps)
+        if(dt > 0.033) dt = 0.033;
+        if(dt < 0.001) dt = 0.001;
+        particles.forEach(p => { p.x += p.vx * dt * 60; p.y += p.vy * dt * 60; p.life -= dt; p.size *= Math.pow(0.95, dt * 60); }); particles = particles.filter(p => p.life > 0);
         switchRings.forEach(r => { r.r += dt * 500; r.life -= dt * 3; r.thickness = Math.max(0, r.life * 15); }); switchRings = switchRings.filter(r => r.life > 0);
-        playerTrail.forEach(t => { t.life -= dt * 4; t.size *= 0.9; }); playerTrail = playerTrail.filter(t => t.life > 0);
+        playerTrail.forEach(t => { t.life -= dt * 4; t.size *= Math.pow(0.9, dt * 60); }); playerTrail = playerTrail.filter(t => t.life > 0);
         floatingTexts.forEach(ft => { ft.y += ft.vy * dt; ft.life -= dt; }); floatingTexts = floatingTexts.filter(ft => ft.life > 0);
         if (screenShake > 0) screenShake -= dt * 40;
         level.clouds.forEach(c => { c.x += c.s * dt * 40; if(c.x > level.width + 500) c.x = -500; });
