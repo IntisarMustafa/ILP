@@ -445,9 +445,16 @@
             color: white;
         }
         
-        .question-overlay .answer-options mjx-container {
+        /* لون المعادلات داخل أزرار الاختيار العادية فقط (ليس أزرار التوصيل) */
+        .question-overlay .answer-options .answer-btn mjx-container {
             font-size: clamp(0.9rem, 3vw, 1.1rem);
             color: #0f2027;
+        }
+        /* أزرار التوصيل: المعادلات تبقى بيضاء دائماً */
+        #e-match-left mjx-container,
+        #e-match-right mjx-container,
+        #e-matching-wrapper mjx-container {
+            color: #fff !important;
         }
 
         .question-overlay .answer-options {
@@ -1385,8 +1392,8 @@
                 for (let lid in currentMatchingState.matches) {
                     const rid = currentMatchingState.matches[lid]; const col = matchingColors[i % matchingColors.length];
                     const lEl = document.getElementById(`e-left-${lid}`); const rEl = document.getElementById(`e-right-${rid}`);
-                    if (lEl) { lEl.style.backgroundColor=col; lEl.style.borderColor=col; }
-                    if (rEl) { rEl.style.backgroundColor=col; rEl.style.borderColor=col; }
+                    if (lEl) { lEl.style.backgroundColor=col; lEl.style.borderColor=col; lEl.style.color='#fff'; }
+                    if (rEl) { rEl.style.backgroundColor=col; rEl.style.borderColor=col; rEl.style.color='#fff'; }
                     i++;
                 }
                 if (currentMatchingState.selectedLeft !== null) {
