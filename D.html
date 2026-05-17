@@ -1742,15 +1742,20 @@
         const CHEST_EVERY_N_PIPES = 3; // يظهر صندوق كل 3 أعمدة
         let lastChestSpawned = false; // للتأكد من عدم تكرار الصندوق الأخير
 
+        // *** إصلاح التوقيت: القيم محوّلة لتعمل بـ pixels/ثانية بدلاً من pixels/فريم ***
+        // pipeSpeed: pixels/فريم * 60 = pixels/ثانية
+        // gravity: pixels/فريم² * 60² = pixels/ثانية²
+        // jumpPower: pixels/فريم * 60 = pixels/ثانية
         const difficultySettings = [
-            { level: "سهلة", pipeSpeed: 2.5, pipeGap: 280, pipeInterval: 1800, gravity: 0.22, jumpPower: -5.5 },
-            { level: "متوسطة", pipeSpeed: 3.0, pipeGap: 270, pipeInterval: 1600, gravity: 0.27, jumpPower: -6.0 },
-            { level: "صعبة", pipeSpeed: 3.5, pipeGap: 220, pipeInterval: 1400, gravity: 0.32, jumpPower: -6.5 },
-            { level: "متقدمة", pipeSpeed: 4.0, pipeGap: 200, pipeInterval: 1200, gravity: 0.37, jumpPower: -7.0 },
-            { level: "خبير", pipeSpeed: 4.5, pipeGap: 180, pipeInterval: 1000, gravity: 0.42, jumpPower: -7.5 }
+            { level: "سهلة",    pipeSpeed: 150,  pipeGap: 280, pipeInterval: 1800, gravity: 800,  jumpPower: -330 },
+            { level: "متوسطة",  pipeSpeed: 180,  pipeGap: 270, pipeInterval: 1600, gravity: 970,  jumpPower: -360 },
+            { level: "صعبة",    pipeSpeed: 210,  pipeGap: 220, pipeInterval: 1400, gravity: 1150, jumpPower: -390 },
+            { level: "متقدمة",  pipeSpeed: 240,  pipeGap: 200, pipeInterval: 1200, gravity: 1330, jumpPower: -420 },
+            { level: "خبير",    pipeSpeed: 270,  pipeGap: 180, pipeInterval: 1000, gravity: 1510, jumpPower: -450 }
         ];
 
         let pipeSpeed, gravity, jumpPower;
+        let lastFrameTime = 0; // لحساب delta time
 
         function initFlappyGame() {
             startScreen.style.display = 'flex';
@@ -1840,6 +1845,7 @@
             createPipe();
             
             gameLoop();
+            lastFrameTime = 0; // إعادة ضبط لضمان dt صحيح من أول فريم
         }
 
         function pauseGameForQuestion() {
@@ -1875,7 +1881,8 @@
             birdWing.style.animation = 'finWave 0.8s ease-in-out infinite'; 
 
             createPipe();
-            animationFrameId = requestAnimationFrame(gameLoop); 
+            animationFrameId = requestAnimationFrame(gameLoop);
+            lastFrameTime = 0; // إعادة ضبط لضمان dt صحيح بعد الإيقاف
         }
 
         function updateDifficulty() {
@@ -1962,14 +1969,14 @@
             }
         }
 
-        function movePipes() {
+        function movePipes(dt) {
             if (!gameRunning || gamePaused) return;
             const birdXPosition = bird.offsetLeft + bird.offsetWidth / 2;
 
             for (let i = pipes.length - 1; i >= 0; i--) {
                 const pipe = pipes[i];
                 let pipePosition = parseFloat(pipe.top.style.right || `-${pipeWidth}`);
-                pipePosition += pipeSpeed;
+                pipePosition += pipeSpeed * dt;
                 pipe.top.style.right = pipePosition + 'px'; pipe.bottom.style.right = pipePosition + 'px';
 
                 if (pipePosition > gameContainer.offsetWidth) {
@@ -2048,7 +2055,7 @@
             stars.push({ el, collected: false, y: yPos });
         }
 
-        function moveStars() {
+        function moveStars(dt) {
             if (!gameRunning || gamePaused) return;
             const birdRect = bird.getBoundingClientRect();
             const containerRect = gameContainer.getBoundingClientRect();
@@ -2062,7 +2069,7 @@
                 if (star.collected) continue;
 
                 let right = parseFloat(star.el.style.right || '-40');
-                right += pipeSpeed;
+                right += pipeSpeed * dt;
                 star.el.style.right = right + 'px';
 
                 // إزالة النجوم التي تخرج من الشاشة
@@ -2122,7 +2129,7 @@
             chests.push({ el, collected: false, y: randomY });
         }
 
-        function moveChests() {
+        function moveChests(dt) {
             if (!gameRunning || gamePaused) return;
             const birdRect = bird.getBoundingClientRect();
             const containerRect = gameContainer.getBoundingClientRect();
@@ -2136,7 +2143,7 @@
                 if (chest.collected) continue;
 
                 let right = parseFloat(chest.el.style.right || '-100');
-                right += pipeSpeed;
+                right += pipeSpeed * dt;
                 chest.el.style.right = right + 'px';
 
                 if (right > gameContainer.offsetWidth + 100) {
@@ -2168,22 +2175,29 @@
             }
         }
 
-        function gameLoop() {
+        function gameLoop(timestamp) {
             if (!gameRunning || gamePaused) { cancelAnimationFrame(animationFrameId); return; }
 
-            birdVelocity += gravity; birdPosition += birdVelocity;
-            let rotation = Math.max(-25, Math.min(birdVelocity * 2, 90));
+            // حساب delta time بالثواني، مع تحديد سقف 0.05 ثانية لتجنب القفزات الكبيرة
+            if (!lastFrameTime) lastFrameTime = timestamp;
+            let dt = (timestamp - lastFrameTime) / 1000;
+            if (dt > 0.05) dt = 0.05;
+            lastFrameTime = timestamp;
+
+            birdVelocity += gravity * dt;
+            birdPosition += birdVelocity * dt;
+            let rotation = Math.max(-25, Math.min(birdVelocity * 0.033 * 2, 90));
             bird.style.transform = `rotate(${rotation}deg)`;
 
-            if (birdVelocity > 4 && wingFlapActive) { birdWing.style.animation = 'none'; wingFlapActive = false; }
-            else if (birdVelocity <= 4 && !wingFlapActive) { birdWing.style.animation = 'finWave 0.8s ease-in-out infinite'; wingFlapActive = true; }
+            if (birdVelocity > (4 / 0.033) && wingFlapActive) { birdWing.style.animation = 'none'; wingFlapActive = false; }
+            else if (birdVelocity <= (4 / 0.033) && !wingFlapActive) { birdWing.style.animation = 'finWave 0.8s ease-in-out infinite'; wingFlapActive = true; }
 
             if (birdPosition <= 0) { birdPosition = 0; birdVelocity = 0; }
             bird.style.top = birdPosition + 'px';
 
-            movePipes();
-            moveStars();
-            moveChests(); // تحريك الصناديق
+            movePipes(dt);
+            moveStars(dt);
+            moveChests(dt);
 
             // توليد النجوم دورياً
             starSpawnCounter++;
@@ -2191,8 +2205,6 @@
                 createStar();
                 starSpawnCounter = 0;
             }
-
-            // تظهر الصناديق الآن تلقائياً مع كل زوج من الأعمدة في دالة createPipe
 
             // ------- توليد الأعمدة حسب المسافة -------
             if (pipes.length === 0) {
