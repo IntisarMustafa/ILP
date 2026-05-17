@@ -359,7 +359,9 @@ async function studentLogin() {
         }
         
         if (foundQuestions && foundQuestions.length > 0) { 
-            gameQuestions = foundQuestions; 
+            // استبعاد عنصر config وقبول جميع أنواع الأسئلة بما فيها textslide
+            gameQuestions = foundQuestions.filter(q => q.type !== 'config');
+            if (gameQuestions.length === 0) throw new Error("No questions");
         } else { 
             throw new Error("No questions"); 
         }
@@ -488,7 +490,7 @@ async function studentLogin() {
                 obstacles.forEach(o => o.element.remove()); obstacles = [];
                 flyingPlatforms.forEach(p => p.element.remove()); flyingPlatforms = [];
                 coins.forEach(c => c.element.remove()); coins = [];
-                obstacleSpeed = 4.0; currentSpeedMultiplier = 1.0; lastTime = 0;
+                obstacleSpeed = 4.0; currentSpeedMultiplier = 1.0; lastTime = 0; questionIndex = 0;
                 document.getElementById('start-screen').style.display = 'none'; 
                 document.getElementById('end-screen').style.display = 'none'; 
                 document.getElementById('question-modal').style.display = 'none';
@@ -622,9 +624,21 @@ async function studentLogin() {
                 collidedObstacleRef = obsData; showQuestion(); return true;
             }
 
+            // متغير لتتبع ترتيب الأسئلة
+            let questionIndex = 0;
+
             function showQuestion() {
                 gamePaused = true;
-                currentQData = gameQuestions[Math.floor(Math.random() * gameQuestions.length)];
+
+                // --- جميع الأسئلة بالترتيب ---
+                if (gameQuestions.length === 0) {
+                    gamePaused = false;
+                    requestAnimationFrame(updateGame);
+                    return;
+                }
+                currentQData = gameQuestions[questionIndex % gameQuestions.length];
+                questionIndex++;
+
                 const questionModal = document.getElementById('question-modal');
                 const questionTextElement = document.getElementById('question-text');
                 const optionsContainer = document.getElementById('options-container');
@@ -633,13 +647,19 @@ async function studentLogin() {
                 feedbackMessageElement.textContent = ''; feedbackMessageElement.className = '';
                 optionsContainer.innerHTML = ''; currentSelectedOptionIndex = -1;
                 
+                const type = currentQData.type || 'mc';
+
                 let imgHtml = '';
                 if (currentQData.img) {
                     imgHtml = `<img src="${currentQData.img}" class="q-image-display" style="display:block; margin: 0 auto 15px auto;">`;
                 }
-                questionTextElement.innerHTML = imgHtml + (currentQData.q || currentQData.question || 'سؤال');
+                // textslide: العنوان من textTitle أو نص ثانوي، وليس q
+                if (type === 'textslide') {
+                    questionTextElement.innerHTML = imgHtml + (currentQData.textTitle || currentQData.q || currentQData.question || '📖 نص تعليمي');
+                } else {
+                    questionTextElement.innerHTML = imgHtml + (currentQData.q || currentQData.question || 'سؤال');
+                }
                 
-                const type = currentQData.type || 'mc';
                 if (type === 'textslide') {
                     const bg = currentQData.textBg || '#ffffff';
                     optionsContainer.innerHTML = `<div class="text-slide-content" style="background-color: ${bg};">${currentQData.textContent || ''}</div>`;
