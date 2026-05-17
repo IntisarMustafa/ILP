@@ -2179,9 +2179,12 @@
             if (!gameRunning || gamePaused) { cancelAnimationFrame(animationFrameId); return; }
 
             // حساب delta time بالثواني، مع تحديد سقف 0.05 ثانية لتجنب القفزات الكبيرة
-            if (!lastFrameTime) lastFrameTime = timestamp;
-            let dt = (timestamp - lastFrameTime) / 1000;
-            if (dt > 0.05) dt = 0.05;
+            // أول فريم: dt = 0 لتجنب القفزة المفاجئة في بداية اللعبة
+            let dt = 0;
+            if (lastFrameTime) {
+                dt = (timestamp - lastFrameTime) / 1000;
+                if (dt > 0.05) dt = 0.05;
+            }
             lastFrameTime = timestamp;
 
             birdVelocity += gravity * dt;
