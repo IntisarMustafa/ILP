@@ -1026,27 +1026,96 @@
     if (!str.startsWith("[") && !str.startsWith("{")) return null;
     try { const p = JSON.parse(str); return Array.isArray(p) ? p : [p]; } catch(e) { return null; }
   }
-  const LETTERS = ["أ","ب","ج","د"];
+  const LETTERS = ["أ","ب","ج","د","هـ","و"];
+
+  function buildQuestionBody(q) {
+    const type = (q.type || "mc").toLowerCase();
+
+    // شريحة نصية
+    if (type === "textslide") {
+      return `<div style="background:${q.textBg||'#1084b5'};border-radius:8px;padding:12px 14px;color:#fff;font-family:'Cairo',sans-serif;font-size:14px;line-height:1.8;">${q.textContent||q.q||""}</div>`;
+    }
+
+    const imgHTML = q.img ? `<img src="${q.img}" style="max-width:100%;border-radius:7px;margin-bottom:8px;display:block;"/>` : "";
+
+    // اختيار من متعدد
+    if (type === "mc") {
+      const optsHTML = (q.opts||[]).map((opt,oi) =>
+        `<div class="opt-item${q.ans===oi?" correct":""}">
+          <span class="opt-letter">${LETTERS[oi]||(oi+1)}</span><span>${opt}</span>
+        </div>`).join("");
+      return `${imgHTML}<div class="q-text">${q.q||""}</div>${optsHTML?`<div class="opts-grid" style="margin-top:8px;">${optsHTML}</div>`:""}`;
+    }
+
+    // تعبئة فراغ
+    if (type === "blanks") {
+      const answers = (q.blanks||[]).join(" / ");
+      return `${imgHTML}<div class="q-text">${q.q||""}</div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:11px;font-weight:700;color:var(--muted);">الإجابة:</span>
+          <span style="background:var(--green-lt);border:1px solid #9ADBC3;color:#0E6644;border-radius:6px;padding:3px 12px;font-size:13px;font-family:'Cairo',sans-serif;">${answers}</span>
+        </div>`;
+    }
+
+    // مطابقة
+    if (type === "matching") {
+      const pairsHTML = (q.pairs||[]).map(p =>
+        `<div style="display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--border);border-radius:7px;padding:6px 10px;">
+          <span style="flex:1;font-size:13px;font-family:'Cairo',sans-serif;color:var(--text2);">${p.left}</span>
+          <span style="color:var(--muted);">←→</span>
+          <span style="flex:1;font-size:13px;font-family:'Cairo',sans-serif;color:var(--green);font-weight:700;">${p.right}</span>
+        </div>`).join("");
+      return `<div class="q-text">${q.q||""}</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">${pairsHTML}</div>`;
+    }
+
+    // سحب وإفلات
+    if (type === "dragdrop") {
+      const zones = q.zones || [];
+      const zoneMap = {};
+      zones.forEach((z,i) => { zoneMap[i] = []; });
+      (q.items||[]).forEach(item => {
+        const zi = item.zoneIndex;
+        if (zoneMap[zi] !== undefined) zoneMap[zi].push(item.text);
+      });
+      const zonesHTML = zones.map((z,i) =>
+        `<div style="flex:1;min-width:120px;">
+          <div style="font-size:11px;font-weight:700;color:var(--unrwa-blue);margin-bottom:5px;text-align:center;">${z}</div>
+          <div style="background:var(--unrwa-sky);border:1.5px dashed var(--border-dk);border-radius:8px;padding:8px;display:flex;flex-wrap:wrap;gap:5px;min-height:40px;">
+            ${(zoneMap[i]||[]).map(t=>`<span style="background:white;border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-size:13px;font-family:'Cairo',sans-serif;">${t}</span>`).join("")}
+          </div>
+        </div>`).join("");
+      return `<div class="q-text">${q.q||""}</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">${zonesHTML}</div>`;
+    }
+
+    // نص عادي أو نوع غير معروف
+    return `${imgHTML}<div class="q-text">${q.q||""}</div>`;
+  }
 
   function buildQuestionsHTML(raw, roomId) {
     const qs = parseQuestions(raw);
     if (!qs) return raw ? `<div class="room-questions"><div class="questions-label">📋 الأسئلة</div><div class="questions-text">${raw}</div></div>` : "";
     const listId = "qlist-" + roomId, btnId = "qbtn-" + roomId;
-    const cardsHTML = qs.map((q,i) => {
-      const optsHTML = (q.opts||[]).map((opt,oi) =>
-        `<div class="opt-item${q.ans===oi?" correct":""}">
-          <span class="opt-letter">${LETTERS[oi]||(oi+1)}</span><span>${opt}</span>
-        </div>`).join("");
-      return `<div class="q-card">
-        <div class="q-num">السؤال ${i+1}</div>
-        <div class="q-text">${q.q||""}</div>
-        ${optsHTML?`<div class="opts-grid">${optsHTML}</div>`:""}
-      </div>`;
+
+    const realQs = qs.filter(q => (q.type||"mc") !== "config");
+    const qCount = realQs.filter(q => (q.type||"mc") !== "textslide").length;
+
+    let qNum = 0;
+    const TYPE_LABELS = { mc:"اختيار متعدد", blanks:"تعبئة فراغ", matching:"مطابقة", dragdrop:"سحب وإفلات", textslide:"شريحة نصية" };
+    const cardsHTML = realQs.map(q => {
+      const type = (q.type || "mc").toLowerCase();
+      const isSlide = type === "textslide";
+      if (!isSlide) qNum++;
+      const typeBadge = `<span style="background:var(--unrwa-sky2);color:var(--unrwa-blue);border-radius:8px;padding:1px 8px;font-size:10px;font-weight:700;border:1px solid var(--border);margin-right:6px;">${TYPE_LABELS[type]||type}</span>`;
+      const numLabel = isSlide ? `<span style="color:var(--muted);font-size:10px;">📄 شريحة</span>` : `<div class="q-num" style="display:inline;">السؤال ${qNum}</div>`;
+      return `<div class="q-card"><div style="margin-bottom:6px;">${numLabel}${typeBadge}</div><div>${buildQuestionBody(q)}</div></div>`;
     }).join("");
+
     return `<div class="room-questions">
       <div class="questions-label">
         📋 الأسئلة
-        <span class="q-count">${qs.length} سؤال</span>
+        <span class="q-count">${qCount} سؤال</span>
         <button class="toggle-q-btn" id="${btnId}" onclick="toggleSection('${listId}','${btnId}')">عرض ◀</button>
       </div>
       <div class="questions-list" id="${listId}" style="display:none;">${cardsHTML}</div>
