@@ -1526,31 +1526,82 @@ function submitWorksheet() {
 
 
 function showResultBanner(score, max) {
-    const header = document.getElementById('quiz-title-display');
+    // إيقاف المؤقت
+    clearInterval(globalTimerInterval);
+
+    // حفظ النتيجة في المتغير العام
+    studentScore = score;
+
+    // إرسال النتيجة إلى Google Sheets
+    document.getElementById('form-score').value = score;
+    document.getElementById('scoreForm').submit();
+
+    // الانتقال لشاشة النتيجة النهائية
+    showScreen('screen-student-result');
+    document.getElementById('final-avatar').style.display = "none";
+    document.getElementById('final-player-name').innerText = document.getElementById('input-student-name').value;
+
+    // عرض النتيجة كنسبة مئوية
     const percentage = Math.round((score / max) * 100);
+    const finalScoreEl = document.getElementById('final-score-display');
+    finalScoreEl.innerText = percentage + '%';
+    finalScoreEl.style.color = percentage >= 50 ? 'var(--success)' : 'var(--k-red)';
 
-    header.innerHTML = `
-        <div class="result-banner" style="background:#fff; padding:30px; border-radius:15px; border:4px dashed var(--primary); color:#333;">
-            <h2 style="margin:0; color:var(--success);">تم تصحيح ورقة العمل ✅</h2>
+    // عرض العلامة التفصيلية
+    const statusEl = document.getElementById('final-status');
+    statusEl.innerText = `علامتك: ${score} من ${max} — جاري حفظ النتيجة... 🌟`;
+    statusEl.style.color = 'var(--info)';
 
-            <div style="font-size:60px; font-weight:900; margin:15px 0; color:${percentage >= 50 ? 'var(--success)' : 'var(--k-red)'};">
-                ${percentage}%
-            </div>
-
-            <p style="font-size:24px; font-weight:bold;">
-                علامتك: ${score} من ${max}
-            </p>
-        </div>
-    `;
-
-    const submitBtn = document.querySelector('button[onclick="submitWorksheet()"]');
-
-    if (submitBtn) {
-        submitBtn.style.display = 'none';
-    }
+    // تأثيرات صوتية وكونفيتي
+    playTone(400, 'sine', 0.1); setTimeout(()=>playTone(600, 'sine', 0.1), 150); setTimeout(()=>playTone(800, 'sine', 0.4), 300);
+    fireConfetti();
 }
 
 
+
+function fireConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const pieces = []; const colors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#46178f'];
+    for(let i=0; i<150; i++) {
+        pieces.push({
+            x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
+            w: Math.random() * 10 + 5, h: Math.random() * 10 + 5,
+            vx: Math.random() * 4 - 2, vy: Math.random() * 5 + 2,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rot: Math.random() * 360, rotSpeed: Math.random() * 10 - 5
+        });
+    }
+    let frame = 0;
+    function update() {
+        if (frame++ > 300) { ctx.clearRect(0,0, canvas.width, canvas.height); return; }
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+            p.x += p.vx; p.y += p.vy; p.rot += p.rotSpeed;
+            if(p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+            ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
+        });
+        requestAnimationFrame(update);
+    }
+    update();
+}
+
+function animateScore(from, to, elId) {
+    const el = document.getElementById(elId || 'final-score-display');
+    if (!el) return;
+    let current = from;
+    const diff = to - from;
+    if (diff === 0) { el.innerText = to; return; }
+    const step = Math.max(1, Math.floor(Math.abs(diff) / 20));
+    const timer = setInterval(() => {
+        current += step;
+        if (current >= to) { current = to; clearInterval(timer); }
+        el.innerText = current;
+    }, 30);
+}
 
 function toggleReview() {
             const container = document.getElementById('review-container');
